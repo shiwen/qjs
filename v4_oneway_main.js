@@ -61,17 +61,7 @@ var oneway_config = {
     StrikingCarrier: {
         "9C": 100
     },
-    NonStrikingCarrier: {
-        CA: 20,
-        CZ: 20,
-        HU: 20,
-        SC: 20,
-        JD: 20,
-        PN: 20,
-        MU: 20,
-        "3U": 20,
-        ZH: 20
-    },
+    NonStrikingCarrier: {},
     NoNeedStatementList: ["9C"],
     SpecialRecommend: {
         price: 200

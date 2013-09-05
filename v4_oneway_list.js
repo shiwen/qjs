@@ -3684,7 +3684,7 @@ var RoundTripFlightRecommend = function(a) {
     if (this._isEmptyObj(this.packagelist)) {
         return;
     }
-    this.ele = document.getElementById("divOTA");
+    this.ele = document.getElementById("js-mod-recommendRoundtrip");
     if (!this.ele) {
         return;
     }
@@ -3724,7 +3724,7 @@ RoundTripFlightRecommend.prototype = {
                     k = f + e,
                     h = parseInt(d.pr, 10);
                 if (h < k) {
-                    if (g > 8) {
+                    if (g > 2) {
                         break;
                     }
                     g++;
@@ -3742,7 +3742,7 @@ RoundTripFlightRecommend.prototype = {
             b = this.reData.length,
             a = [],
             f = [],
-            d = document.createElement("div");
+            d = this.ele;
         for (; c < b; c++) {
             a.push(e(this.reData[c]));
         }
@@ -3763,9 +3763,7 @@ RoundTripFlightRecommend.prototype = {
         f.push("        </div>");
         f.push("    </div>");
         f.push("</div>");
-        d.id = "reRoundFlightPackage";
         d.innerHTML = f.join("");
-        this.ele.parentNode.insertBefore(d, this.ele);
     },
     bindEvent: function() {
         if (this.reData.length < 1) {
