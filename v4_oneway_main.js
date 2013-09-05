@@ -5080,6 +5080,9 @@ OnewayFlightWrapperEntity.prototype._bookingBtnTrace = function() {
 OnewayFlightWrapperEntity.prototype.cabin = function() {
     return this.dataSource().cabin;
 };
+OnewayFlightWrapperEntity.prototype.tag = function() {
+    return this.dataSource().type;
+};
 OnewayFlightWrapperEntity.prototype.hasPackageprice = function() {
     return this.price();
 };
@@ -7399,7 +7402,8 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
                 cabin: a.cabin(),
                 policyId: a.pid(),
                 maxSellPrice: Math.max(a.afeePrice(), a.bprPrice()),
-                minSellPrice: Math.min(a.afeePrice() || Number.MAX_VALUE, a.bprPrice() || Number.MAX_VALUE)
+                minSellPrice: Math.min(a.afeePrice() || Number.MAX_VALUE, a.bprPrice() || Number.MAX_VALUE),
+                tag: a.tag()
             }, function(p) {
                 f.loadedTgq = true;
                 if (!p || (p && !p.tgqAdult)) {
