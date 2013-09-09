@@ -8,33 +8,33 @@ var TsinghuaOneWayTracker = (function() {
     if (c) {
         c = c[1];
     }
-    b.track = function(j, d, h, g, f) {
-        var l = "/site/trace.htm?" + j + "=" + d + "&c=" + c;
+    b.track = function(i, d, h, g, f) {
+        var k = "/site/trace.htm?" + i + "=" + d + "&c=" + c;
         if (h) {
-            l += "&t=" + h;
+            k += "&t=" + h;
         }
         if (g) {
-            l += "&p=" + g;
+            k += "&p=" + g;
         }
         if (f) {
-            l += f;
+            k += f;
         }
-        if (l.length >= 1500) {
+        if (k.length >= 1500) {
             return;
         }
         try {
-            new Image().src = l;
-        } catch (k) {}
+            new Image().src = k;
+        } catch (j) {}
     };
     b.traceFlist = function(d) {
         var e = [];
         $jex.foreach(d, function(h) {
             var g = h.dataSource(),
-                j, f;
+                i, f;
             if (g.type === "transfer") {
-                j = g.firstTrip();
+                i = g.firstTrip();
                 f = g.secondTrip();
-                e.push([g.firstTrip().code() + "/" + g.secondTrip().code(), g.lowestPrice(), g.lowestDiscount(), g.secondTrip().deptDate(), [j.stopover() ? 1 : 0, j.codeShare() ? 1 : 0, j.isNextDate() ? 1 : 0].join(","), [f.stopover() ? 1 : 0, f.codeShare() ? 1 : 0, f.isNextDate() ? 1 : 0].join(",")].join("|"));
+                e.push([g.firstTrip().code() + "/" + g.secondTrip().code(), g.lowestPrice(), g.lowestDiscount(), g.secondTrip().deptDate(), [i.stopover() ? 1 : 0, i.codeShare() ? 1 : 0, i.isNextDate() ? 1 : 0].join(","), [f.stopover() ? 1 : 0, f.codeShare() ? 1 : 0, f.isNextDate() ? 1 : 0].join(",")].join("|"));
             } else {
                 e.push([g.code(), g.lowestPrice(), g.lowestDiscount(), "", [g.stopover() ? 1 : 0, g.codeShare() ? 1 : 0, g.isNextDate() ? 1 : 0].join(","), ""].join("|"));
             }
@@ -94,84 +94,84 @@ var TsinghuaOneWayTracker = (function() {
         this.traceReAndRfList(d);
     };
     var a = {};
-    b.trackWrappers = function(k) {
-        var o = System.service.wrapperExpandStamp && System.service.wrapperExpandStamp >= System.service.traceTimeStamp ? System.service.wrapperExpandStamp : System.service.traceTimeStamp;
-        var h = k.code();
-        var s = k.codeShare(),
-            e = k.codeShareFlight();
-        if (s && e) {
-            if (h !== s) {
-                h += ">" + s;
+    b.trackWrappers = function(j) {
+        var n = System.service.wrapperExpandStamp && System.service.wrapperExpandStamp >= System.service.traceTimeStamp ? System.service.wrapperExpandStamp : System.service.traceTimeStamp;
+        var h = j.code();
+        var r = j.codeShare(),
+            e = j.codeShareFlight();
+        if (r && e) {
+            if (h !== r) {
+                h += ">" + r;
             }
         }
-        if (a[h + o]) {
+        if (a[h + n]) {
             return;
         } else {
-            a[h + o] = true;
+            a[h + n] = true;
         }
-        var r = k.wrappers();
-        var p = r._keysCache;
+        var q = j.wrappers();
+        var o = q._keysCache;
         var g = [];
-        var t = [];
-        var l = "";
-        var n = parseInt(k.lowestPrice(), 10);
-        var f = parseFloat(k.flightHistory()[1]);
-        var d = k.extInfo();
-        if (n && f) {
-            if (n > f * 1.05) {
-                l += "1";
+        var s = [];
+        var k = "";
+        var m = parseInt(j.lowestPrice(), 10);
+        var f = parseFloat(j.flightHistory()[1]);
+        var d = j.extInfo();
+        if (m && f) {
+            if (m > f * 1.05) {
+                k += "1";
             } else {
-                if (n <= f * 1.05 && n >= f * 0.95) {
-                    l += "0";
+                if (m <= f * 1.05 && m >= f * 0.95) {
+                    k += "0";
                 } else {
-                    if (n < f * 0.95) {
-                        l += "-1";
+                    if (m < f * 0.95) {
+                        k += "-1";
                     }
                 }
             }
         } else {
-            l += "*";
+            k += "*";
         } if (d && d.ml === "true") {
-            l += "1";
+            k += "1";
         } else {
-            l += "0";
+            k += "0";
         } if (d && d.zj && d.zj.info) {
-            l += "1";
+            k += "1";
         } else {
-            l += "0";
+            k += "0";
         }
-        $jex.foreach(p, function(w, u) {
-            var v = r.get(w);
-            var y = 0;
-            if (v.bigLogoUrl()) {
-                y = 1;
+        $jex.foreach(o, function(v, t) {
+            var u = q.get(v);
+            var x = 0;
+            if (u.bigLogoUrl()) {
+                x = 1;
             } else {
-                if (v.vendor().isSuperOTA()) {
-                    y = 2;
+                if (u.vendor().isSuperOTA()) {
+                    x = 2;
                 }
             }
-            g.push([v.wrapperId(), v.afeePrice() || 0, v.bprPrice() || 0, v.afee(), y, v.isApplyPrice() ? 1 : 0, k.type && k.type == "compose" ? "1" : "0"].join("|"));
-            var x = v.vendor().starRank();
-            var z = x && x.lv || 0;
-            var A = v.vendor();
-            t.push([v.wrapperId(), z ? [z.kd, z.ts, z.dw, z.db, z.ds].join(",") : 0, x ? x.count : 0, v.updateTime(), A.srv_CATA() ? 1 : 0, A.srv_ASSISTANT() ? 1 : 0, A.srv_ALLDAY() ? 1 : 0, v.getTGQInfo() ? 1 : 0, v.isFCabin() ? 1 : 0, A.isSuperOTA() ? 1 : 0].join("|"));
+            g.push([u.wrapperId(), u.afeePrice() || 0, u.bprPrice() || 0, u.afee(), x, u.isApplyPrice() ? 1 : 0, j.type && j.type == "compose" ? "1" : "0"].join("|"));
+            var w = u.vendor().starRank();
+            var y = w && w.lv || 0;
+            var z = u.vendor();
+            s.push([u.wrapperId(), y ? [y.kd, y.ts, y.dw, y.db, y.ds].join(",") : 0, w ? w.count : 0, u.updateTime(), z.srv_CATA() ? 1 : 0, z.srv_ASSISTANT() ? 1 : 0, z.srv_ALLDAY() ? 1 : 0, u.getTGQInfo() ? 1 : 0, u.isFCabin() ? 1 : 0, z.isSuperOTA() ? 1 : 0].join("|"));
         });
-        var q = "";
-        if (k.type == "onewayInTransfer") {
-            q = "&package=" + k.owner().firstTrip().code() + "/" + k.owner().secondTrip().code();
+        var p = "";
+        if (j.type == "onewayInTransfer") {
+            p = "&package=" + j.owner().firstTrip().code() + "/" + j.owner().secondTrip().code();
         } else {
-            q = "&package=" + k.code();
+            p = "&package=" + j.code();
         }
-        var m = 0;
-        if (k.priceInfo) {
-            m = k.priceInfo().wrlen;
+        var l = 0;
+        if (j.priceInfo) {
+            l = j.priceInfo().wrlen;
         }
-        var j = k.getWrapperListType && k.getWrapperListType() || "";
+        var i = j.getWrapperListType && j.getWrapperListType() || "";
         if (g.length > 0) {
-            this.track("wlist", g.join("^"), System.service.traceTimeStamp, null, "&num=" + m + "&code=" + h + "&detail=" + l + q + "&wt=" + o + "&wtype=" + j);
+            this.track("wlist", g.join("^"), System.service.traceTimeStamp, null, "&num=" + l + "&code=" + h + "&detail=" + k + p + "&wt=" + n + "&wtype=" + i);
         }
-        if (t.length > 0) {
-            this.track("wstatus", t.join("^"), System.service.traceTimeStamp, null, "&code=" + h + q + "&wt=" + o + "&wtype=" + j);
+        if (s.length > 0) {
+            this.track("wstatus", s.join("^"), System.service.traceTimeStamp, null, "&code=" + h + p + "&wt=" + n + "&wtype=" + i);
         }
     };
     b.trackLowPrChange = function(n, f) {
@@ -186,8 +186,8 @@ var TsinghuaOneWayTracker = (function() {
         var j = 0;
         var e = [];
         var m, s;
-        $jex.foreach(w, function(z, y) {
-            m = k.get(z);
+        $jex.foreach(w, function(y, i) {
+            m = k.get(y);
             e.push(m);
             s = m.afeePrice() || m.bprPrice();
             if (s == l) {
@@ -195,9 +195,9 @@ var TsinghuaOneWayTracker = (function() {
             }
         });
         var t, r;
-        var p = e.sort(function(z, y) {
-            t = z.afeePrice() || z.bprPrice();
-            r = y.afeePrice() || y.bprPrice();
+        var p = e.sort(function(y, i) {
+            t = y.afeePrice() || y.bprPrice();
+            r = i.afeePrice() || i.bprPrice();
             return t - r;
         });
         var v = p[0].afeePrice() || p[0].bprPrice();
@@ -227,15 +227,15 @@ var TsinghuaOneWayTracker = (function() {
         var f = [d.code(), e.dptZh, e.arrZh, d.deptDate(), e.tPrice];
         this.track("zfy", f.join("^"), new Date().valueOf(), null, "");
     };
-    b.trackTabChange = function(k, f) {
+    b.trackTabChange = function(j, f) {
         var h = f.vendorListUI().tabsCache || {};
         var g = h.show || [],
             e = h.price || [];
         var d = f.dataSource().code();
-        var j = ["&type=", k, "&tabs=", g.join("^"), "&lowps=", e.join("^"), "&fcode=", d, "&ct=", System.service.wrapperExpandStamp].join("");
-        this.track("tabclick", "", System.service.traceTimeStamp, null, j);
+        var i = ["&type=", j, "&tabs=", g.join("^"), "&lowps=", e.join("^"), "&fcode=", d, "&ct=", System.service.wrapperExpandStamp].join("");
+        this.track("tabclick", "", System.service.traceTimeStamp, null, i);
     };
-    b.bookingHoldTrack = function(g, e, k, f) {
+    b.bookingHoldTrack = function(g, e, j, f) {
         var d = g.ownerFlight();
         d = d._shareFlight || d;
         var h = 0;
@@ -244,8 +244,8 @@ var TsinghuaOneWayTracker = (function() {
         } else {
             h = new Date().getTime();
         }
-        var j = [d.code(), d.getWrapperListType(), g.wrapperId(), g.vendor().name(), e, k || 0, f || 0, h].join("|");
-        this.track("fIntercept", j, System.service.traceTimeStamp, null, "&wt=" + (System.service.wrapperExpandStamp || ""));
+        var i = [d.code(), d.getWrapperListType(), g.wrapperId(), g.vendor().name(), e, j || 0, f || 0, h].join("|");
+        this.track("fIntercept", i, System.service.traceTimeStamp, null, "&wt=" + (System.service.wrapperExpandStamp || ""));
     };
     b.noWrapperList = function(e) {
         var h = e.flightKeyCode();
@@ -289,12 +289,12 @@ var TsinghuaOneWayTracker = (function() {
             }
             return true;
         },
-        addListener: function(j, k, h, d) {
-            if (j.addEventListener) {
-                j.addEventListener(k, h, (d));
+        addListener: function(i, j, h, d) {
+            if (i.addEventListener) {
+                i.addEventListener(j, h, (d));
             } else {
-                if (j.attachEvent) {
-                    j.attachEvent("on" + k, h);
+                if (i.attachEvent) {
+                    i.attachEvent("on" + j, h);
                 }
             }
         }
@@ -315,28 +315,28 @@ var TsinghuaOneWayTracker = (function() {
                 }
                 return null;
             },
-            setCookie: function(h, d, o, s, m, n) {
-                var r = "",
-                    l, q, p, j = "";
+            setCookie: function(h, d, n, r, l, m) {
+                var q = "",
+                    j, p, o, i = "";
                 if (!h) {
                     return false;
                 }
-                for (l in d) {
-                    if (d.hasOwnProperty(l)) {
-                        r += "&" + encodeURIComponent(l) + "=" + encodeURIComponent(d[l]);
+                for (j in d) {
+                    if (d.hasOwnProperty(j)) {
+                        q += "&" + encodeURIComponent(j) + "=" + encodeURIComponent(d[j]);
                     }
                 }
-                r = r.replace(/^&/, "");
-                if (o) {
-                    j = new Date();
-                    j.setTime(j.getTime() + o * 1000);
-                    j = j.toGMTString();
+                q = q.replace(/^&/, "");
+                if (n) {
+                    i = new Date();
+                    i.setTime(i.getTime() + n * 1000);
+                    i = i.toGMTString();
                 }
-                q = h + "=" + r;
-                p = q + ((o) ? "; expires=" + j : "") + ((s) ? "; path=" + s : "") + ((typeof m !== "undefined") ? "; domain=" + (m !== null ? m : e.site_domain) : "") + ((n) ? "; secure" : "");
-                if (q.length < 4000) {
-                    g.cookie = p;
-                    return (r === this.getCookie(h));
+                p = h + "=" + q;
+                o = p + ((n) ? "; expires=" + i : "") + ((r) ? "; path=" + r : "") + ((typeof l !== "undefined") ? "; domain=" + (l !== null ? l : e.site_domain) : "") + ((m) ? "; secure" : "");
+                if (p.length < 4000) {
+                    g.cookie = o;
+                    return (q === this.getCookie(h));
                 }
                 return false;
             },
@@ -387,7 +387,7 @@ var TsinghuaOneWayTracker = (function() {
                 this.log = h.log;
             }
             if (!this.log) {
-                this.log = function(k, n, o) {};
+                this.log = function(i, k, n) {};
             }
             for (d in this.plugins) {
                 if (h[d] && typeof h[d].enabled !== "undefined" && h[d].enabled === false) {
@@ -449,16 +449,16 @@ var TsinghuaOneWayTracker = (function() {
             }
             return this;
         },
-        addVar: function(h, j) {
+        addVar: function(h, i) {
             if (typeof h === "string") {
-                e.vars[h] = j;
+                e.vars[h] = i;
             } else {
                 if (typeof h === "object") {
-                    var l = h,
+                    var j = h,
                         d;
-                    for (d in l) {
-                        if (l.hasOwnProperty(d)) {
-                            e.vars[d] = l[d];
+                    for (d in j) {
+                        if (j.hasOwnProperty(d)) {
+                            e.vars[d] = j[d];
                         }
                     }
                 }
@@ -483,13 +483,13 @@ var TsinghuaOneWayTracker = (function() {
             return this;
         },
         sendBeacon: function() {
-            var j, l, h, d = 0;
-            for (j in this.plugins) {
-                if (this.plugins.hasOwnProperty(j)) {
-                    if (e.disabled_plugins[j]) {
+            var i, j, h, d = 0;
+            for (i in this.plugins) {
+                if (this.plugins.hasOwnProperty(i)) {
+                    if (e.disabled_plugins[i]) {
                         continue;
                     }
-                    if (!this.plugins[j].is_complete()) {
+                    if (!this.plugins[i].is_complete()) {
                         return this;
                     }
                 }
@@ -498,23 +498,23 @@ var TsinghuaOneWayTracker = (function() {
             if (!e.beacon_url) {
                 return this;
             }
-            l = e.beacon_url + "?v=" + encodeURIComponent(BOOMR.version) + "&u=" + encodeURIComponent(g.URL.replace(/#.*/, ""));
-            for (j in e.vars) {
-                if (e.vars.hasOwnProperty(j)) {
+            j = e.beacon_url + "?v=" + encodeURIComponent(BOOMR.version) + "&u=" + encodeURIComponent(g.URL.replace(/#.*/, ""));
+            for (i in e.vars) {
+                if (e.vars.hasOwnProperty(i)) {
                     d++;
-                    l += "&" + encodeURIComponent(j) + "=" + encodeURIComponent(e.vars[j]);
+                    j += "&" + encodeURIComponent(i) + "=" + encodeURIComponent(e.vars[i]);
                 }
             }
             if (d) {
                 h = new Image();
-                h.src = l;
+                h.src = j;
             }
             return this;
         }
     };
     var f = function(d) {
-        return function(h, j) {
-            this.log(h, d, "boomerang" + (j ? "." + j : ""));
+        return function(h, i) {
+            this.log(h, d, "boomerang" + (i ? "." + i : ""));
             return this;
         };
     };
@@ -529,8 +529,8 @@ var TsinghuaOneWayTracker = (function() {
             c.log = a.Y.log;
         } else {
             if (typeof console !== "undefined" && typeof console.log !== "undefined") {
-                c.log = function(d, h, j) {
-                    console.log(j + ": [" + h + "] ", d);
+                c.log = function(d, h, i) {
+                    console.log(i + ": [" + h + "] ", d);
                 };
             }
         }
@@ -646,12 +646,12 @@ var TsinghuaOneWayTracker = (function() {
             return this;
         },
         done: function() {
-            var k, d, h, e, j = {
+            var j, d, h, e, i = {
                     t_done: 1,
                     t_resp: 1,
                     t_page: 1
                 }, g = 0,
-                l, f, m = [];
+                k, f, l = [];
             if (b.complete) {
                 return this;
             }
@@ -687,34 +687,34 @@ var TsinghuaOneWayTracker = (function() {
                 if (e !== null && typeof e.s !== "undefined" && typeof e.r !== "undefined") {
                     d = e.r;
                     if (!b.strict_referrer || d === h) {
-                        k = parseInt(e.s, 10);
+                        j = parseInt(e.s, 10);
                     }
                 }
             }
-            if (k) {
+            if (j) {
                 BOOMR.addVar("rt.start", "cookie");
             } else {
-                k = b.navigationStart;
+                j = b.navigationStart;
             }
             BOOMR.removeVar("t_done", "t_page", "t_resp", "r", "r2");
-            for (l in b.timers) {
-                if (!b.timers.hasOwnProperty(l)) {
+            for (k in b.timers) {
+                if (!b.timers.hasOwnProperty(k)) {
                     continue;
                 }
-                f = b.timers[l];
+                f = b.timers[k];
                 if (typeof f.delta !== "number") {
                     if (typeof f.start !== "number") {
-                        f.start = k;
+                        f.start = j;
                     }
                     f.delta = f.end - f.start;
                 }
                 if (isNaN(f.delta)) {
                     continue;
                 }
-                if (j.hasOwnProperty(l)) {
-                    BOOMR.addVar(l, f.delta);
+                if (i.hasOwnProperty(k)) {
+                    BOOMR.addVar(k, f.delta);
                 } else {
-                    m.push(l + "|" + f.delta);
+                    l.push(k + "|" + f.delta);
                 }
                 g++;
             }
@@ -723,8 +723,8 @@ var TsinghuaOneWayTracker = (function() {
                 if (h !== d) {
                     BOOMR.addVar("r2", h);
                 }
-                if (m.length) {
-                    BOOMR.addVar("t_other", m.join(","));
+                if (l.length) {
+                    BOOMR.addVar("t_other", l.join(","));
                 }
             }
             b.timers = {};
@@ -1047,21 +1047,21 @@ var TsinghuaOneWayTracker = (function() {
                 }
             }
         },
-        setVarsFromCookie: function(m) {
-            var j = parseInt(m.ba, 10),
-                l = parseFloat(m.be, 10),
-                k = parseInt(m.l, 10) || 0,
-                f = parseFloat(m.le, 10) || 0,
-                d = m.ip.replace(/\.\d+$/, "0"),
-                n = parseInt(m.t, 10),
+        setVarsFromCookie: function(l) {
+            var i = parseInt(l.ba, 10),
+                k = parseFloat(l.be, 10),
+                j = parseInt(l.l, 10) || 0,
+                f = parseFloat(l.le, 10) || 0,
+                d = l.ip.replace(/\.\d+$/, "0"),
+                m = parseInt(l.t, 10),
                 h = this.user_ip.replace(/\.\d+$/, "0"),
                 g = Math.round((new Date().getTime()) / 1000);
-            if (d === h && n >= g - this.cookie_exp) {
+            if (d === h && m >= g - this.cookie_exp) {
                 this.complete = true;
                 BOOMR.addVar({
-                    bw: j,
-                    lat: k,
-                    bw_err: l,
+                    bw: i,
+                    lat: j,
+                    bw_err: k,
                     lat_err: f
                 });
                 return true;
@@ -1366,125 +1366,125 @@ FlightInfoManager.prototype.updatePriceGroup = function(c, a) {
     });
 };
 var DomesticOnewayDataAnalyzer = new(function() {
-    var u = this;
-    var I = null;
+    var t = this;
+    var H = null;
     var f = null;
-    var B = null;
+    var A = null;
     this.infoMgr = function() {
-        if (typeof B == "undefined" || B == null) {
-            B = new CommonInfoManager();
+        if (typeof A == "undefined" || A == null) {
+            A = new CommonInfoManager();
         }
-        return B;
+        return A;
     };
-    var G = null;
+    var F = null;
     this.onewayInfoMgr = function() {
-        if (typeof G == "undefined" || G == null) {
-            G = new FlightInfoManager();
+        if (typeof F == "undefined" || F == null) {
+            F = new FlightInfoManager();
         }
-        return G;
+        return F;
     };
-    var m = null;
+    var l = null;
     this.transferInfoMgr = function() {
-        if (typeof m == "undefined" || m == null) {
-            m = new FlightInfoManager();
+        if (typeof l == "undefined" || l == null) {
+            l = new FlightInfoManager();
         }
-        return m;
+        return l;
     };
-    var j = null;
+    var i = null;
     this.flightEntityMgr = function() {
-        if (typeof j == "undefined" || j == null) {
-            j = new FlightEntityManager();
+        if (typeof i == "undefined" || i == null) {
+            i = new FlightEntityManager();
         }
-        return j;
+        return i;
     };
     this.lowestPrice = function() {
-        var J = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
-        var K = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
-        var L = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
-        return Math.min(J, K, L);
+        var I = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
+        var J = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
+        var K = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
+        return Math.min(I, J, K);
     };
     this.lowestEntity = function() {
-        var J = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
-        var K = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
-        var L = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
-        if (J <= K && J <= L) {
+        var I = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
+        var J = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
+        var K = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
+        if (I <= J && I <= K) {
             return this.lowestTransfer();
         }
-        if (K <= J && K <= L) {
+        if (J <= I && J <= K) {
             return this.lowestOneway();
         }
-        if (L <= J && L <= K) {
+        if (K <= I && K <= J) {
             return this.lowestCompose();
         }
     };
-    var q = null;
-    this.lowestTransfer = function(J) {
-        if (J == null) {
-            return q;
+    var p = null;
+    this.lowestTransfer = function(I) {
+        if (I == null) {
+            return p;
         } else {
-            if (q == null) {
-                q = J;
+            if (p == null) {
+                p = I;
             } else {
-                if (q.safeLowestPrice() > J.safeLowestPrice()) {
-                    q = J;
+                if (p.safeLowestPrice() > I.safeLowestPrice()) {
+                    p = I;
                 }
             }
         }
     };
-    var v = null;
-    this.lowestOneway = function(J) {
-        if (J == null) {
-            return v;
+    var u = null;
+    this.lowestOneway = function(I) {
+        if (I == null) {
+            return u;
         } else {
-            if (v == null) {
-                v = J;
+            if (u == null) {
+                u = I;
             } else {
-                if (v.safeLowestPrice() > J.safeLowestPrice()) {
-                    v = J;
+                if (u.safeLowestPrice() > I.safeLowestPrice()) {
+                    u = I;
                 }
             }
         }
     };
-    var k = null;
-    this.lowestCompose = function(J) {
-        if (J == null) {
-            return k;
+    var j = null;
+    this.lowestCompose = function(I) {
+        if (I == null) {
+            return j;
         } else {
-            if (k == null) {
-                k = J;
+            if (j == null) {
+                j = I;
             } else {
-                if (k.safeLowestPrice() > J.safeLowestPrice()) {
-                    k = J;
+                if (j.safeLowestPrice() > I.safeLowestPrice()) {
+                    j = I;
                 }
             }
         }
     };
-    this.setSearchService = function(J) {
-        if (I) {
+    this.setSearchService = function(I) {
+        if (H) {
             return;
         }
-        I = J;
-        $jex.event.binding(I, "interSearch", o);
-        $jex.event.binding(I, "validQuery", y);
-        $jex.event.binding(I, "invalidQuery", C);
-        $jex.event.binding(I, "loadedLongwell", E);
-        $jex.event.binding(I, "loadedFirstData", F);
-        $jex.event.binding(I, "loadedOnewayData", l);
-        $jex.event.binding(I, "loadedTransfer", A);
-        $jex.event.binding(I, "loadedExtInfo", c);
-        $jex.event.binding(I, "loadedAVData", s);
-        $jex.event.binding(I, "parsingFlightPriceData", p);
-        $jex.event.binding(I, "searchEnd", z);
-        $jex.event.binding(I, "onerror", w);
-        $jex.event.binding(I, "pastLessSecond", b);
-        $jex.event.binding(I, "zyfLoaded", e);
-        $jex.event.binding(I, "ipBlock", g);
-        $jex.event.binding(I, "getQueryId", x);
-        $jex.event.binding(I, "loadedGroupinfo", a);
-        this.infoMgr().service(I);
+        H = I;
+        $jex.event.binding(H, "interSearch", n);
+        $jex.event.binding(H, "validQuery", x);
+        $jex.event.binding(H, "invalidQuery", B);
+        $jex.event.binding(H, "loadedLongwell", D);
+        $jex.event.binding(H, "loadedFirstData", E);
+        $jex.event.binding(H, "loadedOnewayData", k);
+        $jex.event.binding(H, "loadedTransfer", z);
+        $jex.event.binding(H, "loadedExtInfo", c);
+        $jex.event.binding(H, "loadedAVData", r);
+        $jex.event.binding(H, "parsingFlightPriceData", o);
+        $jex.event.binding(H, "searchEnd", y);
+        $jex.event.binding(H, "onerror", v);
+        $jex.event.binding(H, "pastLessSecond", b);
+        $jex.event.binding(H, "zyfLoaded", e);
+        $jex.event.binding(H, "ipBlock", g);
+        $jex.event.binding(H, "getQueryId", w);
+        $jex.event.binding(H, "loadedGroupinfo", a);
+        this.infoMgr().service(H);
         this.infoMgr().analyzer(this);
         this.infoMgr().entityManager(this.flightEntityMgr());
-        u._initial();
+        t._initial();
     };
     this._initial = function() {
         f = new DataSet({
@@ -1492,125 +1492,125 @@ var DomesticOnewayDataAnalyzer = new(function() {
                 ["sortValue", false]
             ],
             filterFunc: {
-                "航空公司": function(L, J, K) {
-                    return [L.carrierCode()];
+                "航空公司": function(K, I, J) {
+                    return [K.carrierCode()];
                 },
-                "起飞时间": function(J) {
-                    return [J.deptTimeRangeValue()];
+                "起飞时间": function(I) {
+                    return [I.deptTimeRangeValue()];
                 },
-                "机型": function(J) {
-                    return J.planeType();
+                "机型": function(I) {
+                    return I.planeType();
                 },
-                "起降机场": function(J) {
-                    return J.airportCodes();
+                "起降机场": function(I) {
+                    return I.airportCodes();
                 },
-                "方式": function(J) {
-                    if (J.type == "compose") {
+                "方式": function(I) {
+                    if (I.type == "compose") {
                         return "transfer";
                     }
-                    return J.type;
+                    return I.type;
                 },
-                "中转城市": function(J) {
-                    return J.transferCity();
+                "中转城市": function(I) {
+                    return I.transferCity();
                 }
             }
         });
         if (typeof FlightListUISorter != "undefined") {
-            $jex.event.binding(f, "refreshCurrentPage", function(L, M, J, K) {
-                FlightListUISorter.resort(L, M, J, K);
+            $jex.event.binding(f, "refreshCurrentPage", function(K, L, I, J) {
+                FlightListUISorter.resort(K, L, I, J);
             });
         }
     };
-    var n = function() {
-        $jex.event.trigger(u, "updateFilter", {
+    var m = function() {
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "航空公司",
             name: this.carrier().zh,
             value: this.flightInfo().ca
         });
-        var L = this.deptTimeRange();
-        $jex.event.trigger(u, "updateFilter", {
+        var K = this.deptTimeRange();
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "起飞时间",
-            name: L.zh,
-            value: L.value
+            name: K.zh,
+            value: K.value
         });
-        var M = this.plane();
-        $jex.foreach(M.type, function(N) {
-            $jex.event.trigger(u, "updateFilter", {
+        var L = this.plane();
+        $jex.foreach(L.type, function(M) {
+            $jex.event.trigger(t, "updateFilter", {
                 catalog: "机型",
-                name: N,
-                value: N
+                name: M,
+                value: M
             });
         });
-        var J = this.deptAirport();
-        $jex.event.trigger(u, "updateFilter", {
+        var I = this.deptAirport();
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "起降机场",
             group: this.deptCityCode(),
-            name: J.ab,
-            value: J.key || J.code
+            name: I.ab,
+            value: I.key || I.code
         });
-        var K = this.arriAirport();
-        $jex.event.trigger(u, "updateFilter", {
+        var J = this.arriAirport();
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "起降机场",
             group: this.arriCityCode(),
-            name: K.ab,
-            value: K.key || K.code
-        });
-    };
-    var r = function() {
-        var N = this.firstTrip();
-        if (this.carrierCode()) {
-            $jex.event.trigger(u, "updateFilter", {
-                catalog: "航空公司",
-                name: N.carrier().zh,
-                value: N.flightInfo().ca
-            });
-        }
-        var L = N.deptTimeRange();
-        $jex.event.trigger(u, "updateFilter", {
-            catalog: "起飞时间",
-            name: L.zh,
-            value: L.value
-        });
-        var M = N.plane();
-        $jex.foreach(M.type, function(P) {
-            $jex.event.trigger(u, "updateFilter", {
-                catalog: "机型",
-                name: P,
-                value: P
-            });
-        });
-        var J = N.deptAirport();
-        $jex.event.trigger(u, "updateFilter", {
-            catalog: "起降机场",
-            group: N.deptCityCode(),
             name: J.ab,
             value: J.key || J.code
         });
-        N = this.secondTrip();
-        var M = N.plane();
-        $jex.foreach(M.type, function(P) {
-            $jex.event.trigger(u, "updateFilter", {
+    };
+    var q = function() {
+        var M = this.firstTrip();
+        if (this.carrierCode()) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "航空公司",
+                name: M.carrier().zh,
+                value: M.flightInfo().ca
+            });
+        }
+        var K = M.deptTimeRange();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "起飞时间",
+            name: K.zh,
+            value: K.value
+        });
+        var L = M.plane();
+        $jex.foreach(L.type, function(O) {
+            $jex.event.trigger(t, "updateFilter", {
                 catalog: "机型",
-                name: P,
-                value: P
+                name: O,
+                value: O
             });
         });
-        var K = N.arriAirport();
-        $jex.event.trigger(u, "updateFilter", {
+        var I = M.deptAirport();
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "起降机场",
-            group: N.arriCityCode(),
-            name: K.ab,
-            value: K.key || K.code
+            group: M.deptCityCode(),
+            name: I.ab,
+            value: I.key || I.code
         });
-        var O = N.deptCity();
-        $jex.event.trigger(u, "updateFilter", {
+        M = this.secondTrip();
+        var L = M.plane();
+        $jex.foreach(L.type, function(O) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "机型",
+                name: O,
+                value: O
+            });
+        });
+        var J = M.arriAirport();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "起降机场",
+            group: M.arriCityCode(),
+            name: J.ab,
+            value: J.key || J.code
+        });
+        var N = M.deptCity();
+        $jex.event.trigger(t, "updateFilter", {
             catalog: "中转城市",
-            name: O.zh,
-            value: O.en
+            name: N.zh,
+            value: N.en
         });
     };
-    this.hasWrapper = function(J) {
-        return this.infoMgr().get("vendor", J);
+    this.hasWrapper = function(I) {
+        return this.infoMgr().get("vendor", I);
     };
     this.resultData = function() {
         return f.currentPageData();
@@ -1625,70 +1625,70 @@ var DomesticOnewayDataAnalyzer = new(function() {
         return f.getData();
     };
     this.pageInfo = function() {
-        var J = {
+        var I = {
             pageCount: f.pageCount(),
             pageSize: f.pageSize(),
             pageIndex: f.pageIndex()
         };
-        return J;
+        return I;
     };
-    this.resetPageSize = function(J) {
-        f.pageSize(J);
-        $jex.event.trigger(u, "dataComplete");
+    this.resetPageSize = function(I) {
+        f.pageSize(I);
+        $jex.event.trigger(t, "dataComplete");
     };
-    this.gotoPage = function(J) {
-        f.gotoPage(J);
-        $jex.event.trigger(u, "dataComplete");
+    this.gotoPage = function(I) {
+        f.gotoPage(I);
+        $jex.event.trigger(t, "dataComplete");
     };
-    this.sort = function(J) {
+    this.sort = function(I) {
         f.setPageIndex(0);
-        f.sort(J);
+        f.sort(I);
         f.refresh();
-        $jex.event.trigger(u, "dataComplete");
+        $jex.event.trigger(t, "dataComplete");
     };
-    this.setFilter = function(J) {
-        f.addFilter(J);
+    this.setFilter = function(I) {
+        f.addFilter(I);
         f.setPageIndex(0);
         f.refresh();
-        $jex.event.trigger(u, "dataComplete");
+        $jex.event.trigger(t, "dataComplete");
     };
     this.reload = function() {
         f.refreshPage();
-        $jex.event.trigger(u, "dataComplete");
+        $jex.event.trigger(t, "dataComplete");
     };
-    this.syncPriceData = function(M, J, K) {
-        var N = function() {
-            K();
+    this.syncPriceData = function(L, I, J) {
+        var M = function() {
+            J();
         };
-        var L = M.getWrapperListType();
-        I.invoke_flightPriceData(M.key(), J, N, L);
+        var K = L.getWrapperListType();
+        H.invoke_flightPriceData(L.key(), I, M, K);
     };
 
-    function d(M) {
-        var J = u.infoMgr();
-        var P = u.onewayInfoMgr();
-        var K = u.flightEntityMgr();
-        var O = false;
-        var L = false;
+    function d(L) {
+        var I = t.infoMgr();
+        var O = t.onewayInfoMgr();
+        var J = t.flightEntityMgr();
         var N = false;
-        $jex.foreach(M, function(U, Q, S) {
-            var R = f.hasItem(S);
-            if (R) {
-                R.update();
-                O = true;
-                HotSale.setMinLate(R);
+        var K = false;
+        var M = false;
+        $jex.foreach(L, function(T, P, R) {
+            var Q = f.hasItem(R);
+            if (Q) {
+                Q.update();
+                N = true;
+                HotSale.setMinLate(Q);
             } else {
-                var T = OnewayFlightEntity.tryCreate(S, J, P, K);
-                if (T) {
-                    HotSale.setMinLate(T);
-                    n.call(T);
-                    $jex.event.binding(T, "updating", function() {
+                var S = OnewayFlightEntity.tryCreate(R, I, O, J);
+                if (S) {
+                    HotSale.setMinLate(S);
+                    m.call(S);
+                    $jex.event.binding(S, "updating", function() {
                         switch (this.type) {
                             case "oneway":
-                                u.lowestOneway(this);
+                                t.lowestOneway(this);
                                 break;
                             case "compose":
-                                u.lowestCompose(this);
+                                t.lowestCompose(this);
                                 break;
                         }
                         if (this.updateSortKey) {
@@ -1697,267 +1697,267 @@ var DomesticOnewayDataAnalyzer = new(function() {
                             $jex.console.error("没有更新排序键的方法", this);
                         }
                     });
-                    switch (T.type) {
+                    switch (S.type) {
                         case "oneway":
-                            u.lowestOneway(T);
-                            N = true;
+                            t.lowestOneway(S);
+                            M = true;
                             break;
                         case "compose":
-                            u.lowestCompose(T);
-                            L = true;
+                            t.lowestCompose(S);
+                            K = true;
                             break;
                     }
-                    f.addItem(S, T);
+                    f.addItem(R, S);
                 }
-                O = true;
+                N = true;
             }
         });
-        if (O) {
-            if (N) {
-                $jex.event.trigger(u, "updateFilter", {
+        if (N) {
+            if (M) {
+                $jex.event.trigger(t, "updateFilter", {
                     catalog: "方式",
                     name: "直达",
                     value: "oneway"
                 });
             }
-            if (L) {
-                $jex.event.trigger(u, "updateFilter", {
+            if (K) {
+                $jex.event.trigger(t, "updateFilter", {
                     catalog: "方式",
                     name: "中转联程",
                     value: "transfer"
                 });
             }
-            $jex.event.trigger(u, "preDataComplete");
+            $jex.event.trigger(t, "preDataComplete");
             f.refresh();
-            $jex.event.trigger(u, "dataComplete");
+            $jex.event.trigger(t, "dataComplete");
         }
     }
 
-    function h(M) {
-        var K = u.infoMgr();
-        var J = u.transferInfoMgr();
-        var L = u.flightEntityMgr();
-        var N = false;
-        $jex.foreach(M, function(S, O, R) {
-            var Q = [];
-            $jex.foreach(S, function(X, U, W) {
-                X.co = W;
-                var V = W + "_" + X.da + "-" + X.aa;
-                var T = R.split("|");
-                if (W == T[0]) {
-                    Q[0] = V;
+    function h(L) {
+        var J = t.infoMgr();
+        var I = t.transferInfoMgr();
+        var K = t.flightEntityMgr();
+        var M = false;
+        $jex.foreach(L, function(R, N, Q) {
+            var P = [];
+            $jex.foreach(R, function(W, T, V) {
+                W.co = V;
+                var U = V + "_" + W.da + "-" + W.aa;
+                var S = Q.split("|");
+                if (V == S[0]) {
+                    P[0] = U;
                 } else {
-                    if (W == T[2]) {
-                        Q[1] = V;
+                    if (V == S[2]) {
+                        P[1] = U;
                     }
                 }
-                J.addFlightInfoItem(V, X);
-                J.addPriceDataItem(V, X.vl);
+                I.addFlightInfoItem(U, W);
+                I.addPriceDataItem(U, W.vl);
             });
-            var P = TransferFlightEntity.tryCreate(Q, K, J, L);
-            if (P) {
-                r.call(P);
-                u.lowestTransfer(P);
-                f.addItem(R, P);
-                N = true;
+            var O = TransferFlightEntity.tryCreate(P, J, I, K);
+            if (O) {
+                q.call(O);
+                t.lowestTransfer(O);
+                f.addItem(Q, O);
+                M = true;
             }
         });
-        if (N) {
-            $jex.event.trigger(u, "updateFilter", {
+        if (M) {
+            $jex.event.trigger(t, "updateFilter", {
                 catalog: "方式",
                 name: "中转联程",
                 value: "transfer"
             });
             f.refresh();
-            $jex.event.trigger(u, "dataComplete");
+            $jex.event.trigger(t, "dataComplete");
         }
     }
 
-    function o() {
-        var J = window.location.href.toString();
-        window.location.href = J.replace("oneway_list.htm", "oneway_list_inter.htm");
+    function n() {
+        var I = window.location.href.toString();
+        window.location.href = I.replace("oneway_list.htm", "oneway_list_inter.htm");
     }
 
     function g() {
         window.location.href = "/twell/flight/busy.jsp?ret=" + encodeURIComponent(window.location.href.toString());
     }
 
-    function y() {}
+    function x() {}
 
-    function C() {}
+    function B() {}
 
-    function F() {}
+    function E() {}
 
-    function a(K) {
-        if (!K.serc) {
+    function a(J) {
+        if (!J.serc) {
             return;
         }
-        var J = K.flightCode.split("|")[0].split("/")[0];
-        var L = K.priceData[K.flightCode];
-        var M = H(J);
-        if (!$jex.$empty(L)) {
-            $jex.hash.each(L, function(O, N) {
-                N.pr = N.pr + M;
-                N.npr = N.npr + M;
-                N.bpr = N.bpr + M;
-                N.vppr = N.vppr + M;
+        var I = J.flightCode.split("|")[0].split("/")[0];
+        var K = J.priceData[J.flightCode];
+        var L = G(I);
+        if (!$jex.$empty(K)) {
+            $jex.hash.each(K, function(N, M) {
+                M.pr = M.pr + L;
+                M.npr = M.npr + L;
+                M.bpr = M.bpr + L;
+                M.vppr = M.vppr + L;
             });
         }
     }
 
-    function H(J) {
-        var K = (parseInt(J.substr(0, 2) + J.substr(J.length - 1), 36) + parseInt("0" + J.substr(2, J.length - 3), 10) * 36 * 36 * 36) % 97;
-        return K;
+    function G(I) {
+        var J = (parseInt(I.substr(0, 2) + I.substr(I.length - 1), 36) + parseInt("0" + I.substr(2, I.length - 3), 10) * 36 * 36 * 36) % 97;
+        return J;
     }
 
-    function D(J) {
-        if (!$jex.$empty(J)) {
-            $jex.hash.each(J, function(M, L) {
-                var K = M.split("|")[0].split("/")[0];
-                var N = H(K);
-                L.lowpr = L.lowpr + N;
+    function C(I) {
+        if (!$jex.$empty(I)) {
+            $jex.hash.each(I, function(L, K) {
+                var J = L.split("|")[0].split("/")[0];
+                var M = G(J);
+                K.lowpr = K.lowpr + M;
             });
         }
     }
 
-    function E(L) {
-        var J = u.infoMgr();
-        if (L.oneway_data && L.oneway_data.priceInfo && L.serc) {
-            D(L.oneway_data.priceInfo);
+    function D(K) {
+        var I = t.infoMgr();
+        if (K.oneway_data && K.oneway_data.priceInfo && K.serc) {
+            C(K.oneway_data.priceInfo);
         }
-        J.addAirportSource(L.airportInfo.out);
-        J.addAirportSource(L.airportInfo.ret);
-        J.addVendorSource(L.vendors);
-        J.addOriginalPrice(L.op);
-        J.addNotWorkVendors(L.notWorkVendors);
-        J.addSuperOTAMaxNum(L.SuperOTA_NUM || 0);
-        var K = {};
-        K[L.arrivalAirport.en] = L.arrivalAirport;
-        K[L.departureAirport.en] = L.departureAirport;
-        J.addCitySource(K);
-        J.deptCityCode(L.departureAirport.en);
-        J.arriCityCode(L.arrivalAirport.en);
+        I.addAirportSource(K.airportInfo.out);
+        I.addAirportSource(K.airportInfo.ret);
+        I.addVendorSource(K.vendors);
+        I.addOriginalPrice(K.op);
+        I.addNotWorkVendors(K.notWorkVendors);
+        I.addSuperOTAMaxNum(K.SuperOTA_NUM || 0);
+        var J = {};
+        J[K.arrivalAirport.en] = K.arrivalAirport;
+        J[K.departureAirport.en] = K.departureAirport;
+        I.addCitySource(J);
+        I.deptCityCode(K.departureAirport.en);
+        I.arriCityCode(K.arrivalAirport.en);
     }
 
-    function l(L) {
-        var J = u.infoMgr();
-        var M = u.onewayInfoMgr();
-        J.addCarrierSource(L.carrierInfo);
-        J.addPlaneSource(L.planeInfo);
-        M.addFlightInfoSource(L.flightInfo);
-        var K, N = 0;
-        $jex.foreach(L.priceData, function(O) {
-            $jex.foreach(O, function(P) {
-                K = P.carrier;
-                N++;
+    function k(K) {
+        var I = t.infoMgr();
+        var L = t.onewayInfoMgr();
+        I.addCarrierSource(K.carrierInfo);
+        I.addPlaneSource(K.planeInfo);
+        L.addFlightInfoSource(K.flightInfo);
+        var J, M = 0;
+        $jex.foreach(K.priceData, function(N) {
+            $jex.foreach(N, function(O) {
+                J = O.carrier;
+                M++;
             });
         });
-        if (K) {
-            t(L, K, N);
+        if (J) {
+            s(K, J, M);
         }
-        if (L.labelType) {
-            M.replacePriceData(L.priceData, L.labelType);
+        if (K.labelType) {
+            L.replacePriceData(K.priceData, K.labelType);
         }
-        M.updateRecommendInfo(L.recommendInfo);
-        M.addPriceGroupDataSource(L.flightPriceInfo);
-        M.addPriceInfoSource(L.priceInfo);
-        d(L.priceInfo);
+        L.updateRecommendInfo(K.recommendInfo);
+        L.addPriceGroupDataSource(K.flightPriceInfo);
+        L.addPriceInfoSource(K.priceInfo);
+        d(K.priceInfo);
     }
 
-    function A(L) {
-        var K = u.infoMgr();
-        var J = u.transferInfoMgr();
-        K.addAirportSource(L.airportInfo);
-        K.addCarrierSource(L.carrierInfo);
-        K.addPlaneSource(L.planeInfo);
-        K.addCitySource(L.citylist);
-        K.addVendorSource(L.vendors, {
+    function z(K) {
+        var J = t.infoMgr();
+        var I = t.transferInfoMgr();
+        J.addAirportSource(K.airportInfo);
+        J.addCarrierSource(K.carrierInfo);
+        J.addPlaneSource(K.planeInfo);
+        J.addCitySource(K.citylist);
+        J.addVendorSource(K.vendors, {
             isOverwrite: false
         });
-        K.addFlightLineVendorSource(L.flightLineVendors);
-        J.addCorrSource(L.corrInfo);
-        J.addExtInfoSource(L.extInfo);
-        J.addPriceInfoSource(L.priceInfo);
-        h(L.data);
+        J.addFlightLineVendorSource(K.flightLineVendors);
+        I.addCorrSource(K.corrInfo);
+        I.addExtInfoSource(K.extInfo);
+        I.addPriceInfoSource(K.priceInfo);
+        h(K.data);
     }
 
-    function c(J) {
-        var K = u.onewayInfoMgr();
-        K.addCorrSource(J.corrInfo);
-        K.addExtInfoSource(J.extInfo);
+    function c(I) {
+        var J = t.onewayInfoMgr();
+        J.addCorrSource(I.corrInfo);
+        J.addExtInfoSource(I.extInfo);
         $jex.console.info("已经加载直飞扩展信息数据");
     }
 
-    function s(K) {
-        var J = u.infoMgr();
-        var L = u.onewayInfoMgr();
-        J.addCarrierSource(K.carrierInfo);
-        J.addPlaneSource(K.planeInfo);
-        L.updateFlightInfoSource(K.flightInfo);
-        d(K.flightInfo);
+    function r(J) {
+        var I = t.infoMgr();
+        var K = t.onewayInfoMgr();
+        I.addCarrierSource(J.carrierInfo);
+        I.addPlaneSource(J.planeInfo);
+        K.updateFlightInfoSource(J.flightInfo);
+        d(J.flightInfo);
         $jex.console.info("已经加载AV数据");
     }
 
-    function p(M) {
-        var Q = M.flightCode,
-            O = M.labelType;
-        var J = u.infoMgr();
-        var N = u.onewayInfoMgr();
-        var K = [];
-        var L = null;
-        var P = 0;
-        $jex.foreach(M.priceData, function(S, R, T) {
-            K.push("<b>", "[", T, "] 所返回的报价:", "</b>");
-            $jex.foreach(S, function(V) {
-                L = V.carrier;
-                K.push(V.wr || V.wrjid);
-                var U = J.get("vendor", V.wr || V.wrid);
-                if (U) {
-                    K.push("(", U.name, ")");
+    function o(L) {
+        var P = L.flightCode,
+            N = L.labelType;
+        var I = t.infoMgr();
+        var M = t.onewayInfoMgr();
+        var J = [];
+        var K = null;
+        var O = 0;
+        $jex.foreach(L.priceData, function(R, Q, S) {
+            J.push("<b>", "[", S, "] 所返回的报价:", "</b>");
+            $jex.foreach(R, function(U) {
+                K = U.carrier;
+                J.push(U.wr || U.wrjid);
+                var T = I.get("vendor", U.wr || U.wrid);
+                if (T) {
+                    J.push("(", T.name, ")");
                 }
-                K.push(" , ");
-                P++;
+                J.push(" , ");
+                O++;
             });
         });
-        $jex.console.trace(K.join(""));
-        t(M, L, P);
-        N.replacePriceData(M.priceData, O);
-        N.addPriceGroupDataSource(M.flightPriceInfo);
-        N.addPriceInfoSource(M.priceInfo);
-        N.updateRecommendInfo(M.recommendInfo);
+        $jex.console.trace(J.join(""));
+        s(L, K, O);
+        M.replacePriceData(L.priceData, N);
+        M.addPriceGroupDataSource(L.flightPriceInfo);
+        M.addPriceInfoSource(L.priceInfo);
+        M.updateRecommendInfo(L.recommendInfo);
         $jex.console.info("已经加载航班价格数据");
     }
 
-    function t(N, R, L) {
-        var J = ConfigManager.getConfig("NoNeedStatementList") || ["9C"];
-        if ($jex.array.indexOf(J, R) > -1) {
+    function s(M, Q, K) {
+        var I = ConfigManager.getConfig("NoNeedStatementList") || ["9C"];
+        if ($jex.array.indexOf(I, Q) > -1) {
             return;
         }
-        var M = 18;
-        var P = u.infoMgr();
-        var Q = P.get("carrier", R);
-        var T = Q ? (Q.maxvendors || M) : M;
-        var O = P.get("notWork");
-        if (!O) {
+        var L = 18;
+        var O = t.infoMgr();
+        var P = O.get("carrier", Q);
+        var S = P ? (P.maxvendors || L) : L;
+        var N = O.get("notWork");
+        if (!N) {
             return;
         }
-        var S = O.out;
-        if (!S || S < 1) {
+        var R = N.out;
+        if (!R || R < 1) {
             return;
         }
-        var U = T - L;
-        if (U <= 0) {
+        var T = S - K;
+        if (T <= 0) {
             return;
         }
-        var K = S.slice(0, U);
-        $jex.foreach(N.priceData, function(W, V, X) {
-            if (X.indexOf("/") > -1) {
+        var J = R.slice(0, T);
+        $jex.foreach(M.priceData, function(V, U, W) {
+            if (W.indexOf("/") > -1) {
                 return $jex.$continue;
             }
-            $jex.foreach(K, function(Y) {
-                var Z = Y + "_nw";
-                W[Z] = {
-                    wrid: Y,
+            $jex.foreach(J, function(X) {
+                var Y = X + "_nw";
+                V[Y] = {
+                    wrid: X,
                     type: "notWork",
                     sortRank: 10000000
                 };
@@ -1965,115 +1965,115 @@ var DomesticOnewayDataAnalyzer = new(function() {
         });
     }
 
-    function x(M) {
-        if (!M.serc) {
+    function w(L) {
+        if (!L.serc) {
             return;
         }
-        var O = M.queryID;
-        var L = O.indexOf(":");
-        var N = O.substr(0, L + 1);
-        var K = O.substring(L + 1).split("");
-        var J = [];
-        $jex.array.each(K, function(P) {
-            J.push(String.fromCharCode(P.charCodeAt(0) - 1));
+        var N = L.queryID;
+        var K = N.indexOf(":");
+        var M = N.substr(0, K + 1);
+        var J = N.substring(K + 1).split("");
+        var I = [];
+        $jex.array.each(J, function(O) {
+            I.push(String.fromCharCode(O.charCodeAt(0) - 1));
         });
-        J.reverse();
-        M.queryID = N + J.join("");
+        I.reverse();
+        L.queryID = M + I.join("");
     }
 
     function b() {
         if (f.getRecordCount() == 0) {
-            $jex.event.trigger(u, "noResult");
+            $jex.event.trigger(t, "noResult");
         }
     }
 
-    function e(K) {
-        if (!K.total) {
+    function e(J) {
+        if (!J.total) {
             $jex.console.info("no zyf data!");
             return;
         }
-        var J = u.infoMgr();
-        J.addSource("zyfData", K.list);
+        var I = t.infoMgr();
+        I.addSource("zyfData", J.list);
     }
 
-    function z() {
+    function y() {
         if (f.getRecordCount() == 0) {
-            $jex.event.trigger(u, "noResultEnd");
+            $jex.event.trigger(t, "noResultEnd");
         }
         $jex.console.trace("搜索结束.");
-        u.infoMgr().setDataLoad(true);
+        t.infoMgr().setDataLoad(true);
     }
 
-    function w() {}
+    function v() {}
 })();
 var DomesticOnewaySearchService = new(function() {
-    var v = false;
-    var q = this;
+    var u = false;
+    var p = this;
     this.param = {};
     this.oparam = {};
-    var p = $jex.isdebug ? "http://local.qunar.com" : "";
+    var o = $jex.isdebug ? "http://local.qunar.com" : "";
     var e = null;
-    var t = 0;
-    var y = new Date();
-    var w = 0;
+    var s = 0;
+    var x = new Date();
+    var v = 0;
     var d = 0;
-    var j = 0;
-    var n = 0;
-    var B = "";
+    var i = 0;
+    var m = 0;
+    var A = "";
     var h = "";
-    var A = false;
+    var z = false;
     var f = false;
-    var m = false;
-    var x = null;
+    var l = false;
+    var w = null;
     this.longwell = function() {
-        return x || {};
+        return w || {};
     };
     var c = [];
-    var k = [];
+    var j = [];
     var b = null;
-    var o = null;
-    var u = "";
-    var l = null;
-    var s = false;
-    this.isValidQuery = function(C) {
-        if (C == null) {
-            return s;
-        } else {
-            s = C;
-        }
-    };
-    var z = null;
-    this.queryId = function(C) {
-        if (C == null) {
-            return z;
-        } else {
-            z = C;
-        }
-    };
-    var r = null;
-    this.tserver = function(C) {
-        if (C == null) {
+    var n = null;
+    var t = "";
+    var k = null;
+    var r = false;
+    this.isValidQuery = function(B) {
+        if (B == null) {
             return r;
         } else {
-            r = C;
+            r = B;
         }
     };
-    this.search = function(E) {
-        if (q.searchEnd()) {
+    var y = null;
+    this.queryId = function(B) {
+        if (B == null) {
+            return y;
+        } else {
+            y = B;
+        }
+    };
+    var q = null;
+    this.tserver = function(B) {
+        if (B == null) {
+            return q;
+        } else {
+            q = B;
+        }
+    };
+    this.search = function(D) {
+        if (p.searchEnd()) {
             return;
         }
         $jex.merge(this.param, {
-            fromCity: E.searchDepartureAirport,
-            toCity: E.searchArrivalAirport,
-            fromDate: E.searchDepartureTime
+            fromCity: D.searchDepartureAirport,
+            toCity: D.searchArrivalAirport,
+            fromDate: D.searchDepartureTime
         });
         $jex.merge(this.oparam, {
-            ex_track: E.ex_track,
-            from: E.from
+            ex_track: D.ex_track,
+            from: D.from
         });
-        var D = $jex.date.parse(this.param.fromDate);
-        var C = window.SERVER_TIME || new Date();
-        if (C.getTime() - D.getTime() > 86400000) {
+        var C = $jex.date.parse(this.param.fromDate);
+        var B = window.SERVER_TIME || new Date();
+        if (B.getTime() - C.getTime() > 86400000) {
             $jex.event.trigger(this, "expireQuery");
             return;
         }
@@ -2083,22 +2083,22 @@ var DomesticOnewaySearchService = new(function() {
         }
         this._invoke_ExtInfo();
         this._invoke_longwell();
-        w = 1;
+        v = 1;
         e = new Date();
         setTimeout(function() {
-            $jex.event.trigger(q, "pastLessSecond");
+            $jex.event.trigger(p, "pastLessSecond");
         }, 15000);
     };
     this.queryZYF = function() {
-        var C = this;
-        var D = p + "/zyf/api/ads.json";
-        $jex.ajax(D, {
-            dpt: C.param.fromCity,
-            arr: C.param.toCity,
-            dptDate: C.param.fromDate
-        }, function(E) {
-            if (E) {
-                C._process_zyf(E);
+        var B = this;
+        var C = o + "/zyf/api/ads.json";
+        $jex.ajax(C, {
+            dpt: B.param.fromCity,
+            arr: B.param.toCity,
+            dptDate: B.param.fromDate
+        }, function(D) {
+            if (D) {
+                B._process_zyf(D);
             }
         });
     };
@@ -2108,350 +2108,350 @@ var DomesticOnewaySearchService = new(function() {
         }
         $jex.console.warn("[queryNext]", new Date().getTime() - e);
         if (this.getTask()) {
-            var C = this.getTask();
-            $jex.console.info("queryNext: 等待插入任务结束. TaskID:", C);
+            var B = this.getTask();
+            $jex.console.info("queryNext: 等待插入任务结束. TaskID:", B);
             setTimeout(function() {
-                q.queryNext();
+                p.queryNext();
             }, 100);
         } else {
-            if (m == false && d != 2) {
-                q._invoke_AVData();
+            if (l == false && d != 2) {
+                p._invoke_AVData();
             } else {
-                if (j != 2 && (d == 2 || (d != 2 && c.length >= 2))) {
-                    $jex.console.info("queryNext:处理联程", " transferSearchState:", j, " isValidQuery:", x.isValidQuery, " onewayDatasLength:", c.length);
-                    q._invoke_transfer();
+                if (i != 2 && (d == 2 || (d != 2 && c.length >= 2))) {
+                    $jex.console.info("queryNext:处理联程", " transferSearchState:", i, " isValidQuery:", w.isValidQuery, " onewayDatasLength:", c.length);
+                    p._invoke_transfer();
                 } else {
                     $jex.console.info("queryNext:处理直飞");
                     setTimeout(function() {
-                        q._invoke_oneway();
-                    }, t);
+                        p._invoke_oneway();
+                    }, s);
                 }
             }
         }
     };
     this.genTraceTimeStamp = function() {
         if (CLIENT_TIME && SERVER_TIME) {
-            q.traceTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+            p.traceTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
         } else {
-            q.traceTimeStamp = new Date().getTime();
+            p.traceTimeStamp = new Date().getTime();
         }
     };
     this.genBookingTimeStamp = function() {
         if (CLIENT_TIME && SERVER_TIME) {
-            q.wrapperExpandStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+            p.wrapperExpandStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
         } else {
-            q.wrapperExpandStamp = new Date().getTime();
+            p.wrapperExpandStamp = new Date().getTime();
         }
     };
     this.genFilterTimeStamp = function() {
         if (CLIENT_TIME && SERVER_TIME) {
-            q.filterTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+            p.filterTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
         } else {
-            q.filterTimeStamp = new Date().getTime();
+            p.filterTimeStamp = new Date().getTime();
         }
     };
     this._invoke_longwell = function() {
         $jex.console.start("调用longwell");
-        var F = this.param;
-        var D = c;
-        var E = {
-            "http://www.travelco.com/searchArrivalAirport": F.toCity,
-            "http://www.travelco.com/searchDepartureAirport": F.fromCity,
-            "http://www.travelco.com/searchDepartureTime": F.fromDate,
-            "http://www.travelco.com/searchReturnTime": F.fromDate,
+        var E = this.param;
+        var C = c;
+        var D = {
+            "http://www.travelco.com/searchArrivalAirport": E.toCity,
+            "http://www.travelco.com/searchDepartureAirport": E.fromCity,
+            "http://www.travelco.com/searchDepartureTime": E.fromDate,
+            "http://www.travelco.com/searchReturnTime": E.fromDate,
             locale: "zh",
             nextNDays: "0",
             searchLangs: "zh",
             searchType: "OneWayFlight",
             tags: 1
         };
-        l = {
-            departureCity: F.fromCity,
-            arrivalCity: F.toCity,
-            departureDate: F.fromDate,
-            returnDate: F.fromDate,
+        k = {
+            departureCity: E.fromCity,
+            arrivalCity: E.toCity,
+            departureDate: E.fromDate,
+            returnDate: E.fromDate,
             nextNDays: "0",
             searchType: "OneWayFlight",
             searchLangs: "zh",
             locale: "zh"
         };
-        $jex.merge(E, this.oparam);
-        $jex.merge(l, this.oparam);
-        var C = p + "/twell/longwell";
-        $jex.ajax(C, E, function(I) {
-            v && console.log("longwell回数", I, new Date());
+        $jex.merge(D, this.oparam);
+        $jex.merge(k, this.oparam);
+        var B = o + "/twell/longwell";
+        $jex.ajax(B, D, function(H) {
+            u && console.log("longwell回数", H, new Date());
             $jex.console.end("调用longwell");
-            if (I.isLimit) {
-                $jex.event.trigger(q, "ipBlock");
+            if (H.isLimit) {
+                $jex.event.trigger(p, "ipBlock");
                 return;
             }
-            $jex.event.trigger(q, "getQueryId", I);
-            x = I;
-            q.queryId(I.queryID);
-            l.queryID = I.queryID;
-            l.serverIP = I.serverIP;
-            var H = I.validate;
-            if (H) {
-                if (H.dept.country != "中国" || H.arri.country != "中国") {
-                    $jex.event.trigger(q, "interSearch");
+            $jex.event.trigger(p, "getQueryId", H);
+            w = H;
+            p.queryId(H.queryID);
+            k.queryID = H.queryID;
+            k.serverIP = H.serverIP;
+            var G = H.validate;
+            if (G) {
+                if (G.dept.country != "中国" || G.arri.country != "中国") {
+                    $jex.event.trigger(p, "interSearch");
                     return;
                 }
-                if (H.dept.value == H.arri.value) {
-                    $jex.event.trigger(q, "sameCity");
+                if (G.dept.value == G.arri.value) {
+                    $jex.event.trigger(p, "sameCity");
                     return;
                 }
-                $jex.event.trigger(q, "validateComplete", I.validate);
+                $jex.event.trigger(p, "validateComplete", H.validate);
             }
-            if (I.isBackendBusy) {
-                $jex.event.trigger(q, "systemBusy");
+            if (H.isBackendBusy) {
+                $jex.event.trigger(p, "systemBusy");
                 return;
             }
-            if (I.isValidQuery) {
-                q.isValidQuery(true);
+            if (H.isValidQuery) {
+                p.isValidQuery(true);
                 d = 1;
-                $jex.event.trigger(q, "validQuery");
+                $jex.event.trigger(p, "validQuery");
             } else {
-                q.isValidQuery(false);
+                p.isValidQuery(false);
                 d = 2;
-                $jex.event.trigger(q, "invalidQuery");
-            } if (!I.isTransferFlightsNeeded) {
-                j = 2;
-                $jex.event.trigger(q, "TransferDataReady");
+                $jex.event.trigger(p, "invalidQuery");
+            } if (!H.isTransferFlightsNeeded) {
+                i = 2;
+                $jex.event.trigger(p, "TransferDataReady");
             }
-            $jex.event.trigger(q, "loadedLongwell", I);
-            var G = I.oneway_data || {};
+            $jex.event.trigger(p, "loadedLongwell", H);
+            var F = H.oneway_data || {};
             setTimeout(function() {
-                l.deduce = true;
-                n = 1;
+                k.deduce = true;
+                m = 1;
             }, 1000);
-            if (!$jex.$empty(G.priceInfo)) {
-                q._process_oneway(G);
+            if (!$jex.$empty(F.priceInfo)) {
+                p._process_oneway(F);
             } else {
-                $jex.event.trigger(q, "noOnewayData");
-                q.queryNext();
+                $jex.event.trigger(p, "noOnewayData");
+                p.queryNext();
             }
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
     this._invoke_oneway = function() {
-        var E = c;
-        if (n == 1) {
+        var D = c;
+        if (m == 1) {
             $jex.console.info("本次为deduce jsp调用.");
-            var D = p + "/twell/flight/tags/deduceonewayflight_groupdata.jsp";
+            var C = o + "/twell/flight/tags/deduceonewayflight_groupdata.jsp";
         } else {
-            var D = p + "/twell/flight/tags/onewayflight_groupdata.jsp";
+            var C = o + "/twell/flight/tags/onewayflight_groupdata.jsp";
         } if (h) {
-            l.flightCode = h;
+            k.flightCode = h;
         }
-        var C = h;
+        var B = h;
         this._lastGinfoData = null;
-        $jex.ajax(D, l, function(F) {
-            v && console.log("GROUP_DATA回数：", F, new Date());
-            if (n == 1) {
-                n = 2;
+        $jex.ajax(C, k, function(E) {
+            u && console.log("GROUP_DATA回数：", E, new Date());
+            if (m == 1) {
+                m = 2;
             }
-            if (C !== h) {
-                q.correctPriceInfo(F, h);
+            if (B !== h) {
+                p.correctPriceInfo(E, h);
             }
-            F.flightCode = C;
-            q._process_oneway(F);
-            if (l.deduce == true) {
+            E.flightCode = B;
+            p._process_oneway(E);
+            if (k.deduce == true) {
                 f = true;
             }
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
-    this._process_oneway = function(D) {
-        var C = c;
-        l.status = D.status;
-        C.push(D);
-        if (!$jex.$empty(D.priceInfo)) {
-            $jex.event.trigger(q, "loadedOnewayData", D);
-            PAGE_EVENT.trigger("wrapper_loadData", D);
-            if (!A) {
-                $jex.event.trigger(q, "loadedFirstData", D);
-                A = true;
+    this._process_oneway = function(C) {
+        var B = c;
+        k.status = C.status;
+        B.push(C);
+        if (!$jex.$empty(C.priceInfo)) {
+            $jex.event.trigger(p, "loadedOnewayData", C);
+            PAGE_EVENT.trigger("wrapper_loadData", C);
+            if (!z) {
+                $jex.event.trigger(p, "loadedFirstData", C);
+                z = true;
             }
         } else {
             $jex.console.info("直飞价格数据为空.");
-        } if (!D.dataCompleted) {
+        } if (!C.dataCompleted) {
             $jex.console.info("dataCompleted:搜索未结束");
             if (new Date() - e > 60000) {
                 $jex.console.info("dataCompleted:超时停止");
                 d = 2;
-                q.queryNext();
+                p.queryNext();
             } else {
-                t = $jex.$defined(D.invokeInterval) ? D.invokeInterval * 2 : 100;
-                y = new Date().getTime() + t;
-                $jex.console.info("dataCompleted:继续搜索直飞,", t);
-                q.queryNext();
+                s = $jex.$defined(C.invokeInterval) ? C.invokeInterval * 2 : 100;
+                x = new Date().getTime() + s;
+                $jex.console.info("dataCompleted:继续搜索直飞,", s);
+                p.queryNext();
             }
         } else {
-            $jex.console.info("dataCompleted:搜索结束 , deduceJSPState:", n);
-            if (n == 2) {
+            $jex.console.info("dataCompleted:搜索结束 , deduceJSPState:", m);
+            if (m == 2) {
                 d = 2;
             } else {
-                n = 1;
+                m = 1;
             }
             this.queryNext();
         }
     };
-    this._process_zyf = function(C) {
-        $jex.event.trigger(q, "zyfLoaded", C);
+    this._process_zyf = function(B) {
+        $jex.event.trigger(p, "zyfLoaded", B);
     };
     this._invoke_transfer = function() {
-        if (q.searchEnd()) {
+        if (p.searchEnd()) {
             return;
         }
         $jex.console.info("---->调用联程");
-        var D = $jex.merge({}, l);
-        if (j == 1) {
-            D.isReSearch = true;
+        var C = $jex.merge({}, k);
+        if (i == 1) {
+            C.isReSearch = true;
         }
-        var C = p + "/twell/flight/tags/OneWayFlight_data_more.jsp";
-        $jex.ajax(C, D, function(E) {
-            v && console.log("transfer回数：", E, new Date());
-            k.push(E);
-            q.tserver(E.server);
-            if (E.needNewSearch == true) {
-                j = 1;
-                $jex.console.info("[联程需要再次调用 ] data.needNewSearch:", E.needNewSearch);
+        var B = o + "/twell/flight/tags/OneWayFlight_data_more.jsp";
+        $jex.ajax(B, C, function(D) {
+            u && console.log("transfer回数：", D, new Date());
+            j.push(D);
+            p.tserver(D.server);
+            if (D.needNewSearch == true) {
+                i = 1;
+                $jex.console.info("[联程需要再次调用 ] data.needNewSearch:", D.needNewSearch);
                 setTimeout(function() {
-                    q.queryNext();
+                    p.queryNext();
                 }, 3500);
             } else {
-                $jex.event.trigger(q, "TransferDataReady");
-                if (!$jex.$empty(E.data)) {
-                    $jex.event.trigger(q, "loadedTransfer", E);
-                    if (!A) {
-                        $jex.event.trigger(q, "loadedFirstData", E);
-                        A = true;
+                $jex.event.trigger(p, "TransferDataReady");
+                if (!$jex.$empty(D.data)) {
+                    $jex.event.trigger(p, "loadedTransfer", D);
+                    if (!z) {
+                        $jex.event.trigger(p, "loadedFirstData", D);
+                        z = true;
                     }
                 } else {
-                    $jex.event.trigger(q, "noTransferData", E);
+                    $jex.event.trigger(p, "noTransferData", D);
                     $jex.console.info("联程价格数据为空.");
                 }
-                j = 2;
-                q.queryNext();
-                t = Math.max(new Date() - y, 0);
+                i = 2;
+                p.queryNext();
+                s = Math.max(new Date() - x, 0);
             }
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
-    this.syncCurrentFlightCode = function(C) {};
+    this.syncCurrentFlightCode = function(B) {};
     var a = "all";
-    this.invoke_flightPriceData = function(G, E, F, D) {
-        a = D;
-        if (E) {
-            B = G;
+    this.invoke_flightPriceData = function(F, D, E, C) {
+        a = C;
+        if (D) {
+            A = F;
         } else {
-            h = G;
-            B = "";
+            h = F;
+            A = "";
         }
-        var C = function() {
-            if (D === a) {
-                F && F();
+        var B = function() {
+            if (C === a) {
+                E && E();
             }
         };
-        q._invoke_flightPriceData(G, C);
+        p._invoke_flightPriceData(F, B);
     };
-    this.correctPriceInfo = function(D, E) {
-        var C = this._lastGinfoData;
+    this.correctPriceInfo = function(C, D) {
+        var B = this._lastGinfoData;
         this._lastGinfoData = null;
-        if (C && C.priceData[E]) {
-            D.priceData = {};
-            D.labelType = null;
-            D.priceInfo[E] = C.priceInfo[E];
+        if (B && B.priceData[D]) {
+            C.priceData = {};
+            C.labelType = null;
+            C.priceInfo[D] = B.priceInfo[D];
         }
     };
-    this._invoke_flightPriceData = function(F, E) {
-        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", F);
-        var D = p + "/twell/flight/tags/onewayflight_groupinfo.jsp";
-        var C = a;
-        l.flightCode = F;
-        l.label = a;
+    this._invoke_flightPriceData = function(E, D) {
+        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", E);
+        var C = o + "/twell/flight/tags/onewayflight_groupinfo.jsp";
+        var B = a;
+        k.flightCode = E;
+        k.label = a;
         this._lastGinfoData = null;
-        $jex.ajax(D, l, function(G) {
-            v && console.log("groupInfo", G);
-            G.flightCode = F;
-            G.labelType = C;
-            $jex.event.trigger(q, "loadedGroupinfo", G);
-            q._lastGinfoData = G;
-            $jex.event.trigger(q, "parsingFlightPriceData", G);
-            if (E) {
-                E();
+        $jex.ajax(C, k, function(F) {
+            u && console.log("groupInfo", F);
+            F.flightCode = E;
+            F.labelType = B;
+            $jex.event.trigger(p, "loadedGroupinfo", F);
+            p._lastGinfoData = F;
+            $jex.event.trigger(p, "parsingFlightPriceData", F);
+            if (D) {
+                D();
             }
             $jex.console.info("[invoke_flightPriceData] 处理完毕");
-            PAGE_EVENT.trigger("wrapper_loadData", G);
+            PAGE_EVENT.trigger("wrapper_loadData", F);
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
     this.searchEnd = function() {
-        if (w == 2) {
+        if (v == 2) {
             return true;
         }
-        if (w != 2 && d == 2 && j == 2) {
-            w = 2;
-            $jex.event.trigger(q, "searchEnd");
+        if (v != 2 && d == 2 && i == 2) {
+            v = 2;
+            $jex.event.trigger(p, "searchEnd");
             $jex.console.info("searchEND ::: OK ");
             return true;
         }
         return false;
     };
     this.isSearchEnd = function() {
-        return w == 2;
+        return v == 2;
     };
     this._invoke_ExtInfo = function() {
         $jex.console.info("调用扩展信息及准点率");
-        var E = this.param;
-        var C = p + "/twell/flight/DynamicFlightInfo.jsp";
-        var D = {
-            departureCity: E.fromCity,
-            arrivalCity: E.toCity,
-            departureDate: E.fromDate,
-            fromCity: E.fromCity,
-            toCity: E.toCity
+        var D = this.param;
+        var B = o + "/twell/flight/DynamicFlightInfo.jsp";
+        var C = {
+            departureCity: D.fromCity,
+            arrivalCity: D.toCity,
+            departureDate: D.fromDate,
+            fromCity: D.fromCity,
+            toCity: D.toCity
         };
-        $jex.merge(D, this.oparam);
-        $jex.ajax(C, D, function(F) {
-            v && console.log("扩展信息回数：", F, new Date());
-            b = F;
-            $jex.event.trigger(q, "loadedExtInfo", F);
+        $jex.merge(C, this.oparam);
+        $jex.ajax(B, C, function(E) {
+            u && console.log("扩展信息回数：", E, new Date());
+            b = E;
+            $jex.event.trigger(p, "loadedExtInfo", E);
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
     this._invoke_AVData = function() {
         $jex.console.info("调用AV数据");
-        var C = p + "/twell/flight/OneWayFlight_Info.jsp";
-        $jex.ajax(C, l, function(D) {
-            v && console.log("AVData回数：", D, new Date());
-            o = D;
-            $jex.event.trigger(q, "loadedAVData", D);
-            m = true;
-            if (!$jex.$empty(D.flightInfo)) {
-                if (!A) {
-                    $jex.event.trigger(q, "loadedFirstData", D);
-                    A = true;
+        var B = o + "/twell/flight/OneWayFlight_Info.jsp";
+        $jex.ajax(B, k, function(C) {
+            u && console.log("AVData回数：", C, new Date());
+            n = C;
+            $jex.event.trigger(p, "loadedAVData", C);
+            l = true;
+            if (!$jex.$empty(C.flightInfo)) {
+                if (!z) {
+                    $jex.event.trigger(p, "loadedFirstData", C);
+                    z = true;
                 }
             }
-            q.queryNext();
+            p.queryNext();
         }, {
-            onerror: q._onerror
+            onerror: p._onerror
         });
     };
     this._onerror = function() {
-        $jex.event.trigger(q, "onerror", arguments);
+        $jex.event.trigger(p, "onerror", arguments);
     };
     var g = [];
     this.insertTask = function() {
-        var C = "task" + $jex.globalID();
-        g.push(C);
-        return C;
+        var B = "task" + $jex.globalID();
+        g.push(B);
+        return B;
     };
     this.getTask = function() {
         if (g.length == 0) {
@@ -2459,10 +2459,10 @@ var DomesticOnewaySearchService = new(function() {
         }
         return g[0];
     };
-    this.finishTask = function(D) {
-        for (var C = 0; C < g.length; C++) {
-            if (g[C] == D) {
-                g.splice(C, 1);
+    this.finishTask = function(C) {
+        for (var B = 0; B < g.length; B++) {
+            if (g[B] == C) {
+                g.splice(B, 1);
             }
         }
     };
@@ -2471,113 +2471,113 @@ var DomesticOnewaySearchService = new(function() {
 var PriceCheckService = (function() {
     var a = "/twell/flight/tags/onewayflight_pricecheck.jsp";
     var g = 10000;
-    var l = 1000;
-    var n = {};
+    var k = 1000;
+    var m = {};
 
-    function c(o) {
-        var p = System.service.param;
+    function c(n) {
+        var o = System.service.param;
         return {
             queryID: System.service.queryId(),
-            departureCity: p.fromCity,
-            arrivalCity: p.toCity,
-            departureDate: p.fromDate,
-            returnDate: p.fromDate,
-            flightCode: o.split("_")[0],
-            label: o.split("_")[1]
+            departureCity: o.fromCity,
+            arrivalCity: o.toCity,
+            departureDate: o.fromDate,
+            returnDate: o.fromDate,
+            flightCode: n.split("_")[0],
+            label: n.split("_")[1]
         };
     }
 
-    function b(o) {
-        var p = f(o);
-        p.param = p.param || c(o);
-        p.param.interceptTime = p.lastTime;
-        return p.param;
+    function b(n) {
+        var o = f(n);
+        o.param = o.param || c(n);
+        o.param.interceptTime = o.lastTime;
+        return o.param;
     }
 
-    function f(o) {
-        n[o] = n[o] || {};
-        return n[o];
+    function f(n) {
+        m[n] = m[n] || {};
+        return m[n];
     }
 
-    function k(p, o) {
-        var q = b(p);
-        $jex.ajax(a, q, o, {
+    function j(o, n) {
+        var p = b(o);
+        $jex.ajax(a, p, n, {
             onerror: function() {
-                o();
+                n();
             }
         });
     }
 
-    function d(p, r) {
-        var q = r.lastTime;
+    function d(o, q) {
+        var p = q.lastTime;
 
-        function o(s) {
-            if (r.lastTime > q) {
+        function n(r) {
+            if (q.lastTime > p) {
                 return;
             }
-            if (s.ret === false) {
-                h(p);
+            if (r.ret === false) {
+                h(o);
             } else {
-                r.interval = s.interval;
-                r.data = $jex.extend(r.data || {}, s.priceData);
-                r.lastTime = s.interceptTime;
+                q.interval = r.interval;
+                q.data = $jex.extend(q.data || {}, r.priceData);
+                q.lastTime = r.interceptTime;
             }
         }
-        k(p, function(s) {
-            if (s) {
-                o(s);
+        j(o, function(r) {
+            if (r) {
+                n(r);
             }
-            m(p);
+            l(o);
         });
     }
 
-    function j(o) {
-        m(o);
+    function i(n) {
+        l(n);
     }
 
-    function m(o) {
-        var p = f(o);
-        if (p._timer === -1) {
+    function l(n) {
+        var o = f(n);
+        if (o._timer === -1) {
             return;
         }
-        clearTimeout(p._timer);
-        p._timer = setTimeout(function() {
-            if (p.lastTime) {
-                d(o, p);
+        clearTimeout(o._timer);
+        o._timer = setTimeout(function() {
+            if (o.lastTime) {
+                d(n, o);
             } else {
-                m(o);
+                l(n);
             }
-        }, p.interval || g);
+        }, o.interval || g);
     }
 
-    function h(o) {
-        var p = n[o];
-        if (p) {
-            clearTimeout(p._timer);
-            p._timer = -1;
+    function h(n) {
+        var o = m[n];
+        if (o) {
+            clearTimeout(o._timer);
+            o._timer = -1;
         }
     }
     var e = {};
-    e.initData = function(o, q) {
-        var p = f(o);
-        p.lastTime = q;
-        p.interval = l;
-        p.data = {};
+    e.initData = function(n, p) {
+        var o = f(n);
+        o.lastTime = p;
+        o.interval = k;
+        o.data = {};
     };
-    e.pause = function(o) {
-        h(o);
+    e.pause = function(n) {
+        h(n);
     };
-    e.start = function(o) {
-        var p = f(o);
-        if (p._timer === -1) {
-            p._timer = null;
+    e.start = function(n) {
+        var o = f(n);
+        if (o._timer === -1) {
+            o._timer = null;
         }
-        p.interval = l;
-        j(o);
+        o.interval = k;
+        i(n);
     };
-    e.getPriceInfo = function(p, o) {
-        var q = n[p];
-        return q && q.data && q.data[o];
+    e.getPriceInfo = function(o, n) {
+        var p = m[o];
+        return p && p.data && p.data[n];
     };
     return e;
 })();
@@ -2677,22 +2677,22 @@ TransferFlightEntity.prototype.update = function() {
     this.secondTrip().update();
     $jex.event.trigger(this, "updating");
 };
-TransferFlightEntity.tryCreate = function(j, f, c, g) {
-    var a = j[0];
-    var e = j[1];
+TransferFlightEntity.tryCreate = function(i, f, c, g) {
+    var a = i[0];
+    var e = i[1];
     var b = SingleTripFlightEntity.tryCreate(a, f, c);
     var h = SingleTripFlightEntity.tryCreate(e, f, c);
     if (!b || !h) {
         return null;
     }
     var d = new TransferFlightEntity();
-    d.key(j);
+    d.key(i);
     d.firstTrip(b);
     d.secondTrip(h);
     d.commInfoMgr(f);
     d.flightInfoMgr(c);
     d.update();
-    g.put(j, d);
+    g.put(i, d);
     return d;
 };
 var SingleTripFlightEntity = function() {
@@ -2914,28 +2914,28 @@ $jex.exec(function() {
         }
         $jex.console.start("FlightListUISorter.resort");
         var M = [];
-        var m = function(k) {
-            if (h[k] != null) {
-                var n = h[k].lowestPrice();
-                if (n != null) {
-                    return n;
+        var m = function(i) {
+            if (h[i] != null) {
+                var k = h[i].lowestPrice();
+                if (k != null) {
+                    return k;
                 } else {
                     return s;
                 }
             }
         };
-        var x = function(k) {
-            if (h[k] != null) {
-                var n = FlightListUISorter.sortPrice(h[k].carrierCode(), h[k].lowestPrice());
-                if (n != null) {
-                    return n;
+        var x = function(i) {
+            if (h[i] != null) {
+                var k = FlightListUISorter.sortPrice(h[i].carrierCode(), h[i].lowestPrice());
+                if (k != null) {
+                    return k;
                 } else {
                     return s;
                 }
             }
         };
-        v.sort(function(n, k) {
-            return m(n) - m(k);
+        v.sort(function(k, i) {
+            return m(k) - m(i);
         });
         var q;
         var t;
@@ -2969,27 +2969,27 @@ $jex.exec(function() {
         var l = [];
         var f, u;
         var c = [];
-        $jex.foreach(v, function(k) {
-            if (h[k].type == "oneway") {
-                f = h[k].carrierCode();
-                u = m(k);
+        $jex.foreach(v, function(i) {
+            if (h[i].type == "oneway") {
+                f = h[i].carrierCode();
+                u = m(i);
                 if (u != s && f != t && f in I) {
-                    if ($jex.array.indexOf(I[f], k) < 0) {
-                        I[f].push(k);
+                    if ($jex.array.indexOf(I[f], i) < 0) {
+                        I[f].push(i);
                     }
                 } else {
                     if (u == s) {
-                        j.push(k);
+                        j.push(i);
                     } else {
-                        c.push(k);
+                        c.push(i);
                     }
                 }
             } else {
-                if (h[k].type == "transfer") {
-                    r.push(k);
+                if (h[i].type == "transfer") {
+                    r.push(i);
                 } else {
-                    if (h[k].type == "compose") {
-                        B.push(k);
+                    if (h[i].type == "compose") {
+                        B.push(i);
                     }
                 }
             }
@@ -3008,19 +3008,19 @@ $jex.exec(function() {
                 r.splice(0, 1);
             }
         }
-        $jex.foreach(I, function(k) {
-            if (k.length > 0) {
-                k.sort(function(p, n) {
-                    return x(p) - x(n);
+        $jex.foreach(I, function(i) {
+            if (i.length > 0) {
+                i.sort(function(n, k) {
+                    return x(n) - x(k);
                 });
-                F.push(k[0]);
-                k.splice(0, 1);
-                l = l.concat(k);
+                F.push(i[0]);
+                i.splice(0, 1);
+                l = l.concat(i);
             }
         });
         c = c.concat(l);
-        c.sort(function(n, k) {
-            return x(n) - x(k);
+        c.sort(function(k, i) {
+            return x(k) - x(i);
         });
         c = c.concat(B);
         c = c.concat(r);
@@ -3050,14 +3050,14 @@ $jex.exec(function() {
                 y.push(g[J]);
             }
         }
-        E.sort(function(n, k) {
-            return x(n) - x(k);
+        E.sort(function(k, i) {
+            return x(k) - x(i);
         });
         G = G.concat(E, y);
         M = M.concat(G, c, j);
         v.splice(0, v.length);
-        $jex.foreach(M, function(n) {
-            v.push(n);
+        $jex.foreach(M, function(i) {
+            v.push(i);
         });
         $jex.event.trigger(FlightListUISorter, "dosort", v, h);
         $jex.console.end("FlightListUISorter.resort");
@@ -3081,20 +3081,20 @@ PagerUI.prototype.update = function(f) {
     var d = [];
     var a = this;
     var b = new pageCreator(c, g);
-    b.renderPrevpage = function(j) {
+    b.renderPrevpage = function(i) {
         a.append("<a ", "prev", ' href="#" value="-1"> 上一页 </a>');
         d.push("prev");
     };
-    b.renderNextpage = function(j) {
+    b.renderNextpage = function(i) {
         a.append("<a ", "next", ' href="#" value="-2">下一页 </a>');
         d.push("next");
     };
-    b.renderPage = function(j, k) {
-        if (k) {
-            a.text("<em>", j + 1, "</em>");
+    b.renderPage = function(i, j) {
+        if (j) {
+            a.text("<em>", i + 1, "</em>");
         } else {
-            a.append("<a ", "p" + j).text(' href="#" value="', j, '">', j + 1, "</a>");
-            d.push("p" + j);
+            a.append("<a ", "p" + i).text(' href="#" value="', i, '">', i + 1, "</a>");
+            d.push("p" + i);
         }
     };
     b.renderPrefixDot = function() {
@@ -3108,10 +3108,10 @@ PagerUI.prototype.update = function(f) {
         var j = this;
         for (var k = 0; k < d.length; k++) {
             var l = d[k];
-            (function(m) {
-                $jex.event.binding(j.find(m), "click", function(n) {
+            (function(i) {
+                $jex.event.binding(j.find(i), "click", function(m) {
                     j.go(parseInt(this.getAttribute("value"), 10));
-                    $jex.stopEvent(n);
+                    $jex.stopEvent(m);
                 });
             })(l);
         }
@@ -3191,20 +3191,20 @@ OnewayPagerUI.prototype.update = function(f) {
     var d = [];
     var a = this;
     var b = new pageCreator(c, g);
-    b.renderPrevpage = function(j) {
+    b.renderPrevpage = function(i) {
         a.append("<a ", "prev", ' href="#" value="-1"> 上一页 </a> ');
         d.push("prev");
     };
-    b.renderNextpage = function(j) {
+    b.renderNextpage = function(i) {
         a.append("<a ", "next", ' href="#" value="-2">下一页 </a> ');
         d.push("next");
     };
-    b.renderPage = function(j, k) {
-        if (k) {
-            a.text("<em>", j + 1, "</em> ");
+    b.renderPage = function(i, j) {
+        if (j) {
+            a.text("<em>", i + 1, "</em> ");
         } else {
-            a.append("<a ", "p" + j).text(' href="#" value="', j, '">', j + 1, "</a> ");
-            d.push("p" + j);
+            a.append("<a ", "p" + i).text(' href="#" value="', i, '">', i + 1, "</a> ");
+            d.push("p" + i);
         }
     };
     b.renderPrefixDot = function() {
@@ -3364,26 +3364,26 @@ OneWaySearchStatusbar.prototype.updateStatus = function() {
     $jex.ui.lockScreenProgress = function(e, h) {
         var f = e && e.msg || "此次报价已过期，正在重新搜索",
             g = e && e.time || 3000;
-        var l = ['<div class="b_pop_bjprc">', '<div class="e_btm_fliter"></div>', '<div class="e_box_fliter"></div>', '<div class="e_pop_bjprc">', '<div class="m_pop_bjprc">', "<h3>", f, '</h3><div class="prc_bjpop"><em id="js-progress_loading" style="width: 1%"></em></div></div></div></div>'].join("");
-        $jex.lightbox.show(l);
+        var k = ['<div class="b_pop_bjprc">', '<div class="e_btm_fliter"></div>', '<div class="e_box_fliter"></div>', '<div class="e_pop_bjprc">', '<div class="m_pop_bjprc">', "<h3>", f, '</h3><div class="prc_bjpop"><em id="js-progress_loading" style="width: 1%"></em></div></div></div></div>'].join("");
+        $jex.lightbox.show(k);
         $jex.lightbox.overlay.style.backgroundColor = "#fff";
-        var j = $jex.$("js-progress_loading");
-        var o = 0,
-            n = 100,
-            m = 20,
-            q = 0;
-        var p = Math.floor(g / m);
+        var i = $jex.$("js-progress_loading");
+        var n = 0,
+            m = 100,
+            l = 20,
+            p = 0;
+        var o = Math.floor(g / l);
 
-        function k() {
-            j.style.width = Math.ceil(a(q, o, n, m)) + "%";
-            if (q < m) {
-                q++;
-                setTimeout(k, p);
+        function j() {
+            i.style.width = Math.ceil(a(p, n, m, l)) + "%";
+            if (p < l) {
+                p++;
+                setTimeout(j, o);
             } else {
                 h && h();
             }
         }
-        k();
+        j();
     };
 })();
 
@@ -3591,7 +3591,7 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
                 if (h.offsetHeight > 30) {
                     $jex.addClassName(h.parentNode, "e_qvt_route_oth");
                 }
-            } catch (j) {}
+            } catch (i) {}
         }, 10);
     });
     b = c = d = f = null;
@@ -3679,137 +3679,49 @@ function SingleTripFlightWrapperUI(a) {
     this._type = "SingleTripFlightWrapperUI";
 }
 $jex.extendClass(SingleTripFlightWrapperUI, OnewayFlightWrapperUI);
-var RoundTripFlightRecommend = function(a) {
-    this.packagelist = a.packagelist.normal;
-    if (this._isEmptyObj(this.packagelist)) {
-        return;
-    }
-    this.ele = document.getElementById("js-mod-recommendRoundtrip");
-    if (!this.ele) {
-        return;
-    }
-    this.reData = [];
-    this.out = a.out || {};
-    this.re = a.re || {};
-    this.outSuffix = this._getSuffix(this.out);
-    this.reSuffix = this._getSuffix(this.re);
-    this.from = this.outSuffix.split("-")[0];
-    this.to = this.outSuffix.split("-")[1];
-    this.host = "http://flight.qunar.com/twell/flight/Search.jsp?";
-    this.param = {
-        from: "flight_youce_wangfantuijian",
-        searchType: "RoundTripFlight",
-        fromCity: this.outSuffix.split("-")[0],
-        toCity: this.outSuffix.split("-")[1]
+var RoundTripFlightRecommend = (new function(a) {
+    this.init = function() {
+        if (!a) {
+            return;
+        }
+        this.ele = a;
+        this.url = this.getURL();
+        this.loadData();
+    };
+    this.getURL = function() {
+        var c = $jex.parseQueryParam();
+        var b = "http://l-interdb1.f.cn1.qunar.com/rt_recommend?count=3&fromCity=" + encodeURIComponent(c.searchDepartureAirport) + "&toCity=" + encodeURIComponent(c.searchArrivalAirport) + "&depDate=" + encodeURIComponent(c.searchDepartureTime);
+        return b;
+    };
+    this.loadData = function() {
+        var b = new ScriptRequest({
+            funcName: "RoundTripFlightRecommend.callBack",
+            callbackName: "callback"
+        });
+        b.send(this.url);
+    };
+    this.callBack = function(b) {
+        if (!b.ret) {
+            return;
+        }
+        this.render(b.data);
+    };
+    this.render = function(f) {
+        var e, b = f.list.length || 0;
+        if (b === 0) {
+            return;
+        }
+        var d = ['<div class="b_rec_sqwp">', '<div class="b_rec_sq">', '<div class="bg_sq"></div>', '<div class="e_sq_tit"> 往返一起买 </div>', '<div class="e_sq_cont">', '<div class="m_sq_ct">' + f.fromCity + '<i class="ico_wf_sq"></i>' + f.toCity + "</div>", '<ul class="ul_wf_rec">'];
+        for (e = 0; e < b; e++) {
+            var c = f.list[e].url;
+            c += (/&$/.test(c) ? "" : "&") + "from=flight_youce_wangfantuijian";
+            d.push('<li><a class="a_blk" target="_blank" href="' + c + '"><div class="m1"><span class="s_day">' + f.list[e].fromDate + '去</span>&nbsp;&nbsp;<span class="s_day">' + f.list[e].toDate + '回</span>&nbsp;&nbsp;<span class="s_prc s_oldprc"><i class="rmb">¥</i>' + f.list[e].oPrice + '</span></div><div class="m2">特价包&nbsp;&nbsp;<span class="s_prc"><i class="rmb">¥</i>' + f.list[e].pPrice + '</span>&nbsp;&nbsp;<span class="highlight">节省<span class="s_prc"><i class="rmb">¥</i>' + f.list[e].save + "</span></span></div></a></li>");
+        }
+        d.push("</ul></div></div></div>");
+        this.ele.innerHTML = d.join("");
     };
     this.init();
-    this.render();
-    this.bindEvent();
-};
-RoundTripFlightRecommend.prototype = {
-    constructor: RoundTripFlightRecommend,
-    init: function() {
-        var m = this,
-            g = 0;
-        for (i in this.packagelist) {
-            var d = this.packagelist[i],
-                b = i;
-            var c = b.split("|")[0],
-                a = b.split("|")[1];
-            var j = new Date($jex.date.parse(c)).getTime(),
-                l = new Date($jex.date.parse(a)).getTime();
-            if ((l - j) / (1000 * 60 * 60 * 24) <= 9) {
-                var f = parseInt(m.out[c + "|" + m.outSuffix].pr, 10),
-                    e = parseInt(m.re[a + "|" + m.reSuffix].pr, 10),
-                    k = f + e,
-                    h = parseInt(d.pr, 10);
-                if (h < k) {
-                    if (g > 2) {
-                        break;
-                    }
-                    g++;
-                    m.reData.push(m.buildData(h, k, e, c, a));
-                }
-            }
-        }
-        this._sort_reData();
-    },
-    render: function() {
-        if (this.reData.length < 1) {
-            return;
-        }
-        var c = 0,
-            b = this.reData.length,
-            a = [],
-            f = [],
-            d = this.ele;
-        for (; c < b; c++) {
-            a.push(e(this.reData[c]));
-        }
-
-        function e(h) {
-            var g = ["<li>", '<a href="', h.url, '" target="_blank" class="a_blk">', '   <div class="m1"><span class="s_day">', h.o, '去</span>&nbsp;&nbsp;<span class="s_day">', h.r, '回</span>&nbsp;&nbsp;<span class="s_prc s_oldprc"><i class="rmb">&yen;</i>', h.tp, "</span></div>", '   <div class="m2">特价包&nbsp;&nbsp;<span class="s_prc"><i class="rmb">&yen;</i>', h.p, '</span>&nbsp;&nbsp;<span class="highlight">节省<span class="s_prc"><i class="rmb">&yen;</i>', h.d, "</span></span></div>", "</a>", "</li>"].join("");
-            return g;
-        }
-        f.push('<div class="b_rec_sqwp">');
-        f.push('    <div class="b_rec_sq">');
-        f.push('        <div class="bg_sq"></div>');
-        f.push('        <div class="e_sq_tit"> 往返一起买 </div>');
-        f.push('        <div class="e_sq_cont">');
-        f.push('            <div class="m_sq_ct">', this.from, '<i class="ico_wf_sq"></i>', this.to, "</div>");
-        f.push('            <ul class="ul_wf_rec">');
-        f.push(a.join(""));
-        f.push("             </ul>");
-        f.push("        </div>");
-        f.push("    </div>");
-        f.push("</div>");
-        d.innerHTML = f.join("");
-    },
-    bindEvent: function() {
-        if (this.reData.length < 1) {
-            return;
-        }
-    },
-    _sort_reData: function() {
-        this.reData.sort(function(d, c) {
-            return new Date(d.rt).getTime() - new Date(c.rt).getTime();
-        });
-    },
-    _getSuffix: function(b) {
-        var a;
-        for (i in b) {
-            a = i.split("|")[1];
-            break;
-        }
-        return a;
-    },
-    _isEmptyObj: function(b) {
-        for (var a in b) {
-            return false;
-        }
-        return true;
-    },
-    buildData: function(b, k, f, e, a) {
-        this.param.fromDate = e;
-        this.param.toDate = a;
-        var g = k - b,
-            c = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-        e = e.replace(/-/g, "/");
-        a = a.replace(/-/g, "/");
-        var j = c[new Date(e).getDay()],
-            h = c[new Date(a).getDay()];
-        return {
-            p: b,
-            d: g,
-            rp: f,
-            o: e.substring(e.indexOf("/") + 1),
-            r: a.substring(a.indexOf("/") + 1),
-            rt: a,
-            url: this.host + $jex.toQueryString(this.param),
-            tp: k
-        };
-    }
-};
+}(document.getElementById("js-mod-recommendRoundtrip")));
 var SpringHotRoundtrip = (new function() {
     var service = DomesticOnewaySearchService;
     var analyzer = DomesticOnewayDataAnalyzer;
@@ -4248,7 +4160,6 @@ var SpringHotRoundtrip = (new function() {
             return;
         }
         this.cacheData = this.patch(data);
-        this.rtFlightRecommend = new RoundTripFlightRecommend(data);
         this.sevenday();
         this.updateSevenDayToday();
         this.springRoundRecommend_Load();
@@ -4706,25 +4617,25 @@ var BookingPriceCheck = (function() {
             HoldLastShowFlight.goHoldUrl(d, c);
         });
     };
-    a.check = function(k, h) {
-        var c = k.ownerFlight();
+    a.check = function(j, h) {
+        var c = j.ownerFlight();
         if (c.type == "onewayInTransfer") {
             return;
         }
         var g = c.getWrapperListType(),
-            l = k.dataSource().type;
-        var m = c.key() + "_" + g,
-            o = k.wrapperId() + "_" + l;
-        var d = PriceCheckService.getPriceInfo(m, o);
+            k = j.dataSource().type;
+        var l = c.key() + "_" + g,
+            n = j.wrapperId() + "_" + k;
+        var d = PriceCheckService.getPriceInfo(l, n);
         if (d) {
             h = h || 0;
             var b = h == 1 ? d.pr : d.bpr,
-                n = h == 1 ? k.afeePrice() : k.bprPrice();
-            if (b !== n) {
-                var j = c._shareFlight || c;
-                PAGE_EVENT.trigger("wrapper_price_change", j.flightKeyCode(), g);
+                m = h == 1 ? j.afeePrice() : j.bprPrice();
+            if (b !== m) {
+                var i = c._shareFlight || c;
+                PAGE_EVENT.trigger("wrapper_price_change", i.flightKeyCode(), g);
                 try {
-                    TsinghuaOneWayTracker.bookingHoldTrack(k, h, b, n);
+                    TsinghuaOneWayTracker.bookingHoldTrack(j, h, b, m);
                 } catch (f) {}
                 return true;
             }
@@ -5457,17 +5368,17 @@ flightResultController.prototype.initUI = function() {
     };
     this.trackFilters = function(f) {
         var e = "";
-        var j = [];
+        var i = [];
         var h = [];
         var c = this.filterGroup;
-        $jex.foreach(["起飞时间", "机型", "航空公司", "起降机场", "方式"], function(l, k) {
-            var m = c.getFilterUI(l);
-            if (m) {
-                j.push(m);
+        $jex.foreach(["起飞时间", "机型", "航空公司", "起降机场", "方式"], function(k, j) {
+            var l = c.getFilterUI(k);
+            if (l) {
+                i.push(l);
             }
-            h[k] = m ? 1 : 0;
+            h[j] = l ? 1 : 0;
         });
-        var d = b.getCheckGrpArr(j);
+        var d = b.getCheckGrpArr(i);
         if (d.length > 0) {
             e = d.join("^");
         }
@@ -5677,47 +5588,47 @@ SortHandler.prototype._init = function() {
     f.searchArrivalTime = f.searchArrivalTime || f.arrivalTime;
     try {
         var g = new Date(f.searchArrivalTime.replace(/-/g, "/"));
-    } catch (k) {
+    } catch (j) {
         f.searchArrivalTime = f.searchDepartureTime;
     }
-    $jex.foreach(f, function(t, e, s) {
-        $jex.console.trace("[PARAM]", s, ":", t);
+    $jex.foreach(f, function(s, e, r) {
+        $jex.console.trace("[PARAM]", r, ":", s);
     });
     $jex.console.trace("[CLIENT]", window.navigator.userAgent.toString());
     window.location.param = function() {
         return f;
     };
-    window.location.research = function(x, v, t, e, w) {
-        var u = $jex.merge(f, {
-            searchDepartureAirport: x || f.searchDepartureAirport,
-            searchArrivalAirport: v || f.searchArrivalAirport,
-            searchDepartureTime: t || f.searchDepartureTime,
+    window.location.research = function(w, u, s, e, v) {
+        var t = $jex.merge(f, {
+            searchDepartureAirport: w || f.searchDepartureAirport,
+            searchArrivalAirport: u || f.searchArrivalAirport,
+            searchDepartureTime: s || f.searchDepartureTime,
             searchArrivalTime: e || f.searchArrivalTime,
-            from: w || f.from
+            from: v || f.from
         });
-        var s = window.location.href.split("?")[0];
-        s += "?" + $jex.toQueryString(u);
-        return s;
+        var r = window.location.href.split("?")[0];
+        r += "?" + $jex.toQueryString(t);
+        return r;
     };
     if (f.loadDynamicCss) {
-        var o = document.getElementsByTagName("head").item[0];
+        var n = document.getElementsByTagName("head").item[0];
         css = document.createElement("link");
         css.href = "styles/" + f.loadDynamicCss + ".css";
         css.rel = "stylesheet";
         css.type = "text/css";
-        o.appendChild(css);
+        n.appendChild(css);
     }
     window.System = {
         service: DomesticOnewaySearchService,
         analyzer: DomesticOnewayDataAnalyzer,
         param: f
     };
-    var j = DomesticOnewaySearchService;
+    var i = DomesticOnewaySearchService;
     var h = DomesticOnewayDataAnalyzer;
-    h.setSearchService(j);
-    window.SS = j;
-    var a = new flightResultController(j, h);
-    var m = new FlashAdUI({
+    h.setSearchService(i);
+    window.SS = i;
+    var a = new flightResultController(i, h);
+    var l = new FlashAdUI({
         elemId: "hdivResultPanel"
     });
     var b = function() {
@@ -5734,27 +5645,27 @@ SortHandler.prototype._init = function() {
         pageId: "DomesticOnewayList",
         timerList: ["t_done", "t_firstData"]
     });
-    var l = 0;
+    var k = 0;
 
-    function r() {
-        if (l === 1) {
+    function q() {
+        if (k === 1) {
             c.send();
         }
-        l++;
+        k++;
     }
     $jex.event.bind(window, "load", function() {
-        r();
+        q();
     });
-    var p = false;
-    var n = function() {
-        if (p) {
+    var o = false;
+    var m = function() {
+        if (o) {
             return;
         }
         c.end("t_firstData");
-        r();
+        q();
         $jex.console.start("第一屏数据耗时");
         setTimeout(function() {
-            function s() {
+            function r() {
                 setTimeout(function() {
                     SpringHotRoundtrip.updateSevenDayToday();
                 }, 0);
@@ -5769,10 +5680,10 @@ SortHandler.prototype._init = function() {
             });
             SpringHotRoundtrip.load();
             $jex.event.binding(h, "dataComplete", function() {
-                s();
+                r();
             });
             $jex.event.binding(PAGE_EVENT, "lowPriceChange", function() {
-                s();
+                r();
             });
             dflightTool.startSpecial();
             $jex.console.end("第一屏,七日低价 ");
@@ -5782,10 +5693,10 @@ SortHandler.prototype._init = function() {
                 $jex.console.end("第一屏,侧边推荐酒店");
             }, 0);
             $jex.console.start("第一屏,加载广告 ");
-            var e = j.longwell();
-            AD_Manage.qde_query = function(u) {
-                var t = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
-                u(t);
+            var e = i.longwell();
+            AD_Manage.qde_query = function(t) {
+                var s = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
+                t(s);
             };
             $OTALOGIC.init(f.searchDepartureAirport, f.searchArrivalAirport, f.searchDepartureTime);
             $OTALOGIC.load_top("ifrmVendorBanner");
@@ -5795,77 +5706,77 @@ SortHandler.prototype._init = function() {
             LazyScrollShow.start();
             $jex.console.end("第一屏数据耗时");
         }, 0);
-        p = true;
+        o = true;
     };
-    var d = function(y) {
+    var d = function(x) {
         if (typeof QunarHistory == "undefined" || !QunarHistory || !QunarHistory.SFlight) {
             setTimeout(function() {
-                d(y);
+                d(x);
             }, 500);
             return;
         }
-        var t = y;
-        var e = encodeURIComponent(t.dept.input);
-        var z = encodeURIComponent(t.dept.country);
-        var s = encodeURIComponent(t.arri.input);
-        var u = encodeURIComponent(t.arri.country);
-        var x = new Date(f.searchDepartureTime.replace(/-/g, "/"));
-        var w = new QunarHistory.SFlight(e, s, new Date().getTime());
-        w.addDate(x);
-        w.addCountry(z + "-" + u);
-        QunarHistory.service.addNode(w);
+        var s = x;
+        var e = encodeURIComponent(s.dept.input);
+        var y = encodeURIComponent(s.dept.country);
+        var r = encodeURIComponent(s.arri.input);
+        var t = encodeURIComponent(s.arri.country);
+        var w = new Date(f.searchDepartureTime.replace(/-/g, "/"));
+        var u = new QunarHistory.SFlight(e, r, new Date().getTime());
+        u.addDate(w);
+        u.addCountry(y + "-" + t);
+        QunarHistory.service.addNode(u);
     };
 
-    function q() {
-        $jex.event.binding(j, "expireQuery", function() {
+    function p() {
+        $jex.event.binding(i, "expireQuery", function() {
             var e = window.location.research(null, null, $jex.date.add(SERVER_TIME, 1, true), $jex.date.add(SERVER_TIME, 3, true));
             top.location.href = e;
             return;
         });
-        $jex.event.binding(j, "validateComplete", function(e) {
+        $jex.event.binding(i, "validateComplete", function(e) {
             setTimeout(function() {
-                if (j.isValidQuery()) {
+                if (i.isValidQuery()) {
                     d(e);
                 }
             }, 0);
         });
-        $jex.event.binding(j, "invalidQuery", function() {
+        $jex.event.binding(i, "invalidQuery", function() {
             TraceAnalyzer.all.invalidErr();
         });
-        $jex.event.binding(j, "noTransferData", function() {
+        $jex.event.binding(i, "noTransferData", function() {
             TraceAnalyzer.all.noTransErr();
         });
-        $jex.event.binding(j, "sameCity", function() {
-            m.show("sameCity");
+        $jex.event.binding(i, "sameCity", function() {
+            l.show("sameCity");
             TraceAnalyzer.all.sameCityErr();
         });
         $jex.event.binding(h, "noResultEnd", function() {
-            m.show("noResult");
+            l.show("noResult");
             TraceAnalyzer.all.noResultErr().tsingReport();
         });
-        $jex.event.binding(j, "loadedFirstData", function() {
-            n();
+        $jex.event.binding(i, "loadedFirstData", function() {
+            m();
         });
-        $jex.event.binding(j, "noOnewayData", function() {
-            n();
+        $jex.event.binding(i, "noOnewayData", function() {
+            m();
             TraceAnalyzer.all.noOnewayErr();
         });
-        $jex.event.binding(j, "searchEnd", function() {
-            n();
+        $jex.event.binding(i, "searchEnd", function() {
+            m();
             if (TraceAnalyzer && TraceAnalyzer.open) {
                 TraceAnalyzer.open.sendTsingOpenInfo();
             }
         });
     }
     window.$OTA = new OTABlade(new OTAInfoExtractor({
-        extract: function(s) {
+        extract: function(r) {
             var e = this;
-            $jex.foreach(s.priceInfo, function(u, x, w) {
-                var t = new OTAOnewayFlight(w);
-                t.flightInfo(s.flightInfo[w]);
-                t.priceInfo(s.priceInfo[w]);
-                e.flightType = t.type();
-                e.add(t);
+            $jex.foreach(r.priceInfo, function(t, w, u) {
+                var s = new OTAOnewayFlight(u);
+                s.flightInfo(r.flightInfo[u]);
+                s.priceInfo(r.priceInfo[u]);
+                e.flightType = s.type();
+                e.add(s);
             });
         }
     }));
@@ -5876,12 +5787,12 @@ SortHandler.prototype._init = function() {
         toCity: f.searchArrivalAirport,
         fromDate: new Date(f.searchDepartureTime.replace(/-/g, "/"))
     });
-    $jex.event.binding(j, "loadedLongwell", function(e) {
+    $jex.event.binding(i, "loadedLongwell", function(e) {
         $OTA.group.options({
             queryID: e.queryID
         });
     });
-    $jex.event.binding(j, "loadedOnewayData", function(e) {
+    $jex.event.binding(i, "loadedOnewayData", function(e) {
         $OTA.extract(e);
     });
     TraceAnalyzer.all = TraceAnalyzer.create().queryInfo({
@@ -5894,10 +5805,10 @@ SortHandler.prototype._init = function() {
         act: "noresult"
     });
     HotSale.init();
-    q();
+    p();
     BookingPriceCheck.init();
     c.start("t_firstData");
-    j.search(f);
+    i.search(f);
     setTimeout(function() {
         b();
     }, 10);
