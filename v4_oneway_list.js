@@ -3690,7 +3690,7 @@ var RoundTripFlightRecommend = (new function(a) {
     };
     this.getURL = function() {
         var c = $jex.parseQueryParam();
-        var b = "http://l-interdb1.f.cn1.qunar.com/rt_recommend?count=3&fromCity=" + encodeURIComponent(c.searchDepartureAirport) + "&toCity=" + encodeURIComponent(c.searchArrivalAirport) + "&depDate=" + encodeURIComponent(c.searchDepartureTime);
+        var b = "http://ws.qunar.com/rt_recommend?count=3&fromCity=" + encodeURIComponent(c.searchDepartureAirport) + "&toCity=" + encodeURIComponent(c.searchArrivalAirport) + "&depDate=" + encodeURIComponent(c.searchDepartureTime);
         return b;
     };
     this.loadData = function() {
