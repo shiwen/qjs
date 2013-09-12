@@ -1513,7 +1513,8 @@ var DomesticOnewayDataAnalyzer = new(function() {
                 "中转城市": function(I) {
                     return I.transferCity();
                 }
-            }
+            },
+            pageSize: 30
         });
         if (typeof FlightListUISorter != "undefined") {
             $jex.event.binding(f, "refreshCurrentPage", function(K, L, I, J) {
@@ -5398,9 +5399,6 @@ flightResultController.prototype.initUI = function() {
         elemId: "hdivPageSizer",
         initFire: false,
         values: [{
-            value: 15,
-            name: "15"
-        }, {
             value: 30,
             name: "30"
         }, {
