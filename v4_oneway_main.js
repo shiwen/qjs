@@ -14173,7 +14173,7 @@ var _tabConfig = {
             name: "阿姆斯特丹",
             country: "荷兰"
         }, {
-            name: "罗马",
+            name: "罗马（意大利）",
             country: "意大利"
         }, {
             name: "米兰",
@@ -14197,7 +14197,7 @@ var _tabConfig = {
             name: "伯明翰（英国）",
             country: "英国"
         }, {
-            name: "巴塞罗那",
+            name: "巴塞罗那(西班牙)",
             country: "西班牙"
         }, {
             name: "雅典",
@@ -14221,7 +14221,7 @@ var _tabConfig = {
             name: "维也纳",
             country: "奥地利"
         }, {
-            name: "格拉斯哥",
+            name: "格拉斯哥（英国）",
             country: "英国"
         }, {
             name: "日内瓦",
@@ -14230,7 +14230,7 @@ var _tabConfig = {
             name: "圣彼得堡",
             country: "俄罗斯"
         }, {
-            name: "都柏林",
+            name: "都柏林(爱尔兰)",
             country: "爱尔兰"
         }, {
             name: "汉堡",
