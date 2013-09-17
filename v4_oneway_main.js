@@ -8872,90 +8872,6099 @@ var Price_html;
     }
 })();
 var FlightEventProxy = (function() {
-        function c(d) {
-            var f = d.getAttribute("data-evtDataId");
-            return f && UICacheManager.getCache(f);
-        }
+    function c(d) {
+        var f = d.getAttribute("data-evtDataId");
+        return f && UICacheManager.getCache(f);
+    }
 
-        function b(h, g) {
-            var f = c(h);
+    function b(h, g) {
+        var f = c(h);
+        if (!f) {
+            return;
+        }
+        var d = f.dataSource();
+        f.stat.ownerWrapperEntity(d);
+        LockScreen(function() {
+            var j = d.ownerFlight(),
+                k = new Date($jex.date.parse(j.deptDate() + " " + j.deptTime())),
+                i = d.vendor().tss();
+            if (window.checkTimeOfStopSale && checkTimeOfStopSale.deal(k, i)) {
+                return;
+            }
+            f.bookingScreenUI.preBooking(function() {
+                if (typeof window.BookingPriceCheck != "undefined") {
+                    if (BookingPriceCheck.check(d, g)) {
+                        return;
+                    }
+                }
+                f.bookingLockScreenUI.preBooking(function(l) {
+                    d.setVpr(l);
+                    f.jumpToBooking(d, g);
+                }, g);
+            });
+        });
+        return false;
+    }
+
+    function a(f) {
+        this.$node = $jex.$(f);
+        var d = this;
+        $jex.event.binding(this.$node, "click", function(g) {
+            var h = g.target || window.event.srcElement;
+            while (h && h != this) {
+                if (h.id && d.clickDo(h.id, h) === false) {
+                    $jex.stopEvent(g);
+                    break;
+                }
+                h = h.parentNode;
+            }
+        });
+    }
+    a.prototype = {
+        clickDo: function(g, f) {
+            if (/^js-stopClick/.test(g)) {
+                return false;
+            }
+            if (!/(js_ctype)|([a-z_-]+)XI\d+/i.test(g)) {
+                return;
+            }
+            var d = this["_" + (RegExp.$1 || RegExp.$2) + "Click"];
+            return d && d(f);
+        },
+        _btnHideClick: function(f) {
+            var g = c(f);
+            if (!g) {
+                return;
+            }
+            g.owner().hideVendorPanel();
+            var d = $jex.offset($jex.$("resultAnchor"));
+            window.scrollTo(d.left, d.top);
+            return false;
+        },
+        _js_ctypeClick: function(f) {
+            var d = c(f);
+            if (!d) {
+                return;
+            }
+            LockScreen(function() {
+                var g = d.dataSource(),
+                    h = f.getAttribute("data-ctype");
+                System.service.genBookingTimeStamp();
+                System.analyzer.triggerTrace = true;
+                TsinghuaOneWayTracker.trackTabChange(h, d);
+                d.changeWrapperTypeList(h);
+            });
+            return false;
+        },
+        _btnstarRClick: function(g) {
+            var f = c(g);
             if (!f) {
                 return;
             }
-            var d = f.dataSource();
-            f.stat.ownerWrapperEntity(d);
-            LockScreen(function() {
-                var j = d.ownerFlight(),
-                    k = new Date($jex.date.parse(j.deptDate() + " " + j.deptTime())),
-                    i = d.vendor().tss();
-                if (window.checkTimeOfStopSale && checkTimeOfStopSale.deal(k, i)) {
+            var h = f.starUI,
+                d = f.dataSource();
+            SingletonUIManager.register("vendor", h, function() {
+                var i = d.vendor().starRank();
+                var j = f.find("usercomment");
+                if (h.commitOpened) {
+                    h.hideCommit();
+                } else {
+                    h.updateUserCommentPanel(d, i);
+                    h.render(j);
+                    h.showCommit();
+                }
+            }, function() {
+                h.hideCommit();
+            });
+            return false;
+        },
+        _btnBookClick: function(d) {
+            return b(d, 1);
+        },
+        _flightbarClick: function(d) {
+            return b(d, 0);
+        },
+        _openwrapperbtnClick: function(f) {
+            var d = c(f);
+            if (!d) {
+                return;
+            }
+            d._isUserClick = true;
+            d._openBtnClick = true;
+            d.openBtnClickEvent();
+            d._isUserClick = false;
+            d._openBtnClick = false;
+            return false;
+        },
+        _reWrBtnClick: function(j) {
+            var g = c(j);
+            if (!g) {
+                return;
+            }
+            var i = g.reWrCache,
+                f = i.entity;
+            if (f.dataSource().proBooking) {
+                var k = {
+                    recom: 1,
+                    BookingLocation: "kuaishu"
+                };
+                if (f.isOta()) {
+                    var h = f.afeePrice() ? 1 : 0;
+                    var d = f.dataSource().type;
+                    d = d && d.toLocaleUpperCase();
+                    if (d && h == 1) {
+                        d += "I";
+                    }
+                    k.prt = h;
+                }
+                i.entity.setVpr();
+                i.entity.booking(g.getRwstat(), k);
+            } else {
+                g.openBtnClickEvent();
+            }
+            return false;
+        },
+        _gotoFirstDetailClick: function(f) {
+            var d = c(f);
+            if (!d) {
+                return;
+            }
+            d.owner().gotoDetailPage(d.dataSource().firstTrip());
+            return false;
+        },
+        _gotoSecondDetailClick: function(f) {
+            var d = c(f);
+            if (!d) {
+                return;
+            }
+            d.owner().gotoDetailPage(d.dataSource().secondTrip());
+            return false;
+        },
+        _gotoDetailClick: function(f) {
+            var d = c(f);
+            if (!d) {
+                return;
+            }
+            d.ownerVendorListUI().owner().gotoDetailPage(d.dataSource());
+            return false;
+        }
+    };
+    return a;
+})();
+var HoldLastShowFlight = (function() {
+    var c = {};
+    var a, b;
+    c.init = function(d) {
+        if (!d.openCode) {
+            return;
+        }
+        c.setData(d);
+    };
+    c.clearLast = function() {
+        a = null;
+    };
+    c.setData = function(d) {
+        a = d.openCode;
+        if (a) {
+            a = decodeURIComponent(a);
+        }
+        b = d.openType;
+        delete d.openCode;
+        delete d.openType;
+    };
+    c.getUrlFlight = function() {
+        return a;
+    };
+    c.getUrlType = function(d) {
+        return d === a && /^(all|bf|s)$/.test(b) ? b : null;
+    };
+    c.goHoldUrl = function(f, d) {
+        $jex.ui.lockScreenProgress({}, function() {
+            var h = window.location.param();
+            h.openCode = encodeURIComponent(f);
+            h.openType = d;
+            var g = window.location.href.split("?")[0];
+            g += "?" + $jex.toQueryString(h);
+            location.href = g;
+        });
+    };
+    return c;
+})();
+
+function OTABlade(a) {
+    this.extractor = a;
+    this.group = new OTAGroup();
+}
+OTABlade.prototype = {
+    extract: function(a) {
+        this.extractor.extract(a);
+    },
+    require_wrapperinfo: function(b) {
+        var a = this;
+        this.group.datasource(this.extractor.result());
+        this.group.with_wrappers(function() {
+            b.call(a);
+        });
+    },
+    getDiscount: function(a) {
+        if (a <= 0) {
+            return "";
+        }
+        if (a > 9.9) {
+            if (a > 10) {
+                return "";
+            } else {
+                return "全价";
+            }
+        } else {
+            if (a.toString().length == 1) {
+                return a + ".0折";
+            } else {
+                return a + "折";
+            }
+        }
+    },
+    create_ui: function() {
+        var c = new UIObject();
+        var a = this.group.opts;
+        var g = this.group.sort_by_wrappers(this.extractor.flightType);
+        if (!g || g.length == 0) {
+            return c;
+        }
+        c.text('<div class="b_fly_pmt">');
+        c.text('<div class="e_pmt_tit"><h3>机票推广</h3></div>');
+        c.text('<div class="e_pmt_cont"> ');
+        for (var m = 0; m < g.length; m++) {
+            var o = g[m];
+            var d = o.createBookingUrl(this.group.opts.queryID, window.SERVER_TIME || new Date(), m);
+            var b = o.info.pr;
+            var h = "";
+            var j = o.flight.outFi();
+            var n = o.flight.retFi();
+            var f = "";
+            if (o.flight.pi.op) {
+                f = this.getDiscount(Math.floor(b * 100 / o.flight.pi.op) / 10);
+            }
+            var p = "";
+            var l = o.info.tax;
+            if (l && l == -1) {
+                h += "（含税）";
+            }
+            if (o.info.afee) {
+                h += "（含险）";
+                b += o.info.afee;
+            }
+            var k = o.flight.showType();
+            if (k == "rt") {
+                p = '<i class="i_baf"></i>';
+            } else {
+                if (k == "tf") {
+                    p = '<i class="i_cnt"></i>';
+                }
+            }
+            type = k == "rt" ? '<b class="rt"></b>' : '<b class="tr"></b>';
+            c.text('<dl class="dl_pmt_fly">');
+            c.text('<dt><a target="_blank" href="', d, '">', a.fromCity, "&nbsp;-&nbsp;", a.toCity, "&nbsp;&nbsp;", j.ca, "</a>", p, "</dt>");
+            if (k == "rt") {
+                this._createPriceHtml(c, j, "去程");
+                this._createPriceHtml(c, n, "回程");
+            } else {
+                this._createPriceHtml(c, j);
+            }
+            c.text('<dd><a target="_blank" href="', d, '" class="lnk_bk">订票</a><span class="highlight"><i class="rmb">¥</i><em class="f_tmt">', b, "</em>", h, "</span>&nbsp;", f, "</dd>");
+            c.text("</dl>");
+        }
+        c.text("</div> ");
+        c.text("</div>");
+        return c;
+    },
+    _createPriceHtml: function(a, b, c) {
+        c = c && (c + "&nbsp") || "";
+        a.text("<dd>" + c, this._fixDD(b.dd) + '<span class="f_tm">', b.dt, "-", b.at);
+        if (b.at.replace(":", "") * 1 - b.dt.replace(":", "") * 1 < 0) {
+            a.text('<i class="i_1day"></i>');
+        }
+        a.text("</span>", b.co, "</dd>");
+    },
+    _getCity: function(c, b) {
+        c = c || "";
+        b = b || "";
+        var a = "";
+        if ((c.length >= 4 || b.length >= 4) || (!c || !b)) {
+            a = b;
+        } else {
+            a = c + " - " + b;
+        }
+        return a;
+    },
+    _fixDD: function(a) {
+        a = a || "";
+        try {
+            return a.replace(/\d\d\d\d-/, "").replace("-", "/");
+        } catch (b) {
+            return "";
+        }
+    },
+    load: function(b) {
+        var a = this;
+        this.require_wrapperinfo(function() {
+            var c = a.create_ui();
+            b.call(a, c);
+        });
+    }
+};
+
+function OTAInfoExtractor(a) {
+    this.flight_map = {};
+    this.flight_array = [];
+    if (a) {
+        $jex.merge(this, a);
+    }
+}
+OTAInfoExtractor.prototype = {
+    result: function() {
+        return this.flight_array;
+    },
+    add: function(a) {
+        if (!this.flight_map[a.key()]) {
+            this.flight_map[a.key()] = a;
+            this.flight_array.push(a);
+        } else {
+            this.flight_map[a.key()].priceInfo(a.priceInfo());
+        }
+    },
+    extract: function(a) {}
+};
+
+function OnewayOTAInfoExtractor() {
+    OTAInfoExtractor.call(this);
+}
+OnewayOTAInfoExtractor.prototype = $jex.merge({
+    extract: function(a) {}
+}, OTAInfoExtractor);
+
+function RoundtripOTAInfoExtractor() {
+    OTAInfoExtractor.call(this);
+}
+RoundtripOTAInfoExtractor.prototype = $jex.merge({
+    extract: function(a) {}
+}, OTAInfoExtractor);
+
+function OTAFlight(a) {
+    this.keycode = a;
+    this.wrappers = {};
+    this._out = null;
+    this._ret = null;
+}
+OTAFlight.prototype = {
+    key: function() {
+        return this.keycode;
+    },
+    flightInfo: function(b, a) {
+        if (b) {
+            this._out = b;
+        }
+        if (a) {
+            this._ret = a;
+        }
+        return [this._out, this._ret];
+    },
+    outFi: function() {
+        if (this.wrInfo() && this.wrInfo().info) {
+            return this.wrInfo().info[0];
+        } else {
+            if (this._out) {
+                return this._out;
+            } else {
+                return {};
+            }
+        }
+    },
+    retFi: function() {
+        if (this.wrInfo() && this.wrInfo().info) {
+            return this.wrInfo().info[1];
+        } else {
+            if (this._ret) {
+                return this._ret;
+            } else {
+                return {};
+            }
+        }
+    },
+    priceInfo: function(a) {
+        if (a) {
+            this.pi = a;
+        }
+        return this.pi;
+    },
+    price: function() {
+        return this.pi ? this.pi.lowpr : Number.MAX_VALUE;
+    },
+    wrInfo: function(a) {
+        if (a) {
+            this.info = a;
+        }
+        return this.info;
+    },
+    type: function() {
+        if (this.keycode.indexOf("0") == 0) {
+            return "rt";
+        } else {
+            return "ow";
+        }
+    },
+    showType: function() {
+        if (this.keycode.indexOf("0") == 0) {
+            return "rt";
+        } else {
+            if (this.keycode.indexOf("/") > 0) {
+                return "tf";
+            } else {
+                return "ow";
+            }
+        }
+    },
+    getWrappers: function(a) {
+        if (a) {
+            if (!this.wrappers[a]) {
+                this.wrappers[a] = new OTAWrapper(this, this.wrInfo().wrs[a]);
+            }
+            return this.wrappers[a];
+        } else {
+            return this.wrappers;
+        }
+    }
+};
+
+function OTAOnewayFlight(a) {
+    OTAFlight.call(this, a);
+}
+OTAOnewayFlight.prototype = $jex.merge({}, OTAFlight.prototype);
+
+function OTARoundtripFlight(a) {
+    OTAFlight.call(this, a);
+}
+OTARoundtripFlight.prototype = $jex.merge({}, OTAFlight.prototype);
+
+function OTATransferFlight(a) {
+    OTAFlight.call(this, a);
+}
+OTATransferFlight.prototype = $jex.merge({}, OTAFlight.prototype);
+
+function OTAWrapper(a, b) {
+    this.flight = a;
+    this.info = b;
+}
+OTAWrapper.prototype.createBookingUrl = function(d, c, b) {
+    var a = {
+        full: "false",
+        fk: 0,
+        updatetime: this.info.ut,
+        inter: "false",
+        departureTime: this.flight.outFi().dt,
+        arrivalTime: this.flight.outFi().at
+    };
+    switch (this.flight.type()) {
+        case "rt":
+            a.isRt = 1;
+            a.returnDepartureTime = this.flight.retFi().dt;
+            a.returnArrivalTime = this.flight.retFi().at;
+            break;
+    }
+    if (c) {
+        a.querytime = c.getTime();
+    }
+    a.stat = (b < 10 ? "0" + b : b) + "1006";
+    return "/booksystem/booking.jsp?" + this.info.bu + "&" + $jex.toQueryString(a);
+};
+
+function OTAGroup(a) {
+    this.opts = $jex.merge({
+        debug: false,
+        carrier_white_filter: null,
+        carrier_black_filter: null,
+        elsCount: 10,
+        currentDate: new Date(),
+        fromDate: new Date(),
+        queryID: ""
+    }, a);
+    this.resultmap = {};
+    this._store = {
+        "0": [],
+        "1": [],
+        "2": [],
+        "3": []
+    };
+}
+OTAGroup.prototype = {
+    WRAPPER_URL: "/twell/flight/flight_ad.jsp",
+    CARRIER_COUNT_SETTING: {
+        "0": {
+            "0": 0,
+            "1": 1,
+            "2": 4,
+            "3": 5
+        },
+        "1": {
+            "0": 0,
+            "1": 0,
+            "2": 2,
+            "3": 8
+        },
+        "2": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 10
+        },
+        "3": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0
+        },
+        "default": {
+            "0": 2,
+            "1": 2,
+            "2": 3,
+            "3": 3
+        }
+    },
+    options: function(b) {
+        for (var a in b) {
+            if (b.hasOwnProperty(a)) {
+                this.opts[a] = b[a];
+            }
+        }
+    },
+    datasource: function(a) {
+        this.list = a;
+    },
+    groupByRole: function() {
+        var b = this;
+        var f = [];
+        var d = b.opts;
+        $jex.foreach(this.list, function(g) {
+            var h = g.outFi().ca;
+            if ((d.carrier_white_filter !== null && d.carrier_white_filter.indexOf(h) >= 0) || (d.carrier_black_filter !== null && d.carrier_black_filter.indexOf(h) < 0) || d.debug) {
+                f.push(g);
+            }
+        });
+        f.sort(function(h, g) {
+            return h.price() - g.price();
+        });
+        var c = this.getSetting();
+        var a = this._store;
+        $jex.foreach(f, function(g) {
+            var h = b.timeRange(g.outFi().dt);
+            if (a[h].length < c[h]) {
+                a[h].push(g);
+                b.resultmap[g.key()] = g;
+            }
+        });
+    },
+    sort_by_wrappers: function(c) {
+        var d = this._get_wrappers_info();
+        var k = d.codelist || [];
+        var m = this.resultmap;
+        var b = [];
+        var g = k.length;
+        if (c && c === "ow" && g > 9) {
+            g = 9;
+        }
+        for (var f = 0; f < g; f++) {
+            var l = (k[f] || "").split("_");
+            var a = l[0];
+            var j = l[1];
+            if (m[a]) {
+                var h = m[a].getWrappers(j);
+                if (h) {
+                    b.push(h);
+                }
+            }
+        }
+        return b;
+    },
+    with_wrappers: function(c) {
+        var a = this;
+        this.groupByRole();
+        var b = {
+            type: this.opts.type,
+            count: this.opts.elsCount,
+            code: this.toCodeString(),
+            queryID: this.opts.queryID
+        };
+        $jex.jsonp(a.WRAPPER_URL, b, function(d) {
+            a._wrappers_info = d;
+            a._with_wrappers();
+            c.call(a);
+        });
+    },
+    _get_wrappers_info: function() {
+        return this._wrappers_info || {
+            codemap: {},
+            codelist: []
+        };
+    },
+    _with_wrappers: function() {
+        var c = this._get_wrappers_info();
+        var a = c.codemap || {};
+        var b = this.resultmap;
+        $jex.foreach(a, function(h, f, g) {
+            var d = b[g];
+            if (!d) {
+                return $jex.$continue;
+            }
+            d.wrInfo(h);
+        });
+    },
+    toCodeString: function() {
+        var a = [];
+        $jex.foreach(this._store, function(b) {
+            $jex.foreach(b, function(c) {
+                a.push(c.key());
+            });
+        });
+        return a.join(",");
+    },
+    getSetting: function(f) {
+        var b = this.opts.currentDate;
+        var d = this.opts.fromDate;
+        var a = this.timeRange(b.getHours().toString()).toString();
+        var g = (b.getFullYear() == d.getFullYear() && b.getMonth() == d.getMonth() && b.getDate() == d.getDate());
+        var c = this.CARRIER_COUNT_SETTING["default"];
+        if (g) {
+            c = this.CARRIER_COUNT_SETTING[a] || c;
+        }
+        return c;
+    },
+    timeRange: function(c) {
+        var a = c.substr(0, 2);
+        var b = parseInt(a, 10);
+        if (b >= 6 && b < 12) {
+            return 0;
+        }
+        if (b == 12) {
+            return 1;
+        }
+        if (b > 12 && b <= 17) {
+            return 2;
+        }
+        return 3;
+    }
+};
+var $OTALOGIC = (function() {
+    return {
+        vatafrom: "",
+        vatato: "",
+        departureTime: "",
+        arrivalTime: "",
+        track: function() {
+            var d = $OTALOGIC.te1 - $OTALOGIC.ts1;
+            var c = $OTALOGIC.te2 - $OTALOGIC.te1;
+            var b = $OTALOGIC.te3 - $OTALOGIC.te2;
+            var a = new Image();
+            var f = new Date().getTime();
+            a.src = ["http://bc.qunar.com/qda_b.html?t=", f, "&pid=", encodeURIComponent($OTALOGIC.id1), "&t0=", $OTALOGIC.te1, "&t1=", d, "&t2=", c, "&t3=", b, "&vatafrom=", $OTALOGIC.vatafrom, "&vatato=", $OTALOGIC.vatato, "&departureTime=", $OTALOGIC.departureTime].join("");
+        },
+        find_config_by_route: function(b) {
+            b = (b || "white");
+            var c = window.location.toString();
+            var d = OTA_AD_CONFIG["route_by_" + b + "_list"];
+            for (var a = 0; a < d.length; a++) {
+                if (d[a].test(c)) {
+                    return OTA_AD_CONFIG[b + "_list"];
+                }
+            }
+            return null;
+        },
+        isDebug: function() {
+            return AD_Manage.isDebug();
+        },
+        init: function(g, f, c, a) {
+            this.vatafrom = g;
+            this.vatato = f;
+            this.departureTime = c;
+            this.arrivalTime = a;
+            AD_Manage.qad_query = function(i) {
+                var h = ["vatafrom=", encodeURIComponent(g), "&vatato=", encodeURIComponent(f)].join("");
+                i(h);
+            };
+
+            function b() {
+                return ".inter_rc {padding:5px; border-top:1px solid #ccc; } .inter_rc li{float:left;} .inter_rc li.perrc { float:left; display:inline; margin-top:3px;width:100px; height:24px;line-height:22px;background:url(http://source.qunar.com/site/images/2011/bt_detail.png) 0px 0px no-repeat; } .inter_rc li.perrc .t {float:left;padding:0px 0 0 24px;padding-top:2px\9;_padding-top:0px;height:22px;overflow:hidden;} .inter_rc li.pr { width:103px;float:left; display:inline; margin-right:10px; font-family:arial; font-size:14px; color:#0069ca; } .inter_rc li.pr b { font-size:20px; } .inter_rc li.city { width:320px;text-align:center;float:left; display:inline; margin-right:30px; font-size:14px; line-height:30px; color:#0069ca; } .inter_rc li.no_pr{ width:433px;}.inter_rc li.ops { float:right; display:inline; margin-top:5px; } .inter_rc li.ops .btnView { display:block; width:70px; height:22px; line-height:22px; text-align:center; background:url(http://source.qunar.com/site/images/2011/bt_detail.png) 0px -40px no-repeat; color:#fff; } .inter_rc li.ops .btnView:hover { background-position:0 -67px; color:#fff; } .inter_rc li.ops .btnView:active { background-position:0 -94px; color:#fff; }";
+            }
+
+            function d() {
+                QNR.AD.createQAd("ifrNTAD_datatop_sec", function(h) {
+                    h.params.departureTime = c;
+                    h.params.arrivalTime = a;
+                    h.getCss = b;
+                    h.renderHtmlItem = function(j) {
+                        var i = QadAdUnits.parse_clk_url(j);
+                        return ['<ul class="inter_rc clrfix">', '	<li class="perrc"><span class="t">推广链接</span></li>', '	<li class="city no_pr">', j.title || "", "</li> ", '	<li class="ops"><a class="btnView" target="_blank" href="', i, '">查看详情</a></li>', "</ul>"].join("");
+                    };
+                    QadAdUnits.create_iframe_hander(h, function(i) {});
+                    h.load();
+                });
+            }
+            QNR.AD.createQAd("ifrNTAD_datatop", function(h) {
+                h.params.departureTime = c;
+                h.params.arrivalTime = a;
+                h.getCss = b;
+                h.renderHtmlItem = function(k) {
+                    var j = QadAdUnits.parse_clk_url(k);
+                    return ['<ul class="inter_rc clrfix">', '	<li class="perrc"><span class="t">特别推荐</span></li>', '	<li class="city">', k.title || "", "</li> ", '	<li class="pr">¥<b>', k.description || "", "</b></li>", '	<li class="ops"><a class="btnView" target="_blank" href="', j, '">查看详情</a></li>', "</ul>"].join("");
+                };
+                var i = $OTALOGIC.isDebug();
+                QadAdUnits.create_iframe_hander(h, function(j) {
+                    if (j == 0 || i) {
+                        d();
+                    }
+                });
+            });
+            if (window["$OTA"]) {
+                $OTA.group.options({
+                    carrier_white_filter: $OTALOGIC.find_config_by_route("white"),
+                    carrier_black_filter: $OTALOGIC.find_config_by_route("black"),
+                    debug: $OTALOGIC.isDebug()
+                });
+                if (window.location.toString().indexOf("adtest=beta") > 0 && window.location.toString().indexOf("local") >= 0) {
+                    $OTA.group.WRAPPER_URL = "http://flight41.qunar.com/twell/flight/flight_ad.jsp";
+                }
+            }
+        },
+        load_top: function(a) {
+            var b = $OTALOGIC.isDebug();
+            QNR.AD.createQdeCallback(a, function(c) {
+                if (!c || b) {
+                    QNR.AD.loadOneAD("ifrNTOPAD");
+                }
+            });
+        },
+        load_right: function() {
+            var d = $OTALOGIC.isDebug();
+
+            function b(j) {
+                return document.getElementById(j);
+            }
+
+            function i(j) {
+                var k = b(j + "_title");
+                if (k) {
+                    k.style.display = "block";
+                }
+            }
+
+            function h(j) {
+                if ($jex.$("ifrNTAD_title_more")) {
+                    $jex.$("ifrNTAD_title_more").setAttribute("href", "http://a.qunar.com/more.html?type=flight&adfrom=" + encodeURIComponent($OTALOGIC.vatafrom) + "&adto=" + encodeURIComponent($OTALOGIC.vatato) + "&adcon=" + ($OTALOGIC.vatacon || "") + "&adpos=" + encodeURIComponent(j));
+                }
+            }
+
+            function g(k, j) {
+                return function(l) {
+                    if (l > 0) {
+                        i(j);
+                    }
+                    k && k(l);
+                };
+            }
+
+            function a(l) {
+                var k = b("ifrNTAD_patch"),
+                    j = k.getAttribute("data-query");
+                k.setAttribute("data-query", j + "&rows=" + l);
+                $OTALOGIC.ts3 = new Date().getTime();
+                QadAdUnits.create_text_call("ifrNTAD_patch", g(function() {
+                    $OTALOGIC.te3 = new Date().getTime();
+                    $OTALOGIC.track();
+                }, "ifrNTAD_patch"));
+                QNR.AD.loadOneAD("ifrNTAD_patch");
+            }
+
+            function c(j) {
+                $OTA.group.options({
+                    elsCount: j
+                });
+                $OTALOGIC.ts2 = new Date().getTime();
+                $OTA.load(function(k) {
+                    k.write($jex.$("divOTA"));
+                    var l = $OTA.group._get_wrappers_info().codelist.length;
+                    if (l > 0) {
+                        $jex.$("divOTA").style.display = "block";
+                    }
+                    $OTALOGIC.te2 = new Date().getTime();
+                    j = j - l;
+                    if (d) {
+                        j = 10;
+                    }
+                    if (j > 0) {
+                        a(j);
+                    } else {
+                        $OTALOGIC.ts3 = $OTALOGIC.te3 = new Date().getTime();
+                        $OTALOGIC.track();
+                    }
+                });
+            }
+
+            function f(j) {
+                if (!window["$OTA"]) {
+                    $OTALOGIC.ts2 = $OTALOGIC.te2 = new Date().getTime();
+                    $OTALOGIC.ts3 = new Date().getTime();
+                    a(j);
+                } else {
+                    setTimeout(function() {
+                        c(j);
+                    }, 3000);
+                }
+            }
+            $OTALOGIC.ts1 = new Date().getTime();
+            QadAdUnits.create_text_call("ifrNTAD", g(function(j) {
+                $OTALOGIC.te1 = new Date().getTime();
+                var m = b("ifrNTAD"),
+                    l = m.getAttribute("data-query");
+                if (/vataposition=([a-z_=\d%]+)&?/i.test(l)) {
+                    $OTALOGIC.id1 = RegExp.$1;
+                }
+                if (!/\brows=(\d+)/.test(l)) {
                     return;
                 }
-                f.bookingScreenUI.preBooking(function() {
-                    if (typeof window.BookingPriceCheck != "undefined") {
-                        if (BookingPriceCheck.check(d, g)) {
-                            return;
+                var o = Number(RegExp.$1);
+                var n = /inter/.test(location.pathname) ? "QNR_YzE=_CN" : "QNR_YQ==_CN";
+                h(n);
+                var k = o - j;
+                if (d) {
+                    k = 10;
+                }
+                if (k > 0) {
+                    f(k);
+                } else {
+                    $OTALOGIC.ts2 = $OTALOGIC.te2 = $OTALOGIC.ts3 = $OTALOGIC.te3 = new Date().getTime();
+                    $OTALOGIC.track();
+                }
+            }, "ifrNTAD"));
+        }
+    };
+})();
+var TrimPath;
+(function() {
+    if (typeof LOG == "undefined") {
+        LOG = {
+            error: function() {}
+        };
+    }
+    if (TrimPath == null) {
+        TrimPath = new Object();
+    }
+    if (TrimPath.evalEx == null) {
+        TrimPath.evalEx = function(src) {
+            return eval(src);
+        };
+    }
+    var UNDEFINED;
+    if (Array.prototype.pop == null) {
+        Array.prototype.pop = function() {
+            if (this.length === 0) {
+                return UNDEFINED;
+            }
+            return this[--this.length];
+        };
+    }
+    if (Array.prototype.push == null) {
+        Array.prototype.push = function() {
+            for (var i = 0; i < arguments.length; ++i) {
+                this[this.length] = arguments[i];
+            }
+            return this.length;
+        };
+    }
+    TrimPath.parseTemplate = function(tmplContent, optTmplName, optEtc) {
+        if (optEtc == null) {
+            optEtc = TrimPath.parseTemplate_etc;
+        }
+        var funcSrc = parse(tmplContent, optTmplName, optEtc);
+        var func = TrimPath.evalEx(funcSrc, optTmplName, 1);
+        if (func != null) {
+            return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
+        }
+        return null;
+    };
+    try {
+        String.prototype.process = function(context, optFlags) {
+            var template = TrimPath.parseTemplate(this, null);
+            if (template != null) {
+                return template.process(context, optFlags);
+            }
+            return this;
+        };
+    } catch (e) {}
+    TrimPath.parseTemplate_etc = {};
+    TrimPath.parseTemplate_etc.statementTag = "forelse|for|if|elseif|else|var|macro";
+    TrimPath.parseTemplate_etc.statementDef = {
+        "if": {
+            delta: 1,
+            prefix: "if (",
+            suffix: ") {",
+            paramMin: 1
+        },
+        "else": {
+            delta: 0,
+            prefix: "} else {"
+        },
+        elseif: {
+            delta: 0,
+            prefix: "} else if (",
+            suffix: ") {",
+            paramDefault: "true"
+        },
+        "/if": {
+            delta: -1,
+            prefix: "}"
+        },
+        "for": {
+            delta: 1,
+            paramMin: 3,
+            prefixFunc: function(stmtParts, state, tmplName, etc) {
+                if (stmtParts[2] != "in") {
+                    throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(" "));
+                }
+                var iterVar = stmtParts[1];
+                var listVar = "__LIST__" + iterVar;
+                var _output = ["var ", listVar, " = ", stmtParts[3], ";", "var __LENGTH_STACK__;", "if (typeof(__LENGTH_STACK__) == 'undefined' || !__LENGTH_STACK__.length) __LENGTH_STACK__ = new Array();", "__LENGTH_STACK__[__LENGTH_STACK__.length] = 0;", "if ((", listVar, ") != null) { ", "var __IDX__ = -1; var ", iterVar, "_ct = 0;", "for (var ", iterVar, "_index in ", listVar, ") {  ", iterVar, "_ct++;", "if (typeof(", listVar, "[", iterVar, "_index]) == 'function') {continue;}", "__IDX__++; __LENGTH_STACK__[__LENGTH_STACK__.length - 1]++;", "var __KEY__ = ", iterVar, "_index;", "var ", iterVar, " = ", listVar, "[", iterVar, "_index];"].join("");
+                return _output;
+            }
+        },
+        forelse: {
+            delta: 0,
+            prefix: "} } if (__LENGTH_STACK__[__LENGTH_STACK__.length - 1] == 0) { if (",
+            suffix: ") {",
+            paramDefault: "true"
+        },
+        "/for": {
+            delta: -1,
+            prefix: "} }; delete __LENGTH_STACK__[__LENGTH_STACK__.length - 1];"
+        },
+        "var": {
+            delta: 0,
+            prefix: "var ",
+            suffix: ";"
+        },
+        macro: {
+            delta: 1,
+            prefixFunc: function(stmtParts, state, tmplName, etc) {
+                var macroName = stmtParts[1].split("(")[0];
+                return ["var ", macroName, " = function", stmtParts.slice(1).join(" ").substring(macroName.length), "{ var _OUT_arr = []; var _OUT = { write: function(m) { if (m) _OUT_arr.push(m); } }; "].join("");
+            }
+        },
+        "/macro": {
+            delta: -1,
+            prefix: " return _OUT_arr.join(''); };"
+        }
+    };
+    TrimPath.parseTemplate_etc.modifierDef = {
+        eat: function(v) {
+            return "";
+        },
+        escape: function(s) {
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        },
+        capitalize: function(s) {
+            return String(s).toUpperCase();
+        },
+        "default": function(s, d) {
+            return s != null ? s : d;
+        }
+    };
+    TrimPath.parseTemplate_etc.modifierDef.h = TrimPath.parseTemplate_etc.modifierDef.escape;
+    TrimPath.parseTemplate_etc.Template = function(tmplName, tmplContent, funcSrc, func, etc) {
+        this.process = function(context, flags) {
+            if (context == null) {
+                context = {};
+            }
+            if (context._MODIFIERS == null) {
+                context._MODIFIERS = {};
+            }
+            if (context.defined == null) {
+                context.defined = function(str) {
+                    return (context[str] != undefined);
+                };
+            }
+            for (var k in etc.modifierDef) {
+                if (context._MODIFIERS[k] == null) {
+                    context._MODIFIERS[k] = etc.modifierDef[k];
+                }
+            }
+            if (flags == null) {
+                flags = {};
+            }
+            var resultArr = [];
+            var resultOut = {
+                write: function(m) {
+                    resultArr.push(m);
+                }
+            };
+            try {
+                func(resultOut, context, flags);
+            } catch (e) {
+                if (flags.throwExceptions == true) {
+                    throw e;
+                }
+                var result = new String(resultArr.join("") + "[ERROR: " + e.toString() + (e.message ? "; " + e.message : "") + "]");
+                result.exception = e;
+                LOG.error("TEMPLATE:" + result);
+                LOG.error("TEMPLATE:" + $H(e).toJSON());
+                return "";
+            }
+            return resultArr.join("");
+        };
+        this.name = tmplName;
+        this.source = tmplContent;
+        this.sourceFunc = funcSrc;
+        this.toString = function() {
+            return "TrimPath.Template [" + tmplName + "]";
+        };
+    };
+    TrimPath.parseTemplate_etc.ParseError = function(name, line, message) {
+        this.name = name;
+        this.line = line;
+        this.message = message;
+    };
+    TrimPath.parseTemplate_etc.ParseError.prototype.toString = function() {
+        return ("TrimPath template ParseError in " + this.name + ": line " + this.line + ", " + this.message);
+    };
+    var parse = function(body, tmplName, etc) {
+        body = cleanWhiteSpace(body);
+        var funcText = ["var TrimPath_Template_TEMP = function(_OUT, _CONTEXT, _FLAGS) { with (_CONTEXT) {"];
+        var state = {
+            stack: [],
+            line: 1
+        };
+        var endStmtPrev = -1;
+        while (endStmtPrev + 1 < body.length) {
+            var begStmt = endStmtPrev;
+            begStmt = body.indexOf("{", begStmt + 1);
+            while (begStmt >= 0) {
+                var endStmt = body.indexOf("}", begStmt + 1);
+                var stmt = body.substring(begStmt, endStmt);
+                var blockrx = stmt.match(/^\{(cdata|minify|eval)/);
+                if (blockrx) {
+                    var blockType = blockrx[1];
+                    var blockMarkerBeg = begStmt + blockType.length + 1;
+                    var blockMarkerEnd = body.indexOf("}", blockMarkerBeg);
+                    if (blockMarkerEnd >= 0) {
+                        var blockMarker;
+                        if (blockMarkerEnd - blockMarkerBeg <= 0) {
+                            blockMarker = "{/" + blockType + "}";
+                        } else {
+                            blockMarker = body.substring(blockMarkerBeg + 1, blockMarkerEnd);
+                        }
+                        var blockEnd = body.indexOf(blockMarker, blockMarkerEnd + 1);
+                        if (blockEnd >= 0) {
+                            emitSectionText(body.substring(endStmtPrev + 1, begStmt), funcText);
+                            var blockText = body.substring(blockMarkerEnd + 1, blockEnd);
+                            if (blockType == "cdata") {
+                                emitText(blockText, funcText);
+                            } else {
+                                if (blockType == "minify") {
+                                    emitText(scrubWhiteSpace(blockText), funcText);
+                                } else {
+                                    if (blockType == "eval") {
+                                        if (blockText != null && blockText.length > 0) {
+                                            funcText.push("_OUT.write( (function() { " + blockText + " })() );");
+                                        }
+                                    }
+                                }
+                            }
+                            begStmt = endStmtPrev = blockEnd + blockMarker.length - 1;
                         }
                     }
-                    f.bookingLockScreenUI.preBooking(function(l) {
-                        d.setVpr(l);
-                        f.jumpToBooking(d, g);
-                    }, g);
+                } else {
+                    if (body.charAt(begStmt - 1) != "$" && body.charAt(begStmt - 1) != "\\") {
+                        var offset = (body.charAt(begStmt + 1) == "/" ? 2 : 1);
+                        if (body.substring(begStmt + offset, begStmt + 10 + offset).search(TrimPath.parseTemplate_etc.statementTag) == 0) {
+                            break;
+                        }
+                    }
+                }
+                begStmt = body.indexOf("{", begStmt + 1);
+            }
+            if (begStmt < 0) {
+                break;
+            }
+            var endStmt = body.indexOf("}", begStmt + 1);
+            if (endStmt < 0) {
+                break;
+            }
+            emitSectionText(body.substring(endStmtPrev + 1, begStmt), funcText);
+            emitStatement(body.substring(begStmt, endStmt + 1), state, funcText, tmplName, etc);
+            endStmtPrev = endStmt;
+        }
+        emitSectionText(body.substring(endStmtPrev + 1), funcText);
+        if (state.stack.length != 0) {
+            throw new etc.ParseError(tmplName, state.line, "unclosed, unmatched statement(s): " + state.stack.join(","));
+        }
+        funcText.push("}}; TrimPath_Template_TEMP");
+        return funcText.join("");
+    };
+    var emitStatement = function(stmtStr, state, funcText, tmplName, etc) {
+        var parts = stmtStr.slice(1, -1).split(" ");
+        var stmt = etc.statementDef[parts[0]];
+        if (stmt == null) {
+            emitSectionText(stmtStr, funcText);
+            return;
+        }
+        if (stmt.delta < 0) {
+            if (state.stack.length <= 0) {
+                throw new etc.ParseError(tmplName, state.line, "close tag does not match any previous statement: " + stmtStr);
+            }
+            state.stack.pop();
+        }
+        if (stmt.delta > 0) {
+            state.stack.push(stmtStr);
+        }
+        if (stmt.paramMin != null && stmt.paramMin >= parts.length) {
+            throw new etc.ParseError(tmplName, state.line, "statement needs more parameters: " + stmtStr);
+        }
+        if (stmt.prefixFunc != null) {
+            funcText.push(stmt.prefixFunc(parts, state, tmplName, etc));
+        } else {
+            funcText.push(stmt.prefix);
+        } if (stmt.suffix != null) {
+            if (parts.length <= 1) {
+                if (stmt.paramDefault != null) {
+                    funcText.push(stmt.paramDefault);
+                }
+            } else {
+                for (var i = 1; i < parts.length; i++) {
+                    if (i > 1) {
+                        funcText.push(" ");
+                    }
+                    funcText.push(parts[i]);
+                }
+            }
+            funcText.push(stmt.suffix);
+        }
+    };
+    var emitSectionText = function(text, funcText) {
+        if (text.length <= 0) {
+            return;
+        }
+        var nlPrefix = 0;
+        var nlSuffix = text.length - 1;
+        while (nlPrefix < text.length && (text.charAt(nlPrefix) == "\n")) {
+            nlPrefix++;
+        }
+        while (nlSuffix >= 0 && (text.charAt(nlSuffix) == " " || text.charAt(nlSuffix) == "\t")) {
+            nlSuffix--;
+        }
+        if (nlSuffix < nlPrefix) {
+            nlSuffix = nlPrefix;
+        }
+        if (nlPrefix > 0) {
+            funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
+            var s = text.substring(0, nlPrefix).replace("\n", "\\n");
+            if (s.charAt(s.length - 1) == "\n") {
+                s = s.substring(0, s.length - 1);
+            }
+            funcText.push(s);
+            funcText.push('");');
+        }
+        var lines = text.substring(nlPrefix, nlSuffix + 1).split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            emitSectionTextLine(lines[i], funcText);
+            if (i < lines.length - 1) {
+                funcText.push('_OUT.write("\\n");\n');
+            }
+        }
+        if (nlSuffix + 1 < text.length) {
+            funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
+            var s = text.substring(nlSuffix + 1).replace("\n", "\\n");
+            if (s.charAt(s.length - 1) == "\n") {
+                s = s.substring(0, s.length - 1);
+            }
+            funcText.push(s);
+            funcText.push('");');
+        }
+    };
+    var emitSectionTextLine = function(line, funcText) {
+        var endMarkPrev = "}";
+        var endExprPrev = -1;
+        while (endExprPrev + endMarkPrev.length < line.length) {
+            var begMark = "${",
+                endMark = "}";
+            var begExpr = line.indexOf(begMark, endExprPrev + endMarkPrev.length);
+            if (begExpr < 0) {
+                break;
+            }
+            if (line.charAt(begExpr + 2) == "%") {
+                begMark = "${%";
+                endMark = "%}";
+            }
+            var endExpr = line.indexOf(endMark, begExpr + begMark.length);
+            if (endExpr < 0) {
+                break;
+            }
+            emitText(line.substring(endExprPrev + endMarkPrev.length, begExpr), funcText);
+            var exprArr = line.substring(begExpr + begMark.length, endExpr).replace(/\|\|/g, "#@@#").split("|");
+            for (var k in exprArr) {
+                if (exprArr[k].replace) {
+                    exprArr[k] = exprArr[k].replace(/#@@#/g, "||");
+                }
+            }
+            funcText.push("_OUT.write(");
+            emitExpression(exprArr, exprArr.length - 1, funcText);
+            funcText.push(");");
+            endExprPrev = endExpr;
+            endMarkPrev = endMark;
+        }
+        emitText(line.substring(endExprPrev + endMarkPrev.length), funcText);
+    };
+    var emitText = function(text, funcText) {
+        if (text == null || text.length <= 0) {
+            return;
+        }
+        text = text.replace(/\\/g, "\\\\");
+        text = text.replace(/\n/g, "\\n");
+        text = text.replace(/"/g, '\\"');
+        funcText.push('_OUT.write("');
+        funcText.push(text);
+        funcText.push('");');
+    };
+    var emitExpression = function(exprArr, index, funcText) {
+        var expr = exprArr[index];
+        if (index <= 0) {
+            funcText.push(expr);
+            return;
+        }
+        var parts = expr.split(":");
+        funcText.push('_MODIFIERS["');
+        funcText.push(parts[0]);
+        funcText.push('"](');
+        emitExpression(exprArr, index - 1, funcText);
+        if (parts.length > 1) {
+            funcText.push(",");
+            funcText.push(parts[1]);
+        }
+        funcText.push(")");
+    };
+    var cleanWhiteSpace = function(result) {
+        result = result.replace(/\t/g, "    ");
+        result = result.replace(/\r\n/g, "\n");
+        result = result.replace(/\r/g, "\n");
+        result = result.replace(/^(\s*\S*(\s+\S+)*)\s*$/, "$1");
+        return result;
+    };
+    var scrubWhiteSpace = function(result) {
+        result = result.replace(/^\s+/g, "");
+        result = result.replace(/\s+$/g, "");
+        result = result.replace(/\s+/g, " ");
+        result = result.replace(/^(\s*\S*(\s+\S+)*)\s*$/, "$1");
+        return result;
+    };
+    TrimPath.parseDOMTemplate = function(elementId, optDocument, optEtc) {
+        if (optDocument == null) {
+            optDocument = document;
+        }
+        var element = optDocument.getElementById(elementId);
+        var content = element.value;
+        if (content == null) {
+            content = element.innerHTML;
+        }
+        content = content.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        return TrimPath.parseTemplate(content, elementId, optEtc);
+    };
+    TrimPath.processDOMTemplate = function(elementId, context, optFlags, optDocument, optEtc) {
+        return TrimPath.parseDOMTemplate(elementId, optDocument, optEtc).process(context, optFlags);
+    };
+})();
+var recommendedHotels = {};
+recommendedHotels.asciiLength = function(d) {
+    var a = 0;
+    for (var b = 0; b < d.length; b++) {
+        var c = d.charCodeAt(b);
+        if (c > 255) {
+            a += 2;
+        } else {
+            if (c > 65 && c < 91) {
+                a += 2;
+            } else {
+                a++;
+            }
+        }
+    }
+    return a;
+};
+recommendedHotels.asciiTrimByLength = function(j, b) {
+    var g = "...";
+    var h = g.length;
+    var f = recommendedHotels.asciiLength(j);
+    if (f <= b) {
+        return j;
+    } else {
+        if (b == h) {
+            return g;
+        } else {
+            if (b < h) {
+                throw new Error("The arguments is not allowed less than " + h);
+            } else {
+                var a = f;
+                var c = j.length - 1;
+                for (; c >= 0; c--) {
+                    if (a <= (b - h)) {
+                        break;
+                    } else {
+                        var d = j.charCodeAt(c);
+                        if (d > 255 || (d > 65 && d < 91)) {
+                            a = a - 2;
+                        } else {
+                            a = a - 1;
+                        }
+                    }
+                }
+                return j.substr(0, c + 1) + g;
+            }
+        }
+    }
+};
+recommendedHotels.fns = [];
+recommendedHotels.show = function(q, t, w) {
+    var m = recommendedHotels.con;
+    var h = recommendedHotels.type;
+    var z = recommendedHotels.from;
+    var B = decodeURIComponent(recommendedHotels.city);
+    var u = recommendedHotels.fromDate;
+    var I = ["lijiang", "xianggelila", "akesu", "anshan", "anshun", "antu", "baise", "baoshan", "bayannaoer", "bazhong", "cangnan", "changle", "changshan", "chibei", "chifeng", "chongzuo", "chuxiong", "danyang", "danzhou", "daye", "dengfeng", "dingan", "dongshan", "dongtai", "duyun", "eerduosi", "enping", "ezhou", "fengdu", "fuyang_zhejiang", "geermu", "guigang", "haicheng", "hailuogou", "hami", "honghe", "honghezhou", "huairen", "huangyan", "huayin", "jiangyan", "jiangyou", "jimo", "jingjiang", "jintan", "kaili", "kanasi", "kuerle", "kuitun", "ledong", "lincang", "lingshi", "linzhi", "liuan", "liuyang", "longhai", "mangshi", "meishan", "nanping", "pingnan", "pujiang", "qianan", "qidong", "qinzhou", "qujing", "rikaze", "rudong", "shangqiu", "shannan", "shengsi", "shihezi", "songpan", "suifenhe", "suzhou_anhui", "tianmen", "tieling", "tongliao", "weinan", "wenchang", "wendeng", "wenshan", "wuxue", "wuzhishan", "wuzhou", "xilinguole", "xinglong", "xinzhou", "yanbian", "yangquan", "yining", "yongzhou", "yueqing", "yuhang", "yulin_guangxi", "yuxi", "zhangqiu", "zhongxun"].join().indexOf(q) >= 0 ? 2 : 1;
+    var O = false;
+    var c = function(b) {
+        var k = Number.MAX_VALUE;
+        for (var j = 0; j < b.length; j++) {
+            if (k >= parseInt(b[j].pr)) {
+                k = b[j].pr;
+            }
+        }
+        return parseInt(k);
+    };
+    var P = function(b) {
+        var k = Number.MIN_VALUE;
+        for (var j = 0; j < b.length; j++) {
+            if (k < parseInt(b[j].pr)) {
+                k = b[j].pr;
+            }
+        }
+        return parseInt(k);
+    };
+    if (t.length > 0) {
+        var G = Number.MAX_VALUE;
+        var s = false;
+        var o = Number.MIN_VALUE;
+        var J = 3;
+        var l = 5;
+        var f = {
+            c: 0,
+            l: 2,
+            b: 2,
+            m: 0
+        };
+        var d = {
+            l: 10,
+            b: 9,
+            c: 8
+        };
+        t.sort(function(k, j) {
+            var i = d[k.tp] ? d[k.tp] : 0;
+            var b = d[j.tp] ? d[j.tp] : 0;
+            return i - b;
+        });
+        for (var D = 0; D < t.length; D++) {
+            var N = t[D].hs;
+            var n = t[D];
+            if (N && N.length > 0) {
+                var N = t[D].hs = N.slice(0, Math.min(N.length, f[n.tp]));
+                if (n.tp == "c") {
+                    n.title = B + "最低价酒店";
+                    n.footer = "更多";
+                    n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp;
+                    s = true;
+                    o = Math.max(o, P(t[D].hs));
+                    l = n.ct;
+                } else {
+                    if (n.tp == "b") {
+                        n.title = B + "[连锁经济型]酒店推荐";
+                        n.stitle = B + "高性价比酒店推荐";
+                        n.footer = (n.ct > J) ? "更多" : "";
+                        n.sfooter = "更多";
+                        n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp + "&q=" + encodeURIComponent("经济型酒店");
+                        n.sfooterlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp;
+                        var y = [];
+                        for (var x = 0; x < N.length; x++) {
+                            if (N[x].st == -1) {
+                                y.push(N[x]);
+                            }
+                        }
+                        t[D].hs = y;
+                        G = Math.min(G, c(t[D].hs));
+                    } else {
+                        if (n.tp == "m") {
+                            delete n.tp;
+                        } else {
+                            if (n.tp == "l") {
+                                n.title = B + "[豪华型]酒店推荐";
+                                n.footer = (n.ct > J) ? "更多" : "";
+                                n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp + "&q=" + encodeURIComponent("豪华型酒店");
+                                G = Math.min(G, c(t[D].hs));
+                            }
+                        }
+                    }
+                }
+                for (var A = 0; A < N.length; A++) {
+                    var M = N[A];
+                    if (!M.st) {
+                        M.star = "";
+                    } else {
+                        if (M.st == -1) {
+                            M.star = "连锁经济型";
+                        } else {
+                            if (M.st == 1) {
+                                M.star = "一星级";
+                            } else {
+                                if (M.st == 2) {
+                                    M.star = "二星级";
+                                } else {
+                                    if (M.st == 3) {
+                                        M.star = "三星级";
+                                    } else {
+                                        if (M.st == 4) {
+                                            M.star = "四星级";
+                                        } else {
+                                            if (M.st == 5) {
+                                                M.star = "五星级";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    M.sname = recommendedHotels.asciiTrimByLength(M.name, 30);
+                    M.url = M.detailURL + "/#from=" + z + "-" + n.tp + "&fromDate=" + M.fromDate;
+                    M.scbd = M.cbd ? M.cbd.replace(/区/g, "").replace(/县/g, "") : "";
+                    M.qtype = M.cbd && I ? (M.ar == 1 ? M.ar : 0) : 0;
+                    if (M.ap && M.ap.length > 1) {
+                        M.ap.sort(function(j, i) {
+                            return j.dist - i.dist;
+                        });
+                    }
+                    if (M.sd) {
+                        var F = M.sd.replace(/([\u0391-\uffe5])/ig, "$1a");
+                        if (A == 0) {
+                            if (F.length > 39 * 2) {
+                                M.sd = F.substring(0, 39 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
+                            }
+                        } else {
+                            if (F.length > 40 * 2) {
+                                M.sd = F.substring(0, 40 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
+                            }
+                        }
+                    }
+                }
+                O = true;
+            }
+        }
+        if (s && (G <= o)) {
+            for (var D = 0; D < t.length; D++) {
+                if (t[D].tp == "c") {
+                    var N = t[D].hs;
+                    var y = [];
+                    for (var A = 0; A < N.length; A++) {
+                        if (parseInt(N[A].pr) < G) {
+                            y.push(N[A]);
+                        }
+                    }
+                    t[D].hs = y;
+                }
+            }
+        }
+    }
+    if (O) {
+        var L = function() {
+            switch (recommendedHotels.type) {
+                case 0:
+                    return '					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0}						<div class="b_htl_pmt">							<div class="e_htl_tit">						        <a class="more" target="_blank" href="${hotelinfo.footerlink}">更多</a><h3>${hotelinfo.title}</h3>						    </div>							<div class="e_pmt_cont">							    {for hotel in hotelinfo.hs}								<dl class="dl_htl_pmt clrfix">						            <dt><a target="_blank"  href="${hotel.url}"></span><i class="rmb">&yen;</i><em class="f_tmt">${hotel.pr}</em>起</span>${hotel.sname}</a></dt>						            <dd>						            <div class="h_img">						            <a target="_blank"  href="${hotel.url}">						            	{if hotel.purl}						            	<img width="61" height="61" src="${hotel.purl}" title="${hotel.name}" />						            	{else}						            	<img width="61" height="61" src="http://source.qunar.com/site/images/new_main/imgnull.gif" />						            	{/if}						            </a></div>						            <div class="h_ifo">${hotel.sd}</div>						            </dd>						        </dl>						        {/for}						    </div>						</div>						{/if}					{/for}';
+                case 1:
+                    return '					<div class="cvHotel cvAD_180">					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0 && hotelinfo.tp == "b"}							<div class="cvHd">								<div class="t3"></div><div class="t2"></div><div class="t1"></div>								<h3>${hotelinfo.stitle}</h3>							</div>						{/if}						<ul class="cvList">							{for hotel in hotelinfo.hs}							{if hotelinfo.tp == "b"}							<li>								<h4><a href="${hotel.url}" title="${hotel.name}" target="_blank">${hotel.sname}<span class="pr">&yen;${hotel.pr}起</span></a></h4>								{if hotel.ap.length > 0}									{if city == "上海"}										<p>距机场公里数:											{for airp in hotel.ap}												${airp.apname}（${airp.dist}）											{/for}										</p>									{else}										{for airp in hotel.ap}										<p>距${airp.apname}:${airp.dist}公里</p>										{/for}									{/if}								{else}									<p>暂无距离机场数据</p>								{/if}								{if hotel.cbd}									<p>${hotel.star} 位于：<a href="http://hotel.qunar.com/search.jsp?toCity=${toCity}&from=${from}-${hotelinfo.tp}&qtype=${qtype}&q=${encodeURIComponent(hotel.scbd)}" target="_blank">${hotel.cbd}</a></p>								{/if}							</li>							{/for}							{/if}						</ul>						{if hotelinfo.tp == "b"}							<div class="cvFt"><a href="${hotelinfo.sfooterlink}" target="_blank">${hotelinfo.sfooter}</a></div>						{/if}					{/for}					</div>					';
+                default:
+                    return "";
+            }
+        }();
+        var p = TrimPath.parseTemplate(L);
+        var a = p.process({
+            city: decodeURIComponent(B),
+            city_url: q,
+            hotelinfos: t,
+            from: z,
+            qtype: I,
+            fromDate: u,
+            toCity: recommendedHotels.city
+        });
+        if (recommendedHotels.type == 1) {
+            var H = false;
+            for (var D = 0; D < t.length; D++) {
+                if (t[D].tp == "b") {
+                    H = true;
+                    break;
+                }
+            }
+            if (!H) {
+                a = "";
+            }
+        }
+        if (a) {
+            var E = document.createElement("style");
+            E.setAttribute("type", "text/css");
+            var g = ".cvList{margin-bottom:8px;}.cvHotel { clear:both; }.cvHotel a { font-weight:400; color:#0069ca; }.cvHotel a:hover { color:#f60; }.cvHotel .cvHd .t3 { margin:0 3px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t2 { margin:0 2px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t1 { margin:0 1px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd h3 { padding:5px 10px; border-bottom:1px solid #ccc; font-size:14px; background-color:#f0f0f0; color:#333; }.cvHotel .cvList li { padding:10px 10px 8px; border-bottom:1px solid #efefef; }.cvHotel .cvList h4 { margin-bottom:4px; font-size:14px; }.cvHotel .cvList h4 a { display:block; outline:none; }.cvHotel .cvList .pr { float:right; font-size:12px; color:#f60; cursor:pointer; }.cvHotel .cvList p { padding:2px 0; line-height:18px; }.cvHotel .cvList p.intro { padding-bottom:5px; }.cvHotel .cvList p.bt { clear:both; }.cvHotel .cvList p .rank { float:right; width:125px; }.cvHotel .wi .img { float:left; width:70px; }.cvHotel .wi .img img { padding:1px; border:1px solid #ddd;width:60px;height:60px; }.cvHotel .wi p.intro { margin-left:70px; }.cvHotel .cvFt { float:right;font:normal 12px/17px Arial; }";
+            if (E.styleSheet) {
+                E.styleSheet.cssText = g;
+            } else {
+                var K = document.createTextNode(g);
+                E.appendChild(K);
+            }
+            var C = document.getElementsByTagName("head")[0];
+            C.appendChild(E);
+            recommendedHotels.con.innerHTML = a;
+            recommendedHotels.con.style.display = "block";
+        } else {
+            if (recommendedHotels.fns) {
+                recommendedHotels.initad();
+            }
+        }
+    } else {
+        recommendedHotels.initad();
+    }
+};
+recommendedHotels.initad = function() {
+    recommendedHotels.exec = true;
+    for (var a = 0; a < recommendedHotels.fns.length; a++) {
+        try {
+            recommendedHotels.fns[a]();
+        } catch (b) {}
+    }
+    recommendedHotels.fns = [];
+};
+recommendedHotels.addListener = function(a) {
+    recommendedHotels.fns.push(a);
+    if (recommendedHotels.exec) {
+        recommendedHotels.initad();
+    }
+};
+recommendedHotels.query = function(f, c, i, h, d) {
+    var a = document.getElementById(i);
+    if (!a) {
+        throw new Error("推荐酒店初始化错误");
+    }
+    if (!d) {
+        d = 0;
+    }
+    recommendedHotels.fromDate = c;
+    recommendedHotels.city = f;
+    recommendedHotels.con = a;
+    recommendedHotels.type = d;
+    recommendedHotels.from = "flight";
+    var b = document.createElement("script");
+    b.src = "http://hotel.qunar.com/fch.jsp?city=" + f + "&fromDate=" + c + "&callback=recommendedHotels.show";
+    var g = document.getElementsByTagName("head")[0];
+    g.appendChild(b);
+};
+(function(Z) {
+    if (typeof Z.QNR === "undefined") {
+        Z.QNR = {};
+    }
+    QNR._AD = {};
+    var aj = "getElementsByTagName";
+    var ae = Z,
+        $doc = ae.document,
+        R = $doc.body,
+        $head = $doc[aj]("head")[0],
+        U = "qunar.com",
+        F = false,
+        al = 0,
+        j, Q, am, q, V, o, x;
+    try {
+        $doc.domain = U;
+    } catch (ai) {}
+    var Y = function() {
+        var au = ae.navigator,
+            aq = "application/x-shockwave-flash";
+        var ao = false,
+            an, ar;
+        var ap = (au.mimeTypes && au.mimeTypes[aq]) ? au.mimeTypes[aq].enabledPlugin : 0;
+        if (ap) {
+            ar = ap.description;
+            if (parseInt(ar.substring(ar.indexOf(".") - 2), 10) >= 8) {
+                ao = true;
+            }
+        } else {
+            if (ae.ActiveXObject) {
+                try {
+                    an = new ae.ActiveXObject("ShockwaveFlash.ShockwaveFlash");
+                    if (an) {
+                        ao = true;
+                    }
+                } catch (at) {}
+            }
+        }
+        Y = function() {
+            return ao;
+        };
+        ap = an = ar = au = null;
+        return ao;
+    };
+
+    function w(ap, ax, aB, ay) {
+        var an, aA = ax.document,
+            ar = aA.getElementById(ap);
+        if (ar) {
+            aB.id = ap;
+            if (/MSIE/i.test(navigator.appVersion)) {
+                var az = [];
+                az.push('<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"');
+                for (var aw in aB) {
+                    if (aB.hasOwnProperty(aw)) {
+                        aw = aw.toLowerCase();
+                        if (aw === "data") {
+                            ay.movie = aB[aw];
+                        } else {
+                            if (aw === "styleclass") {
+                                az.push(' class="', aB[aw], '"');
+                            } else {
+                                if (aw !== "classid") {
+                                    az.push(" ", aw, '="', aB[aw], '"');
+                                }
+                            }
+                        }
+                    }
+                }
+                az.push(">");
+                for (var av in ay) {
+                    if (ay.hasOwnProperty(av)) {
+                        az.push('<param name="', av, '" value="', ay[av], '" />');
+                    }
+                }
+                az.push("</object>");
+                ar.outerHTML = az.join("");
+                an = aA.getElementById(aB.id);
+            } else {
+                var aq = aA.createElement("object");
+                aq.style.outline = "none";
+                aq.setAttribute("type", "application/x-shockwave-flash");
+                for (var au in aB) {
+                    if (aB.hasOwnProperty(au)) {
+                        au = au.toLowerCase();
+                        if (au === "styleclass") {
+                            aq.setAttribute("class", aB[au]);
+                        } else {
+                            if (au !== "classid") {
+                                aq.setAttribute(au, aB[au]);
+                            }
+                        }
+                    }
+                }
+                for (var at in ay) {
+                    if (ay.hasOwnProperty(at) && at.toLowerCase() !== "movie") {
+                        var ao = aA.createElement("param");
+                        ao.setAttribute("name", at);
+                        ao.setAttribute("value", ay[at]);
+                        aq.appendChild(ao);
+                    }
+                }
+                ar.parentNode.replaceChild(aq, ar);
+                an = aq;
+            }
+        }
+        return an;
+    }
+
+    function J(aq, ap, ao, an) {
+        if (!Y()) {
+            return null;
+        }
+        return w(aq, ap, ao, an);
+    }
+
+    function I(an) {
+        return $doc.getElementById(an);
+    }
+
+    function f(ao, an) {
+        return ao.getAttribute("data-" + an);
+    }
+    var y = (function() {
+        var an = ["type", "style", "query", "main"],
+            ap = {};
+
+        function ao(av) {
+            var au = {}, ar;
+            if (!av) {
+                return {};
+            }
+            au.id = av.id;
+            for (var at = 0, aq = an.length; at < aq; at++) {
+                ar = an[at];
+                au[ar] = f(av, ar);
+            }
+            if (au.type === "qde_text") {
+                au.adurl = f(av, "adurl");
+            }
+            return au;
+        }
+        return function(aq) {
+            var at, ar;
+            if (typeof aq === "string") {
+                at = aq;
+            } else {
+                at = aq.id;
+                ar = aq;
+            } if (!ap[at]) {
+                ap[at] = ao(ar || I(at));
+            }
+            return ap[at];
+        };
+    })();
+    var L = "qde.qunar.com",
+        k = "a.qunar.com";
+    var i = String(+new Date()) + parseInt(Math.random() * 10000000, 10);
+
+    function D(ap) {
+        var ao = [];
+        for (var an in ap) {
+            ao.push(an + "=" + encodeURIComponent(ap[an]));
+        }
+        return ao.join("&");
+    }
+
+    function a(aq) {
+        var an = L,
+            ap = "/js.ng/";
+        if (aq.type === "qde_text") {
+            ap = aq.adurl ? "/" + aq.adurl + "?" : "/qadjs12_css.nghtml?";
+        }
+        var ar = i;
+        if (aq.id === QNR.AD.__cur_qde_ad) {
+            i = String(+new Date()) + parseInt(Math.random() * 10000000, 10);
+        }
+        var ao = ["http://", an, ap, "framId=", aq.id, "&", aq.query, "&tile=", ar];
+        if (o) {
+            ao.push("&city=", o);
+        }
+        if (F) {
+            ao.push("&adtest=beta");
+        }
+        if (q) {
+            ao.push(q);
+        }
+        return ao.join("");
+    }
+
+    function G(an) {
+        return ad(an.id).urlPath(an);
+    }
+
+    function g(ao) {
+        var an = "";
+        switch (ao.type) {
+            case "qde":
+            case "qde_text":
+            case "qde_auto":
+                an = a(ao);
+                break;
+            case "qad":
+                an = G(ao);
+                break;
+            default:
+                break;
+        }
+        return an;
+    }
+
+    function X() {
+        return $doc.createElement("div");
+    }
+
+    function A() {
+        var an = $doc.createElement("iframe");
+        an.setAttribute("height", 0);
+        an.setAttribute("frameBorder", 0);
+        an.setAttribute("scrolling", "no");
+        an.style.display = "none";
+        return an;
+    }
+
+    function z(ao, an) {
+        if (an && an.parentNode) {
+            an.parentNode.insertBefore(ao, an);
+        }
+    }
+
+    function K(ao, an) {
+        var ap = ao === "div" ? X() : A();
+        if (an && an.style) {
+            ap.style.cssText = an.style;
+        }
+        if (ao === "iframe") {
+            ap.style.display = "none";
+        }
+        return ap;
+    }
+
+    function n(aq, ao) {
+        ao = ao || "div";
+        var an = y(aq),
+            ap = K(ao, an);
+        return ap;
+    }
+
+    function ak(ap) {
+        var ao = n(ap, "div"),
+            an = I(ap);
+        if (an && an.parentNode) {
+            an.parentNode.insertBefore(ao, an);
+        }
+        return ao;
+    }
+
+    function t(an) {
+        var ao = $doc.createElement("script");
+        ao.charset = "utf-8";
+        ao.async = true;
+        ao.src = an;
+        $head.insertBefore(ao, $head.lastChild);
+    }
+    var d;
+
+    function M(an) {
+        if (!d) {
+            d = X();
+            d.style.display = "none";
+            document.body.appendChild(d);
+        }
+        d.appendChild(an);
+    }
+
+    function aa() {
+        var aq = $doc[aj]("abbr"),
+            ap = [];
+        for (var ao = 0, an = aq.length; ao < an; ao++) {
+            if (f(aq[ao], "type") && f(aq[ao], "lazyAD") !== "1") {
+                ap.push(aq[ao]);
+            }
+        }
+        return ap;
+    }
+
+    function s(aq, ao) {
+        aq = aq || [];
+        ao = ao || {};
+        var au = {}, ax, av, ar, an = /chan=([a-z_]+)/,
+            aw;
+        for (var at = 0, ap = aq.length; at < ap; at++) {
+            ax = aq[at];
+            av = y(ax);
+            if (av.type === "qad") {
+                av.callback = QNR.AD.getCallbackName(av.id, true);
+            }
+            ar = g(av);
+            if (!Q && av.type === "qde") {
+                aw = an.exec(ar);
+                if (aw && aw[1]) {
+                    Q = aw[1];
+                }
+            }
+            if (ar) {
+                au[av.id] = ar;
+            }
+        }
+        return {
+            ads: au,
+            domain: U
+        };
+    }
+    var c;
+
+    function p() {
+        if (c) {
+            setTimeout(function() {
+                if (c) {
+                    c.parentNode.removeChild(c);
+                    c = null;
+                }
+            }, 0);
+        }
+    }
+
+    function B(aq) {
+        var ap = $doc.createElement("div");
+        ap.style.display = "none";
+        var ao = [];
+        j = "http://vata.qunar.com/vata?chan=" + (Q || ""), ao.push('<form name="vata_main_form" target="vata_main_frame" action="' + j + '" method="POST">');
+        aq.ads = aq.ads || {};
+        for (var an in aq.ads) {
+            if (aq.ads.hasOwnProperty(an)) {
+                ao.push('<input type="text" name="', an, '" value="', aq.ads[an], '" />');
+            }
+        }
+        ao.push("</form>");
+        ao.push("<iframe src='' name='vata_main_frame' id='vata_main_frame'></iframe>");
+        ap.innerHTML = ao.join("");
+        c = ap;
+        M(ap);
+        if (/MSIE/i.test(navigator.appVersion)) {
+            I("vata_main_frame").src = "javascript:'<script>window.onload=function(){document.write(\\'<script>document.domain=\\\"" + U + "\\\";parent.document.vata_main_form.submit();<\\\\/script>\\');document.close();};<\/script>'";
+        } else {
+            $doc.vata_main_form.submit();
+        }
+    }
+
+    function h(ap) {
+        var at = aa();
+        var au = [],
+            ar, av = function(aw) {
+                ar = f(aw, "type");
+                if (ar === "qde_auto") {
+                    u(aw);
+                } else {
+                    if (al === 1 || ar === "qde_text") {
+                        af(aw, ap || {});
+                    } else {
+                        au.push(aw);
+                    }
+                }
+            };
+        for (var aq = 0, ao = at.length; aq < ao; aq++) {
+            av(at[aq]);
+        }
+        var an = au.length;
+        if (an == 1) {
+            af(au[0], ap || {});
+        } else {
+            if (an > 1) {
+                B(s(au, ap));
+            }
+        }
+    }
+
+    function S(ao, an) {
+        if (ao.attachEvent) {
+            ao.attachEvent("onload", an);
+        } else {
+            ao.onload = an;
+        }
+    }
+
+    function W(ao, ar) {
+        if (ao == null || ao != ao.window) {
+            return false;
+        }
+        var ap = ao.frameElement;
+        var an = ao.document.body;
+        var aq = function(au) {
+            ap.style.display = "";
+            var at = an.offsetHeight;
+            if (!au) {
+                S(ao, function() {
+                    aq(true);
+                });
+            }
+            if (at == 0) {
+                ap.style.display = "none";
+            } else {
+                ap.style.height = at + "px";
+                ar && ar();
+            }
+        };
+        aq();
+    }
+    var H = {};
+    var ah = /MSIE 6\.0/.test(navigator.userAgent);
+
+    function l(aq, an) {
+        var ap = H[an];
+        var ao = ap && ap.join("") || "";
+        if (ao) {
+            ap.length = 0;
+            aq.write(ao);
+        } else {
+            P(an, false);
+        }
+    }
+    var C = {};
+
+    function O(ap, an) {
+        var ao = C[an] || 0;
+        C[an] = "";
+        ao && ap.write(ao);
+    }
+
+    function N(an, ao) {
+        an = an || "ad_queue_all";
+        if (!H[an]) {
+            H[an] = [];
+        }
+        H[an].push(ao);
+    }
+
+    function E(an) {
+        return am + (ah ? ("&rnd=" + an) : "") + "#" + an;
+    }
+
+    function ac(aq, ao, ap, ar) {
+        var an = [];
+        if (aq) {
+            an[an.length] = "<style>" + aq + "</style>";
+        }
+        if (ao) {
+            an[an.length] = ao.replace(/(scr)_(ipt)/gi, "$1$2");
+        }
+        if (ap) {
+            an[an.length] = '<script type="text/javascript">' + ap + "<\/script>";
+        }
+        if (ar) {
+            an[an.length] = '<script type="text/javascript" src="' + ar + '"><\/script>';
+        }
+        return an.join("");
+    }
+
+    function ag(an, ar) {
+        var ao = E(an),
+            aq = n(an, "iframe");
+        aq.src = ao;
+        if (ar == 1) {
+            M(aq);
+        } else {
+            var ap = I(an);
+            z(aq, ap);
+        }
+    }
+
+    function ab(an, ar, ap) {
+        var ao = I(an),
+            aq = n(an, "iframe");
+        aq.style.display = "";
+        aq.src = ar;
+        aq.id = ap || an;
+        ao.parentNode.replaceChild(aq, ao);
+    }
+
+    function u(ao) {
+        var an = ao.getAttribute("data-src");
+        if (an) {
+            ab(ao.id, an);
+        }
+    }
+
+    function af(at) {
+        var ao = y(at),
+            aq = ao.id,
+            ap, an, ar = "";
+        if (!aq) {
+            return;
+        }
+        if (ao.type === "qde_auto") {
+            u(at);
+        } else {
+            if (ao.type === "qad") {
+                ao.callback = QNR.AD.getCallbackName(aq);
+                an = g(ao);
+                if (an) {
+                    t(an);
+                }
+            } else {
+                an = g(ao);
+                if (!an) {
+                    return;
+                }
+                if (ao.type === "qde_text") {
+                    ar = "call_show=1;";
+                    ap = ac("", "", ar, an);
+                    N(aq, ap);
+                } else {
+                    ap = '<script type="text/javascript" src="' + an + '"><\/script>';
+                    C[aq] = ap;
+                }
+                ag(aq, 0);
+            }
+        }
+    }
+
+    function m(at, av, aq, aw, an, ao) {
+        if (aq === '<div style="display:none"></div>') {
+            P(at, false);
+            return;
+        }
+        var au = I(at),
+            ar = "",
+            ap;
+        if (!au) {
+            return;
+        }
+        P(at, true);
+        ap = aq && /top.QNR.AD.run_in_content/.test(aq);
+        if (!ap) {
+            ap = aw && /top.QNR.AD.run_in_content/.test(aw);
+        }
+        if (ap) {
+            ao = 1;
+        }
+        if (aq.indexOf("q_header|qn_header") > -1 || aw.indexOf("q_header|qn_header") > -1) {
+            I("j-pagecontainer") && (I("j-pagecontainer").style.background = "none");
+        } else {
+            if (ap && /ad_type="([a-z_]+)"/.test(aq)) {
+                if (RegExp.$1 == "static_shading") {
+                    I("j-pagecontainer") && (I("j-pagecontainer").style.background = "none");
+                }
+            }
+        } if (al === 1) {
+            if (ao != 1) {
+                aw = aw || "";
+                aw = "call_show = 1;" + aw;
+            }
+            ar = ac(av, aq, aw, an);
+            if (ap) {
+                ar = ar + "<script>writeContent(document,Current_ad_id);<\/script>";
+            }
+            N(at, ar);
+            return;
+        }
+        if (ao == 1) {
+            ar = ac(av, aq, aw, an);
+            if (ar) {
+                ar = '<script type="text/javascript">Current_ad_id = "' + at + '";<\/script>' + ar;
+            }
+        } else {
+            aw = "call_show=1;" + aw;
+            ar = ac(av, aq, aw, an);
+            ao = 0;
+        }
+        N(at, ar);
+        ag(at, ao);
+    }
+
+    function P(an, ap) {
+        var ao = QNR.AD._DE;
+        if (an) {
+            if (ao[an]) {
+                ao[an](ap);
+                delete ao[an];
+            }
+            return;
+        }
+        for (var aq in ao) {
+            ao[aq](false);
+        }
+        QNR.AD._DE = {};
+    }
+
+    function T(an) {
+        this.$aid = an;
+        this.params = {};
+    }
+    T.prototype = {
+        constructor: T,
+        createCall: function(an) {
+            var ao = this;
+            QNR._AD[this.$aid] = function(ap) {
+                an(ap, ao);
+            };
+        },
+        createDiv: function() {
+            return ak(this.$aid);
+        },
+        set: function(an, ao) {
+            this.params[an] = ao;
+            return this;
+        },
+        getId: function() {
+            return this.$aid;
+        },
+        run_in_iframe: function(an, ao) {
+            if (typeof ao == "undefined") {
+                ao = 1;
+            }
+            QNR.AD.add_AD_iframe(this.$aid, an, ao);
+        },
+        urlPath: function(ap) {
+            var ao = ["http://", k, "/vataplan?", "framId=", ap.id, "&", ap.query, "&callback=", ap.callback, "&ab=b&tile=", i];
+            if (V) {
+                ao.push(V);
+            }
+            var an = D(this.params);
+            an && ao.push("&", an);
+            if (o) {
+                ao.push("&city=", o);
+            }
+            return ao.join("");
+        },
+        load: function() {
+            QNR.AD.loadOneAD(this.$aid);
+        }
+    };
+    var b = {};
+
+    function ad(ao, an) {
+        if (!b[ao]) {
+            b[ao] = new T(ao);
+        }
+        an && an(b[ao]);
+        return b[ao];
+    }
+    QNR.AD = {
+        version: "4.4",
+        _AD: {},
+        _DE: {},
+        run_in_content: m,
+        run_queue_list: function() {
+            var an = "ad_queue_all";
+            var ap = H[an];
+            var ao = ap && ap.join("") || "";
+            if (ao) {
+                ap.length = 0;
+                ao += '<script type="text/javascript">writeContent(document,"ad_queue_all");<\/script>';
+                N(an, ao);
+                ag(an, 1);
+            }
+            p();
+            P();
+        },
+        writeHeadScript: O,
+        create_div_container: ak,
+        writeContent: l,
+        $inject_flash: J,
+        createAdFrame: ab,
+        createQAd: ad,
+        add_AD_iframe: function(an, ap, ao) {
+            if (!ap) {
+                return;
+            }
+            if (ao) {
+                ap = ap + '<script type="text/javascript">call_show=1;<\/script>';
+            }
+            N(an, ap);
+            ag(an, 0);
+        },
+        init: function(an) {
+            F = an.debug || false;
+            al = an.type || "";
+            if (ah) {
+                al = 1;
+            }
+            o = an.ip || "";
+            q = an.qde_plus || "";
+            V = an.qad_plus || "";
+            am = an.blank_html || "";
+            x = an;
+            if (F) {
+                L = "qdebeta.qunar.com";
+            }
+            h(an);
+        },
+        show: function(ao, an) {
+            W(ao, function() {
+                QNR.AD.callWinShowFun(an, ao);
+            });
+        },
+        getCallbackName: function(an, ao) {
+            return (ao ? "parent." : "") + "QNR._AD." + an;
+        },
+        callWinShowFun: function(an, aq) {
+            var ao = an + "_win_",
+                ap = QNR._AD[ao];
+            if (ap) {
+                ap(an, aq);
+            }
+        },
+        createWinShowCall: function(an, ap) {
+            var ao = an + "_win_";
+            QNR._AD[ao] = ap;
+        },
+        createCallback: function(ao, ap) {
+            var an = ad(ao);
+            an.createCall(function(ar) {
+                var aq = an.createDiv();
+                ap(aq, ar);
+            });
+        },
+        createQdeCallback: function(an, ao) {
+            QNR.AD._DE[an] = function(ap) {
+                ao(ap, an);
+            };
+        },
+        callBackQDE: P,
+        change_one_async: function() {
+            var an = x;
+            an.type = 1;
+            QNR.AD.init(an);
+            p();
+        },
+        loadOneAD: function(ao) {
+            var an = I(ao);
+            if (an) {
+                af(an);
+            }
+        }
+    };
+})(this);
+QNR.ips = (function(g) {
+    if (typeof g.QNR === "undefined") {
+        g.QNR = {};
+    }
+    var i = g.document,
+        f = location.search.match(/debug=city=([^&#]+)/),
+        j = f ? decodeURI(f[1]) : null,
+        h = 0,
+        b = [];
+
+    function a(m, n) {
+        b.push(m);
+        if (h) {
+            return;
+        }
+        var k = i.createElement("script");
+        d.callback = function(p) {
+            if (j !== null) {
+                return;
+            }
+            j = p.city || "";
+            c();
+            k.parentNode.removeChild(k);
+        };
+        k.type = "text/javascript";
+        k.charset = "utf-8";
+        k.src = "http://ws.qunar.com/ips.jcp?callback=QNR.ips.callback&_=" + (+new Date);
+        k.async = true;
+        var l = i.getElementsByTagName("head");
+        container = l ? l[0] : document.documentElement;
+        container.insertBefore(k, container.firstChild);
+        h = 1;
+        setTimeout(function() {
+            d.callback({});
+        }, n || 2000);
+    }
+
+    function c() {
+        for (var m = 0, k = b.length; m < k; m++) {
+            b[m].call(null, j);
+        }
+        b.length = 0;
+    }
+
+    function d(k, l) {
+        k = k || function() {};
+        if (j !== null) {
+            k.call(null, j);
+        } else {
+            a(k, l);
+        }
+    }
+    return d;
+})(this);
+if (typeof AD_Manage === "undefined") {
+    var AD_Manage = {};
+}
+AD_Manage.isDebug = function() {
+    var a = location.href;
+    return a.indexOf("adtest=beta") > 0 && a.indexOf("adebug") > 0;
+};
+var QadAdUnits = (function() {
+    function d(j) {
+        return typeof j === "string" ? document.getElementById(j) : j;
+    }
+
+    function c(l) {
+        var m = document;
+        var j = m.getElementsByTagName("head")[0];
+        if (m.createStyleSheet) {
+            m.createStyleSheet().cssText = l;
+        } else {
+            var k = m.createElement("style");
+            k.textContent = l;
+            j.insertBefore(k, j.firstChild);
+        }
+    }
+    var a = "";
+
+    function h() {
+        if (a) {
+            c(a);
+        }
+        a = null;
+    }
+
+    function b(s, q) {
+        var o = [],
+            p = null,
+            m = "";
+        var j = s.key_data || [];
+        for (var n = 0, k = j.length; n < k; n++) {
+            p = j[n];
+            if (q) {
+                m = q(p);
+            } else {
+                if (p.img) {
+                    m = g(p);
+                } else {
+                    m = i(p);
+                }
+            }
+            o.push(m);
+        }
+        return o.join("");
+    }
+
+    function g(k) {
+        var j = f(k);
+        return ['<div class="un_ct">', '<dl class="hn_dl">', '<dt><a target="_blank" href="', j, '">', '<img src="', k.img, '"></a>', "</dt>", '<dd><a target="_blank" href="', j, '" class="hn_d2">', k.title, "</a></dd>", '<dd><a target="_blank" href="', j, '" class="hn_d3">', k.description, "</a></dd>", '<dd><a target="_blank" href="', j, '">', k.show, "</a></dd>", '</dl><div class="clr"></div></div>'].join("");
+    }
+
+    function i(k) {
+        var j = f(k);
+        var m = k.title || "";
+        m = m.replace("...", "");
+        var l = k.description || "";
+        return ['<dl class="dl_spy">', '<dt><a class="lnk_rut" title="', m, '" target="_blank" href="', j, '">', m, "</a></dt>", k.phone ? '<dd><a class="lnk_tel" target="_blank" href="' + j + '">TEL: ' + k.phone || "</a></dd>" : "", '<dd><a title="' + l + '" class="lnk_t" href="', j, '" target="_blank">', l, "</a></dd>", '<dd><a class="lnk_h" target="_blank" href="', j, '">', k.margin ? '<span class="icon_bz" title="商户服务安全双重保障"></span>' : "", k.show || "", "</a></dd>", "</dl>"].join("");
+    }
+
+    function f(j) {
+        return ["http://clk.qunar.com/q?k=", j.s || "", "&e=", j.e].join("");
+    }
+    return {
+        $E: d,
+        append_style: c,
+        renderTextLinkHTML: b,
+        appendTextCss: h,
+        parse_clk_url: f,
+        create_iframe_hander: function(j, k) {
+            if (typeof j === "string") {
+                j = QNR.AD.createQAd(j);
+            }
+            j.createCall(function(o) {
+                var l = o && o.key_data && o.key_data.length || 0;
+                var n = "",
+                    m;
+                if (l) {
+                    var m = j.getCss && j.getCss() || "";
+                    if (m) {
+                        n = '<style type="text/css">' + m + "</style>";
+                    }
+                    n += b(o, j.renderHtmlItem);
+                    j.run_in_iframe(n, 1);
+                }
+                k(l, j);
+            });
+        },
+        create_text_call: function(j, k) {
+            QNR.AD.createCallback(j, function(m, n) {
+                var l = n && n.key_data && n.key_data.length || 0;
+                if (!l) {
+                    m.style.display = "none";
+                } else {
+                    QadAdUnits.appendTextCss();
+                    m.innerHTML = QadAdUnits.renderTextLinkHTML(n);
+                }
+                k(l, n);
+            });
+        }
+    };
+})();
+(function() {
+    var c = QadAdUnits.$E;
+
+    function b(k) {
+        var i = k && k.key_data && k.key_data.length;
+        if (!i) {
+            return;
+        }
+        var j = k.key_data[0].description;
+        if (!j) {
+            return;
+        }
+        j = j.replace(/(st)_(yle)/ig, "$1$2");
+        j = j.replace(/(scr)_(ipt)/gi, "$1$2");
+        return j;
+    }
+
+    function g(i) {
+        return function(j, k) {
+            j.style.display = "none";
+            html = b(k);
+            QNR.AD.add_AD_iframe(i, html, 1);
+        };
+    }
+    QNR.AD.createCallback("ifrHelperAd", g("ifrHelperAd"));
+    QNR.AD.createCallback("ifrCataAd", g("ifrCataAd"));
+
+    function h() {
+        var i = c("ifmRightTextlink_title");
+        if (i) {
+            i.style.display = "block";
+        }
+        i = c("ifmRightTextlink_footer");
+        if (i) {
+            i.style.display = "block";
+        }
+    }
+    QadAdUnits.create_text_call("ifmRightTextlink", function(i) {
+        if (i > 0) {
+            h();
+        }
+    });
+
+    function d(s, l, n) {
+        var p = n && n.key_data && n.key_data.length;
+        l.style.display = "none";
+        if (!p) {
+            return;
+        }
+        var k = '<style type="text/css">.f_org { color: #FF6600; }.ul_listBticket li { display: inline-block; float: left; line-height: 20px; text-align: left; width: 27%; }.ul_listBticket li a { display: block; }.ul_listBticket li a .tit { display: block;}.ul_listBticket li.col_qnr { padding-top: 0; text-align: left; width: 18%; }.ul_listBticket li.col_qnr .txtlnk_qnr { background: none repeat scroll 0 0 #EFEFEF; color: #333; display: inline-block; height: 17px; line-height: 17px; padding: 0 6px; }</style>';
+        var o = ['<div class="bannerTK_cont" id="result">'],
+            q = n.key_data,
+            t, j;
+        o.push('<ul class="ul_listBticket clr_after">');
+        o.push('<li class="col_qnr"><span class="txtlnk_qnr">去哪儿提供的链接</span></li>');
+        for (var m = 0; m < p; m++) {
+            t = q[m];
+            j = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
+            o.push('<li><a href="', j, '" target="_blank"><span class="tit">', t.title, '</span> <span class="f_org">', t.show, "</span> </a></li>");
+        }
+        o.push("</ul></div>");
+        var o = k + o.join("");
+        QNR.AD.add_AD_iframe(s, o, 1);
+    }
+    QNR.AD.createCallback("listBottomAD", function(i, j) {
+        d("listBottomAD", i, j);
+    });
+    QNR.AD.createCallback("ifrNTOPAD", function(i, j) {
+        d("ifrNTOPAD", i, j);
+    });
+    var a = 0;
+
+    function f() {
+        return "ad_dyna_" + (a++);
+    }
+    AD_Manage.createFlightAD = function(j) {
+        var k = QNR.AD.create_div_container(j);
+        var o = /inter/.test(location.pathname) ? "QNR_ZDM%3D_CN" : "QNR_YjM%3D_CN";
+        var q = QadAdUnits.$E(j);
+        j = f();
+        var p = j + "_qad",
+            m = j + "_qde";
+        var i = '<span style="display:none;" data-query="vataposition=' + o + '&tag=0&rows=3&cur_page_num=0&rep=1&f=s" data-type="qad" data-style="width:100%;" id="' + p + '"></span><div style="padding: 0 6px;"><span style="display:none;" data-style="width:100%;" data-type="qde" data-query="" id="' + m + '"></span></div>';
+        k.innerHTML = i;
+        var l = AD_Manage.isDebug();
+        QNR.AD.createQdeCallback(m, function(s) {
+            if (!s || l) {
+                QNR.AD.loadOneAD(p);
+            }
+        });
+        QNR.AD.createCallback(p, function(s, t) {
+            d(p, s, t);
+        });
+        var n = q.getAttribute("querystring");
+        QadAdUnits.$E(m).setAttribute("data-query", n);
+        QNR.AD.__cur_qde_ad = m;
+        QNR.AD.loadOneAD(m);
+    };
+})();
+(function() {
+    function b(c) {
+        return~ location.search.indexOf(c);
+    }
+
+    function a(f) {
+        var g = {};
+        g.type = b("debug=type=open") ? 1 : 0;
+        g.debug = b("adtest=beta");
+        g.blank_html = "http://www.qunar.com/vataframe/b.html?_=20120830";
+        g.qde_plus = "";
+        g.qad_plus = "";
+        var d = 1;
+        if (AD_Manage.qad_query) {
+            d++;
+        }
+        if (AD_Manage.qde_query) {
+            d++;
+        }
+        if (AD_Manage.ip_query) {
+            d++;
+        }
+
+        function c() {
+            d--;
+            if (d === 0) {
+                f(g);
+            }
+        }
+        if (AD_Manage.qad_query) {
+            AD_Manage.qad_query(function(h) {
+                if (h) {
+                    g.qad_plus = "&" + h.replace(/^&/, "");
+                }
+                c();
+            });
+        }
+        if (AD_Manage.qde_query) {
+            AD_Manage.qde_query(function(h) {
+                if (h) {
+                    g.qde_plus = "&" + h.replace(/^&/, "");
+                }
+                c();
+            });
+        }
+        if (AD_Manage.ip_query) {
+            AD_Manage.ip_query(function(h) {
+                if (h) {
+                    g.ip = encodeURIComponent(h);
+                }
+                c();
+            });
+        }
+        c();
+    }
+    AD_Manage.load = function() {
+        a(function(c) {
+            if (b("debug=charge=true")) {
+                c.qde_plus += "&cm=charged";
+            }
+            setTimeout(function() {
+                QNR.AD.init(c);
+            }, 10);
+        });
+    };
+})();
+
+function setIfrmHeight(c, b) {
+    var a = QadAdUnits.$E(c);
+    if (a) {
+        a.style.height = b + "px";
+    }
+}
+var LazyScrollShow = (function() {
+    var b = [],
+        f;
+    var l = ["dTrendflashPanel", "dReversePanel_normal", "hotelSearch", "frmTuan"];
+
+    function i() {
+        var s = window.document,
+            q = s.documentElement.clientHeight;
+        return $jex.boxModel() && q || s.body && s.body.clientHeight || q;
+    }
+
+    function d() {
+        var q = window,
+            t = "pageYOffset",
+            s = "scrollTop";
+        return (t in q) ? q[t] : $jex.boxModel() && q.document.documentElement[s] || q.document.body[s];
+    }
+    var g = {
+        hotelSearch: function() {
+            var t = window.location.param();
+            var s = t.searchDepartureTime;
+            var u = $jex.date.add(s, 2);
+            var q = "http://hotel.qunar.com/hotelHot.htm?new=1&city=" + encodeURIComponent(t.searchArrivalAirport) + "&fromDate=" + s + "&toDate=" + u + "&frmid=hotelSearch&from=oneway";
+            QNR.AD.createAdFrame("hotelSearch", q);
+        },
+        frmTuan: function() {
+            QNR.AD.loadOneAD("frmTuan");
+        },
+        dTrendflashPanel: function() {
+            setTimeout(function() {
+                Trendflash && Trendflash.init();
+            }, 100);
+            if (window.dflightTool) {
+                dflightTool.start();
+            }
+        },
+        dReversePanel_normal: function() {
+            RoundTripGrid.load();
+        }
+    };
+
+    function h() {
+        var q = 0;
+        $jex.foreach(b, function(t, s) {
+            if (!t) {
+                return;
+            }
+            var u = $jex.offset(t);
+            if (f.stop + f.height > (u.top - 50)) {
+                b[s] = null;
+                g[t.id]();
+            } else {
+                q++;
+            }
+        });
+        if (q == 0) {
+            b = null;
+            j();
+        }
+    }
+
+    function a(s) {
+        var t, q = 0;
+        return function() {
+            clearTimeout(t);
+            var u = (new Date()).valueOf();
+            if (u - q > 100) {
+                s();
+            }
+            q = u;
+            t = setTimeout(s, 100);
+        };
+    }
+    var k = a(function() {
+        f.height = i();
+        h();
+    });
+    var p = a(function() {
+        f.stop = d();
+        h();
+    });
+
+    function m(q, t, s) {
+        if (q.removeEventListener) {
+            q.removeEventListener(t, s, false);
+        } else {
+            if (q.detachEvent) {
+                q.detachEvent("on" + t, s);
+            } else {
+                if (q["on" + t] === s) {
+                    q["on" + t] = null;
+                }
+            }
+        }
+    }
+
+    function o() {
+        $jex.event.bind(window, "scroll", p);
+        $jex.event.bind(window, "resize", k);
+    }
+
+    function j() {
+        m(window, "scroll", p);
+        m(window, "resize", k);
+    }
+
+    function n() {
+        $jex.foreach(["dFlightPanel", "hdivTrendFlash"], function(s) {
+            var q = $jex.$(s);
+            q && $jex.element.show(q);
+        });
+        $jex.foreach(["hotelSearch", "frmTuan"], function(s) {
+            var q = $jex.$(s);
+            q && $jex.element.show(q.parentNode);
+        });
+    }
+
+    function c() {
+        n();
+        setTimeout(function() {
+            $jex.foreach(l, function(q) {
+                var s = $jex.$(q);
+                if (s) {
+                    b.push(s);
+                }
+            });
+            if (b.length > 0) {
+                f = {
+                    stop: d(),
+                    height: i()
+                };
+                o();
+                h();
+            }
+        }, 100);
+    }
+    return {
+        addShow: function(s, q) {
+            g[s] = q;
+        },
+        addDoms: function(s) {
+            for (var t = 0, q = l.length; t < q; t++) {
+                if (l[t] === s) {
+                    return;
+                }
+            }
+            l[t] = s;
+        },
+        start: function() {
+            setTimeout(c, 100);
+        }
+    };
+})();
+var QunarHistory = new function() {
+        document.domain = "qunar.com";
+        var l = this;
+        var h = [];
+        var d = null;
+        var k = null;
+        var j = null;
+        this.ChinaFlightList = [];
+        this.InterFlightList = [];
+        var c = null;
+        this.SFList = null;
+        this.DFList = null;
+        this.HLList = null;
+        this.firstDSF = null;
+        this.firstISF = null;
+        this.firstDDF = null;
+        this.firstIDF = null;
+        this.firstChina = null;
+        this.firstInter = null;
+        this.firstFlight = null;
+        this.firstHL = null;
+        var b = this.cache = function(m, n) {
+            if ((typeof this["_" + m] == "undefined" || this["_" + m] === null) && n) {
+                this["_" + m] = n;
+            }
+            return this["_" + m];
+        };
+        var f = {
+            SF: {
+                Type: function() {
+                    return "SF";
+                },
+                FromCity: function() {
+                    return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
+                },
+                ToCity: function() {
+                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+                },
+                FromDate: function() {
+                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+                },
+                FromCountry: function() {
+                    return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
+                },
+                ToCountry: function() {
+                    return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
+                },
+                isInter: function() {
+                    return this.FromCountry() != "中国" || this.ToCountry() != "中国";
+                },
+                validate: function() {
+                    return true;
+                },
+                Timestamp: function() {
+                    return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
+                }
+            },
+            DF: {
+                Type: function() {
+                    return "DF";
+                },
+                FromCity: function() {
+                    return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
+                },
+                ToCity: function() {
+                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+                },
+                FromDate: function() {
+                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+                },
+                ToDate: function() {
+                    return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
+                },
+                FromCountry: function() {
+                    return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
+                },
+                ToCountry: function() {
+                    return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
+                },
+                isInter: function() {
+                    return this.FromCountry() != "中国" || this.ToCountry() != "中国";
+                },
+                validate: function() {
+                    return true;
+                },
+                Timestamp: function() {
+                    return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
+                }
+            },
+            HL: {
+                ToCity: function() {
+                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+                },
+                FromDate: function() {
+                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+                },
+                ToDate: function() {
+                    return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
+                },
+                validate: function() {
+                    return true;
+                }
+            }
+        };
+        var g = function(o, m) {
+            var n = l[o];
+            if (!n || n.Timestamp() < m.Timestamp()) {
+                l[o] = m;
+            }
+        };
+        var a = function(p, m, q) {
+            if (!m) {
+                return;
+            }
+            for (var o = 0; o < m.length; o++) {
+                for (var n in q) {
+                    m[o][n] = q[n];
+                }
+                switch (p) {
+                    case "SF":
+                        if (m[o].isInter()) {
+                            g("firstISF", m[o]);
+                            g("firstInter", m[o]);
+                            l.InterFlightList.push(m[o]);
+                        } else {
+                            g("firstDSF", m[o]);
+                            g("firstChina", m[o]);
+                            l.ChinaFlightList.push(m[o]);
+                        }
+                        g("firstFlight", m[o]);
+                        break;
+                    case "DL":
+                        if (m[o].isInter()) {
+                            g("firstIDF", m[o]);
+                            g("firstInter", m[o]);
+                            l.InterFlightList.push(m[o]);
+                        } else {
+                            g("firstDDF", m[o]);
+                            g("firstChina", m[o]);
+                            l.ChinaFlightList.push(m[o]);
+                        }
+                        g("firstFlight", m[o]);
+                        break;
+                    case "HL":
+                        if (!l.firstHL) {
+                            l.firstHL = m[o];
+                        }
+                        break;
+                }
+            }
+            return m;
+        };
+        var i = function(m, n) {
+            return -(parseInt(m.timestamp, 10) - parseInt(n.timestamp, 10));
+        };
+        this.load = function() {
+            var m = $jex.$("ifrmHistory");
+            if (m) {
+                $jex.event.bindDom(m, "load", this, function() {
+                    window.jx05CFEventFC.call(this, m);
+                });
+                m.src = "http://history.qunar.com/history/newhistory.html";
+            }
+        };
+        this.parseQunarHistory = function() {
+            this.SFList = a("SF", d.findEntries("SF"), f.SF);
+            this.DFList = a("DL", d.findEntries("DL").concat(d.findEntries("IF")), f.DF);
+            this.HLList = a("HL", d.findEntries("HL"), f.HL);
+            try {
+                $jex.event.trigger(QunarHistory, "onload");
+            } catch (m) {}
+        };
+        window.jx05CFEventFC = function(m) {
+            l.SFlight = k = m.contentWindow.SFlight;
+            l.DFlight = j = m.contentWindow.DFlight;
+            c = m.contentWindow.HotelDetail;
+            l.service = d = m.contentWindow.QunarHistory;
+            this.parseQunarHistory();
+        };
+    };
+
+function QunarHistoryToolbar(a) {
+    QunarHistoryToolbar.superclass.constructor.call(this, a);
+    this._type = "QunarHistoryToolbar";
+    this._init();
+}
+$jex.extendClass(QunarHistoryToolbar, XControl);
+QunarHistoryToolbar.prototype._init = function() {
+    var b = this;
+    var a = this._setting.elemId;
+    var d = $jex.$(a + "_handler");
+    var c = $jex.$(a + "_arrow_up");
+    var g = $jex.$(a + "_arrow_down");
+    var f = $jex.$(a + "_list");
+    this.loadedHistory = false;
+    this.initial = false;
+    $jex.event.binding(d, "click", function(h) {
+        if (!b.initial) {
+            b._initList(a, c, g, f);
+        }
+        $jex.element.toggle(c, g, f);
+        $jex.stopEvent(h);
+    });
+    if (QunarHistory) {
+        $jex.event.binding(QunarHistory, "onload", function() {
+            b.loadedHistory = true;
+            if (!QunarHistory.DFList && !QunarHistory.SFList) {
+                $jex.element.hide(d);
+            }
+        });
+        QunarHistory.load();
+    }
+};
+QunarHistoryToolbar.prototype._initList = function(k, m, b, j) {
+    var c = [];
+    var f = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
+    try {
+        f.sort(function(i, p) {
+            return p.timestamp - i.timestamp;
+        });
+    } catch (h) {}
+
+    function q(i) {
+        return String(i).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;").replace(/ /g, "&nbsp;");
+    }
+    c.push('<div  id="', k, '_close" class="close"></div>');
+    c.push('<ul id="hulHistroyList">');
+    for (var d = 0, g = f.length; d < g; d++) {
+        var o = f[d];
+        if (!o.ToCity() || !o.FromCity()) {
+            continue;
+        }
+        var a = ["fromCity=" + o.FromCity(), "toCity=" + o.ToCity(), "fromDate=" + o.FromDate()];
+        if (o.Type() == "SF") {
+            var l = "单程 " + o.FromCity() + "-" + o.ToCity() + " " + o.FromDate().replace(/^\d{4}-/, "");
+            a.push("searchType=OnewayFlight");
+        } else {
+            var l = "双程 " + o.FromCity() + "-" + o.ToCity() + " " + o.FromDate().replace(/^\d{4}-/, "") + "~" + o.ToDate().replace(/^\d{4}-/, "");
+            a.push("toDate=" + o.ToDate(), "searchType=RoundTripFlight");
+        }
+        var n = encodeURI("/twell/flight/Search.jsp?" + a.join("&"));
+        l = q(l);
+        c.push('<li title="', l, '"><a href="', n, '" key="', d + "", '" target="_blank">', l, "</a></li>");
+    }
+    c.push("</ul>");
+    j.innerHTML = c.join("");
+    $jex.event.binding($jex.$(k + "_close"), "click", function(i) {
+        $jex.element.toggle(m, b, j);
+        $jex.stopEvent(i);
+    });
+    this.initial = true;
+};
+
+function FocusChecker(f, g) {
+    var d = false;
+    var a = false;
+    var c = null;
+    var b = 5;
+
+    function h() {
+        c = null;
+        if (d != a) {
+            d = a;
+        }
+        if (d) {
+            g.focusin();
+        } else {
+            g.focusout();
+        }
+    }
+    $jex.event.bind(f, "focusin", function() {
+        a = true;
+        if (c) {
+            clearTimeout(c);
+        }
+        c = setTimeout(h, b);
+    });
+    $jex.event.bind(f, "focusout", function() {
+        a = false;
+        if (c) {
+            clearTimeout(c);
+        }
+        c = setTimeout(h, b);
+    });
+}
+
+function XCombox(j, a) {
+    var c = this.elem = j.parentNode;
+    this.inputEl = j;
+    this.collateValue = j.value;
+    this.tempValue = null;
+    this._invalid = false;
+    var g = j.previousSibling;
+    if (g) {
+        g.innerHTML = "";
+    } else {
+        g = $jex.doc(c).createElement("DIV");
+        g.className = "boxWrapper";
+        c.insertBefore(g, j);
+    }
+    this.wrappEl = g;
+    var b = new UIObject().append("<div", "mark", ' class="qcbox-mark"></div>').append("<div", "main", ' class="boxContainer">').append("<div", "sinfo", ' class="sinfo"></div><div class="sicon"><i></i></div>').text('<div style="clear:both"></div>').text("</div>");
+    b.write(g);
+    var h = b.getDomNode("main"),
+        k = b.getDomNode("sinfo");
+    this.txtMark = b.getDomNode("mark");
+    this.infoPanel = k;
+    $jex.event.bind(h, "mouseover", function() {
+        $jex.addClassName(this, "switcher_in");
+    });
+    $jex.event.bind(h, "mouseout", function() {
+        $jex.removeClassName(this, "switcher_in");
+    });
+    if (a.attrs) {
+        for (var d in a.attrs) {
+            this[d] = a.attrs[d];
+        }
+    }
+    if (a.button) {
+        if (a.button.mousedown) {
+            $jex.event.add(this, "buttonmousedown", a.button.mousedown);
+        }
+    }
+    if (a.input) {
+        if (a.input.click) {
+            $jex.event.bindDom(j, "click", this, a.input.click);
+        }
+        if (a.input.mousedown) {
+            $jex.event.bindDom(j, "mousedown", this, a.input.mousedown);
+        }
+        if (a.input.change) {
+            $jex.event.add(this, "valuechange", a.input.change);
+        }
+        if (a.input.keypress) {
+            $jex.event.bindDom(j, $jex.ie || $jex.safari ? "keydown" : "keypress", this, a.input.keypress);
+        }
+    }
+    FocusChecker(c, this, j);
+    if (a.focus) {
+        $jex.event.add(this, "focus", a.focus);
+    }
+    if (a.blur) {
+        $jex.event.add(this, "blur", a.blur);
+    }
+    $jex.event.bindDom(j, "keyup", this, function(i) {
+        setTimeout($jex.callback(this, this._listenKey), 0);
+    });
+    var f = this.popContainer = $jex.doc(c).createElement("DIV");
+    f.className = "popContainer";
+    f.display = "none";
+    c.appendChild(f);
+    this.popups = new XPopupManager(f);
+    if (a.popups) {
+        for (var d in a.popups) {
+            this.popups.createPopup(d, a.popups[d]).own = this;
+        }
+    }
+    $jex.ie && $jex.event.bind(j, "beforedeactivate", function(i) {
+        if (this._f_leave) {
+            $jex.stopEvent(i);
+        }
+        this._f_leave = 0;
+    });
+    $jex.ie && $jex.event.bind(j, "focus", function(i) {
+        this._f_leave = 0;
+    });
+    $jex.event.bindDom(h, "mousedown", this, this.mousedown);
+    f.onmousedown = function(i) {
+        j._f_leave = 1;
+        return false;
+    };
+}
+XCombox.prototype.setMark = function(a) {
+    this.txtMark.innerHTML = a;
+};
+XCombox.prototype.showError = function(a) {
+    $jex.addClassName(this.elem, "qcbox_err");
+    this.setInfo(a);
+};
+XCombox.prototype.hideError = function() {
+    $jex.removeClassName(this.elem, "qcbox_err");
+};
+XCombox.prototype.show = function() {
+    this.elem.style.display = "block";
+};
+XCombox.prototype.hide = function() {
+    this.elem.style.display = "none";
+};
+XCombox.prototype.setValue = function(a) {
+    $jex.removeClassName(this.wrappEl, "qbox_c");
+    this.tempValue = null;
+    this.inputEl.value = a;
+    this._listenKey(true);
+};
+XCombox.prototype.volateValue = function(a) {
+    this.tempValue = this.inputEl.value = a;
+    this._listenKey();
+};
+XCombox.prototype.initValue = function(a) {
+    this.collateValue = this.inputEl.value = a;
+    this.tempValue = null;
+};
+XCombox.prototype.getValue = function() {
+    return $jex.trim(this.inputEl.value);
+};
+XCombox.prototype.setInfo = function(d, b, c) {
+    this.infoPanel.innerHTML = d || "";
+    if (d) {
+        $jex.addClassName(this.wrappEl, "qbox_c");
+    }
+    var a = "sinfo";
+    if (b) {
+        a = a + " " + b;
+    }
+    this.infoPanel.className = a;
+    this.infoPanel.title = c || "";
+};
+XCombox.prototype.focusin = function() {
+    $jex.addClassName(this.elem, "qbc_fin");
+    $jex.removeClassName(this.wrappEl, "qbox_c");
+    $jex.removeClassName(this.elem, "qcbox_err");
+    $jex.event.trigger(this, "focus");
+    this.timerListen(true);
+};
+XCombox.prototype.focusout = function() {
+    this.popups.close();
+    $jex.removeClassName(this.elem, "qbc_fin");
+    this.initValue(this.getValue());
+    $jex.event.trigger(this, "blur");
+    this.timerListen(false);
+};
+XCombox.prototype.mousedown = function(a) {
+    var b = this.inputEl;
+    $jex.ie && (b._f_leave = 1);
+    window.setTimeout(function() {
+        b.focus();
+    }, 0);
+    $jex.stopEvent(a);
+    $jex.event.trigger(this, "buttonmousedown", a);
+    return false;
+};
+XCombox.prototype.openMainMenu = function() {
+    var a = this.popups.get("main");
+    if (a && a.isOpend()) {
+        this.popups.close();
+    } else {
+        this.popups.open("main");
+    }
+};
+XCombox.prototype._listenKey = function(c) {
+    var b = this.getValue(),
+        a = $jex.trim(this.collateValue);
+    if (this.inputEl.value == this.tempValue) {} else {
+        if (b != a) {
+            this.collateValue = b;
+            $jex.event.trigger(this, "valuechange", b, a, c === true);
+        }
+    }
+};
+XCombox.prototype.timerListen = function(a) {
+    if (a) {
+        if (!this.listenID) {
+            this.listenID = setInterval($jex.callback(this, this._listenKey), 50);
+        }
+    } else {
+        if (this.listenID) {
+            clearInterval(this.listenID);
+            this.listenID = null;
+        }
+    }
+};
+
+function XPopup(a) {
+    this.panel = null;
+    this.className = "popPanel" + (a.className ? " " + a.className : "");
+    if (a.close) {
+        $jex.event.add(this, "close", a.close);
+    }
+    if (a.open) {
+        $jex.event.add(this, "open", a.open);
+    }
+    if (a.initialize) {
+        this.initialize = a.initialize;
+    }
+}
+XPopup.prototype.initialize = function(a) {};
+XPopup.prototype._open = function() {
+    this.panel.style.display = "";
+    $jex.event.trigger(this, "open");
+};
+XPopup.prototype.isOpend = function() {
+    return this.panel && this.panel.style.display != "none";
+};
+XPopup.prototype.close = function() {
+    $jex.event.trigger(this, "close");
+    this.panel.style.display = "none";
+};
+
+function XPopupManager(a) {
+    this.popups = {};
+    this.container = a;
+    this.current = null;
+    this.defaultName = null;
+}
+XPopupManager.prototype.createPopup = function(a, b) {
+    return this.popups[a] = new XPopup(b);
+};
+XPopupManager.prototype.open = function(b) {
+    var a = this.popups[b];
+    if (a) {
+        if (!a.inited) {
+            var c = a.panel;
+            if (!c) {
+                c = $jex.doc(this.container).createElement("DIV");
+                c.className = a.className;
+                c.style.display = "none";
+                this.container.appendChild(c);
+                a.panel = c;
+            }
+            a.initialize();
+            a.inited = true;
+        }
+        if (this.current && this.current != a && this.current.isOpend()) {
+            this.current.close();
+        }
+        if (!a.isOpend()) {
+            a._open();
+        }
+        return this.current = a;
+    }
+};
+XPopupManager.prototype.close = function(a) {
+    if (a && !this.isOpend(a)) {
+        return;
+    }
+    if (this.current != null) {
+        this.current.close();
+        this.current = null;
+    }
+};
+XPopupManager.prototype.isOpend = function(a) {
+    if (a) {
+        if (this.popups[a]) {
+            return this.popups[a].isOpend();
+        }
+    } else {
+        if (this.current != null) {
+            return this.current.isOpend();
+        }
+    }
+    return false;
+};
+XPopupManager.prototype.get = function(a) {
+    return this.popups[a];
+};
+
+function FlightCityXCombox(c, d, b) {
+    var g = new Date();
+    var a = this;
+    this.setting = b || {};
+    var f = new ScriptRequest({
+        oncomplete: function(h) {
+            a.suggLoaded(h);
+        },
+        callbackName: "callback"
+    });
+    FlightCityXCombox.superclass.constructor.call(this, c, {
+        button: {
+            mousedown: function(h) {
+                this.openMainMenu();
+                h && $jex.stopEvent(h);
+            }
+        },
+        input: {
+            change: function(k, i, j) {
+                if (!j) {
+                    this.vidx = -1;
+                    this.inputold = k;
+                    k = k.replace(/[~!@#\$%\^&\*\(\)_\+<>\?:\\\\"\|\{\}`,\.\/;'\\\{\}]+/ig, "");
+                    if (k) {
+                        var h = this.popups.get("suggest");
+                        h && h.layer && (h.layer.cursor = -1);
+                        f.cancel();
+                        if (this.cache[k]) {
+                            a.suggLoaded(this.cache[k]);
+                        } else {
+                            f.send("http://www.qunar.com/suggest/livesearch2.jsp?lang=zh&q=" + encodeURIComponent(k) + "&sa=true");
+                        }
+                    } else {
+                        this.popups.close();
+                    }
+                } else {
+                    $jex.event.trigger(d, "cityfinished", this.getValue());
+                }
+            },
+            keypress: function(h) {
+                this.keypress(h, h.keyCode);
+            }
+        },
+        focus: function() {
+            this.inputEl.select();
+        },
+        blur: function() {
+            if (this.vidx == -1) {
+                var h = this.popups.get("suggest");
+                if (h && h.layer && (h.layer.cursor > -1)) {
+                    var i = h.layer.nodes[h.layer.cursor].item;
+                    this.setCountry(i.country);
+                    this.setValue(i.key);
+                    this.vidx = 0;
+                    $jex.event.trigger(a, "select", i.key);
+                }
+            } else {
+                if (this.getValue() == "") {
+                    this.setTip();
+                }
+            }
+        },
+        popups: {
+            main: {
+                initialize: function() {
+                    var p = a.getHotCityConfig("tabs");
+                    var m = a.getHotCityConfig("contents");
+                    if (!p || !m) {
+                        return false;
+                    }
+                    var h = [];
+                    var k = new UIObject();
+                    var q = "__flightcitybox_" + $jex.globalID();
+                    var o = function(i) {
+                        return function(t) {
+                            var C = [];
+                            if (!m[i]) {
+                                return false;
+                            }
+                            var B = m[i].cityList;
+                            if (!B) {
+                                return false;
+                            }
+                            var u = m[i].charSort;
+                            if (!u) {
+                                C.push("<ul>");
+                                for (var y = 0; y < B.length; y++) {
+                                    var w = B[y];
+                                    C.push('<li country="' + w.country + '" key="' + w.name + '"><a href="#nogo#">' + w.name + "</a></li>");
+                                }
+                                C.push("</ul>");
+                            } else {
+                                for (var y = 0; y < B.length; y++) {
+                                    var w = B[y];
+                                    var z = w.list;
+                                    C.push('<dl class="e_hct_lst"><dt>' + w["char"] + " </dt><dd><ul>");
+                                    for (var x = 0; x < z.length; x++) {
+                                        var A = z[x];
+                                        C.push('<li country="' + A.country + '" key="' + A.name + '"><a href="#nogo#">' + A.name + "</a></li>");
+                                    }
+                                    C.push("</ul></dd></dl>");
+                                }
+                            }
+                            t.innerHTML = C.join("");
+                            if (m[i].cls) {
+                                $jex.$(q).className = m[i].cls;
+                            } else {
+                                $jex.$(q).className = "";
+                            }
+                        };
+                    };
+                    k.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://source.qunar.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
+                    for (var n = 0; n < p.length; n++) {
+                        var j = "tab_" + n + $jex.globalID();
+                        h.push({
+                            tabID: j,
+                            tabname: p[n],
+                            render: o(p[n])
+                        });
+                        k.text('<span id="', j, '" key="', p[n], '"');
+                        if (n == 0) {
+                            k.text(' class="active" ');
+                        }
+                        k.text(">", p[n], "</span>");
+                    }
+                    k.text("</div>", '<div id="', q, '"></div>', "</div>");
+                    k.write(this.panel);
+                    var l = new TabGroup({
+                        panelContainerID: q,
+                        items: h
+                    });
+                    $jex.event.bind(l, "onselected", function(t) {
+                        var i = m[t.tabname];
+                        k.getDomNode("title").innerHTML = i.title;
+                        k.getDomNode("desc").innerHTML = i.desc;
+                        if (i.cls) {
+                            $jex.$(q).className = i.cls;
+                        } else {
+                            $jex.$(q).className = "";
+                        }
+                    });
+                    $jex.event.add(this, "open", function() {
+                        $jex.event.trigger(a, "openHotCity");
+                    });
+                    var s = this.own;
+                    $jex.event.bindDom($jex.$(q), "mousedown", this, function(i, t) {
+                        if (i.target.tagName == "A") {
+                            var u = $jex.trim(i.target.innerHTML);
+                            s.setCountry(i.target.parentNode.getAttribute("country"));
+                            s.setValue(u);
+                            s.setInfo("");
+                            s.popups.close();
+                            $jex.event.trigger(a, "selectHotCity", u);
+                            $jex.event.trigger(a, "select", u);
+                            a._invalid = false;
+                        }
+                    });
+                    $jex.event.bind(k.getDomNode("close"), "click", function() {
+                        s.popups.close();
+                    });
+                },
+                open: function() {
+                    this.own.setInfo("");
+                }
+            },
+            suggest: {
+                initialize: function() {
+                    this.layer = new FlightSuggestItemListLayer(this);
+                    $jex.event.bind(this.layer, "select", function(h, i) {
+                        if (h > -1) {
+                            this.popup.own.setCountry(this.nodes[h].item.country);
+                        }
+                        if (h > -1) {
+                            i ? this.popup.own.setValue(this.nodes[h].item.key) : this.popup.own.volateValue(this.nodes[h].item.key);
+                        } else {
+                            i ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
+                        }
+                        this.popup.own.vidx = h;
+                        if (i) {
+                            $jex.event.trigger(a, "select", this.nodes[h].item.key);
+                            this.popup.close();
+                        }
+                    });
+                }
+            }
+        },
+        attrs: {
+            setTip: function() {
+                if (this.getValue() == "") {
+                    this.setInfo((this.info || "城市名"), "infotext");
+                } else {
+                    this.setInfo("");
+                }
+            },
+            clear: function() {
+                var h = this.popups.get("suggest");
+                h && h.layer && (h.layer.cursor = -1);
+                this.setValue("");
+                this.setTip();
+            },
+            getHotCityConfig: function(i) {
+                var h = this.setting.hotCityConfig;
+                if (h && h[i]) {
+                    return h[i];
+                }
+            },
+            setHotCityConfig: function(h) {
+                this.setting.hotCityConfig = h;
+            },
+            invalid: function() {
+                return this._invalid;
+            },
+            cache: {},
+            suggLoaded: function(h) {
+                if (h) {
+                    this.cache[h.userInput] = h;
+                }
+                if (!h || !h.result || h.result.length == 0 || !h.result[0]["key"] || !h.result[0]["type"] || !h.result[0]["display"]) {
+                    this.setInfo("");
+                    h.q = h.userInput;
+                    var i = this.popups.open("suggest");
+                    i.layer.error();
+                    this._invalid = true;
+                    return;
+                }
+                this._invalid = false;
+                this.setInfo("");
+                h.q = h.userInput;
+                var i = this.popups.open("suggest");
+                i.layer.refresh(h);
+                i.layer.enter(0);
+            },
+            keypress: function(i, j) {
+                if (this._invalid) {
+                    return;
+                }
+                var h = this.popups.get("suggest");
+                if (!h || !h.isOpend()) {
+                    return;
+                }
+                switch (j) {
+                    case 40:
+                        h.layer.moveCursor(1, true);
+                        break;
+                    case 38:
+                        h.layer.moveCursor(-1, true);
+                        break;
+                    case 13:
+                        $jex.stopEvent(i);
+                        h.layer.select(h.layer.cursor, true);
+                        h.close();
+                        break;
+                    default:
+                }
+            }
+        }
+    });
+}
+$jex.extendClass(FlightCityXCombox, XCombox);
+FlightCityXCombox.prototype.setCountry = function(a) {
+    this.country = a;
+};
+FlightCityXCombox.prototype.getCountry = function(a) {
+    return this.country;
+};
+
+function FlightSuggestItemListLayer(a) {
+    this.popup = a;
+    this.cursor = -1;
+    this.nodes = [];
+}
+FlightSuggestItemListLayer.prototype.error = function() {
+    var a = new UIObject();
+    a.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
+    a.text('<tr class="illrow error">', "<td>", this.popup.own.setting.errorSuggestTip || "输入错误", "</td>", "</tr>");
+    a.write(this.popup.panel);
+};
+FlightSuggestItemListLayer.prototype.refresh = function(g) {
+    this.cursor = -1;
+    if (this.nodes.length > 0) {
+        for (var h = 0; h < this.nodes.length; h++) {
+            var d = this.nodes[h];
+            d.item = null;
+            d.layer = null;
+            $jex.event.clear(d);
+        }
+    }
+    this.nodes.length = 0;
+    var k = g.q;
+    var j = g.result;
+    var l = g.userInput;
+    var a = new RegExp("(" + l + ")", "i");
+    var c = new UIObject();
+    if ( !! g.c) {
+        c.text('<div class="qcity_guess">你要找的是不是<span class="hl">', l, "</span></div>");
+    }
+    c.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
+    for (var h = 0; h < j.length; h++) {
+        var f = j[h];
+        var m = (f.type == 4) ? "nearbyAirport" : "";
+        c.text('<tr class="illrow ', m, '"', ">");
+        c.append("<td ", h).text(' class="illn" hashkey="', f.key, '"', ((f.type == 1) ? 'noAirport="true"' : ""), ">", ((f.type == 4) ? "·邻近机场:" : ""), ((f.type == 9) ? "·相关城市:" : ""), f.display.replace(a, '<span class="keystring">$1</span>'), ((f.type == 9) ? "<span>(" + f.enname + ")</span>" : ""), ((f.length) ? "<span>-" + f.length + "公里</span>" : ""), ((f.type == 1) ? "-该城市没有机场" : ""), ((f.type == 2) ? "-该地区的机场有" : ""), ((f.type == 6) ? "-该景点没有机场" : ""), ((f.type == 7) ? "-该目的地为省份" : ""), ((f.type == 8) ? "-该目的地为国家" : ""), "</td>");
+        c.text("</tr>");
+    }
+    c.text("</table>");
+    c.write(this.popup.panel);
+    var b = this.nodes;
+    for (var h = 0; h < j.length; h++) {
+        var d = c.getDomNode(h);
+        d.item = j[h];
+        d.layer = this;
+        d.idx = h;
+        b[h] = d;
+        $jex.event.bind(d, "mouseover", this.mouseover);
+        $jex.event.bind(d, "click", this.click);
+    }
+};
+FlightSuggestItemListLayer.prototype.mouseover = function(a) {
+    if (this.item.type == 1 || this.item.type == 6 || this.item.type == 7 || this.item.type == 8) {
+        return;
+    }
+    this.layer.enter(this.idx);
+};
+FlightSuggestItemListLayer.prototype.click = function(a) {
+    if (this.item.type == 1 || this.item.type == 6 || this.item.type == 7 || this.item.type == 8) {
+        return;
+    }
+    this.layer.select(this.idx, true);
+};
+FlightSuggestItemListLayer.prototype.select = function(a, b) {
+    $jex.event.trigger(this, "select", a, b);
+};
+FlightSuggestItemListLayer.prototype.enter = function(a) {
+    for (var b = 0; b < this.nodes.length; b++) {
+        $jex.removeClassName(this.nodes[b].parentNode, "tllover");
+    }
+    if (a > -1) {
+        var c = this.nodes[a].item;
+        if (c.type == 1 || c.type == 6 || c.type == 7 || c.type == 8) {
+            a++;
+        }
+        $jex.addClassName(this.nodes[a].parentNode, "tllover");
+        this.cursor = a;
+    }
+};
+FlightSuggestItemListLayer.prototype.moveCursor = function(c, b) {
+    if (this.nodes.length == 0) {
+        return;
+    }
+    if (this.cursor == -1 && c == -1) {
+        this.cursor = this.nodes.length - 1;
+    } else {
+        var a = this.nodes[this.cursor + c];
+        if (a) {
+            if (a.item.type == 1 || a.item.type == 6 || a.item.type == 7 || a.item.type == 8) {
+                c *= 2;
+            }
+        }
+        this.cursor += c;
+        if (this.cursor < -1 || this.cursor >= this.nodes.length) {
+            this.cursor = -1;
+        }
+    }
+    this.enter(this.cursor);
+    if (b) {
+        this.select(this.cursor);
+    }
+};
+
+function SearchSwitcher(b, a) {
+    this._settings = b || {};
+    this._oldtype = null;
+    this._memories = {};
+    this._globalmemories = {};
+    this._state = {};
+    if (a) {
+        a();
+    }
+}
+SearchSwitcher.prototype.getCurrent = function() {
+    return this._newtype;
+};
+SearchSwitcher.prototype.active = function(b) {
+    var a = this._settings[b];
+    if (!a) {
+        return;
+    }
+    if (!this._state[b]) {
+        this._state[b] = {};
+    }
+    var c = this._state[b];
+    this._newtype = b;
+    if (!c.initialized && a.initial) {
+        a.initial();
+    }
+    if (!a.forgetful) {
+        this.memories(this._oldtype || b);
+    }
+    if (a.active) {
+        a.active();
+    }
+    this._oldtype = b;
+};
+SearchSwitcher.prototype.memories = function(c) {
+    var a = this._settings.memories;
+    if (!a) {
+        return;
+    }
+    for (var b in a) {
+        var d = a[b].value();
+        if (d) {
+            this._memories[c + "_" + b] = a[b].value();
+            this._globalmemories[b] = a[b].value();
+        }
+    }
+};
+SearchSwitcher.prototype.getmem = function(b, a) {
+    return this._memories[b + "_" + a] || "";
+};
+SearchSwitcher.prototype.getgmem = function(a) {
+    return this._globalmemories[a] || "";
+};
+
+function DatePickerXCombox(f, g, d) {
+    var b = this;
+    var a = new ActionDelay(100);
+    this.setting = d || {};
+    var c = this.fromDateBox = this.setting.fromDateBox || null;
+    var h = this.dateChecker = this.setting.dateChecker || null;
+    DatePickerXCombox.superclass.constructor.call(this, f, {
+        button: {
+            mousedown: function(i) {
+                this.openMainMenu();
+                $jex.stopEvent(i);
+            }
+        },
+        input: {
+            click: function(i) {
+                this.openMainMenu();
+                $jex.stopEvent(i);
+            },
+            change: function(k, i, j) {
+                if (!b.fromDateBox) {
+                    var l = h.checkDate1(this.getValue());
+                    if (!l.error) {
+                        h.setDate1(l.recommend);
+                        a.reset(function() {
+                            $jex.event.trigger(g, "fromDateChanged");
+                        });
+                    }
+                    this.setTip(l);
+                } else {
+                    var l = h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                    if (!l.error) {
+                        h.setDate2(l.recommend, QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                        a.reset(function() {
+                            $jex.event.trigger(g, "toDateChanged");
+                        });
+                    }
+                    this.setTip(l);
+                }
+            },
+            keypress: function(i) {
+                this.keypress(i, i.keyCode);
+            }
+        },
+        blur: function() {
+            if (b.fromDateBox) {
+                var i = h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                h.setDate2(i.recommend, QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                this.setValue(i.recommend);
+            } else {
+                var i = h.checkDate1(this.getValue());
+                h.setDate1(i.recommend);
+                this.setValue(i.recommend);
+            }
+        },
+        popups: {
+            main: {
+                initialize: function() {
+                    this.dateLayer = new DateLayer(this.panel, h);
+                    var j = this.own;
+                    var i = this;
+                    $jex.event.add(this.dateLayer, "selected", function(k) {
+                        j.setValue(QunarDate.format(k[0]));
+                        j.pos = k[1];
+                        i.close();
+                    });
+                    $jex.event.add(this, "open", function() {
+                        $jex.event.trigger(b, "openDatepicker");
+                    });
+                },
+                open: function() {
+                    var i = this.own;
+                    if (b.fromDateBox) {
+                        if (!i.pos) {
+                            i.pos = b.fromDateBox["pos"];
+                        }
+                        h.resetMax(h.getMin(), 211);
+                        var k = h.checkDate2(this.own.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                        var j = QunarDate.getDatesOffset(h.getDate1(), h.getDate2());
+                        this.dateLayer.render(k.recommendDate, new Date(QunarDate.parse(c.getValue()).getTime()), new Date(QunarDate.plus(h.getMax(), 0)), i.pos, j);
+                    } else {
+                        h.resetMax();
+                        var k = h.checkDate1(this.own.getValue());
+                        var j = {};
+                        if (!h.date2Hide) {
+                            j = QunarDate.getDatesOffset(h.getDate1(), h.getDate2());
+                        }
+                        this.dateLayer.render(k.recommendDate, h.getMin(), 0, i.pos, j);
+                    }
+                }
+            }
+        },
+        attrs: {
+            keypress: function(i, j) {
+                switch (j) {
+                    case 13:
+                        if (this.popups.isOpend()) {
+                            $jex.stopEvent(i);
+                            this.popups.close();
+                        }
+                        break;
+                    case 27:
+                        $jex.stopEvent(i);
+                        this.popups.close();
+                        break;
+                    default:
+                }
+            },
+            setTip: function(i) {
+                if (b.fromDateBox) {
+                    var i = i || h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+                } else {
+                    var i = i || h.checkDate1(this.getValue());
+                } if (i.error) {
+                    this.setInfo(i.value, "errtext", i.tip);
+                } else {
+                    this.setInfo(QunarDate.getDateTip(i.recommend), "", "");
+                }
+            },
+            invalid: function() {
+                return $jex.hasClassName(this.infoPanel, "errtext");
+            }
+        }
+    });
+}
+$jex.extendClass(DatePickerXCombox, XCombox);
+
+function TabGroup(a) {
+    this._contentMAP = {};
+    this.setting = a || {};
+    this.setting.activeTab = this.setting.activeTab || 0;
+    this.setting.activeCls = "active";
+    this._initPanels();
+    this._bindEvent();
+    this.activeTab();
+    this.bindedEvent = false;
+}
+TabGroup.prototype._got = function(a) {
+    if (typeof a == "string") {
+        return $jex.$(a);
+    } else {
+        return a;
+    }
+};
+TabGroup.prototype._initPanels = function() {
+    if (!this.setting.panelContainerID) {
+        return;
+    }
+    var a = this.setting.items;
+    var g = this._got(this.setting.panelContainerID);
+    for (var b = 0; b < a.length; b++) {
+        var d = a[b];
+        if (d.render && !d.panelID) {
+            var f = document.createElement("DIV");
+            f.id = "TG_PANEL_" + $jex.globalID();
+            f.className = "b_hct_lst";
+            g.appendChild(f);
+            $jex.element.hide(f);
+            d.panelID = f.id;
+        }
+    }
+};
+TabGroup.prototype.activeTab = function(a) {
+    a = a || 0;
+    var d = this.setting;
+    var b = this.setting.items;
+    if (this.currentTab != null && this.currentPanel != null) {
+        $jex.removeClassName(this.currentTab, d.activeCls);
+        $jex.element.hide(this.currentPanel);
+    }
+    var f = b[a];
+    if (!f) {
+        return;
+    }
+    var c = this.currentTab = this._got(f.tabID);
+    var g = this.currentPanel = this._got(f.panelID);
+    if (f.render && !this._contentMAP[f.panelID]) {
+        f.container = g;
+        f.render(g);
+        this._contentMAP[f.panelID] = true;
+    }
+    $jex.addClassName(c, d.activeCls);
+    $jex.element.show(g);
+    $jex.event.trigger(this, "onselected", f);
+};
+TabGroup.prototype._bindEvent = function() {
+    if (this.bindedEvent) {
+        return;
+    }
+    var a = this.setting.items;
+    for (var c = 0; c < a.length; c++) {
+        var d = a[c];
+        var b = this._got(d.tabID);
+        $jex.event.bindDom(b, "mousedown", this, function(f) {
+            return function() {
+                this.activeTab(f);
+            };
+        }(c));
+    }
+    this.bindedEvent = true;
+};
+var _tabConfig = {
+    "热门": {
+        cityList: [{
+            name: "上海",
+            country: "中国"
+        }, {
+            name: "北京",
+            country: "中国"
+        }, {
+            name: "广州",
+            country: "中国"
+        }, {
+            name: "昆明",
+            country: "中国"
+        }, {
+            name: "西安",
+            country: "中国"
+        }, {
+            name: "成都",
+            country: "中国"
+        }, {
+            name: "深圳",
+            country: "中国"
+        }, {
+            name: "厦门",
+            country: "中国"
+        }, {
+            name: "乌鲁木齐",
+            country: "中国"
+        }, {
+            name: "南京",
+            country: "中国"
+        }, {
+            name: "重庆",
+            country: "中国"
+        }, {
+            name: "杭州",
+            country: "中国"
+        }, {
+            name: "大连",
+            country: "中国"
+        }, {
+            name: "长沙",
+            country: "中国"
+        }, {
+            name: "海口",
+            country: "中国"
+        }, {
+            name: "哈尔滨",
+            country: "中国"
+        }, {
+            name: "青岛",
+            country: "中国"
+        }, {
+            name: "沈阳",
+            country: "中国"
+        }, {
+            name: "三亚",
+            country: "中国"
+        }, {
+            name: "济南",
+            country: "中国"
+        }, {
+            name: "武汉",
+            country: "中国"
+        }, {
+            name: "郑州  ",
+            country: "中国"
+        }, {
+            name: "贵阳",
+            country: "中国"
+        }, {
+            name: "南宁",
+            country: "中国"
+        }, {
+            name: "福州",
+            country: "中国"
+        }, {
+            name: "天津",
+            country: "中国"
+        }, {
+            name: "长春",
+            country: "中国"
+        }, {
+            name: "石家庄",
+            country: "中国"
+        }, {
+            name: "太原",
+            country: "中国"
+        }, {
+            name: "兰州",
+            country: "中国"
+        }],
+        title: "热门城市",
+        desc: "可直接输入城市或城市拼音"
+    },
+    ABCDE: {
+        charSort: true,
+        cityList: [{
+            "char": "A",
+            list: [{
+                name: "阿里",
+                country: "中国"
+            }, {
+                name: "阿尔山",
+                country: "中国"
+            }, {
+                name: "安庆",
+                country: "中国"
+            }, {
+                name: "阿勒泰",
+                country: "中国"
+            }, {
+                name: "安康",
+                country: "中国"
+            }, {
+                name: "鞍山",
+                country: "中国"
+            }, {
+                name: "安顺",
+                country: "中国"
+            }, {
+                name: "安阳",
+                country: "中国"
+            }, {
+                name: "阿克苏",
+                country: "中国"
+            }]
+        }, {
+            "char": "B",
+            list: [{
+                name: "包头",
+                country: "中国"
+            }, {
+                name: "蚌埠",
+                country: "中国"
+            }, {
+                name: "北海",
+                country: "中国"
+            }, {
+                name: "北京",
+                country: "中国"
+            }, {
+                name: "百色",
+                country: "中国"
+            }, {
+                name: "保山",
+                country: "中国"
+            }, {
+                name: "博乐",
+                country: "中国"
+            }, {
+                name: "毕节",
+                country: "中国"
+            }, {
+                name: "巴彦淖尔",
+                country: "中国"
+            }]
+        }, {
+            "char": "C",
+            list: [{
+                name: "长治",
+                country: "中国"
+            }, {
+                name: "池州",
+                country: "中国"
+            }, {
+                name: "长春",
+                country: "中国"
+            }, {
+                name: "长海",
+                country: "中国"
+            }, {
+                name: "常州",
+                country: "中国"
+            }, {
+                name: "昌都",
+                country: "中国"
+            }, {
+                name: "朝阳",
+                country: "中国"
+            }, {
+                name: "常德",
+                country: "中国"
+            }, {
+                name: "长白山",
+                country: "中国"
+            }, {
+                name: "成都",
+                country: "中国"
+            }, {
+                name: "重庆",
+                country: "中国"
+            }, {
+                name: "长沙",
+                country: "中国"
+            }, {
+                name: "赤峰",
+                country: "中国"
+            }]
+        }, {
+            "char": "D",
+            list: [{
+                name: "大同",
+                country: "中国"
+            }, {
+                name: "大连",
+                country: "中国"
+            }, {
+                name: "东营",
+                country: "中国"
+            }, {
+                name: "大庆",
+                country: "中国"
+            }, {
+                name: "丹东",
+                country: "中国"
+            }, {
+                name: "大理",
+                country: "中国"
+            }, {
+                name: "敦煌",
+                country: "中国"
+            }, {
+                name: "达州",
+                country: "中国"
+            }]
+        }, {
+            "char": "E",
+            list: [{
+                name: "恩施",
+                country: "中国"
+            }, {
+                name: "鄂尔多斯",
+                country: "中国"
+            }, {
+                name: "二连浩特",
+                country: "中国"
+            }]
+        }],
+        title: "拼音A-E城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    FGHJ: {
+        charSort: true,
+        cityList: [{
+            "char": "F",
+            list: [{
+                name: "佛山",
+                country: "中国"
+            }, {
+                name: "福州",
+                country: "中国"
+            }, {
+                name: "阜阳",
+                country: "中国"
+            }, {
+                name: "富蕴",
+                country: "中国"
+            }]
+        }, {
+            "char": "G",
+            list: [{
+                name: "贵阳",
+                country: "中国"
+            }, {
+                name: "桂林",
+                country: "中国"
+            }, {
+                name: "广州",
+                country: "中国"
+            }, {
+                name: "广元",
+                country: "中国"
+            }, {
+                name: "格尔木",
+                country: "中国"
+            }, {
+                name: "赣州",
+                country: "中国"
+            }, {
+                name: "广汉",
+                country: "中国"
+            }, {
+                name: "固原",
+                country: "中国"
+            }]
+        }, {
+            "char": "H",
+            list: [{
+                name: "哈密",
+                country: "中国"
+            }, {
+                name: "呼和浩特",
+                country: "中国"
+            }, {
+                name: "黑河",
+                country: "中国"
+            }, {
+                name: "海拉尔",
+                country: "中国"
+            }, {
+                name: "哈尔滨",
+                country: "中国"
+            }, {
+                name: "海口",
+                country: "中国"
+            }, {
+                name: "衡阳",
+                country: "中国"
+            }, {
+                name: "黄山",
+                country: "中国"
+            }, {
+                name: "杭州",
+                country: "中国"
+            }, {
+                name: "邯郸",
+                country: "中国"
+            }, {
+                name: "合肥",
+                country: "中国"
+            }, {
+                name: "黄龙",
+                country: "中国"
+            }, {
+                name: "汉中",
+                country: "中国"
+            }, {
+                name: "和田",
+                country: "中国"
+            }, {
+                name: "惠州",
+                country: "中国"
+            }, {
+                name: "淮安",
+                country: "中国"
+            }]
+        }, {
+            "char": "J",
+            list: [{
+                name: "吉安",
+                country: "中国"
+            }, {
+                name: "酒泉",
+                country: "中国"
+            }, {
+                name: "鸡西",
+                country: "中国"
+            }, {
+                name: "晋江",
+                country: "中国"
+            }, {
+                name: "锦州",
+                country: "中国"
+            }, {
+                name: "景德镇",
+                country: "中国"
+            }, {
+                name: "嘉峪关",
+                country: "中国"
+            }, {
+                name: "井冈山",
+                country: "中国"
+            }, {
+                name: "济宁",
+                country: "中国"
+            }, {
+                name: "九江",
+                country: "中国"
+            }, {
+                name: "佳木斯",
+                country: "中国"
+            }, {
+                name: "济南",
+                country: "中国"
+            }, {
+                name: "加格达奇",
+                country: "中国"
+            }, {
+                name: "金昌",
+                country: "中国"
+            }]
+        }],
+        title: "拼音F-J城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    KLMNP: {
+        charSort: true,
+        cityList: [{
+            "char": "K",
+            list: [{
+                name: "喀什",
+                country: "中国"
+            }, {
+                name: "昆明",
+                country: "中国"
+            }, {
+                name: "康定",
+                country: "中国"
+            }, {
+                name: "克拉玛依",
+                country: "中国"
+            }, {
+                name: "库尔勒",
+                country: "中国"
+            }, {
+                name: "库车",
+                country: "中国"
+            }, {
+                name: "喀纳斯",
+                country: "中国"
+            }]
+        }, {
+            "char": "L",
+            list: [{
+                name: "兰州",
+                country: "中国"
+            }, {
+                name: "洛阳",
+                country: "中国"
+            }, {
+                name: "丽江",
+                country: "中国"
+            }, {
+                name: "梁平",
+                country: "中国"
+            }, {
+                name: "荔波",
+                country: "中国"
+            }, {
+                name: "庐山",
+                country: "中国"
+            }, {
+                name: "林芝",
+                country: "中国"
+            }, {
+                name: "柳州",
+                country: "中国"
+            }, {
+                name: "泸州",
+                country: "中国"
+            }, {
+                name: "连云港",
+                country: "中国"
+            }, {
+                name: "黎平",
+                country: "中国"
+            }, {
+                name: "连城",
+                country: "中国"
+            }, {
+                name: "拉萨",
+                country: "中国"
+            }, {
+                name: "临沧",
+                country: "中国"
+            }, {
+                name: "临沂",
+                country: "中国"
+            }]
+        }, {
+            "char": "M",
+            list: [{
+                name: "芒市",
+                country: "中国"
+            }, {
+                name: "牡丹江",
+                country: "中国"
+            }, {
+                name: "满洲里",
+                country: "中国"
+            }, {
+                name: "绵阳",
+                country: "中国"
+            }, {
+                name: "梅县",
+                country: "中国"
+            }, {
+                name: "漠河",
+                country: "中国"
+            }]
+        }, {
+            "char": "N",
+            list: [{
+                name: "南京",
+                country: "中国"
+            }, {
+                name: "南充",
+                country: "中国"
+            }, {
+                name: "南宁",
+                country: "中国"
+            }, {
+                name: "南阳",
+                country: "中国"
+            }, {
+                name: "南通",
+                country: "中国"
+            }, {
+                name: "南昌",
+                country: "中国"
+            }, {
+                name: "那拉提",
+                country: "中国"
+            }, {
+                name: "宁波",
+                country: "中国"
+            }]
+        }, {
+            "char": "P",
+            list: [{
+                name: "攀枝花",
+                country: "中国"
+            }]
+        }],
+        title: "拼音K-P城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    QRSTW: {
+        charSort: true,
+        cityList: [{
+            "char": "Q",
+            list: [{
+                name: "衢州",
+                country: "中国"
+            }, {
+                name: "黔江",
+                country: "中国"
+            }, {
+                name: "秦皇岛",
+                country: "中国"
+            }, {
+                name: "庆阳",
+                country: "中国"
+            }, {
+                name: "且末",
+                country: "中国"
+            }, {
+                name: "齐齐哈尔",
+                country: "中国"
+            }, {
+                name: "青岛",
+                country: "中国"
+            }]
+        }, {
+            "char": "R",
+            list: [{
+                name: "日喀则",
+                country: "中国"
+            }]
+        }, {
+            "char": "S",
+            list: [{
+                name: "汕头",
+                country: "中国"
+            }, {
+                name: "深圳",
+                country: "中国"
+            }, {
+                name: "石家庄",
+                country: "中国"
+            }, {
+                name: "三亚",
+                country: "中国"
+            }, {
+                name: "沈阳",
+                country: "中国"
+            }, {
+                name: "上海",
+                country: "中国"
+            }, {
+                name: "思茅",
+                country: "中国"
+            }, {
+                name: "鄯善",
+                country: "中国"
+            }, {
+                name: "韶关",
+                country: "中国"
+            }, {
+                name: "沙市",
+                country: "中国"
+            }]
+        }, {
+            "char": "T",
+            list: [{
+                name: "唐山",
+                country: "中国"
+            }, {
+                name: "铜仁",
+                country: "中国"
+            }, {
+                name: "通化",
+                country: "中国"
+            }, {
+                name: "塔城",
+                country: "中国"
+            }, {
+                name: "腾冲",
+                country: "中国"
+            }, {
+                name: "台州",
+                country: "中国"
+            }, {
+                name: "天水",
+                country: "中国"
+            }, {
+                name: "天津",
+                country: "中国"
+            }, {
+                name: "通辽",
+                country: "中国"
+            }, {
+                name: "吐鲁番",
+                country: "中国"
+            }, {
+                name: "太原",
+                country: "中国"
+            }]
+        }, {
+            "char": "W",
+            list: [{
+                name: "威海",
+                country: "中国"
+            }, {
+                name: "武汉",
+                country: "中国"
+            }, {
+                name: "梧州",
+                country: "中国"
+            }, {
+                name: "文山",
+                country: "中国"
+            }, {
+                name: "无锡",
+                country: "中国"
+            }, {
+                name: "潍坊",
+                country: "中国"
+            }, {
+                name: "武夷山",
+                country: "中国"
+            }, {
+                name: "乌兰浩特",
+                country: "中国"
+            }, {
+                name: "温州",
+                country: "中国"
+            }, {
+                name: "乌鲁木齐",
+                country: "中国"
+            }, {
+                name: "芜湖",
+                country: "中国"
+            }, {
+                name: "万州",
+                country: "中国"
+            }, {
+                name: "乌海",
+                country: "中国"
+            }]
+        }],
+        title: "拼音Q-W城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    XYZ: {
+        charSort: true,
+        cityList: [{
+            "char": "X",
+            list: [{
+                name: "兴义",
+                country: "中国"
+            }, {
+                name: "西昌",
+                country: "中国"
+            }, {
+                name: "厦门",
+                country: "中国"
+            }, {
+                name: "香格里拉",
+                country: "中国"
+            }, {
+                name: "西安",
+                country: "中国"
+            }, {
+                name: "西宁",
+                country: "中国"
+            }, {
+                name: "襄阳(中国)",
+                country: "中国"
+            }, {
+                name: "锡林浩特",
+                country: "中国"
+            }, {
+                name: "西双版纳",
+                country: "中国"
+            }, {
+                name: "徐州",
+                country: "中国"
+            }, {
+                name: "兴城",
+                country: "中国"
+            }, {
+                name: "邢台",
+                country: "中国"
+            }]
+        }, {
+            "char": "Y",
+            list: [{
+                name: "义乌",
+                country: "中国"
+            }, {
+                name: "永州",
+                country: "中国"
+            }, {
+                name: "榆林",
+                country: "中国"
+            }, {
+                name: "扬州",
+                country: "中国"
+            }, {
+                name: "延安",
+                country: "中国"
+            }, {
+                name: "运城",
+                country: "中国"
+            }, {
+                name: "烟台",
+                country: "中国"
+            }, {
+                name: "银川",
+                country: "中国"
+            }, {
+                name: "宜昌",
+                country: "中国"
+            }, {
+                name: "宜宾",
+                country: "中国"
+            }, {
+                name: "宜春",
+                country: "中国"
+            }, {
+                name: "盐城",
+                country: "中国"
+            }, {
+                name: "延吉",
+                country: "中国"
+            }, {
+                name: "玉树",
+                country: "中国"
+            }, {
+                name: "伊宁",
+                country: "中国"
+            }, {
+                name: "伊春",
+                country: "中国"
+            }]
+        }, {
+            "char": "Z",
+            list: [{
+                name: "珠海",
+                country: "中国"
+            }, {
+                name: "昭通",
+                country: "中国"
+            }, {
+                name: "张家界",
+                country: "中国"
+            }, {
+                name: "舟山",
+                country: "中国"
+            }, {
+                name: "郑州",
+                country: "中国"
+            }, {
+                name: "中卫",
+                country: "中国"
+            }, {
+                name: "芷江",
+                country: "中国"
+            }, {
+                name: "湛江",
+                country: "中国"
+            }, {
+                name: "遵义",
+                country: "中国"
+            }, {
+                name: "张掖",
+                country: "中国"
+            }, {
+                name: "张家口",
+                country: "中国"
+            }]
+        }],
+        title: "拼音X-Z城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "国际·港澳台": {
+        cityList: [{
+            name: "香港",
+            country: "中国香港"
+        }, {
+            name: "新加坡",
+            country: "新加坡"
+        }, {
+            name: "吉隆坡",
+            country: "马来西亚"
+        }, {
+            name: "首尔",
+            country: "韩国"
+        }, {
+            name: "澳门",
+            country: "中国澳门"
+        }, {
+            name: "曼谷",
+            country: "泰国"
+        }, {
+            name: "台北",
+            country: "中国台湾"
+        }, {
+            name: "东京",
+            country: "日本"
+        }, {
+            name: "悉尼",
+            country: "澳大利亚"
+        }, {
+            name: "巴黎",
+            country: "法国"
+        }, {
+            name: "伦敦",
+            country: "英国"
+        }, {
+            name: "纽约",
+            country: "美国"
+        }, {
+            name: "洛杉矶",
+            country: "美国"
+        }, {
+            name: "墨尔本",
+            country: "澳大利亚"
+        }, {
+            name: "胡志明市",
+            country: "越南"
+        }, {
+            name: "大阪",
+            country: "日本"
+        }, {
+            name: "温哥华",
+            country: "加拿大"
+        }, {
+            name: "法兰克福",
+            country: "德国"
+        }, {
+            name: "迪拜",
+            country: "阿联酋"
+        }, {
+            name: "多伦多",
+            country: "加拿大"
+        }, {
+            name: "马尼拉",
+            country: "菲律宾"
+        }, {
+            name: "河内",
+            country: "越南"
+        }, {
+            name: "旧金山",
+            country: "美国"
+        }, {
+            name: "加德满都",
+            country: "印度"
+        }, {
+            name: "金边",
+            country: "柬埔寨"
+        }, {
+            name: "釜山",
+            country: "韩国"
+        }, {
+            name: "莫斯科",
+            country: "俄罗斯"
+        }, {
+            name: "雅加达",
+            country: "印度尼西亚"
+        }, {
+            name: "阿姆斯特丹",
+            country: "荷兰"
+        }, {
+            name: "名古屋",
+            country: "日本"
+        }],
+        title: "热门国际·港澳台城市",
+        desc: "可直接输入城市或城市拼音",
+        cls: "inter"
+    },
+    "热门城市1-30": {
+        cityList: [{
+            name: "香港",
+            country: "中国香港"
+        }, {
+            name: "新加坡",
+            country: "新加坡"
+        }, {
+            name: "首尔",
+            country: "韩国"
+        }, {
+            name: "曼谷",
+            country: "泰国"
+        }, {
+            name: "东京",
+            country: "日本"
+        }, {
+            name: "台北",
+            country: "中国台湾"
+        }, {
+            name: "吉隆坡",
+            country: "马来西亚"
+        }, {
+            name: "悉尼",
+            country: "澳大利亚"
+        }, {
+            name: "纽约",
+            country: "美国"
+        }, {
+            name: "澳门",
+            country: "中国澳门"
+        }, {
+            name: "伦敦",
+            country: "英国"
+        }, {
+            name: "巴黎",
+            country: "伦敦"
+        }, {
+            name: "洛杉矶",
+            country: "美国"
+        }, {
+            name: "马尼拉",
+            country: "菲律宾"
+        }, {
+            name: "墨尔本",
+            country: "澳大利亚"
+        }, {
+            name: "大阪",
+            country: "日本"
+        }, {
+            name: "胡志明市",
+            country: "越南"
+        }, {
+            name: "普吉",
+            country: "泰国"
+        }, {
+            name: "温哥华",
+            country: "加拿大"
+        }, {
+            name: "迪拜",
+            country: "阿联酋"
+        }, {
+            name: "釜山",
+            country: "韩国"
+        }, {
+            name: "多伦多",
+            country: "加拿大"
+        }, {
+            name: "法兰克福",
+            country: "德国"
+        }, {
+            name: "河内",
+            country: "越南"
+        }, {
+            name: "旧金山",
+            country: "美国"
+        }, {
+            name: "加德满都",
+            country: "尼泊尔"
+        }, {
+            name: "金边",
+            country: "柬埔寨"
+        }, {
+            name: "马累",
+            country: "马尔代夫"
+        }, {
+            name: "雅加达",
+            country: "印度尼西亚"
+        }, {
+            name: "名古屋",
+            country: "日本"
+        }],
+        title: "热门城市1-30",
+        desc: "可直接输入城市或城市拼音",
+        cls: "inter"
+    },
+    "热门城市31-60": {
+        cityList: [{
+            name: "奥克兰",
+            country: "新西兰"
+        }, {
+            name: "芝加哥",
+            country: "美国"
+        }, {
+            name: "暹粒",
+            country: "柬埔寨"
+        }, {
+            name: "巴厘岛",
+            country: "印度尼西亚"
+        }, {
+            name: "莫斯科",
+            country: "俄罗斯"
+        }, {
+            name: "罗马",
+            country: "意大利"
+        }, {
+            name: "济州岛",
+            country: "韩国"
+        }, {
+            name: "布里斯班",
+            country: "澳大利亚"
+        }, {
+            name: "福冈",
+            country: "日本"
+        }, {
+            name: "阿姆斯特丹",
+            country: "荷兰"
+        }, {
+            name: "高雄",
+            country: "中国台湾"
+        }, {
+            name: "米兰",
+            country: "意大利"
+        }, {
+            name: "槟城",
+            country: "马来西亚"
+        }, {
+            name: "新德里",
+            country: "印度"
+        }, {
+            name: "慕尼黑",
+            country: "伊朗"
+        }, {
+            name: "亚庇",
+            country: "马来西亚"
+        }, {
+            name: "华盛顿",
+            country: "美国"
+        }, {
+            name: "西雅图",
+            country: "美国"
+        }, {
+            name: "马德里",
+            country: "西班牙"
+        }, {
+            name: "大邱",
+            country: "韩国"
+        }, {
+            name: "柏林",
+            country: "德国"
+        }, {
+            name: "宿务",
+            country: "西班牙"
+        }, {
+            name: "开罗",
+            country: "埃及"
+        }, {
+            name: "阿德莱德",
+            country: "澳大利亚"
+        }, {
+            name: "札幌",
+            country: "日本"
+        }, {
+            name: "波士顿",
+            country: "美国"
+        }, {
+            name: "斯德哥尔摩",
+            country: "瑞典"
+        }, {
+            name: "珀斯",
+            country: "澳大利亚"
+        }, {
+            name: "伊斯坦布尔",
+            country: "土耳其"
+        }, {
+            name: "雅典",
+            country: "希腊"
+        }],
+        title: "热门城市31-60",
+        desc: "可直接输入城市或城市拼音",
+        cls: "inter"
+    },
+    "亚洲/大洋洲": {
+        cityList: [{
+            name: "香港",
+            country: "中国香港"
+        }, {
+            name: "新加坡",
+            country: "新加坡"
+        }, {
+            name: "首尔",
+            country: "韩国"
+        }, {
+            name: "曼谷",
+            country: "泰国"
+        }, {
+            name: "吉隆坡",
+            country: "马来西亚"
+        }, {
+            name: "东京",
+            country: "日本"
+        }, {
+            name: "台北",
+            country: "中国台湾"
+        }, {
+            name: "悉尼",
+            country: "澳大利亚"
+        }, {
+            name: "澳门",
+            country: "中国澳门"
+        }, {
+            name: "普吉",
+            country: "泰国"
+        }, {
+            name: "墨尔本",
+            country: "澳大利亚"
+        }, {
+            name: "胡志明市",
+            country: "越南"
+        }, {
+            name: "大阪",
+            country: "日本"
+        }, {
+            name: "巴厘岛",
+            country: "印度尼西亚"
+        }, {
+            name: "马尼拉",
+            country: "菲律宾"
+        }, {
+            name: "河内",
+            country: "越南"
+        }, {
+            name: "加德满都",
+            country: "尼泊尔"
+        }, {
+            name: "金边",
+            country: "柬埔寨"
+        }, {
+            name: "雅加达",
+            country: "印度尼西亚"
+        }, {
+            name: "马累",
+            country: "马尔代夫"
+        }, {
+            name: "暹粒",
+            country: "柬埔寨"
+        }, {
+            name: "迪拜",
+            country: "阿拉伯联合酋长国"
+        }, {
+            name: "釜山",
+            country: "韩国"
+        }, {
+            name: "名古屋",
+            country: "日本"
+        }, {
+            name: "奥克兰",
+            country: "新西兰"
+        }, {
+            name: "布里斯班",
+            country: "澳大利亚"
+        }, {
+            name: "槟城",
+            country: "马来西亚"
+        }, {
+            name: "高雄",
+            country: "中国台湾"
+        }, {
+            name: "新德里",
+            country: "印度"
+        }, {
+            name: "济州岛",
+            country: "韩国"
+        }],
+        title: "亚洲/大洋洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "美洲": {
+        cityList: [{
+            name: "纽约",
+            country: "美国"
+        }, {
+            name: "洛杉矶",
+            country: "美国"
+        }, {
+            name: "多伦多",
+            country: "加拿大"
+        }, {
+            name: "温哥华",
+            country: "加拿大"
+        }, {
+            name: "旧金山",
+            country: "美国"
+        }, {
+            name: "芝加哥",
+            country: "美国"
+        }, {
+            name: "华盛顿",
+            country: "美国"
+        }, {
+            name: "西雅图",
+            country: "美国"
+        }, {
+            name: "波士顿",
+            country: "美国"
+        }, {
+            name: "底特律",
+            country: "美国"
+        }, {
+            name: "亚特兰大",
+            country: "美国"
+        }, {
+            name: "蒙特利尔",
+            country: "加拿大"
+        }, {
+            name: "休斯敦",
+            country: "美国"
+        }, {
+            name: "火奴鲁鲁",
+            country: "美国"
+        }, {
+            name: "达拉斯",
+            country: "美国"
+        }, {
+            name: "拉斯维加斯",
+            country: "美国"
+        }, {
+            name: "费城",
+            country: "美国"
+        }, {
+            name: "圣保罗（巴西）",
+            country: "巴西"
+        }, {
+            name: "明尼阿波利斯",
+            country: "美国"
+        }, {
+            name: "渥太华",
+            country: "加拿大"
+        }, {
+            name: "凤凰城",
+            country: "美国"
+        }, {
+            name: "墨西哥",
+            country: "墨西哥"
+        }, {
+            name: "迈阿密",
+            country: "美国"
+        }, {
+            name: "丹佛",
+            country: "美国"
+        }, {
+            name: "奥兰多",
+            country: "美国"
+        }, {
+            name: "卡尔加里",
+            country: "加拿大"
+        }, {
+            name: "埃德蒙顿",
+            country: "加拿大"
+        }, {
+            name: "布宜诺斯艾利斯",
+            country: "阿根廷"
+        }, {
+            name: "里约热内卢",
+            country: "巴西"
+        }, {
+            name: "匹兹堡",
+            country: "美国"
+        }],
+        title: "美洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "欧洲": {
+        cityList: [{
+            name: "伦敦",
+            country: "英国"
+        }, {
+            name: "巴黎",
+            country: "法国"
+        }, {
+            name: "法兰克福",
+            country: "德国"
+        }, {
+            name: "莫斯科",
+            country: "俄罗斯"
+        }, {
+            name: "阿姆斯特丹",
+            country: "荷兰"
+        }, {
+            name: "罗马（意大利）",
+            country: "意大利"
+        }, {
+            name: "米兰",
+            country: "意大利"
+        }, {
+            name: "马德里",
+            country: "西班牙"
+        }, {
+            name: "慕尼黑",
+            country: "德国"
+        }, {
+            name: "柏林",
+            country: "德国"
+        }, {
+            name: "斯德哥尔摩",
+            country: "瑞典"
+        }, {
+            name: "伊斯坦布尔",
+            country: "土耳其"
+        }, {
+            name: "伯明翰（英国）",
+            country: "英国"
+        }, {
+            name: "巴塞罗那(西班牙)",
+            country: "西班牙"
+        }, {
+            name: "雅典",
+            country: "希腊"
+        }, {
+            name: "哥本哈根",
+            country: "丹麦"
+        }, {
+            name: "苏黎世",
+            country: "瑞士"
+        }, {
+            name: "布鲁塞尔",
+            country: "比利时"
+        }, {
+            name: "赫尔辛基",
+            country: "芬兰"
+        }, {
+            name: "爱丁堡",
+            country: "英国"
+        }, {
+            name: "维也纳",
+            country: "奥地利"
+        }, {
+            name: "格拉斯哥（英国）",
+            country: "英国"
+        }, {
+            name: "日内瓦",
+            country: "瑞士"
+        }, {
+            name: "圣彼得堡",
+            country: "俄罗斯"
+        }, {
+            name: "都柏林(爱尔兰)",
+            country: "爱尔兰"
+        }, {
+            name: "汉堡",
+            country: "德国"
+        }, {
+            name: "杜塞尔多夫",
+            country: "德国"
+        }, {
+            name: "布拉格",
+            country: "捷克"
+        }, {
+            name: "布达佩斯",
+            country: "匈牙利"
+        }, {
+            name: "基辅",
+            country: "乌克兰"
+        }],
+        title: "欧洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "非洲": {
+        cityList: [{
+            name: "开罗",
+            country: "埃及"
+        }, {
+            name: "约翰内斯堡",
+            country: "南非"
+        }, {
+            name: "内罗毕",
+            country: "肯尼亚"
+        }, {
+            name: "开普敦",
+            country: "南非"
+        }, {
+            name: "毛里求斯",
+            country: "毛里求斯"
+        }, {
+            name: "拉各斯",
+            country: "尼日利亚"
+        }, {
+            name: "喀土穆",
+            country: "苏丹"
+        }, {
+            name: "亚的斯亚贝巴",
+            country: "埃塞俄比亚"
+        }, {
+            name: "阿克拉",
+            country: "加纳"
+        }, {
+            name: "达累斯萨拉姆",
+            country: "坦桑尼亚"
+        }, {
+            name: "塞舌尔",
+            country: "塞舌尔共和国"
+        }, {
+            name: "阿尔及尔",
+            country: "阿尔及利亚"
+        }, {
+            name: "的黎波里",
+            country: "利比亚"
+        }, {
+            name: "阿布贾",
+            country: "尼日利亚"
+        }, {
+            name: "卡萨布兰卡",
+            country: "摩洛哥"
+        }, {
+            name: "突尼斯",
+            country: "突尼斯"
+        }],
+        title: "非洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "热门城市": {
+        cityList: [{
+            name: "香港",
+            country: "中国香港"
+        }, {
+            name: "新加坡",
+            country: "新加坡"
+        }, {
+            name: "首尔",
+            country: "韩国"
+        }, {
+            name: "曼谷",
+            country: "泰国"
+        }, {
+            name: "东京",
+            country: "日本"
+        }, {
+            name: "台北",
+            country: "中国台湾"
+        }, {
+            name: "吉隆坡",
+            country: "马来西亚"
+        }, {
+            name: "悉尼",
+            country: "澳大利亚"
+        }, {
+            name: "纽约",
+            country: "美国"
+        }, {
+            name: "澳门",
+            country: "中国澳门"
+        }, {
+            name: "伦敦",
+            country: "英国"
+        }, {
+            name: "巴黎",
+            country: "伦敦"
+        }, {
+            name: "洛杉矶",
+            country: "美国"
+        }, {
+            name: "马尼拉",
+            country: "菲律宾"
+        }, {
+            name: "墨尔本",
+            country: "澳大利亚"
+        }, {
+            name: "大阪",
+            country: "日本"
+        }, {
+            name: "胡志明市",
+            country: "越南"
+        }, {
+            name: "普吉",
+            country: "泰国"
+        }, {
+            name: "温哥华",
+            country: "加拿大"
+        }, {
+            name: "迪拜",
+            country: "阿联酋"
+        }, {
+            name: "釜山",
+            country: "韩国"
+        }, {
+            name: "多伦多",
+            country: "加拿大"
+        }, {
+            name: "法兰克福",
+            country: "德国"
+        }, {
+            name: "河内",
+            country: "越南"
+        }, {
+            name: "旧金山",
+            country: "美国"
+        }, {
+            name: "加德满都",
+            country: "尼泊尔"
+        }, {
+            name: "金边",
+            country: "柬埔寨"
+        }, {
+            name: "马累",
+            country: "马尔代夫"
+        }, {
+            name: "奥克兰",
+            country: "新西兰"
+        }, {
+            name: "皇后镇",
+            country: "新西兰"
+        }],
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "热门城市61-90": {
+        cityList: [{
+            name: "巴塞罗那",
+            country: "西班牙"
+        }, {
+            name: "仰光",
+            country: "缅甸"
+        }, {
+            name: "兰卡威",
+            country: "马来西亚"
+        }, {
+            name: "苏黎世",
+            country: "瑞士"
+        }, {
+            name: "蒙特利尔",
+            country: "加拿大"
+        }, {
+            name: "哥本哈根",
+            country: "丹麦"
+        }, {
+            name: "底特律",
+            country: "美国"
+        }, {
+            name: "维也纳",
+            country: "奥地利"
+        }, {
+            name: "布鲁塞尔",
+            country: "比利时"
+        }, {
+            name: "约翰内斯堡",
+            country: "南非"
+        }, {
+            name: "广岛",
+            country: "日本"
+        }, {
+            name: "亚特兰大",
+            country: "美国"
+        }, {
+            name: "塞班",
+            country: "美国"
+        }, {
+            name: "火奴鲁鲁",
+            country: "美国"
+        }, {
+            name: "丁加奴",
+            country: "马来西亚"
+        }, {
+            name: "孟买",
+            country: "印度"
+        }, {
+            name: "万象",
+            country: "老挝"
+        }, {
+            name: "休斯敦",
+            country: "美国"
+        }, {
+            name: "仙台",
+            country: "日本"
+        }, {
+            name: "曼彻斯特",
+            country: "英国"
+        }, {
+            name: "赫尔辛基",
+            country: "芬兰"
+        }, {
+            name: "日内瓦",
+            country: "瑞士"
+        }, {
+            name: "台中-清泉岗",
+            country: "中国台湾"
+        }, {
+            name: "清迈",
+            country: "泰国"
+        }, {
+            name: "科伦坡",
+            country: "斯里兰卡"
+        }, {
+            name: "杜塞尔多夫",
+            country: "德国"
+        }, {
+            name: "圣彼得堡",
+            country: "俄罗斯"
+        }, {
+            name: "达拉斯",
+            country: "美国"
+        }, {
+            name: "哥打巴鲁",
+            country: "马来西亚"
+        }, {
+            name: "拉斯维加斯",
+            country: "美国"
+        }],
+        title: "热门城市61-90",
+        desc: "可直接输入城市或城市拼音",
+        cls: "inter"
+    },
+    "国内": {
+        cityList: [{
+            name: "上海",
+            country: "中国"
+        }, {
+            name: "北京",
+            country: "中国"
+        }, {
+            name: "广州",
+            country: "中国"
+        }, {
+            name: "昆明",
+            country: "中国"
+        }, {
+            name: "西安",
+            country: "中国"
+        }, {
+            name: "成都",
+            country: "中国"
+        }, {
+            name: "深圳",
+            country: "中国"
+        }, {
+            name: "厦门",
+            country: "中国"
+        }, {
+            name: "乌鲁木齐",
+            country: "中国"
+        }, {
+            name: "南京",
+            country: "中国"
+        }, {
+            name: "重庆",
+            country: "中国"
+        }, {
+            name: "杭州",
+            country: "中国"
+        }, {
+            name: "大连",
+            country: "中国"
+        }, {
+            name: "长沙",
+            country: "中国"
+        }, {
+            name: "海口",
+            country: "中国"
+        }, {
+            name: "哈尔滨",
+            country: "中国"
+        }, {
+            name: "青岛",
+            country: "中国"
+        }, {
+            name: "沈阳",
+            country: "中国"
+        }, {
+            name: "三亚",
+            country: "中国"
+        }, {
+            name: "济南",
+            country: "中国"
+        }, {
+            name: "武汉",
+            country: "中国"
+        }, {
+            name: "郑州  ",
+            country: "中国"
+        }, {
+            name: "贵阳",
+            country: "中国"
+        }, {
+            name: "南宁",
+            country: "中国"
+        }, {
+            name: "福州",
+            country: "中国"
+        }, {
+            name: "天津",
+            country: "中国"
+        }, {
+            name: "长春",
+            country: "中国"
+        }, {
+            name: "石家庄",
+            country: "中国"
+        }, {
+            name: "太原",
+            country: "中国"
+        }, {
+            name: "兰州",
+            country: "中国"
+        }],
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    }
+};
+var FlightLang = {
+    hotCityConfig: {
+        domestic: {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
+            }
+        },
+        "international-from": {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
+            }
+        },
+        "international-to": {
+            tabs: ["热门", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
+            contents: {
+                "热门": _tabConfig["热门城市"],
+                "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
+                "美洲": _tabConfig["美洲"],
+                "欧洲": _tabConfig["欧洲"],
+                "非洲": _tabConfig["非洲"],
+                "国内": _tabConfig["国内"]
+            }
+        }
+    },
+    _CAPTIAL: "北京",
+    _COUNTRY: "中国",
+    _blankInput: "城市名"
+};
+
+function SearchBox(a) {
+    var m;
+    this.type = "domestic";
+    var b = this;
+    var u = FlightLang;
+    this.sswitcher = null;
+    $jex.foreach(["fromCity", "toCity"], function(y, x) {
+        b[y] = new FlightCityXCombox(a[y], b, {
+            errorSuggestTip: "请输入正确的" + (x ? "到达" : "出发") + "城市"
+        });
+        var w = a[y].getAttribute("international");
+        if ( !! w) {
+            b[y].setHotCityConfig(u.hotCityConfig[w]);
+        } else {
+            b[y].setHotCityConfig(u.hotCityConfig.domestic);
+        }
+        b[y].setMark(x ? "到" : "从");
+    });
+    var d = this.fromCity;
+    var n = this.toCity;
+    var p = new DateChecker(211);
+    var i = this.fromDate = new DatePickerXCombox(a.fromDate, b, {
+        dateChecker: p
+    });
+    var s = this.toDate = new DatePickerXCombox(a.toDate, b, {
+        dateChecker: p,
+        fromDateBox: i
+    });
+    this.setValue = function(z) {
+        var y = [d, z.searchDepartureAirport || z.fromCity, n, z.searchArrivalAirport || z.toCity, i, z.searchDepartureTime || z.fromDate];
+        for (var x = 0, w = y.length; x < w; x = x + 2) {
+            if (!y[x] || !y[x + 1]) {
+                continue;
+            }
+            y[x].setValue(y[x + 1]);
+            y[x].setTip();
+        }
+        this.param = z;
+    };
+    var o = {
+        roundtrip: "searchTypeRnd",
+        oneway: "searchTypeSng",
+        deal: "searchTypeDeals"
+    };
+    this.setSearchType = function(w) {
+        if (!o[w]) {
+            throw "no searchType" + w;
+        }
+        $jex.$(o[w]).checked = true;
+        m.active(w);
+        if (w === "roundtrip") {
+            var x = this.param;
+            s.setValue(x.searchArrivalTime || x.toDate);
+            s.setTip();
+        }
+    };
+    $jex.event.add(this, "fromDateChanged", function() {
+        var x = p.checkDate1(i.getValue()).recommend;
+        var w = p.checkDate2(s.getValue(), x, QunarDate.format(QunarDate.plus(p.getMax(), 0))).recommend;
+        p.setDate2(w, QunarDate.format(QunarDate.plus(p.getMax(), 0)));
+        s.setValue(w);
+    });
+    $jex.event.addEx([d, n], "openHotCity", function() {
+        $jex.event.trigger(b, "openHotCity");
+    });
+    $jex.event.addEx([d, n], "selectHotCity", function(w) {
+        $jex.event.trigger(b, "selectHotCity", w);
+    });
+    $jex.event.addEx([i, s], "openDatepicker", function() {
+        $jex.event.trigger(b, "openDatepicker");
+    });
+    $jex.event.bindDom(d.inputEl, "mousedown", this, function(w) {
+        $jex.event.trigger(d, "buttonmousedown");
+        return false;
+    });
+    $jex.event.bindDom(n.inputEl, "mousedown", this, function(w) {
+        $jex.event.trigger(n, "buttonmousedown");
+        return false;
+    });
+    var k = new ActionDelay(200);
+
+    function h() {
+        k.reset(function() {
+            $jex.event.trigger(b, "dateFinish");
+        });
+    }
+    $jex.event.addEx([d, n], "valuechange", function(x, w, y) {
+        if (y) {
+            $jex.event.trigger(b, "citychange", this.inputEl.name, x);
+        }
+    });
+    $jex.event.add(this, "fromDateChanged", h);
+    $jex.event.add(this, "toDateChanged", h);
+
+    function j() {
+        if (b.searchType == "deal") {
+            return false;
+        }
+        var w = false;
+        var x = document.activeElement;
+        $jex.foreach([d, n], function(B, y) {
+            var A = y == 0 ? "出发" : "到达";
+            if (x === B.inputEl) {
+                try {
+                    B.inputEl.blur();
+                } catch (z) {}
+            }
+            if (!B.getValue()) {
+                B.showError("请输入" + A + "城市");
+                w = true;
+                return;
+            }
+            if (B.invalid()) {
+                B.showError("请输入正确的" + A + "城市");
+                w = true;
+                return;
+            }
+            B.hideError();
+        });
+        return w;
+    }
+
+    function t() {
+        if (b.searchType == "deal") {
+            return false;
+        }
+        var w = j();
+        if (w) {
+            return w;
+        }
+        if (d.getValue() === n.getValue()) {
+            n.showError("不能和出发地相同");
+            w = true;
+        }
+        return w;
+    }
+    $jex.event.bindDom(a, "submit", this, function(w) {
+        d.initValue(d.getValue());
+        n.initValue(n.getValue());
+        if (t()) {
+            $jex.stopEvent(w);
+            return false;
+        }
+        $jex.event.trigger(b, "pre_submit");
+    });
+    var l = $jex.$("hbtnReturnResearch");
+    if (l) {
+        $jex.event.click(l, function(w) {
+            $jex.stopEvent(w);
+            setTimeout(function() {
+                g();
+                setTimeout(function() {
+                    if (!t()) {
+                        a.submit();
+                    }
                 });
             });
             return false;
-        }
+        });
+        $jex.event.binding(b, "switch", function(x, w) {
+            if (w == "oneway") {
+                $jex.element.show(l);
+            } else {
+                $jex.element.hide(l);
+            }
+        });
+    }
 
-        function a(f) {
-            this.$node = $jex.$(f);
-            var d = this;
-            $jex.event.binding(this.$node, "click", function(g) {
-                var h = g.target || window.event.srcElement;
-                while (h && h != this) {
-                    if (h.id && d.clickDo(h.id, h) === false) {
-                        $jex.stopEvent(g);
-                        break;
-                    }
-                    h = h.parentNode;
+    function g() {
+        var w = d.getValue();
+        d.setValue(n.getValue());
+        n.setValue(w);
+        w = d._invalid;
+        d._invalid = n._invalid;
+        n._invalid = w;
+        w = d.getCountry();
+        d.setCountry(n.getCountry());
+        n.setCountry(w);
+        d.setTip();
+        n.setTip();
+        j();
+    }
+    $jex.event.bindDom($jex.$("js-exchagne-city"), "click", this, function(w) {
+        $jex.stopEvent(w);
+        setTimeout(function() {
+            g();
+            var x = window.newTrackAction || window.trackAction;
+            if (x) {
+                x("FL|SB|huan");
+            }
+        }, 0);
+    });
+    $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(w) {
+        $jex.$("searchTypeRnd").checked = true;
+        m.active("roundtrip");
+    });
+
+    function q(w) {
+        var A = w == "deal";
+        $jex.foreach(["fromCity", "toCity"], function(B) {
+            var C = b[B];
+            C.info = A ? "城市名（可不填）" : "城市名";
+            C.hideError();
+            C.setValue(m.getgmem(B));
+            C.setTip();
+        });
+        i.setMark(A ? "从" : "往");
+        s.setMark(A ? "到" : "返");
+        p.setSpan(211);
+        p.setDelay2(3);
+        if (w == "oneway") {
+            p.hideDate2();
+            $jex.element.hide($jex.$("arrivalDateDiv"));
+            $jex.element.show($jex.$("arrivalDateDiv_disable"));
+        } else {
+            try {
+                var x = s.getValue();
+                if (!x) {
+                    x = QunarDate.format(QunarDate.plus(QunarDate.parse(i.getValue()), 3));
                 }
+                var z = p.checkDate2(x, i.getValue(), QunarDate.format(QunarDate.plus(p.getMax(), 0)));
+                s.setValue(z.recommend);
+            } catch (y) {}
+            p.showDate2();
+            $jex.element.show($jex.$("arrivalDateDiv"));
+            $jex.element.hide($jex.$("arrivalDateDiv_disable"));
+        }
+        b.searchType = w;
+        $jex.event.trigger(b, "switch", b, w);
+    }
+    var c = {
+        memories: {
+            fromCity: {
+                value: function() {
+                    return d.getValue();
+                }
+            },
+            toCity: {
+                value: function() {
+                    return n.getValue();
+                }
+            },
+            toDate: {
+                value: function() {
+                    return s.getValue();
+                }
+            },
+            fromDate: {
+                value: function() {
+                    return i.getValue();
+                }
+            }
+        }
+    };
+    var f = ["oneway", "roundtrip", "deal"];
+    $jex.foreach(f, function(x, w) {
+        c[x] = {
+            active: function() {
+                q(x);
+            }
+        };
+    });
+    m = this.sswitcher = new SearchSwitcher(c, function() {
+        for (var w = 0, x = a.searchType.length; w < x; w++) {
+            (function(y) {
+                $jex.event.bindDom(a.searchType[y], "click", a.searchType[y], function() {
+                    switch (this.id) {
+                        case "searchTypeSng":
+                            m.active("oneway");
+                            break;
+                        case "searchTypeRnd":
+                            m.active("roundtrip");
+                            break;
+                        case "searchTypeDeals":
+                            m.active("deal");
+                            break;
+                    }
+                });
+            })(w);
+        }
+    });
+}
+var SearchBoxCreate = (function() {
+    var d, f;
+
+    function b(j) {
+        var h = $jex.$("js-sbtn_list");
+        if (h) {
+            var i = h.getElementsByTagName("button"),
+                g = h.getElementsByTagName("b");
+            $jex.foreach([i[0], i[1]], function(l, k) {
+                l.style.display = "block";
+                g[k].style.display = "none";
             });
         }
-        a.prototype = {
-            clickDo: function(g, f) {
-                if (/^js-stopClick/.test(g)) {
-                    return false;
-                }
-                if (!/(js_ctype)|([a-z_-]+)XI\d+/i.test(g)) {
-                    return;
-                }
-                var d = this["_" + (RegExp.$1 || RegExp.$2) + "Click"];
-                return d && d(f);
-            },
-            _btnHideClick: function(f) {
-                var g = c(f);
-                if (!g) {
-                    return;
-                }
-                g.owner().hideVendorPanel();
-                var d = $jex.offset($jex.$("resultAnchor"));
-                window.scrollTo(d.left, d.top);
-                return false;
-            },
-            _js_ctypeClick: function(f) {
-                var d = c(f);
-                if (!d) {
-                    return;
-                }
-                LockScreen(function() {
-                    var g = d.dataSource(),
-                        h = f.getAttribute("data-ctype");
-                    System.service.genBookingTimeStamp();
-                    System.analyzer.triggerTrace = true;
-                    TsinghuaOneWayTracker.trackTabChange(h, d);
-                    d.changeWrapperTypeList(h);
-                });
-                return false;
-            },
-            _btnstarRClick: function(g) {
-                var f = c(g);
-                i
+        j.setValue(d);
+        j.setSearchType(f || "oneway");
+        if ($jex.$("forecast")) {
+            $jex.element.show($jex.$("forecast").parentNode);
+            $jex.event.click("forecast", function() {
+                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(j.fromCity.getValue()) + "&departureDate=" + j.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(j.toCity.getValue()));
+            });
+        }
+        $jex.console.end("第一屏,快速搜索返程等功能");
+    }
+
+    function a() {
+        var h = $jex.$("searchboxForm");
+        var g = new SearchBox(h);
+        b(g);
+        return g;
+    }
+
+    function c() {
+        $jex.console.start("第一屏,初始化搜索历史下拉菜单");
+        new QunarHistoryToolbar({
+            elemId: "searchHistroy"
+        });
+        $jex.console.end("第一屏,初始化搜索历史下拉菜单");
+    }
+    return function(h, g) {
+        d = h;
+        f = g;
+        var i = a();
+        setTimeout(function() {
+            c();
+        }, 10);
+        return i;
+    };
+})();
