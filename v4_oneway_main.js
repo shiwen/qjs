@@ -14668,6 +14668,10 @@ function SearchBox(a) {
     });
     this.setValue = function(z) {
         var y = [d, z.searchDepartureAirport || z.fromCity, n, z.searchArrivalAirport || z.toCity, i, z.searchDepartureTime || z.fromDate];
+        var A = z.searchArrivalTime || z.toDate;
+        if (A) {
+            y.push(s, A);
+        }
         for (var x = 0, w = y.length; x < w; x = x + 2) {
             if (!y[x] || !y[x + 1]) {
                 continue;
