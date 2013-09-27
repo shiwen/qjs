@@ -9094,8 +9094,12 @@ var HoldLastShowFlight = (function() {
 function OTABlade(a) {
     this.extractor = a;
     this.group = new OTAGroup();
+    this._wrLen = 0;
 }
 OTABlade.prototype = {
+    getLength: function() {
+        return this._wrLen;
+    },
     extract: function(a) {
         this.extractor.extract(a);
     },
@@ -9128,46 +9132,48 @@ OTABlade.prototype = {
         var c = new UIObject();
         var a = this.group.opts;
         var g = this.group.sort_by_wrappers(this.extractor.flightType);
-        if (!g || g.length == 0) {
+        var n = g && g.length || 0;
+        this._wrLen = n;
+        if (!n) {
             return c;
         }
         c.text('<div class="b_fly_pmt">');
         c.text('<div class="e_pmt_tit"><h3>机票推广</h3></div>');
         c.text('<div class="e_pmt_cont"> ');
-        for (var m = 0; m < g.length; m++) {
-            var o = g[m];
-            var d = o.createBookingUrl(this.group.opts.queryID, window.SERVER_TIME || new Date(), m);
-            var b = o.info.pr;
+        for (var m = 0; m < n; m++) {
+            var p = g[m];
+            var d = p.createBookingUrl(this.group.opts.queryID, window.SERVER_TIME || new Date(), m);
+            var b = p.info.pr;
             var h = "";
-            var j = o.flight.outFi();
-            var n = o.flight.retFi();
+            var j = p.flight.outFi();
+            var o = p.flight.retFi();
             var f = "";
-            if (o.flight.pi.op) {
-                f = this.getDiscount(Math.floor(b * 100 / o.flight.pi.op) / 10);
+            if (p.flight.pi.op) {
+                f = this.getDiscount(Math.floor(b * 100 / p.flight.pi.op) / 10);
             }
-            var p = "";
-            var l = o.info.tax;
+            var q = "";
+            var l = p.info.tax;
             if (l && l == -1) {
                 h += "（含税）";
             }
-            if (o.info.afee) {
+            if (p.info.afee) {
                 h += "（含险）";
-                b += o.info.afee;
+                b += p.info.afee;
             }
-            var k = o.flight.showType();
+            var k = p.flight.showType();
             if (k == "rt") {
-                p = '<i class="i_baf"></i>';
+                q = '<i class="i_baf"></i>';
             } else {
                 if (k == "tf") {
-                    p = '<i class="i_cnt"></i>';
+                    q = '<i class="i_cnt"></i>';
                 }
             }
             type = k == "rt" ? '<b class="rt"></b>' : '<b class="tr"></b>';
             c.text('<dl class="dl_pmt_fly">');
-            c.text('<dt><a target="_blank" href="', d, '">', a.fromCity, "&nbsp;-&nbsp;", a.toCity, "&nbsp;&nbsp;", j.ca, "</a>", p, "</dt>");
+            c.text('<dt><a target="_blank" href="', d, '">', a.fromCity, "&nbsp;-&nbsp;", a.toCity, "&nbsp;&nbsp;", j.ca, "</a>", q, "</dt>");
             if (k == "rt") {
                 this._createPriceHtml(c, j, "去程");
-                this._createPriceHtml(c, n, "回程");
+                this._createPriceHtml(c, o, "回程");
             } else {
                 this._createPriceHtml(c, j);
             }
@@ -9690,7 +9696,7 @@ var $OTALOGIC = (function() {
                 $OTALOGIC.ts2 = new Date().getTime();
                 $OTA.load(function(k) {
                     k.write($jex.$("divOTA"));
-                    var l = $OTA.group._get_wrappers_info().codelist.length;
+                    var l = this.getLength();
                     if (l > 0) {
                         $jex.$("divOTA").style.display = "block";
                     }
