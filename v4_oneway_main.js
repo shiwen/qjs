@@ -2923,6 +2923,102 @@ var QunarDate = $jex.exec(function() {
             beforeTime: 3,
             dayindex: 0,
             holidayName: "元旦"
+        },
+        "2014-01-30": {
+            afterTime: 0,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "除夕"
+        },
+        "2014-01-31": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "春节"
+        },
+        "2014-02-01": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初二",
+            nodatepickerico: true
+        },
+        "2014-02-02": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初三",
+            nodatepickerico: true
+        },
+        "2014-02-03": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初四",
+            nodatepickerico: true
+        },
+        "2014-02-04": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初五",
+            nodatepickerico: true
+        },
+        "2014-02-05": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初六",
+            nodatepickerico: true
+        },
+        "2014-02-06": {
+            afterTime: 0,
+            beforeTime: 0,
+            dayindex: 0,
+            holidayName: "正月初七",
+            nodatepickerico: true
+        },
+        "2014-02-14": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "元宵"
+        },
+        "2014-04-05": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "清明"
+        },
+        "2014-05-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "五一"
+        },
+        "2014-06-02": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "端午"
+        },
+        "2014-09-08": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "中秋"
+        },
+        "2014-10-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "国庆"
+        },
+        "2014-12-25": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "圣诞"
         }
     };
     var f = ["今天", "明天", "后天"];
@@ -3037,6 +3133,9 @@ var QunarDate = $jex.exec(function() {
         },
         getHolidayName: function(j) {
             return b[j]["holidayName"];
+        },
+        showIcon: function(j) {
+            return !b[j]["nodatepickerico"];
         },
         getDateTip: function(j) {
             var k = this.parse(j);
@@ -3236,7 +3335,7 @@ function DateChecker(a, g, f) {
         } if (i.getDay() == 0 || i.getDay() == 6) {
             k += " holi";
         }
-        if (QunarDate.isHoliday(QunarDate.format(i))) {
+        if (QunarDate.isHoliday(QunarDate.format(i)) && QunarDate.showIcon(QunarDate.format(i))) {
             k += " holi_sp";
         }
         if (l == b.getTime()) {
@@ -3456,7 +3555,7 @@ function DateLayer(m, z) {
                         if (QunarDate.compareDate(O, ab) === 0) {
                             ag = "今天";
                         }
-                        if (QunarDate.isHoliday(U)) {
+                        if (QunarDate.isHoliday(U) && QunarDate.showIcon && QunarDate.showIcon(U)) {
                             ag = QunarDate.getHolidayName(U);
                         }
                         b[U] = F;
