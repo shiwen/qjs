@@ -5156,6 +5156,7 @@ OnewayFlightWrapperEntity.prototype._openBookingUrl = function(b, c) {
         d += "&package=" + a.code();
     }
     window.open(f);
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_booking");
     this._bookingBtnTrace();
     TsinghuaOneWayTracker.track("btype", d, System.service.traceTimeStamp, null, "&burl=" + encodeURIComponent(f) + "&wt=" + System.service.wrapperExpandStamp);
     this._booking_track();
@@ -5752,6 +5753,7 @@ FlightListUI.prototype.keepLastOpen = function() {
 };
 FlightListUI.prototype.refresh = function() {
     this.render();
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_flightListShow");
     this.styleList = [];
     this._randomArr = {};
 };
@@ -6795,6 +6797,7 @@ OnewayFlightUI.prototype.showVendorPanel = function() {
     this.renderVendorPanel();
     $jex.addClassName(this.find("itemBar"), "avt_column_on");
     $jex.element.show(this.find("vendorlist"));
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
     this.state(1);
 };
 OnewayFlightUI.prototype.hideVendorPanel = function() {
@@ -6803,6 +6806,7 @@ OnewayFlightUI.prototype.hideVendorPanel = function() {
     }
     $jex.element.hide(this.find("vendorlist"));
     $jex.removeClassName(this.find("itemBar"), "avt_column_on");
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_closeWrapperList");
     this.listui().reset();
     this.state(0);
     PAGE_EVENT.trigger("wrapper_list_close", this.dataSource());
@@ -7585,6 +7589,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
                         i();
                     }
                     $jex.element.show(j);
+                    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_showTGQ");
                     c = true;
                 },
                 onmouseout: function(k) {
