@@ -2844,7 +2844,6 @@ SingleTripFlightWrapperEntity.prototype._booking = function(b, c) {
         d += ("&package=" + a.firstTrip().code() + "/" + a.secondTrip().code());
     }
     window.open(e);
-    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_booking");
     this._bookingBtnTrace();
     TsinghuaOneWayTracker.track("btype", d, System.service.traceTimeStamp, null, "&burl=" + encodeURIComponent(e) + "&wt=" + System.service.wrapperExpandStamp);
     this._booking_track();
@@ -3412,7 +3411,6 @@ TransferFlightUI.prototype.toggleVendorPanel = function() {
         a.render(this.find("vendorlist"));
         $jex.element.show(this.find("vendorlist"));
         $jex.addClassName(this.find("itemBar"), "avt_column_on");
-        $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
         this.state(1);
         $jex.event.trigger(this, "open");
     } else {
@@ -3422,7 +3420,6 @@ TransferFlightUI.prototype.toggleVendorPanel = function() {
 TransferFlightUI.prototype.hideVendorPanel = function() {
     $jex.element.hide(this.find("vendorlist"));
     $jex.removeClassName(this.find("itemBar"), "avt_column_on");
-    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_closeWrapperList");
     this.state(0);
     $jex.event.trigger(this, "close");
 };
@@ -5452,7 +5449,6 @@ flightResultController.prototype.initUI = function() {
                 $jex.$("btnDepttimeOrderArror").title = d[0][1] ? "点击按时间从早到晚排序" : "点击按时间从晚到早排序";
                 $jex.$("btnPriceOrderArror").title = "";
                 $jex.$("btnPriceOrderArror").getElementsByTagName("i")[0].className = "i_arr_ud";
-                $jex.event.trigger($jex.$("btnDepttimeOrderArror"), "fem_orderByTime");
                 a();
             }
         }
@@ -5474,7 +5470,6 @@ flightResultController.prototype.initUI = function() {
                 $jex.$("btnPriceOrderArror").title = d[0][1] ? "点击按价格从低到高排序" : "点击按价格从高到低排序";
                 $jex.$("btnDepttimeOrderArror").title = "";
                 $jex.$("btnDepttimeOrderArror").getElementsByTagName("i")[0].className = "i_arr_ud";
-                $jex.event.trigger($jex.$("btnPriceOrderArror"), "fem_orderByPrice");
                 a();
             }
         }
@@ -5817,72 +5812,3 @@ SortHandler.prototype._init = function() {
     }, 10);
     $jex.console.end("初始化所耗时");
 })();
-
-function FEMonitor(a) {
-    a = $jex.merge({
-        interval: 0,
-        module: "F"
-    }, a);
-    this._init(a);
-}
-FEMonitor.fn = FEMonitor.prototype;
-FEMonitor.fn._init = function(a) {
-    this.lastSendTime = 0;
-    this.logurl = a.logurl;
-    this.module = a.module;
-    this.interval = a.interval;
-};
-FEMonitor.fn.addMonitor = function(e, c, d) {
-    var a = this,
-        b = function(g, f) {
-            a._sendLog(d || f);
-        };
-    $jex.event.bind(e, c, b);
-};
-FEMonitor.fn._sendLog = function(c) {
-    if (typeof c !== "string") {
-        return;
-    }
-    var d = this.module + "_" + c,
-        b = new Date().getTime(),
-        a = {
-            id: d,
-            n: 1,
-            type: 1,
-            debug: 1,
-            s: this.interval,
-            t: b,
-            token: this._calcToken(d, b)
-        };
-    QNR.crossDomainPost(this.logurl, a, "site/proxy.htm", {
-        onsuccess: function(e) {}
-    });
-};
-FEMonitor.fn._canSendLog = function() {
-    return this.interval === 0 ? true : new Date().getTime() - this.lastSendTime > this.interval * 1000;
-};
-FEMonitor.fn._cacheLog = function(a) {
-    this._logs = this._logs || {};
-    if (typeof this._logs[a] === "number") {
-        this._logs[a]++;
-    } else {
-        this._logs[a] = 0;
-    }
-};
-FEMonitor.fn._sendCache = function() {};
-FEMonitor.fn._calcToken = function(b, a) {
-    return "";
-};
-var fem = new FEMonitor({
-    logurl: "http://femon.qunar.com/felog",
-    module: "F_LP_FL_OW"
-});
-var __$__ = $jex.$,
-    listPanel = __$__("hdivResultPanel");
-fem.addMonitor(listPanel, "fem_flightListShow", "ShowList");
-fem.addMonitor(__$__("btnDepttimeOrderArror"), "fem_orderByTime", "OrderByTime");
-fem.addMonitor(__$__("btnPriceOrderArror"), "fem_orderByPrice", "OrderByPrice");
-fem.addMonitor(listPanel, "fem_openWrapperList", "OpenWrapperList");
-fem.addMonitor(listPanel, "fem_closeWrapperList", "CloseWrapperList");
-fem.addMonitor(listPanel, "fem_showTGQ", "ShowTGQ");
-fem.addMonitor(listPanel, "fem_booking", "Booking");
