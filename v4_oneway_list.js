@@ -1365,6 +1365,31 @@ FlightInfoManager.prototype.updatePriceGroup = function(c, a) {
         $jex.merge(b[f], c[f]);
     });
 };
+if (typeof QLib === "undefined") {
+    var QLib = {};
+}(function() {
+    var a = "/twell/searchrt_ui/ui_quanr_gsriw.do";
+    QLib.setCookieForSpider = function(d) {
+        var c = b();
+        if (!c) {
+            d();
+            return;
+        }
+        c(a, {}, d, {
+            onerror: d
+        });
+    };
+
+    function b() {
+        if (window.$jex && $jex.ajax) {
+            return $jex.ajax;
+        }
+    }
+    QLib.setUrl = function(c) {
+        a = c;
+        return this;
+    };
+})();
 var DomesticOnewayDataAnalyzer = new(function() {
     var t = this;
     var H = null;
@@ -2083,7 +2108,9 @@ var DomesticOnewaySearchService = new(function() {
             return;
         }
         this._invoke_ExtInfo();
-        this._invoke_longwell();
+        QLib.setCookieForSpider(function() {
+            p._invoke_longwell();
+        });
         v = 1;
         e = new Date();
         setTimeout(function() {
@@ -2164,7 +2191,8 @@ var DomesticOnewaySearchService = new(function() {
             nextNDays: "0",
             searchLangs: "zh",
             searchType: "OneWayFlight",
-            tags: 1
+            tags: 1,
+            mergeFlag: 0
         };
         k = {
             departureCity: E.fromCity,
@@ -5411,6 +5439,7 @@ flightResultController.prototype.initUI = function() {
         on: {
             changeValue: function(c) {
                 b.analyzer.resetPageSize(c.value);
+                $jex.event.trigger($jex.$("detailPage"), "fem_pageNum", "PageSize");
                 a();
             }
         }
@@ -5429,6 +5458,7 @@ flightResultController.prototype.initUI = function() {
         on: {
             changePage: function(c) {
                 b.analyzer.gotoPage(c);
+                $jex.event.trigger($jex.$("detailPage"), "fem_pageNum", "JumpToPage");
                 var d = $jex.offset($jex.$("resultAnchor"));
                 window.scrollTo(d.left, d.top - 31);
                 a();
@@ -5820,6 +5850,7 @@ SortHandler.prototype._init = function() {
 
 function FEMonitor(a) {
     a = $jex.merge({
+        logurl: "http://femon.qunar.com/felog",
         interval: 0,
         module: "F"
     }, a);
@@ -5833,8 +5864,11 @@ FEMonitor.fn._init = function(a) {
     this.interval = a.interval;
 };
 FEMonitor.fn.addMonitor = function(e, c, d) {
+    if (!e || !c) {
+        return;
+    }
     var a = this,
-        b = function(g, f) {
+        b = function(f) {
             a._sendLog(d || f);
         };
     $jex.event.bind(e, c, b);
@@ -5849,14 +5883,23 @@ FEMonitor.fn._sendLog = function(c) {
             id: d,
             n: 1,
             type: 1,
-            debug: 1,
             s: this.interval,
             t: b,
             token: this._calcToken(d, b)
         };
-    QNR.crossDomainPost(this.logurl, a, "site/proxy.htm", {
-        onsuccess: function(e) {}
-    });
+    (new Image()).src = this.logurl + "?" + this._obj2str(a);
+};
+FEMonitor.fn._obj2str = function(d, b) {
+    if (!d) {
+        return "";
+    }
+    var c, a = [];
+    for (c in d) {
+        if (d.hasOwnProperty(c)) {
+            a.push(c + "=" + encodeURIComponent(d[c]));
+        }
+    }
+    return a.join(b || "&");
 };
 FEMonitor.fn._canSendLog = function() {
     return this.interval === 0 ? true : new Date().getTime() - this.lastSendTime > this.interval * 1000;
@@ -5874,7 +5917,6 @@ FEMonitor.fn._calcToken = function(b, a) {
     return "";
 };
 var fem = new FEMonitor({
-    logurl: "http://femon.qunar.com/felog",
     module: "F_LP_FL_OW"
 });
 var __$__ = $jex.$,
@@ -5886,3 +5928,5 @@ fem.addMonitor(listPanel, "fem_openWrapperList", "OpenWrapperList");
 fem.addMonitor(listPanel, "fem_closeWrapperList", "CloseWrapperList");
 fem.addMonitor(listPanel, "fem_showTGQ", "ShowTGQ");
 fem.addMonitor(listPanel, "fem_booking", "Booking");
+var detailPage = __$__("detailPage");
+fem.addMonitor(detailPage, "fem_pageNum");

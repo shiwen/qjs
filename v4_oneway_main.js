@@ -92,7 +92,8 @@ var oneway_config = {
             name: "海航促销专区",
             text: "后返10元"
         }
-    }
+    },
+    AirlineDirectSelling: ["gnd090722cp"]
 };
 
 function trackAction(d, b, a) {
@@ -1190,7 +1191,7 @@ $jex.exec(function() {
         var request = $jex.createXMLHttpRequest();
         request.onreadystatechange = function() {
             if (request.readyState == 4) {
-                if (request.status >= 200 && request.status < 300) {
+                if (request.status >= 200 && request.status < 300 || request.status == 304) {
                     var _result = {
                         result: {}
                     };
@@ -1214,6 +1215,10 @@ $jex.exec(function() {
                         }
                         e.toString = $jex.errToString;
                         $jex.console.error(url, e);
+                    }
+                } else {
+                    if (options.onerror) {
+                        options.onerror();
                     }
                 }
             }
@@ -4577,6 +4582,10 @@ function VendorEntity() {
             f = g;
         }
     };
+    this.get = function(g) {
+        var h = this.dataSource();
+        return g && h ? h[g] : h;
+    };
     var a = null;
     this.seq = function(g) {
         if (g) {
@@ -7396,40 +7405,45 @@ function OnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(OnewayFlightWrapperUI, WrapperUI);
-OnewayFlightWrapperUI.prototype.update = function(g) {
-    var c = g;
-    this.specWR = c.bigLogoUrl();
-    var b = c.vendor().isSuperOTA();
+OnewayFlightWrapperUI.prototype.update = function(h) {
+    var d = h;
+    this.specWR = d.bigLogoUrl();
+    var c = d.vendor().isSuperOTA();
     this.clear();
-    this.bookingScreenUI.setVendorInfo(c.wrapperId(), c.vendor().dataSource());
-    this.bookingLockScreenUI.setEntity(c);
-    this.bookingLockScreenUI.setVendorInfo(c.wrapperId(), c.vendor().dataSource());
-    this.insert_HEADER(c);
-    var f = this.ownerListUI().zIndex,
+    this.bookingScreenUI.setVendorInfo(d.wrapperId(), d.vendor().dataSource());
+    this.bookingLockScreenUI.setEntity(d);
+    this.bookingLockScreenUI.setVendorInfo(d.wrapperId(), d.vendor().dataSource());
+    this.insert_HEADER(d);
+    var g = this.ownerListUI().zIndex,
         a = this.ownerListUI().firstIndex;
     this.append("<div", "flightbar", "");
-    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, a == f ? " qvt_column_first" : "", '" style="z-Index:', f, '" >');
+    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, a == g ? " qvt_column_first" : "", '" style="z-Index:', g, '" >');
     this.zIndex = this.ownerListUI().zIndex;
     this.ownerListUI().zIndex--;
-    this._insertH3(g);
-    this.text('<div class="v3">');
-    if (c.isOta()) {
-        this.insertOta(c);
+    this._insertH3(h);
+    var b = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), d.wrapperId()) > -1;
+    this.text('<div class="v3 ' + (b ? "v3_np" : "") + '">');
+    if (d.isOta()) {
+        this.insertOta(d);
     } else {
-        this.insert_Services(c);
+        if (b) {
+            this.insertAirlineDirectSelling();
+        } else {
+            this.insert_Services(d);
+        }
     }
     this.text("</div>");
     this.text('<div class="v4">');
-    var d = 0;
-    if (c.getTGQInfo()) {
-        d = 1;
+    var f = 0;
+    if (d.getTGQInfo()) {
+        f = 1;
         this.append("<div", "js-stopClick", ' class="t_st" style="z-index:50;">');
         this.append('<span class="dot_gy"', "tgq", ">退改签</span>");
-        this.insert_TGQ(c);
+        this.insert_TGQ(d);
         this.text("</div>");
     }
-    if (b && !c.isApplyPrice()) {
-        d = 1;
+    if (c && !d.isApplyPrice()) {
+        f = 1;
         this.text('<div class="t_st" style="z-index:8;">');
         if ($jex.ie == 6) {
             this.text('<i title="提供足额行程单，推荐商旅用户使用。" class="i_bns_tvl">商旅优选</i>');
@@ -7439,26 +7453,26 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
         }
         this.text("</div>");
     }
-    if (c.isFCabin()) {
-        d = 1;
+    if (d.isFCabin()) {
+        f = 1;
         this.text('<div class="t_st" style="z-index:6;"><i class="i_fst_cls">头等舱</i></div>');
     } else {
-        if (c.isBCabin()) {
-            d = 1;
+        if (d.isBCabin()) {
+            f = 1;
             this.text('<div class="t_st" style="z-index:6;"><i class="i_fst_bsn">商务舱</i></div>');
         }
-    } if (d === 0) {
+    } if (f === 0) {
         this.text("&nbsp");
     }
-    this.insert_AirchinaCoupon(c);
+    this.insert_AirchinaCoupon(d);
     this.text("</div>");
-    this.insert_PRICE(c);
+    this.insert_PRICE(d);
     this.text('<div class="v7">');
-    this.insert_BOOKING_BUTTON(c);
+    this.insert_BOOKING_BUTTON(d);
     this.text("</div>");
     this.text("</div>");
-    this._bindHoverEvent(c);
-    this._bindOnInitEvent(c);
+    this._bindHoverEvent(d);
+    this._bindOnInitEvent(d);
 };
 OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
     var b = a;
@@ -7662,6 +7676,9 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(b) {
     this.text('<div class="v2"><div class="e_btn_cmt">');
     this.starUI.insert_btn(a);
     this.text("</div></div>");
+};
+OnewayFlightWrapperUI.prototype.insertAirlineDirectSelling = function() {
+    this.text('<div class="ico_gwzx">实时出票</div>');
 };
 OnewayFlightWrapperUI.prototype.insertOta = function(d) {
     var c = this.ownerListUI().ownerVendorListUI().owner().entity;
@@ -12167,7 +12184,7 @@ function XCombox(j, a) {
         }
     }
     $jex.ie && $jex.event.bind(j, "beforedeactivate", function(i) {
-        if (this._f_leave) {
+        if ($jex.ie < 9 && this._f_leave) {
             $jex.stopEvent(i);
         }
         this._f_leave = 0;
