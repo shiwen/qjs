@@ -12550,21 +12550,24 @@ function FlightCityXCombox(c, d, b) {
             suggest: {
                 initialize: function() {
                     this.layer = new FlightSuggestItemListLayer(this);
-                    $jex.event.bind(this.layer, "select", function(h, i) {
+                    $jex.event.bind(this.layer, "select", function(h, j) {
                         if (h > -1) {
                             this.popup.own.setCountry(this.nodes[h].item.country);
                         }
                         if (h > -1) {
-                            i ? this.popup.own.setValue(this.nodes[h].item.key) : this.popup.own.volateValue(this.nodes[h].item.key);
+                            j ? this.popup.own.setValue(this.nodes[h].item.key) : this.popup.own.volateValue(this.nodes[h].item.key);
                         } else {
-                            i ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
+                            j ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
                         }
                         this.popup.own.vidx = h;
-                        if (i) {
-                            var j = this.nodes[h].item.key;
-                            $jex.event.trigger(a, "select", j);
+                        if (j) {
+                            var k = this.nodes[h].item.key;
+                            $jex.event.trigger(a, "select", k);
                             this.popup.close();
-                            trackAction("QH|HCT|suggest|" + encodeURIComponent(j));
+                            var i = window.newTrackAction || window.trackAction;
+                            if (i) {
+                                i("QH|HCT|suggest|" + encodeURIComponent(k), null, false);
+                            }
                         }
                     });
                 }
