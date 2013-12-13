@@ -5669,6 +5669,11 @@ SortHandler.prototype._init = function() {
             setTimeout(b, 10);
             return;
         }
+        var e = $jex.$("searchboxForm");
+        var r = e.toCity,
+            s = e.fromCity;
+        r.setAttribute("domestic", "domestic-to");
+        s.setAttribute("domestic", "domestic-from");
         SearchBoxCreate(f);
         $jex.element.show($jex.$("queryTicketState").parentNode);
         $jex.element.hide($jex.$("forecast").parentNode);

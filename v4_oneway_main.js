@@ -12561,8 +12561,10 @@ function FlightCityXCombox(c, d, b) {
                         }
                         this.popup.own.vidx = h;
                         if (i) {
-                            $jex.event.trigger(a, "select", this.nodes[h].item.key);
+                            var j = this.nodes[h].item.key;
+                            $jex.event.trigger(a, "select", j);
                             this.popup.close();
+                            trackAction("QH|HCT|suggest|" + encodeURIComponent(j));
                         }
                     });
                 }
@@ -13005,101 +13007,390 @@ TabGroup.prototype._bindEvent = function() {
     }
     this.bindedEvent = true;
 };
+var __hotCityListFrom__ = [{
+    name: "上海",
+    country: "中国"
+}, {
+    name: "北京",
+    country: "中国"
+}, {
+    name: "广州",
+    country: "中国"
+}, {
+    name: "昆明",
+    country: "中国"
+}, {
+    name: "西安",
+    country: "中国"
+}, {
+    name: "成都",
+    country: "中国"
+}, {
+    name: "深圳",
+    country: "中国"
+}, {
+    name: "厦门",
+    country: "中国"
+}, {
+    name: "乌鲁木齐",
+    country: "中国"
+}, {
+    name: "南京",
+    country: "中国"
+}, {
+    name: "重庆",
+    country: "中国"
+}, {
+    name: "杭州",
+    country: "中国"
+}, {
+    name: "大连",
+    country: "中国"
+}, {
+    name: "长沙",
+    country: "中国"
+}, {
+    name: "海口",
+    country: "中国"
+}, {
+    name: "哈尔滨",
+    country: "中国"
+}, {
+    name: "青岛",
+    country: "中国"
+}, {
+    name: "沈阳",
+    country: "中国"
+}, {
+    name: "三亚",
+    country: "中国"
+}, {
+    name: "济南",
+    country: "中国"
+}, {
+    name: "武汉",
+    country: "中国"
+}, {
+    name: "郑州  ",
+    country: "中国"
+}, {
+    name: "贵阳",
+    country: "中国"
+}, {
+    name: "南宁",
+    country: "中国"
+}, {
+    name: "福州",
+    country: "中国"
+}, {
+    name: "天津",
+    country: "中国"
+}, {
+    name: "长春",
+    country: "中国"
+}, {
+    name: "太原",
+    country: "中国"
+}, {
+    name: "南昌",
+    country: "中国"
+}, {
+    name: "丽江",
+    country: "中国"
+}];
+var __hotCityListTo__ = [{
+    name: "上海",
+    country: "中国"
+}, {
+    name: "北京",
+    country: "中国"
+}, {
+    name: "广州",
+    country: "中国"
+}, {
+    name: "昆明",
+    country: "中国"
+}, {
+    name: "西安",
+    country: "中国"
+}, {
+    name: "成都",
+    country: "中国"
+}, {
+    name: "深圳",
+    country: "中国"
+}, {
+    name: "厦门",
+    country: "中国"
+}, {
+    name: "乌鲁木齐",
+    country: "中国"
+}, {
+    name: "南京",
+    country: "中国"
+}, {
+    name: "重庆",
+    country: "中国"
+}, {
+    name: "杭州",
+    country: "中国"
+}, {
+    name: "大连",
+    country: "中国"
+}, {
+    name: "长沙",
+    country: "中国"
+}, {
+    name: "海口",
+    country: "中国"
+}, {
+    name: "哈尔滨",
+    country: "中国"
+}, {
+    name: "青岛",
+    country: "中国"
+}, {
+    name: "沈阳",
+    country: "中国"
+}, {
+    name: "三亚",
+    country: "中国"
+}, {
+    name: "济南",
+    country: "中国"
+}, {
+    name: "武汉",
+    country: "中国"
+}, {
+    name: "郑州  ",
+    country: "中国"
+}, {
+    name: "贵阳",
+    country: "中国"
+}, {
+    name: "南宁",
+    country: "中国"
+}, {
+    name: "福州",
+    country: "中国"
+}, {
+    name: "天津",
+    country: "中国"
+}, {
+    name: "南昌",
+    country: "中国"
+}, {
+    name: "丽江",
+    country: "中国"
+}, {
+    name: "香港",
+    country: "中国"
+}, {
+    name: "台北",
+    country: "中国"
+}];
+var __hotCityListInterFrom__ = [{
+    name: "上海",
+    country: "中国"
+}, {
+    name: "北京",
+    country: "中国"
+}, {
+    name: "香港",
+    country: "中国"
+}, {
+    name: "厦门",
+    country: "中国"
+}, {
+    name: "重庆",
+    country: "中国"
+}, {
+    name: "广州",
+    country: "中国"
+}, {
+    name: "成都",
+    country: "中国"
+}, {
+    name: "昆明",
+    country: "中国"
+}, {
+    name: "曼谷",
+    country: "泰国"
+}, {
+    name: "南京",
+    country: "中国"
+}, {
+    name: "杭州",
+    country: "中国"
+}, {
+    name: "深圳",
+    country: "中国"
+}, {
+    name: "首尔",
+    country: "韩国"
+}, {
+    name: "沈阳",
+    country: "中国"
+}, {
+    name: "澳门",
+    country: "中国澳门"
+}, {
+    name: "新加坡",
+    country: "新加坡"
+}, {
+    name: "武汉",
+    country: "中国"
+}, {
+    name: "天津",
+    country: "中国"
+}, {
+    name: "青岛",
+    country: "中国"
+}, {
+    name: "西安",
+    country: "中国"
+}, {
+    name: "大连",
+    country: "中国"
+}, {
+    name: "台北",
+    country: "中国"
+}, {
+    name: "东京",
+    country: "日本"
+}, {
+    name: "吉隆坡",
+    country: "马来西亚"
+}, {
+    name: "南宁",
+    country: "中国"
+}, {
+    name: "福州",
+    country: "中国"
+}, {
+    name: "普吉",
+    country: "泰国"
+}, {
+    name: "长沙",
+    country: "中国"
+}, {
+    name: "哈尔滨",
+    country: "中国"
+}, {
+    name: "悉尼",
+    country: "澳大利亚"
+}];
+var __hotCityListInterTo__ = [{
+    name: "香港",
+    country: "中国香港"
+}, {
+    name: "曼谷",
+    country: "泰国"
+}, {
+    name: "台北",
+    country: "中国台湾"
+}, {
+    name: "马尼拉",
+    country: "菲律宾"
+}, {
+    name: "首尔",
+    country: "韩国"
+}, {
+    name: "新加坡",
+    country: "新加坡"
+}, {
+    name: "吉隆坡",
+    country: "马来西亚"
+}, {
+    name: "清迈",
+    country: "泰国"
+}, {
+    name: "东京",
+    country: "日本"
+}, {
+    name: "普吉",
+    country: "泰国"
+}, {
+    name: "悉尼",
+    country: "澳大利亚"
+}, {
+    name: "纽约",
+    country: "美国"
+}, {
+    name: "澳门",
+    country: "中国澳门"
+}, {
+    name: "洛杉矶",
+    country: "美国"
+}, {
+    name: "墨尔本",
+    country: "澳大利亚"
+}, {
+    name: "巴黎",
+    country: "法国"
+}, {
+    name: "胡志明市",
+    country: "越南"
+}, {
+    name: "伦敦",
+    country: "英国"
+}, {
+    name: "济州岛",
+    country: "韩国"
+}, {
+    name: "奥克兰",
+    country: "新西兰"
+}, {
+    name: "巴厘岛",
+    country: "印度尼西亚"
+}, {
+    name: "暹粒",
+    country: "柬埔寨"
+}, {
+    name: "高雄",
+    country: "中国台湾"
+}, {
+    name: "马累",
+    country: "马尔代夫"
+}, {
+    name: "大阪",
+    country: "日本"
+}, {
+    name: "旧金山",
+    country: "美国"
+}, {
+    name: "金边",
+    country: "柬埔寨"
+}, {
+    name: "法兰克福",
+    country: "德国"
+}, {
+    name: "温哥华",
+    country: "加拿大"
+}, {
+    name: "多伦多",
+    country: "加拿大"
+}];
 var _tabConfig = {
-    "热门": {
-        cityList: [{
-            name: "上海",
-            country: "中国"
-        }, {
-            name: "北京",
-            country: "中国"
-        }, {
-            name: "广州",
-            country: "中国"
-        }, {
-            name: "昆明",
-            country: "中国"
-        }, {
-            name: "西安",
-            country: "中国"
-        }, {
-            name: "成都",
-            country: "中国"
-        }, {
-            name: "深圳",
-            country: "中国"
-        }, {
-            name: "厦门",
-            country: "中国"
-        }, {
-            name: "乌鲁木齐",
-            country: "中国"
-        }, {
-            name: "南京",
-            country: "中国"
-        }, {
-            name: "重庆",
-            country: "中国"
-        }, {
-            name: "杭州",
-            country: "中国"
-        }, {
-            name: "大连",
-            country: "中国"
-        }, {
-            name: "长沙",
-            country: "中国"
-        }, {
-            name: "海口",
-            country: "中国"
-        }, {
-            name: "哈尔滨",
-            country: "中国"
-        }, {
-            name: "青岛",
-            country: "中国"
-        }, {
-            name: "沈阳",
-            country: "中国"
-        }, {
-            name: "三亚",
-            country: "中国"
-        }, {
-            name: "济南",
-            country: "中国"
-        }, {
-            name: "武汉",
-            country: "中国"
-        }, {
-            name: "郑州  ",
-            country: "中国"
-        }, {
-            name: "贵阳",
-            country: "中国"
-        }, {
-            name: "南宁",
-            country: "中国"
-        }, {
-            name: "福州",
-            country: "中国"
-        }, {
-            name: "天津",
-            country: "中国"
-        }, {
-            name: "长春",
-            country: "中国"
-        }, {
-            name: "石家庄",
-            country: "中国"
-        }, {
-            name: "太原",
-            country: "中国"
-        }, {
-            name: "兰州",
-            country: "中国"
-        }],
+    "热门-from": {
+        cityList: __hotCityListFrom__,
         title: "热门城市",
-        desc: "可直接输入城市或城市拼音"
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "热门-to": {
+        cityList: __hotCityListTo__,
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "热门-inter-from": {
+        cityList: __hotCityListInterFrom__,
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "热门-inter-to": {
+        cityList: __hotCityListInterTo__,
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     ABCDE: {
         charSort: true,
@@ -13127,9 +13418,6 @@ var _tabConfig = {
                 name: "安顺",
                 country: "中国"
             }, {
-                name: "安阳",
-                country: "中国"
-            }, {
                 name: "阿克苏",
                 country: "中国"
             }]
@@ -13137,9 +13425,6 @@ var _tabConfig = {
             "char": "B",
             list: [{
                 name: "包头",
-                country: "中国"
-            }, {
-                name: "蚌埠",
                 country: "中国"
             }, {
                 name: "北海",
@@ -13173,9 +13458,6 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "长春",
-                country: "中国"
-            }, {
-                name: "长海",
                 country: "中国"
             }, {
                 name: "常州",
@@ -13231,6 +13513,9 @@ var _tabConfig = {
             }, {
                 name: "达州",
                 country: "中国"
+            }, {
+                name: "稻城",
+                country: "中国"
             }]
         }, {
             "char": "E",
@@ -13261,9 +13546,6 @@ var _tabConfig = {
             }, {
                 name: "阜阳",
                 country: "中国"
-            }, {
-                name: "富蕴",
-                country: "中国"
             }]
         }, {
             "char": "G",
@@ -13284,9 +13566,6 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "赣州",
-                country: "中国"
-            }, {
-                name: "广汉",
                 country: "中国"
             }, {
                 name: "固原",
@@ -13313,9 +13592,6 @@ var _tabConfig = {
                 name: "海口",
                 country: "中国"
             }, {
-                name: "衡阳",
-                country: "中国"
-            }, {
                 name: "黄山",
                 country: "中国"
             }, {
@@ -13337,21 +13613,12 @@ var _tabConfig = {
                 name: "和田",
                 country: "中国"
             }, {
-                name: "惠州",
-                country: "中国"
-            }, {
                 name: "淮安",
                 country: "中国"
             }]
         }, {
             "char": "J",
             list: [{
-                name: "吉安",
-                country: "中国"
-            }, {
-                name: "酒泉",
-                country: "中国"
-            }, {
                 name: "鸡西",
                 country: "中国"
             }, {
@@ -13417,6 +13684,9 @@ var _tabConfig = {
             }, {
                 name: "喀纳斯",
                 country: "中国"
+            }, {
+                name: "凯里",
+                country: "中国"
             }]
         }, {
             "char": "L",
@@ -13430,13 +13700,7 @@ var _tabConfig = {
                 name: "丽江",
                 country: "中国"
             }, {
-                name: "梁平",
-                country: "中国"
-            }, {
                 name: "荔波",
-                country: "中国"
-            }, {
-                name: "庐山",
                 country: "中国"
             }, {
                 name: "林芝",
@@ -13579,15 +13843,6 @@ var _tabConfig = {
             }, {
                 name: "思茅",
                 country: "中国"
-            }, {
-                name: "鄯善",
-                country: "中国"
-            }, {
-                name: "韶关",
-                country: "中国"
-            }, {
-                name: "沙市",
-                country: "中国"
             }]
         }, {
             "char": "T",
@@ -13596,9 +13851,6 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "铜仁",
-                country: "中国"
-            }, {
-                name: "通化",
                 country: "中国"
             }, {
                 name: "塔城",
@@ -13658,9 +13910,6 @@ var _tabConfig = {
                 name: "乌鲁木齐",
                 country: "中国"
             }, {
-                name: "芜湖",
-                country: "中国"
-            }, {
                 name: "万州",
                 country: "中国"
             }, {
@@ -13704,12 +13953,6 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "徐州",
-                country: "中国"
-            }, {
-                name: "兴城",
-                country: "中国"
-            }, {
-                name: "邢台",
                 country: "中国"
             }]
         }, {
@@ -13804,100 +14047,10 @@ var _tabConfig = {
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "国际·港澳台": {
-        cityList: [{
-            name: "香港",
-            country: "中国香港"
-        }, {
-            name: "新加坡",
-            country: "新加坡"
-        }, {
-            name: "吉隆坡",
-            country: "马来西亚"
-        }, {
-            name: "首尔",
-            country: "韩国"
-        }, {
-            name: "澳门",
-            country: "中国澳门"
-        }, {
-            name: "曼谷",
-            country: "泰国"
-        }, {
-            name: "台北",
-            country: "中国台湾"
-        }, {
-            name: "东京",
-            country: "日本"
-        }, {
-            name: "悉尼",
-            country: "澳大利亚"
-        }, {
-            name: "巴黎",
-            country: "法国"
-        }, {
-            name: "伦敦",
-            country: "英国"
-        }, {
-            name: "纽约",
-            country: "美国"
-        }, {
-            name: "洛杉矶",
-            country: "美国"
-        }, {
-            name: "墨尔本",
-            country: "澳大利亚"
-        }, {
-            name: "胡志明市",
-            country: "越南"
-        }, {
-            name: "大阪",
-            country: "日本"
-        }, {
-            name: "温哥华",
-            country: "加拿大"
-        }, {
-            name: "法兰克福",
-            country: "德国"
-        }, {
-            name: "迪拜",
-            country: "阿联酋"
-        }, {
-            name: "多伦多",
-            country: "加拿大"
-        }, {
-            name: "马尼拉",
-            country: "菲律宾"
-        }, {
-            name: "河内",
-            country: "越南"
-        }, {
-            name: "旧金山",
-            country: "美国"
-        }, {
-            name: "加德满都",
-            country: "印度"
-        }, {
-            name: "金边",
-            country: "柬埔寨"
-        }, {
-            name: "釜山",
-            country: "韩国"
-        }, {
-            name: "莫斯科",
-            country: "俄罗斯"
-        }, {
-            name: "雅加达",
-            country: "印度尼西亚"
-        }, {
-            name: "阿姆斯特丹",
-            country: "荷兰"
-        }, {
-            name: "名古屋",
-            country: "日本"
-        }],
+        cityList: __hotCityListInterTo__,
         title: "热门国际·港澳台城市",
         desc: "可直接输入城市或城市拼音",
-        cls: "inter"
+        cls: ""
     },
     "热门城市1-30": {
         cityList: [{
@@ -14624,110 +14777,26 @@ var _tabConfig = {
         title: "热门城市61-90",
         desc: "可直接输入城市或城市拼音",
         cls: "inter"
-    },
-    "国内": {
-        cityList: [{
-            name: "上海",
-            country: "中国"
-        }, {
-            name: "北京",
-            country: "中国"
-        }, {
-            name: "广州",
-            country: "中国"
-        }, {
-            name: "昆明",
-            country: "中国"
-        }, {
-            name: "西安",
-            country: "中国"
-        }, {
-            name: "成都",
-            country: "中国"
-        }, {
-            name: "深圳",
-            country: "中国"
-        }, {
-            name: "厦门",
-            country: "中国"
-        }, {
-            name: "乌鲁木齐",
-            country: "中国"
-        }, {
-            name: "南京",
-            country: "中国"
-        }, {
-            name: "重庆",
-            country: "中国"
-        }, {
-            name: "杭州",
-            country: "中国"
-        }, {
-            name: "大连",
-            country: "中国"
-        }, {
-            name: "长沙",
-            country: "中国"
-        }, {
-            name: "海口",
-            country: "中国"
-        }, {
-            name: "哈尔滨",
-            country: "中国"
-        }, {
-            name: "青岛",
-            country: "中国"
-        }, {
-            name: "沈阳",
-            country: "中国"
-        }, {
-            name: "三亚",
-            country: "中国"
-        }, {
-            name: "济南",
-            country: "中国"
-        }, {
-            name: "武汉",
-            country: "中国"
-        }, {
-            name: "郑州  ",
-            country: "中国"
-        }, {
-            name: "贵阳",
-            country: "中国"
-        }, {
-            name: "南宁",
-            country: "中国"
-        }, {
-            name: "福州",
-            country: "中国"
-        }, {
-            name: "天津",
-            country: "中国"
-        }, {
-            name: "长春",
-            country: "中国"
-        }, {
-            name: "石家庄",
-            country: "中国"
-        }, {
-            name: "太原",
-            country: "中国"
-        }, {
-            name: "兰州",
-            country: "中国"
-        }],
-        title: "热门城市",
-        desc: "可直接输入中文名/拼音/英文名/三字码",
-        cls: "inter"
     }
 };
 var FlightLang = {
     hotCityConfig: {
-        domestic: {
+        "domestic-from": {
             tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门"],
+                "热门": _tabConfig["热门-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
+            }
+        },
+        "domestic-to": {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门-to"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
@@ -14739,7 +14808,7 @@ var FlightLang = {
         "international-from": {
             tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门"],
+                "热门": _tabConfig["热门-inter-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
@@ -14751,12 +14820,12 @@ var FlightLang = {
         "international-to": {
             tabs: ["热门", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
             contents: {
-                "热门": _tabConfig["热门城市"],
+                "热门": _tabConfig["热门-inter-to"],
                 "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
                 "美洲": _tabConfig["美洲"],
                 "欧洲": _tabConfig["欧洲"],
                 "非洲": _tabConfig["非洲"],
-                "国内": _tabConfig["国内"]
+                "国内": _tabConfig["热门-from"]
             }
         }
     },
@@ -14775,12 +14844,8 @@ function SearchBox(a) {
         b[y] = new FlightCityXCombox(a[y], b, {
             errorSuggestTip: "请输入正确的" + (x ? "到达" : "出发") + "城市"
         });
-        var w = a[y].getAttribute("international");
-        if ( !! w) {
-            b[y].setHotCityConfig(u.hotCityConfig[w]);
-        } else {
-            b[y].setHotCityConfig(u.hotCityConfig.domestic);
-        }
+        var w = a[y].getAttribute("international") || a[y].getAttribute("domestic");
+        b[y].setHotCityConfig(u.hotCityConfig[w]);
         b[y].setMark(x ? "到" : "从");
     });
     var d = this.fromCity;
@@ -14834,8 +14899,12 @@ function SearchBox(a) {
     $jex.event.addEx([d, n], "openHotCity", function() {
         $jex.event.trigger(b, "openHotCity");
     });
-    $jex.event.addEx([d, n], "selectHotCity", function(w) {
-        $jex.event.trigger(b, "selectHotCity", w);
+    $jex.event.addEx([d, n], "selectHotCity", function(x) {
+        $jex.event.trigger(b, "selectHotCity", x);
+        var w = window.newTrackAction || window.trackAction;
+        if (w) {
+            w("QH|HCT|select|" + encodeURIComponent(x), null, false);
+        }
     });
     $jex.event.addEx([i, s], "openDatepicker", function() {
         $jex.event.trigger(b, "openDatepicker");
