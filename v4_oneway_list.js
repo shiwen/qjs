@@ -3480,6 +3480,8 @@ TransferFlightUI.prototype._insertColums = function(c, a) {
         this.text('<div title="出发达时间为第2天&nbsp;', d.deptDate(), '" class="a_tm_dep">次日', d.deptTime(), "</div>");
     } else {
         this.text('<div class="a_tm_dep">', d.deptTime(), "</div>");
+    } if (d.stopover() && d.stops() == 1 && d.spCity()) {
+        this.text('<div class="a_tm_jt">&nbsp;</div>');
     }
     this.text('<div class="a_tm_arv">', d.arriTime());
     if (d.isNextDate()) {
@@ -3489,6 +3491,9 @@ TransferFlightUI.prototype._insertColums = function(c, a) {
     this.text("</div>");
     this.text('<div class="c3">');
     this.text('    <div class="a_lacal_dep">', d.deptAirport().ab, d.dptTower(), "</div>");
+    if (d.stopover() && d.stops() == 1 && d.spCity()) {
+        this.text('<div class="a_lacal_jt"><span', d.spInfo().setTitle, ">经停&nbsp;", d.spInfo().sTitle, "</span></div>");
+    }
     this.text('    <div class="a_local_arv">', d.arriAirport().ab, d.arrTower(), "</div>");
     this.text("</div>");
     this.text('<div class="c4">');

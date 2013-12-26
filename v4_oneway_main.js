@@ -4104,6 +4104,23 @@ FlightEntity.prototype.code = function() {
 FlightEntity.prototype.stopover = function() {
     return (this.extInfo() && this.extInfo().sp != "0") ? this.extInfo().sp : 0;
 };
+FlightEntity.prototype.spCity = function() {
+    return (this.extInfo() && this.extInfo().sp == "1") ? this.extInfo().spCity : null;
+};
+FlightEntity.prototype.spAirPort = function() {
+    return (this.extInfo() && this.extInfo().sp == "1") ? this.extInfo().spAirPort : null;
+};
+FlightEntity.prototype.spInfo = function() {
+    var d = 9;
+    var f = this.spCity() + " " + this.spAirPort();
+    var b = f.length;
+    var c = b > d ? f.substring(0, d) : f;
+    var a = b > d ? ' title = "' + this.spAirPort() + '" ' : "";
+    return {
+        sTitle: c,
+        setTitle: a
+    };
+};
 FlightEntity.prototype.findCity = function(a) {
     var b = System.service.longwell();
     if (b.departureAirport.codeList.indexOf(a) >= 0) {
@@ -6567,6 +6584,9 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     c.push("</div>");
     c.push('<div class="c2">');
     c.push('    <div class="a_tm_dep">', d.deptTime(), "</div>");
+    if (d.stopover() && d.stops() == 1 && d.spCity()) {
+        c.push('<div class="a_tm_jt">&nbsp;</div>');
+    }
     c.push('    <div class="a_tm_arv">', d.arriTime());
     if (d.isNextDate()) {
         c.push('<i class="i_1day" title="到达时间为第2天：', d.arriDate(), '"></i>');
@@ -6575,6 +6595,9 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     c.push("</div>");
     c.push('<div class="c3">');
     c.push('    <div class="a_lacal_dep">', d.deptAirport().ab, d.dptTower(), "</div>");
+    if (d.stopover() && d.stops() == 1 && d.spCity()) {
+        c.push('<div class="a_lacal_jt"><span', d.spInfo().setTitle, ">经停&nbsp;", d.spInfo().sTitle, "</span></div>");
+    }
     c.push('    <div class="a_local_arv">', d.arriAirport().ab, d.arrTower(), "</div>");
     c.push("</div>");
     c.push('<div class="c4">', d.quasipointRateHTML(), "</div>");
