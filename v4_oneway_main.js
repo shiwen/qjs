@@ -4111,7 +4111,7 @@ FlightEntity.prototype.spAirPort = function() {
     return (this.extInfo() && this.extInfo().sp == "1") ? this.extInfo().spAirPort : null;
 };
 FlightEntity.prototype.spInfo = function() {
-    var d = 9;
+    var d = 8;
     var f = this.spCity() + " " + this.spAirPort();
     var b = f.length;
     var c = b > d ? f.substring(0, d) : f;
