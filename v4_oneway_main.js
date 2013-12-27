@@ -4505,6 +4505,7 @@ WrapperEntity.prototype._booking_url = function(b, d) {
     if (f) {
         a.from = f;
     }
+    this._addEx_track(a);
     if (b && this.ownerFlight().type != "onewayInTransfer") {
         a.stat = b.value();
     }
@@ -4519,6 +4520,13 @@ WrapperEntity.prototype._booking_url = function(b, d) {
     }
     var c = this._transBu(a.prt);
     return "/booksystem/booking.jsp?" + c + "&" + $jex.toQueryString(a);
+};
+WrapperEntity.prototype._addEx_track = function(a) {
+    var b = window.location.param().ex_track;
+    if (!a) {
+        return;
+    }
+    a.ex_track = b || "";
 };
 WrapperEntity.prototype._transBu = function(c) {
     var b = this.dataSource().bu;
@@ -14861,288 +14869,303 @@ var FlightLang = {
 };
 
 function SearchBox(a) {
-    var m;
+    var n;
     this.type = "domestic";
-    var b = this;
-    var u = FlightLang;
+    var c = this;
+    var w = FlightLang;
     this.sswitcher = null;
-    $jex.foreach(["fromCity", "toCity"], function(y, x) {
-        b[y] = new FlightCityXCombox(a[y], b, {
-            errorSuggestTip: "请输入正确的" + (x ? "到达" : "出发") + "城市"
+    $jex.foreach(["fromCity", "toCity"], function(z, y) {
+        c[z] = new FlightCityXCombox(a[z], c, {
+            errorSuggestTip: "请输入正确的" + (y ? "到达" : "出发") + "城市"
         });
-        var w = a[y].getAttribute("international") || a[y].getAttribute("domestic");
-        b[y].setHotCityConfig(u.hotCityConfig[w]);
-        b[y].setMark(x ? "到" : "从");
+        var x = a[z].getAttribute("international") || a[z].getAttribute("domestic");
+        c[z].setHotCityConfig(w.hotCityConfig[x]);
+        c[z].setMark(y ? "到" : "从");
     });
-    var d = this.fromCity;
-    var n = this.toCity;
-    var p = new DateChecker(211);
-    var i = this.fromDate = new DatePickerXCombox(a.fromDate, b, {
-        dateChecker: p
+    var f = this.fromCity;
+    var o = this.toCity;
+    var q = new DateChecker(211);
+    var j = this.fromDate = new DatePickerXCombox(a.fromDate, c, {
+        dateChecker: q
     });
-    var s = this.toDate = new DatePickerXCombox(a.toDate, b, {
-        dateChecker: p,
-        fromDateBox: i
+    var t = this.toDate = new DatePickerXCombox(a.toDate, c, {
+        dateChecker: q,
+        fromDateBox: j
     });
-    this.setValue = function(z) {
-        var y = [d, z.searchDepartureAirport || z.fromCity, n, z.searchArrivalAirport || z.toCity, i, z.searchDepartureTime || z.fromDate];
-        var A = z.searchArrivalTime || z.toDate;
-        if (A) {
-            y.push(s, A);
+    this.setValue = function(A) {
+        var z = [f, A.searchDepartureAirport || A.fromCity, o, A.searchArrivalAirport || A.toCity, j, A.searchDepartureTime || A.fromDate];
+        var B = A.searchArrivalTime || A.toDate;
+        if (B) {
+            z.push(t, B);
         }
-        for (var x = 0, w = y.length; x < w; x = x + 2) {
-            if (!y[x] || !y[x + 1]) {
+        for (var y = 0, x = z.length; y < x; y = y + 2) {
+            if (!z[y] || !z[y + 1]) {
                 continue;
             }
-            y[x].setValue(y[x + 1]);
-            y[x].setTip();
+            z[y].setValue(z[y + 1]);
+            z[y].setTip();
         }
-        this.param = z;
+        this.param = A;
     };
-    var o = {
+    var p = {
         roundtrip: "searchTypeRnd",
         oneway: "searchTypeSng",
         deal: "searchTypeDeals"
     };
-    this.setSearchType = function(w) {
-        if (!o[w]) {
-            throw "no searchType" + w;
+    this.setSearchType = function(x) {
+        if (!p[x]) {
+            throw "no searchType" + x;
         }
-        $jex.$(o[w]).checked = true;
-        m.active(w);
-        if (w === "roundtrip") {
-            var x = this.param;
-            s.setValue(x.searchArrivalTime || x.toDate);
-            s.setTip();
+        $jex.$(p[x]).checked = true;
+        n.active(x);
+        if (x === "roundtrip") {
+            var y = this.param;
+            t.setValue(y.searchArrivalTime || y.toDate);
+            t.setTip();
         }
     };
     $jex.event.add(this, "fromDateChanged", function() {
-        var x = p.checkDate1(i.getValue()).recommend;
-        var w = p.checkDate2(s.getValue(), x, QunarDate.format(QunarDate.plus(p.getMax(), 0))).recommend;
-        p.setDate2(w, QunarDate.format(QunarDate.plus(p.getMax(), 0)));
-        s.setValue(w);
+        var y = q.checkDate1(j.getValue()).recommend;
+        var x = q.checkDate2(t.getValue(), y, QunarDate.format(QunarDate.plus(q.getMax(), 0))).recommend;
+        q.setDate2(x, QunarDate.format(QunarDate.plus(q.getMax(), 0)));
+        t.setValue(x);
     });
-    $jex.event.addEx([d, n], "openHotCity", function() {
-        $jex.event.trigger(b, "openHotCity");
+    $jex.event.addEx([f, o], "openHotCity", function() {
+        $jex.event.trigger(c, "openHotCity");
     });
-    $jex.event.addEx([d, n], "selectHotCity", function(x) {
-        $jex.event.trigger(b, "selectHotCity", x);
-        var w = window.newTrackAction || window.trackAction;
-        if (w) {
-            w("QH|HCT|select|" + encodeURIComponent(x), null, false);
+    $jex.event.addEx([f, o], "selectHotCity", function(y) {
+        $jex.event.trigger(c, "selectHotCity", y);
+        var x = window.newTrackAction || window.trackAction;
+        if (x) {
+            x("QH|HCT|select|" + encodeURIComponent(y), null, false);
         }
     });
-    $jex.event.addEx([i, s], "openDatepicker", function() {
-        $jex.event.trigger(b, "openDatepicker");
+    $jex.event.addEx([j, t], "openDatepicker", function() {
+        $jex.event.trigger(c, "openDatepicker");
     });
-    $jex.event.bindDom(d.inputEl, "mousedown", this, function(w) {
-        $jex.event.trigger(d, "buttonmousedown");
+    $jex.event.bindDom(f.inputEl, "mousedown", this, function(x) {
+        $jex.event.trigger(f, "buttonmousedown");
         return false;
     });
-    $jex.event.bindDom(n.inputEl, "mousedown", this, function(w) {
-        $jex.event.trigger(n, "buttonmousedown");
+    $jex.event.bindDom(o.inputEl, "mousedown", this, function(x) {
+        $jex.event.trigger(o, "buttonmousedown");
         return false;
     });
-    var k = new ActionDelay(200);
+    var l = new ActionDelay(200);
 
-    function h() {
-        k.reset(function() {
-            $jex.event.trigger(b, "dateFinish");
+    function i() {
+        l.reset(function() {
+            $jex.event.trigger(c, "dateFinish");
         });
     }
-    $jex.event.addEx([d, n], "valuechange", function(x, w, y) {
-        if (y) {
-            $jex.event.trigger(b, "citychange", this.inputEl.name, x);
+    $jex.event.addEx([f, o], "valuechange", function(y, x, z) {
+        if (z) {
+            $jex.event.trigger(c, "citychange", this.inputEl.name, y);
         }
     });
-    $jex.event.add(this, "fromDateChanged", h);
-    $jex.event.add(this, "toDateChanged", h);
+    $jex.event.add(this, "fromDateChanged", i);
+    $jex.event.add(this, "toDateChanged", i);
 
-    function j() {
-        if (b.searchType == "deal") {
+    function k() {
+        if (c.searchType == "deal") {
             return false;
         }
-        var w = false;
-        var x = document.activeElement;
-        $jex.foreach([d, n], function(B, y) {
-            var A = y == 0 ? "出发" : "到达";
-            if (x === B.inputEl) {
+        var x = false;
+        var y = document.activeElement;
+        $jex.foreach([f, o], function(C, z) {
+            var B = z == 0 ? "出发" : "到达";
+            if (y === C.inputEl) {
                 try {
-                    B.inputEl.blur();
-                } catch (z) {}
+                    C.inputEl.blur();
+                } catch (A) {}
             }
-            if (!B.getValue()) {
-                B.showError("请输入" + A + "城市");
-                w = true;
+            if (!C.getValue()) {
+                C.showError("请输入" + B + "城市");
+                x = true;
                 return;
             }
-            if (B.invalid()) {
-                B.showError("请输入正确的" + A + "城市");
-                w = true;
+            if (C.invalid()) {
+                C.showError("请输入正确的" + B + "城市");
+                x = true;
                 return;
             }
-            B.hideError();
+            C.hideError();
         });
-        return w;
+        return x;
     }
 
-    function t() {
-        if (b.searchType == "deal") {
+    function u() {
+        if (c.searchType == "deal") {
             return false;
         }
-        var w = j();
-        if (w) {
-            return w;
+        var x = k();
+        if (x) {
+            return x;
         }
-        if (d.getValue() === n.getValue()) {
-            n.showError("不能和出发地相同");
-            w = true;
+        if (f.getValue() === o.getValue()) {
+            o.showError("不能和出发地相同");
+            x = true;
         }
-        return w;
+        return x;
     }
-    $jex.event.bindDom(a, "submit", this, function(w) {
-        d.initValue(d.getValue());
-        n.initValue(n.getValue());
-        if (t()) {
-            $jex.stopEvent(w);
+    $jex.event.bindDom(a, "submit", this, function(x) {
+        f.initValue(f.getValue());
+        o.initValue(o.getValue());
+        if (u()) {
+            $jex.stopEvent(x);
             return false;
         }
-        $jex.event.trigger(b, "pre_submit");
+        b();
+        $jex.event.trigger(c, "pre_submit");
     });
-    var l = $jex.$("hbtnReturnResearch");
-    if (l) {
-        $jex.event.click(l, function(w) {
-            $jex.stopEvent(w);
+    var m = $jex.$("hbtnReturnResearch");
+    if (m) {
+        $jex.event.click(m, function(x) {
+            $jex.stopEvent(x);
             setTimeout(function() {
-                g();
+                h();
                 setTimeout(function() {
-                    if (!t()) {
+                    if (!u()) {
+                        b();
                         a.submit();
                     }
                 });
             });
             return false;
         });
-        $jex.event.binding(b, "switch", function(x, w) {
-            if (w == "oneway") {
-                $jex.element.show(l);
+        $jex.event.binding(c, "switch", function(y, x) {
+            if (x == "oneway") {
+                $jex.element.show(m);
             } else {
-                $jex.element.hide(l);
+                $jex.element.hide(m);
             }
         });
     }
 
-    function g() {
-        var w = d.getValue();
-        d.setValue(n.getValue());
-        n.setValue(w);
-        w = d._invalid;
-        d._invalid = n._invalid;
-        n._invalid = w;
-        w = d.getCountry();
-        d.setCountry(n.getCountry());
-        n.setCountry(w);
-        d.setTip();
-        n.setTip();
-        j();
+    function b() {
+        var z = QLib && QLib.getEx_track && QLib.getEx_track();
+        if (!z) {
+            return;
+        }
+        var x = z.split("=");
+        var y = document.createElement("input");
+        y.type = "hidden";
+        y.name = x[0];
+        y.value = x[1];
+        a.appendChild(y);
     }
-    $jex.event.bindDom($jex.$("js-exchagne-city"), "click", this, function(w) {
-        $jex.stopEvent(w);
+
+    function h() {
+        var x = f.getValue();
+        f.setValue(o.getValue());
+        o.setValue(x);
+        x = f._invalid;
+        f._invalid = o._invalid;
+        o._invalid = x;
+        x = f.getCountry();
+        f.setCountry(o.getCountry());
+        o.setCountry(x);
+        f.setTip();
+        o.setTip();
+        k();
+    }
+    $jex.event.bindDom($jex.$("js-exchagne-city"), "click", this, function(x) {
+        $jex.stopEvent(x);
         setTimeout(function() {
-            g();
-            var x = window.newTrackAction || window.trackAction;
-            if (x) {
-                x("FL|SB|huan");
+            h();
+            var y = window.newTrackAction || window.trackAction;
+            if (y) {
+                y("FL|SB|huan");
             }
         }, 0);
     });
-    $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(w) {
+    $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(x) {
         $jex.$("searchTypeRnd").checked = true;
-        m.active("roundtrip");
+        n.active("roundtrip");
     });
 
-    function q(w) {
-        var A = w == "deal";
-        $jex.foreach(["fromCity", "toCity"], function(B) {
-            var C = b[B];
-            C.info = A ? "城市名（可不填）" : "城市名";
-            C.hideError();
-            C.setValue(m.getgmem(B));
-            C.setTip();
+    function s(x) {
+        var B = x == "deal";
+        $jex.foreach(["fromCity", "toCity"], function(C) {
+            var D = c[C];
+            D.info = B ? "城市名（可不填）" : "城市名";
+            D.hideError();
+            D.setValue(n.getgmem(C));
+            D.setTip();
         });
-        i.setMark(A ? "从" : "往");
-        s.setMark(A ? "到" : "返");
-        p.setSpan(211);
-        p.setDelay2(3);
-        if (w == "oneway") {
-            p.hideDate2();
+        j.setMark(B ? "从" : "往");
+        t.setMark(B ? "到" : "返");
+        q.setSpan(211);
+        q.setDelay2(3);
+        if (x == "oneway") {
+            q.hideDate2();
             $jex.element.hide($jex.$("arrivalDateDiv"));
             $jex.element.show($jex.$("arrivalDateDiv_disable"));
         } else {
             try {
-                var x = s.getValue();
-                if (!x) {
-                    x = QunarDate.format(QunarDate.plus(QunarDate.parse(i.getValue()), 3));
+                var y = t.getValue();
+                if (!y) {
+                    y = QunarDate.format(QunarDate.plus(QunarDate.parse(j.getValue()), 3));
                 }
-                var z = p.checkDate2(x, i.getValue(), QunarDate.format(QunarDate.plus(p.getMax(), 0)));
-                s.setValue(z.recommend);
-            } catch (y) {}
-            p.showDate2();
+                var A = q.checkDate2(y, j.getValue(), QunarDate.format(QunarDate.plus(q.getMax(), 0)));
+                t.setValue(A.recommend);
+            } catch (z) {}
+            q.showDate2();
             $jex.element.show($jex.$("arrivalDateDiv"));
             $jex.element.hide($jex.$("arrivalDateDiv_disable"));
         }
-        b.searchType = w;
-        $jex.event.trigger(b, "switch", b, w);
+        c.searchType = x;
+        $jex.event.trigger(c, "switch", c, x);
     }
-    var c = {
+    var d = {
         memories: {
             fromCity: {
                 value: function() {
-                    return d.getValue();
+                    return f.getValue();
                 }
             },
             toCity: {
                 value: function() {
-                    return n.getValue();
+                    return o.getValue();
                 }
             },
             toDate: {
                 value: function() {
-                    return s.getValue();
+                    return t.getValue();
                 }
             },
             fromDate: {
                 value: function() {
-                    return i.getValue();
+                    return j.getValue();
                 }
             }
         }
     };
-    var f = ["oneway", "roundtrip", "deal"];
-    $jex.foreach(f, function(x, w) {
-        c[x] = {
+    var g = ["oneway", "roundtrip", "deal"];
+    $jex.foreach(g, function(y, x) {
+        d[y] = {
             active: function() {
-                q(x);
+                s(y);
             }
         };
     });
-    m = this.sswitcher = new SearchSwitcher(c, function() {
-        for (var w = 0, x = a.searchType.length; w < x; w++) {
-            (function(y) {
-                $jex.event.bindDom(a.searchType[y], "click", a.searchType[y], function() {
+    n = this.sswitcher = new SearchSwitcher(d, function() {
+        for (var x = 0, y = a.searchType.length; x < y; x++) {
+            (function(z) {
+                $jex.event.bindDom(a.searchType[z], "click", a.searchType[z], function() {
                     switch (this.id) {
                         case "searchTypeSng":
-                            m.active("oneway");
+                            n.active("oneway");
                             break;
                         case "searchTypeRnd":
-                            m.active("roundtrip");
+                            n.active("roundtrip");
                             break;
                         case "searchTypeDeals":
-                            m.active("deal");
+                            n.active("deal");
                             break;
                     }
                 });
-            })(w);
+            })(x);
         }
     });
 }
@@ -15171,10 +15194,18 @@ var SearchBoxCreate = (function() {
     }
 
     function a() {
-        var h = $jex.$("searchboxForm");
-        var g = new SearchBox(h);
-        b(g);
-        return g;
+        var i = $jex.$("searchboxForm");
+        var j = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
+        if (j) {
+            var g = document.createElement("input");
+            g.type = "hidden";
+            g.value = j;
+            g.name = "ex_track";
+            i.appendChild(g);
+        }
+        var h = new SearchBox(i);
+        b(h);
+        return h;
     }
 
     function c() {

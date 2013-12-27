@@ -1390,6 +1390,13 @@ if (typeof QLib === "undefined") {
         return this;
     };
 })();
+if (typeof QLib === "undefined") {
+    var QLib = {};
+}
+QLib.getEx_track = function() {
+    var a = $jex.parseQueryParam();
+    return a.ex_track ? ("ex_track=" + a.ex_track) : "";
+};
 var DomesticOnewayDataAnalyzer = new(function() {
     var t = this;
     var H = null;
@@ -4306,6 +4313,10 @@ var SpringHotRoundtrip = (new function() {
                     } else {
                         url += "&SearchLocation=sevenday_search";
                     }
+                    var exTrack = QLib && QLib.getEx_track && QLib.getEx_track();
+                    if (exTrack) {
+                        url += "&" + exTrack;
+                    }
                     window.location = url;
                 });
             });
@@ -4517,6 +4528,7 @@ var SpringHotRoundtrip = (new function() {
                 var _priceData = this.priceCacheData.out[_queryStr];
                 if ((SERVER_TIME < _theDate || $jex.date.format(SERVER_TIME) == $jex.date.format(_theDate)) && _theDate < _maxDate) {
                     var _toUrl = ["/twell/flight/Search.jsp?fromCity=", encodeURIComponent(this.dc), "&toCity=", encodeURIComponent(this.ac), "&fromDate=", _timeStr, "&toDate=", $jex.date.format(new Date($jex.date.parse(_timeStr).getTime() + 3 * 24 * 3600000)), "&searchType=OnewayFlight"].join("");
+                    _toUrl = this.addEx_track(_toUrl);
                 } else {
                     var _toUrl = false;
                 } if (_priceData) {
@@ -4600,12 +4612,19 @@ var SpringHotRoundtrip = (new function() {
         } else {
             var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchArrivalAirport) + "&toCity=" + encodeURIComponent(param.searchDepartureAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
         }
-        return _url;
+        return this.addEx_track(_url);
     };
     this.createCanlederUrl = function(toDate) {
         var param = window.location.param();
         var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchDepartureAirport) + "&toCity=" + encodeURIComponent(param.searchArrivalAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
-        return _url;
+        return this.addEx_track(_url);
+    };
+    this.addEx_track = function(url) {
+        var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
+        if (ex_track) {
+            url += "&" + ex_track;
+        }
+        return url;
     };
     this.eachDay = function(func, startDate, endDate) {
         var t = startDate;
@@ -4843,7 +4862,14 @@ var dflightTool = new function() {
         this.makeurl = function(item) {
             var param = window.location.param();
             var _url = "oneway_list.htm?searchDepartureAirport=" + encodeURIComponent(item.dc) + "&searchArrivalAirport=" + encodeURIComponent(item.ac) + "&searchDepartureTime=" + item.dt + "&arrivalTime=" + param.searchDepartureTime + "&nextNDays=0&searchType=OneWayFlight&startSearch=true&from=near_airport";
-            return _url;
+            return this.addEx_track(_url);
+        };
+        this.addEx_track = function(url) {
+            var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
+            if (ex_track) {
+                url += "&" + ex_track;
+            }
+            return url;
         };
         this.update = function(data) {
             var self = this;
@@ -5239,11 +5265,15 @@ function getData() {
     return "http://ws.qunar.com/holidayService.jcp?lane=" + encodeURIComponent(Trendflash.args.dc) + "-" + encodeURIComponent(Trendflash.args.ac);
 }
 
-function createUrl(f, e, d, a, c) {
-    if (!$jex.define(f) || !$jex.define(e) || !$jex.define(d) || !$jex.define(a) || !$jex.define(c)) {
+function createUrl(g, f, e, a, c) {
+    if (!$jex.define(g) || !$jex.define(f) || !$jex.define(e) || !$jex.define(a) || !$jex.define(c)) {
         return;
     }
-    var b = "/site/oneway_list.htm?searchDepartureAirport=" + encodeURIComponent(f) + "&searchArrivalAirport=" + encodeURIComponent(e) + "&searchDepartureTime=" + d + "&arrivalTime=" + a + "&nextNDays=0&searchType=OneWayFlight&startSearch=true&from=sr_trendflash";
+    var b = "/site/oneway_list.htm?searchDepartureAirport=" + encodeURIComponent(g) + "&searchArrivalAirport=" + encodeURIComponent(f) + "&searchDepartureTime=" + e + "&arrivalTime=" + a + "&nextNDays=0&searchType=OneWayFlight&startSearch=true&from=sr_trendflash";
+    var d = QLib && QLib.getEx_track && QLib.getEx_track();
+    if (d) {
+        b += "&" + d;
+    }
     window.open(b);
 }
 
