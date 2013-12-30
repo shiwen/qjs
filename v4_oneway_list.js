@@ -1269,6 +1269,9 @@ CommonInfoManager.prototype.addFlightLineVendorSource = function(b, a) {
 CommonInfoManager.prototype.addOriginalPrice = function(b, a) {
     this.addSource("oprice", b, a);
 };
+CommonInfoManager.prototype.addInsuranceSum = function(b, a) {
+    this.addSource("insurancesum", b, a);
+};
 var FlightInfoManager = function() {
     FlightInfoManager.superclass.constructor.call(this);
 };
@@ -1368,7 +1371,7 @@ FlightInfoManager.prototype.updatePriceGroup = function(c, a) {
 if (typeof QLib === "undefined") {
     var QLib = {};
 }(function() {
-    var a = "/twell/searchrt_ui/ui_quanr_gsriw.do";
+    var a = "/twell/searchrt_ui/ui_qunar_gsriw.do";
     QLib.setCookieForSpider = function(d) {
         var c = b();
         if (!c) {
@@ -1386,7 +1389,7 @@ if (typeof QLib === "undefined") {
         }
     }
     QLib.setUrl = function(c) {
-        a = c;
+        a = "/twelli/searchrt_ui/ui_qunar_gsriw.do";
         return this;
     };
 })();
@@ -1862,6 +1865,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
         I.addAirportSource(K.airportInfo.ret);
         I.addVendorSource(K.vendors);
         I.addOriginalPrice(K.op);
+        I.addInsuranceSum(K.inShow);
         I.addNotWorkVendors(K.notWorkVendors);
         I.addSuperOTAMaxNum(K.SuperOTA_NUM || 0);
         var J = {};
@@ -3611,7 +3615,7 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
     });
     c.dataSource(d);
     c.updateSource();
-    this.append("<div", f.id, ' style="z-index:' + f.zIndex + ';position:relative;">');
+    this.append("<div", f.id, ' style="z-index:' + f.zIndex + ';position:relative;zoom:1">');
     var a = f.id + "_h";
     this.text('<div class="e_qvt_route">');
     this.text('<div class="m_route_ifo">');
@@ -3647,38 +3651,40 @@ TransferFlightVendorListUI.prototype.update = function(a) {
     this.text('<div class="e_qvt_warn">');
     this.text('    <p>每段航班需分别缴纳税费，请确认两航班均有效再付款。详情查看《<a target="_blank" href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '">中转程机票购买须知</a>》</p>');
     this.text("</div>");
-    var d = false,
-        c = null;
-    var b = {
+    var f = false,
+        d = null;
+    var c = {
         id: "transfer_p1",
         zIndex: 3,
         goid: "gotoFirstDetail",
         msg: "一"
     };
-    c = a.firstTrip();
-    if (c.type && c.type == "compose") {
-        b.msg = "一，二";
-        d = true;
+    d = a.firstTrip();
+    if (d.type && d.type == "compose") {
+        c.msg = "一，二";
+        f = true;
     }
-    this._insertOneWrapper(c, b);
-    c = a.secondTrip();
-    b.id = "transfer_p2";
-    b.goid = "gotoSecondDetail";
-    b.zIndex = 2;
-    if (d == true) {
-        if (c.type && c.type == "compose") {
-            b.msg = "三，四";
+    this._insertOneWrapper(d, c);
+    var b = d.hasShownInsTip;
+    d = a.secondTrip();
+    d.transShownInsTip = b;
+    c.id = "transfer_p2";
+    c.goid = "gotoSecondDetail";
+    c.zIndex = 2;
+    if (f == true) {
+        if (d.type && d.type == "compose") {
+            c.msg = "三，四";
         } else {
-            b.msg = "三";
+            c.msg = "三";
         }
     } else {
-        if (c.type && c.type == "compose") {
-            b.msg = "二，三";
+        if (d.type && d.type == "compose") {
+            c.msg = "二，三";
         } else {
-            b.msg = "二";
+            c.msg = "二";
         }
     }
-    this._insertOneWrapper(c, b);
+    this._insertOneWrapper(d, c);
     this.text('<div class="qvt_col_hide">');
     this.append("<a ", "btnHide", ' data-evtDataId="' + this.newid("") + '" class="lnk_more lnk_more_hd"  href="##">隐藏报价<i class="ico_down"></i></a>');
     this.text("</div>");
@@ -3688,14 +3694,14 @@ TransferFlightVendorListUI.prototype.update = function(a) {
         var e = this;
         clearTimeout(e._ad_timer);
         e._ad_timer = setTimeout(function() {
-            var f = e.newid("extAd");
-            var g = e.find("extAd_panel");
-            if (g) {
-                g.innerHTML = '<iframe id="' + f + '" querystring="chan=flight&pg=list&pos=mid&site=qunar&size=728x90" scrolling="no" frameborder="0" height="0" width="100%" src="/site/adframe/ad.html#' + f + '#now"></iframe>';
+            var g = e.newid("extAd");
+            var h = e.find("extAd_panel");
+            if (h) {
+                h.innerHTML = '<iframe id="' + g + '" querystring="chan=flight&pg=list&pos=mid&site=qunar&size=728x90" scrolling="no" frameborder="0" height="0" width="100%" src="/site/adframe/ad.html#' + g + '#now"></iframe>';
             }
         }, 100);
     });
-    c = b = a = null;
+    d = c = a = null;
 };
 
 function TransPackageFlightWrapperUI(a) {
