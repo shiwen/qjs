@@ -6907,7 +6907,7 @@ OnewayFlightUI.prototype.insert_recommandWrapper = function(c, j) {
     this.text("</a></p>");
     if (b.isOta()) {
         this.append("<div", "reCommOtaTip", ' class="p_tips_cont" style="display:none;">');
-        this.text('<div class="p_tips_wrap" style="left:-180px;">', '<div class="p_tips_arr p_tips_arr_t" style="left:235px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p>含"优"标签的机票提供高质量的服务保障：</p>', '<p>1.<span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p>2.<span class="fb">报销无忧：</span>提供邮寄行程单（即', (b.parValue() + c.getAcf() + c.getFot()), "元的报销凭证）</p>", '<p>3.<span class="fb">服务优先：</span>尊享7*24小时的全天候服务</p>', "</div>", "</div>", "</div>");
+        this.text('<div class="p_tips_wrap" style="left:-180px;">', '<div class="p_tips_arr p_tips_arr_t" style="left:235px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p>含"优"标签的机票提供高质量的服务保障：</p>', '<p>1.<span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p>2.<span class="fb">报销无忧：</span>提供邮寄行程单', '<p>3.<span class="fb">服务优先：</span>尊享7*24小时的全天候服务</p>', "</div>", "</div>", "</div>");
         if (!j) {
             this.onInit(function() {
                 this.onInit(function() {
@@ -7714,7 +7714,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
     this.text('<div class="t_cmt">');
-    this.text("7*24全天候服务；VIP专线退改签通道；支持报销凭证行程单邮寄，行程单金额：", (d.parValue() + a + b), "元");
+    this.text("7*24全天候服务；VIP专线退改签通道；支持报销凭证行程单邮寄");
     this.text("</div>");
     this.text("</div>");
 };
@@ -7744,7 +7744,7 @@ OnewayFlightWrapperUI.prototype.insertOta = function(d) {
     this.text('<div class="t_sv">');
     this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_youxuan"><b>3</b>分钟出票</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
-    this.text('<div class="p_tips_wrap" style="left:-210px">', '<div class="p_tips_arr p_tips_arr_t" style="left:235px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p>含"优"标签的机票提供高质量的服务保障：</p>', '<p>1.<span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p>2.<span class="fb">报销无忧：</span>提供邮寄行程单（即', (d.parValue() + a + b), "元的报销凭证）</p>", '<p>3.<span class="fb">服务优先：</span>尊享7*24小时的全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
+    this.text('<div class="p_tips_wrap" style="left:-210px">', '<div class="p_tips_arr p_tips_arr_t" style="left:235px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p>含"优"标签的机票提供高质量的服务保障：</p>', '<p>1.<span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p>2.<span class="fb">报销无忧：</span>提供邮寄行程单</p>', '<p>3.<span class="fb">服务优先：</span>尊享7*24小时的全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
             var g = this.find("superOtaBtn");
