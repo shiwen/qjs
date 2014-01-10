@@ -11564,43 +11564,43 @@ var QadAdUnits = (function() {
 (function() {
     var c = QadAdUnits.$E;
 
-    function b(k) {
-        var i = k && k.key_data && k.key_data.length;
-        if (!i) {
-            return;
-        }
-        var j = k.key_data[0].description;
+    function b(l) {
+        var j = l && l.key_data && l.key_data.length;
         if (!j) {
             return;
         }
-        j = j.replace(/(st)_(yle)/ig, "$1$2");
-        j = j.replace(/(scr)_(ipt)/gi, "$1$2");
-        return j;
+        var k = l.key_data[0].description;
+        if (!k) {
+            return;
+        }
+        k = k.replace(/(st)_(yle)/ig, "$1$2");
+        k = k.replace(/(scr)_(ipt)/gi, "$1$2");
+        return k;
     }
 
-    function g(i) {
-        return function(j, k) {
-            j.style.display = "none";
-            html = b(k);
-            QNR.AD.add_AD_iframe(i, html, 1);
+    function h(j) {
+        return function(k, l) {
+            k.style.display = "none";
+            html = b(l);
+            QNR.AD.add_AD_iframe(j, html, 1);
         };
     }
-    QNR.AD.createCallback("ifrHelperAd", g("ifrHelperAd"));
-    QNR.AD.createCallback("ifrCataAd", g("ifrCataAd"));
+    QNR.AD.createCallback("ifrHelperAd", h("ifrHelperAd"));
+    QNR.AD.createCallback("ifrCataAd", h("ifrCataAd"));
 
-    function h() {
-        var i = c("ifmRightTextlink_title");
-        if (i) {
-            i.style.display = "block";
+    function i() {
+        var j = c("ifmRightTextlink_title");
+        if (j) {
+            j.style.display = "block";
         }
-        i = c("ifmRightTextlink_footer");
-        if (i) {
-            i.style.display = "block";
+        j = c("ifmRightTextlink_footer");
+        if (j) {
+            j.style.display = "block";
         }
     }
-    QadAdUnits.create_text_call("ifmRightTextlink", function(i) {
-        if (i > 0) {
-            h();
+    QadAdUnits.create_text_call("ifmRightTextlink", function(j) {
+        if (j > 0) {
+            i();
         }
     });
 
@@ -11625,39 +11625,65 @@ var QadAdUnits = (function() {
         var o = k + o.join("");
         QNR.AD.add_AD_iframe(s, o, 1);
     }
-    QNR.AD.createCallback("listBottomAD", function(i, j) {
-        d("listBottomAD", i, j);
+
+    function g(q, l, n) {
+        var p = n && n.key_data && n.key_data.length;
+        l.style.display = "none";
+        if (!p) {
+            return;
+        }
+        var j = '<style type="text/css">.topicLink { height:24px; text-align:center; color:#333; }.topicLink p { padding-top:8px;}.topicLink p .ico_vl{ margin-left:2px;vertical-align:middle;margin-top:-2px;*margin-top:2px;_margin-top:-3px;}</style>';
+        var o = ['<div class="topicLink">'],
+            n = n.key_data,
+            k, s;
+        for (var m = 0; m < p; m++) {
+            s = n[m];
+            k = ["http://clk.qunar.com/q?k=", s.s || "", "&e=", s.e].join("");
+            o.push('<p><a href="', k, '" target="_blank" title="', s.title + '">', s.description, '<img src="', s.img, '" alt="hot" class="ico_vl"></a></p>');
+        }
+        o.push("</div>");
+        o = j + o.join("");
+        QNR.AD.add_AD_iframe(q, o, 1);
+    }
+    QNR.AD.createCallback("listBottomAD", function(j, k) {
+        d("listBottomAD", j, k);
     });
-    QNR.AD.createCallback("ifrNTOPAD", function(i, j) {
-        d("ifrNTOPAD", i, j);
+    QNR.AD.createCallback("ifrNTOPAD", function(j, k) {
+        d("ifrNTOPAD", j, k);
+    });
+    QNR.AD.createCallback("topicLinkL", function(j, k) {
+        g("topicLinkL", j, k);
+    });
+    QNR.AD.createCallback("topicLinkR", function(j, k) {
+        g("topicLinkR", j, k);
     });
     var a = 0;
 
     function f() {
         return "ad_dyna_" + (a++);
     }
-    AD_Manage.createFlightAD = function(j) {
-        var k = QNR.AD.create_div_container(j);
-        var o = /inter/.test(location.pathname) ? "QNR_ZDM%3D_CN" : "QNR_YjM%3D_CN";
-        var q = QadAdUnits.$E(j);
-        j = f();
-        var p = j + "_qad",
-            m = j + "_qde";
-        var i = '<span style="display:none;" data-query="vataposition=' + o + '&tag=0&rows=3&cur_page_num=0&rep=1&f=s" data-type="qad" data-style="width:100%;" id="' + p + '"></span><div style="padding: 0 6px;"><span style="display:none;" data-style="width:100%;" data-type="qde" data-query="" id="' + m + '"></span></div>';
-        k.innerHTML = i;
-        var l = AD_Manage.isDebug();
-        QNR.AD.createQdeCallback(m, function(s) {
-            if (!s || l) {
-                QNR.AD.loadOneAD(p);
+    AD_Manage.createFlightAD = function(k) {
+        var l = QNR.AD.create_div_container(k);
+        var p = /inter/.test(location.pathname) ? "QNR_ZDM%3D_CN" : "QNR_YjM%3D_CN";
+        var s = QadAdUnits.$E(k);
+        k = f();
+        var q = k + "_qad",
+            n = k + "_qde";
+        var j = '<span style="display:none;" data-query="vataposition=' + p + '&tag=0&rows=3&cur_page_num=0&rep=1&f=s" data-type="qad" data-style="width:100%;" id="' + q + '"></span><div style="padding: 0 6px;"><span style="display:none;" data-style="width:100%;" data-type="qde" data-query="" id="' + n + '"></span></div>';
+        l.innerHTML = j;
+        var m = AD_Manage.isDebug();
+        QNR.AD.createQdeCallback(n, function(t) {
+            if (!t || m) {
+                QNR.AD.loadOneAD(q);
             }
         });
-        QNR.AD.createCallback(p, function(s, t) {
-            d(p, s, t);
+        QNR.AD.createCallback(q, function(t, u) {
+            d(q, t, u);
         });
-        var n = q.getAttribute("querystring");
-        QadAdUnits.$E(m).setAttribute("data-query", n);
-        QNR.AD.__cur_qde_ad = m;
-        QNR.AD.loadOneAD(m);
+        var o = s.getAttribute("querystring");
+        QadAdUnits.$E(n).setAttribute("data-query", o);
+        QNR.AD.__cur_qde_ad = n;
+        QNR.AD.loadOneAD(n);
     };
 })();
 (function() {
