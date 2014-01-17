@@ -1790,6 +1790,9 @@ if ($jex.ie > 5 && $jex.ie < 7) {
             d = (d == 0) ? 24 : d;
             var c = parseInt(g[1], 10);
             return d * 60 + c;
+        },
+        getTime: function(c) {
+            return parseInt(c.replace(":", ""), 10);
         }
     });
     $jex.merge($jex.web = {}, {
