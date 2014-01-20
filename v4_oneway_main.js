@@ -15101,7 +15101,7 @@ function SearchBox(a) {
     }
 
     function b() {
-        var z = QLib && QLib.getEx_track && QLib.getEx_track();
+        var z = window.QLib && QLib.getEx_track && QLib.getEx_track();
         if (!z) {
             return;
         }
@@ -15253,14 +15253,19 @@ var SearchBoxCreate = (function() {
 
     function a() {
         var i = $jex.$("searchboxForm");
-        var j = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
-        if (j) {
+        var l = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
+        if (l) {
             var g = document.createElement("input");
             g.type = "hidden";
-            g.value = j;
+            g.value = l;
             g.name = "ex_track";
             i.appendChild(g);
         }
+        var i = $jex.$("searchboxForm");
+        var j = i.toCity,
+            k = i.fromCity;
+        j.setAttribute("domestic", "domestic-to");
+        k.setAttribute("domestic", "domestic-from");
         var h = new SearchBox(i);
         b(h);
         return h;
