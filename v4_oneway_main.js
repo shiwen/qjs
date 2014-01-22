@@ -7291,33 +7291,23 @@ OnewayFlightWrapperListUI.prototype.getMaxCount = function(c) {
     var a = d ? (d.maxvendors || f) : f;
     return a;
 };
-OnewayFlightWrapperListUI.prototype.insert_footer = function(b) {
-    var f = b.getWrapperListType();
-    var c = b.getLowpr(f),
-        d = b.getHipr(f);
-    var i = b.getWrlen(f),
-        h = 0,
-        a;
-    var g = b.wrappers();
-    if (g.wrapperLength) {
-        h = g.wrapperLength();
-        a = this.getMaxCount(b);
-        if (h < a) {
-            i = h;
-        }
-    }
-    if (i > 1) {
+OnewayFlightWrapperListUI.prototype.insert_footer = function(a) {
+    var d = a.getWrapperListType();
+    var b = a.getLowpr(d),
+        c = a.getHipr(d);
+    var f = a.getWrlen(d);
+    if (f > 1) {
         this.text('<div class="qvt_col_more qvt_col_more_hover">');
         this.append("<a ", "gotoDetail", 'data-evtdataid="' + this.newid("") + '" data-gotype= nowType  hidefocus="true" class="lnk_more" href="##">所有报价<i class="ico_arr_more"></i></a>');
-        this.text("共有", i, "个代理商报价");
-        if (c) {
+        this.text("共有", f, "个代理商报价");
+        if (b) {
             this.text("，报价");
-            if (c != d) {
+            if (b != c) {
                 this.text("范围 ");
             }
-            this.text('<i class="rmb">&yen;</i>', c);
-            if (d && c != d) {
-                this.text(' ~ <i class="rmb">&yen;</i>', d);
+            this.text('<i class="rmb">&yen;</i>', b);
+            if (c && b != c) {
+                this.text(' ~ <i class="rmb">&yen;</i>', c);
             }
         }
         this.text("</div>");
