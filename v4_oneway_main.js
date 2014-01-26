@@ -2778,25 +2778,6 @@ var FlightUtil = {
             return a;
         }
     },
-    catText: function(g, b) {
-        var f = g.replace(/[^x00-xff]/g, "aa");
-        if (f.length > 2 * b) {
-            var a = 0;
-            for (var d = 0; d < b; d++) {
-                var c = g.charAt(d);
-                if (/[^x00-xff]/.test(c)) {
-                    a++;
-                } else {
-                    a += 2;
-                } if (a >= 2 * b) {
-                    break;
-                }
-            }
-            return g.substr(0, a) + "...";
-        } else {
-            return g;
-        }
-    },
     starClass: function(a) {
         if (a == null || (typeof a != "number" && !/^(\d+.\d+|\d+)$/.test(a))) {
             return "";
@@ -2877,22 +2858,6 @@ var FlightUtil = {
         var d = c % 60;
         var b = a ? a + "小时" : "";
         b += d ? d + "分" : "";
-        if (b) {
-            b = "约" + b;
-        }
-        return b;
-    },
-    interDuration: function(c) {
-        var a = Math.floor(c / 60);
-        var d = c % 60;
-        if (d >= 24 && d <= 36) {
-            a += 0.5;
-        } else {
-            if (d > 36) {
-                a += 1;
-            }
-        }
-        var b = a ? a + "小时" : "";
         if (b) {
             b = "约" + b;
         }
