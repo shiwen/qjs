@@ -10443,15 +10443,15 @@ recommendedHotels.asciiTrimByLength = function(j, b) {
     }
 };
 recommendedHotels.fns = [];
-recommendedHotels.show = function(q, t, w) {
-    var m = recommendedHotels.con;
-    var h = recommendedHotels.type;
-    var z = recommendedHotels.from;
-    var B = decodeURIComponent(recommendedHotels.city);
-    var u = recommendedHotels.fromDate;
-    var I = ["lijiang", "xianggelila", "akesu", "anshan", "anshun", "antu", "baise", "baoshan", "bayannaoer", "bazhong", "cangnan", "changle", "changshan", "chibei", "chifeng", "chongzuo", "chuxiong", "danyang", "danzhou", "daye", "dengfeng", "dingan", "dongshan", "dongtai", "duyun", "eerduosi", "enping", "ezhou", "fengdu", "fuyang_zhejiang", "geermu", "guigang", "haicheng", "hailuogou", "hami", "honghe", "honghezhou", "huairen", "huangyan", "huayin", "jiangyan", "jiangyou", "jimo", "jingjiang", "jintan", "kaili", "kanasi", "kuerle", "kuitun", "ledong", "lincang", "lingshi", "linzhi", "liuan", "liuyang", "longhai", "mangshi", "meishan", "nanping", "pingnan", "pujiang", "qianan", "qidong", "qinzhou", "qujing", "rikaze", "rudong", "shangqiu", "shannan", "shengsi", "shihezi", "songpan", "suifenhe", "suzhou_anhui", "tianmen", "tieling", "tongliao", "weinan", "wenchang", "wendeng", "wenshan", "wuxue", "wuzhishan", "wuzhou", "xilinguole", "xinglong", "xinzhou", "yanbian", "yangquan", "yining", "yongzhou", "yueqing", "yuhang", "yulin_guangxi", "yuxi", "zhangqiu", "zhongxun"].join().indexOf(q) >= 0 ? 2 : 1;
-    var O = false;
-    var c = function(b) {
+recommendedHotels.show = function(M, m, l) {
+    var n = recommendedHotels.con;
+    var Q = recommendedHotels.type;
+    var q = recommendedHotels.from;
+    var s = decodeURIComponent(recommendedHotels.city);
+    var w = recommendedHotels.fromDate;
+    var a = ["lijiang", "xianggelila", "akesu", "anshan", "anshun", "antu", "baise", "baoshan", "bayannaoer", "bazhong", "cangnan", "changle", "changshan", "chibei", "chifeng", "chongzuo", "chuxiong", "danyang", "danzhou", "daye", "dengfeng", "dingan", "dongshan", "dongtai", "duyun", "eerduosi", "enping", "ezhou", "fengdu", "fuyang_zhejiang", "geermu", "guigang", "haicheng", "hailuogou", "hami", "honghe", "honghezhou", "huairen", "huangyan", "huayin", "jiangyan", "jiangyou", "jimo", "jingjiang", "jintan", "kaili", "kanasi", "kuerle", "kuitun", "ledong", "lincang", "lingshi", "linzhi", "liuan", "liuyang", "longhai", "mangshi", "meishan", "nanping", "pingnan", "pujiang", "qianan", "qidong", "qinzhou", "qujing", "rikaze", "rudong", "shangqiu", "shannan", "shengsi", "shihezi", "songpan", "suifenhe", "suzhou_anhui", "tianmen", "tieling", "tongliao", "weinan", "wenchang", "wendeng", "wenshan", "wuxue", "wuzhishan", "wuzhou", "xilinguole", "xinglong", "xinzhou", "yanbian", "yangquan", "yining", "yongzhou", "yueqing", "yuhang", "yulin_guangxi", "yuxi", "zhangqiu", "zhongxun"].join().indexOf(M) >= 0 ? 2 : 1;
+    var E = false;
+    var D = function(b) {
         var k = Number.MAX_VALUE;
         for (var j = 0; j < b.length; j++) {
             if (k >= parseInt(b[j].pr)) {
@@ -10460,7 +10460,7 @@ recommendedHotels.show = function(q, t, w) {
         }
         return parseInt(k);
     };
-    var P = function(b) {
+    var g = function(b) {
         var k = Number.MIN_VALUE;
         for (var j = 0; j < b.length; j++) {
             if (k < parseInt(b[j].pr)) {
@@ -10469,91 +10469,96 @@ recommendedHotels.show = function(q, t, w) {
         }
         return parseInt(k);
     };
-    if (t.length > 0) {
-        var G = Number.MAX_VALUE;
-        var s = false;
-        var o = Number.MIN_VALUE;
-        var J = 3;
-        var l = 5;
-        var f = {
+    if (m.length > 0) {
+        var x = Number.MAX_VALUE;
+        var p = false;
+        var A = Number.MIN_VALUE;
+        var P = 3;
+        var u = 5;
+        var t = {
             c: 0,
             l: 2,
             b: 2,
             m: 0
         };
-        var d = {
+        var c = {
             l: 10,
             b: 9,
             c: 8
         };
-        t.sort(function(k, j) {
-            var i = d[k.tp] ? d[k.tp] : 0;
-            var b = d[j.tp] ? d[j.tp] : 0;
+        m.sort(function(k, j) {
+            var i = c[k.tp] ? c[k.tp] : 0;
+            var b = c[j.tp] ? c[j.tp] : 0;
             return i - b;
         });
-        for (var D = 0; D < t.length; D++) {
-            var N = t[D].hs;
-            var n = t[D];
-            if (N && N.length > 0) {
-                var N = t[D].hs = N.slice(0, Math.min(N.length, f[n.tp]));
-                if (n.tp == "c") {
-                    n.title = B + "最低价酒店";
-                    n.footer = "更多";
-                    n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp;
-                    s = true;
-                    o = Math.max(o, P(t[D].hs));
-                    l = n.ct;
+        for (var N = 0; N < m.length; N++) {
+            var I = m[N].hs || [];
+            for (var C = 0; C < I.length; C++) {
+                if (I[N].isGroupPrice === "0") {
+                    I[C].isGroupPrice -= 0;
+                }
+            }
+            var F = m[N];
+            if (I && I.length > 0) {
+                var I = m[N].hs = I.slice(0, Math.min(I.length, t[F.tp]));
+                if (F.tp == "c") {
+                    F.title = s + "最低价酒店";
+                    F.footer = "更多";
+                    F.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + l + "&from=" + q + "-" + F.tp;
+                    p = true;
+                    A = Math.max(A, g(m[N].hs));
+                    u = F.ct;
                 } else {
-                    if (n.tp == "b") {
-                        n.title = B + "[连锁经济型]酒店推荐";
-                        n.stitle = B + "高性价比酒店推荐";
-                        n.footer = (n.ct > J) ? "更多" : "";
-                        n.sfooter = "更多";
-                        n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp + "&q=" + encodeURIComponent("经济型酒店");
-                        n.sfooterlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp;
-                        var y = [];
-                        for (var x = 0; x < N.length; x++) {
-                            if (N[x].st == -1) {
-                                y.push(N[x]);
+                    if (F.tp == "b") {
+                        F.title = s + "[连锁经济型]酒店推荐";
+                        F.stitle = s + "高性价比酒店推荐";
+                        F.footer = (F.ct > P) ? "更多" : "";
+                        F.sfooter = "更多";
+                        F.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + l + "&from=" + q + "-" + F.tp + "m&q=" + encodeURIComponent("经济型酒店");
+                        F.sfooterlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + l + "&from=" + q + "-" + F.tp;
+                        var L = [];
+                        for (var J = 0; J < I.length; J++) {
+                            if (I[J].st == -1) {
+                                L.push(I[J]);
                             }
                         }
-                        t[D].hs = y;
-                        G = Math.min(G, c(t[D].hs));
+                        m[N].hs = L;
+                        x = Math.min(x, D(m[N].hs));
                     } else {
-                        if (n.tp == "m") {
-                            delete n.tp;
+                        if (F.tp == "m") {
+                            delete F.tp;
                         } else {
-                            if (n.tp == "l") {
-                                n.title = B + "[豪华型]酒店推荐";
-                                n.footer = (n.ct > J) ? "更多" : "";
-                                n.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + w + "&from=" + z + "-" + n.tp + "&q=" + encodeURIComponent("豪华型酒店");
-                                G = Math.min(G, c(t[D].hs));
+                            if (F.tp == "l") {
+                                F.title = s + "[豪华型]酒店推荐";
+                                F.footer = (F.ct > P) ? "更多" : "";
+                                F.footerlink = "http://hotel.qunar.com/search.jsp?toCity=" + recommendedHotels.city + "&fromDate=" + l + "&from=" + q + "-" + F.tp + "m&q=" + encodeURIComponent("豪华型酒店");
+                                x = Math.min(x, D(m[N].hs));
                             }
                         }
                     }
                 }
-                for (var A = 0; A < N.length; A++) {
-                    var M = N[A];
-                    if (!M.st) {
-                        M.star = "";
+                for (var K = 0; K < I.length; K++) {
+                    var B = I[K];
+                    if (!B.st) {
+                        B.star = "";
                     } else {
-                        if (M.st == -1) {
-                            M.star = "连锁经济型";
+                        if (B.st == -1) {
+                            B.star = "连锁经济型";
                         } else {
-                            if (M.st == 1) {
-                                M.star = "一星级";
+                            if (B.st == 1) {
+                                B.star = "一星级";
                             } else {
-                                if (M.st == 2) {
-                                    M.star = "二星级";
+                                if (B.st == 2) {
+                                    B.star = "二星级";
                                 } else {
-                                    if (M.st == 3) {
-                                        M.star = "三星级";
+                                    if (B.st == 3) {
+                                        B.star = "三星级";
                                     } else {
-                                        if (M.st == 4) {
-                                            M.star = "四星级";
+                                        if (B.st == 4) {
+                                            B.star = "四星级";
                                         } else {
-                                            if (M.st == 5) {
-                                                M.star = "五星级";
+                                            if (B.st == 5) {
+                                                B.star = "五星级";
                                             }
                                         }
                                     }
@@ -10561,92 +10566,92 @@ recommendedHotels.show = function(q, t, w) {
                             }
                         }
                     }
-                    M.sname = recommendedHotels.asciiTrimByLength(M.name, 30);
-                    M.url = M.detailURL + "/#from=" + z + "-" + n.tp + "&fromDate=" + M.fromDate;
-                    M.scbd = M.cbd ? M.cbd.replace(/区/g, "").replace(/县/g, "") : "";
-                    M.qtype = M.cbd && I ? (M.ar == 1 ? M.ar : 0) : 0;
-                    if (M.ap && M.ap.length > 1) {
-                        M.ap.sort(function(j, i) {
+                    B.sname = recommendedHotels.asciiTrimByLength(B.name, 30);
+                    B.url = B.detailURL + "/#from=" + q + "-" + F.tp + "&fromDate=" + B.fromDate;
+                    B.scbd = B.cbd ? B.cbd.replace(/区/g, "").replace(/县/g, "") : "";
+                    B.qtype = B.cbd && a ? (B.ar == 1 ? B.ar : 0) : 0;
+                    if (B.ap && B.ap.length > 1) {
+                        B.ap.sort(function(j, i) {
                             return j.dist - i.dist;
                         });
                     }
-                    if (M.sd) {
-                        var F = M.sd.replace(/([\u0391-\uffe5])/ig, "$1a");
-                        if (A == 0) {
-                            if (F.length > 39 * 2) {
-                                M.sd = F.substring(0, 39 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
+                    if (B.sd) {
+                        var G = B.sd.replace(/([\u0391-\uffe5])/ig, "$1a");
+                        if (K == 0) {
+                            if (G.length > 39 * 2) {
+                                B.sd = G.substring(0, 39 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
                             }
                         } else {
-                            if (F.length > 40 * 2) {
-                                M.sd = F.substring(0, 40 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
+                            if (G.length > 40 * 2) {
+                                B.sd = G.substring(0, 40 * 2).replace(/([\u0391-\uffe5])a/ig, "$1") + "...";
                             }
                         }
                     }
                 }
-                O = true;
+                E = true;
             }
         }
-        if (s && (G <= o)) {
-            for (var D = 0; D < t.length; D++) {
-                if (t[D].tp == "c") {
-                    var N = t[D].hs;
-                    var y = [];
-                    for (var A = 0; A < N.length; A++) {
-                        if (parseInt(N[A].pr) < G) {
-                            y.push(N[A]);
+        if (p && (x <= A)) {
+            for (var N = 0; N < m.length; N++) {
+                if (m[N].tp == "c") {
+                    var I = m[N].hs;
+                    var L = [];
+                    for (var K = 0; K < I.length; K++) {
+                        if (parseInt(I[K].pr) < x) {
+                            L.push(I[K]);
                         }
                     }
-                    t[D].hs = y;
+                    m[N].hs = L;
                 }
             }
         }
     }
-    if (O) {
-        var L = function() {
+    if (E) {
+        var h = function() {
             switch (recommendedHotels.type) {
                 case 0:
-                    return '					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0}						<div class="b_htl_pmt">							<div class="e_htl_tit">						        <a class="more" target="_blank" href="${hotelinfo.footerlink}">更多</a><h3>${hotelinfo.title}</h3>						    </div>							<div class="e_pmt_cont">							    {for hotel in hotelinfo.hs}								<dl class="dl_htl_pmt clrfix">						            <dt><a target="_blank"  href="${hotel.url}"></span><i class="rmb">&yen;</i><em class="f_tmt">${hotel.pr}</em>起</span>${hotel.sname}</a></dt>						            <dd>						            <div class="h_img">						            <a target="_blank"  href="${hotel.url}">						            	{if hotel.purl}						            	<img width="61" height="61" src="${hotel.purl}" title="${hotel.name}" />						            	{else}						            	<img width="61" height="61" src="http://source.qunar.com/site/images/new_main/imgnull.gif" />						            	{/if}						            </a></div>						            <div class="h_ifo">${hotel.sd}</div>						            </dd>						        </dl>						        {/for}						    </div>						</div>						{/if}					{/for}';
+                    return '					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0}						<div class="b_htl_pmt">							<div class="e_htl_tit">						        <a class="more" target="_blank" href="${hotelinfo.footerlink}">更多</a><h3>${hotelinfo.title}</h3>						    </div>							<div class="e_pmt_cont">							    {for hotel in hotelinfo.hs}								<dl class="dl_htl_pmt clrfix">						            <dt><a target="_blank" title="${hotel.name}" href="${hotel.url}">						            {if !hotel.isGroupPrice}						            <i class="rmb">&yen;</i><em class="f_tmt">${hotel.pr}</em>起{/if}${hotel.sname}{if hotel.isGroupPrice}<img class="tuan" title="${hotel.name}" alt="${hotel.name}" src="http://source.qunar.com/site/images/flight/flight_v1/ico_fly_tuan.png" width="26" height="12">{/if}</a></dt>						            <dd>						            <div class="h_img">						            <a target="_blank"  href="${hotel.url}">						            	{if hotel.purl}						            	<img width="61" height="61" src="${hotel.purl}" title="${hotel.name}" />						            	{else}						            	<img width="61" height="61" src="http://source.qunar.com/site/images/new_main/imgnull.gif" />						            	{/if}						            </a></div>						            <div class="h_ifo">${hotel.sd}</div>						            </dd>						        </dl>						        {/for}						    </div>						</div>						{/if}					{/for}';
                 case 1:
                     return '					<div class="cvHotel cvAD_180">					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0 && hotelinfo.tp == "b"}							<div class="cvHd">								<div class="t3"></div><div class="t2"></div><div class="t1"></div>								<h3>${hotelinfo.stitle}</h3>							</div>						{/if}						<ul class="cvList">							{for hotel in hotelinfo.hs}							{if hotelinfo.tp == "b"}							<li>								<h4><a href="${hotel.url}" title="${hotel.name}" target="_blank">${hotel.sname}<span class="pr">&yen;${hotel.pr}起</span></a></h4>								{if hotel.ap.length > 0}									{if city == "上海"}										<p>距机场公里数:											{for airp in hotel.ap}												${airp.apname}（${airp.dist}）											{/for}										</p>									{else}										{for airp in hotel.ap}										<p>距${airp.apname}:${airp.dist}公里</p>										{/for}									{/if}								{else}									<p>暂无距离机场数据</p>								{/if}								{if hotel.cbd}									<p>${hotel.star} 位于：<a href="http://hotel.qunar.com/search.jsp?toCity=${toCity}&from=${from}-${hotelinfo.tp}&qtype=${qtype}&q=${encodeURIComponent(hotel.scbd)}" target="_blank">${hotel.cbd}</a></p>								{/if}							</li>							{/for}							{/if}						</ul>						{if hotelinfo.tp == "b"}							<div class="cvFt"><a href="${hotelinfo.sfooterlink}" target="_blank">${hotelinfo.sfooter}</a></div>						{/if}					{/for}					</div>					';
                 default:
                     return "";
             }
         }();
-        var p = TrimPath.parseTemplate(L);
-        var a = p.process({
-            city: decodeURIComponent(B),
-            city_url: q,
-            hotelinfos: t,
-            from: z,
-            qtype: I,
-            fromDate: u,
+        var z = TrimPath.parseTemplate(h);
+        var d = z.process({
+            city: decodeURIComponent(s),
+            city_url: M,
+            hotelinfos: m,
+            from: q,
+            qtype: a,
+            fromDate: w,
             toCity: recommendedHotels.city
         });
         if (recommendedHotels.type == 1) {
-            var H = false;
-            for (var D = 0; D < t.length; D++) {
-                if (t[D].tp == "b") {
-                    H = true;
+            var O = false;
+            for (var N = 0; N < m.length; N++) {
+                if (m[N].tp == "b") {
+                    O = true;
                     break;
                 }
             }
-            if (!H) {
-                a = "";
+            if (!O) {
+                d = "";
             }
         }
-        if (a) {
-            var E = document.createElement("style");
-            E.setAttribute("type", "text/css");
-            var g = ".cvList{margin-bottom:8px;}.cvHotel { clear:both; }.cvHotel a { font-weight:400; color:#0069ca; }.cvHotel a:hover { color:#f60; }.cvHotel .cvHd .t3 { margin:0 3px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t2 { margin:0 2px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t1 { margin:0 1px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd h3 { padding:5px 10px; border-bottom:1px solid #ccc; font-size:14px; background-color:#f0f0f0; color:#333; }.cvHotel .cvList li { padding:10px 10px 8px; border-bottom:1px solid #efefef; }.cvHotel .cvList h4 { margin-bottom:4px; font-size:14px; }.cvHotel .cvList h4 a { display:block; outline:none; }.cvHotel .cvList .pr { float:right; font-size:12px; color:#f60; cursor:pointer; }.cvHotel .cvList p { padding:2px 0; line-height:18px; }.cvHotel .cvList p.intro { padding-bottom:5px; }.cvHotel .cvList p.bt { clear:both; }.cvHotel .cvList p .rank { float:right; width:125px; }.cvHotel .wi .img { float:left; width:70px; }.cvHotel .wi .img img { padding:1px; border:1px solid #ddd;width:60px;height:60px; }.cvHotel .wi p.intro { margin-left:70px; }.cvHotel .cvFt { float:right;font:normal 12px/17px Arial; }";
-            if (E.styleSheet) {
-                E.styleSheet.cssText = g;
+        if (d) {
+            var H = document.createElement("style");
+            H.setAttribute("type", "text/css");
+            var o = ".cvList{margin-bottom:8px;}.cvHotel { clear:both; }.cvHotel a { font-weight:400; color:#0069ca; }.cvHotel a:hover { color:#f60; }.cvHotel .cvHd .t3 { margin:0 3px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t2 { margin:0 2px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd .t1 { margin:0 1px; height:1px; background-color:#f0f0f0; overflow:hidden; }.cvHotel .cvHd h3 { padding:5px 10px; border-bottom:1px solid #ccc; font-size:14px; background-color:#f0f0f0; color:#333; }.cvHotel .cvList li { padding:10px 10px 8px; border-bottom:1px solid #efefef; }.cvHotel .cvList h4 { margin-bottom:4px; font-size:14px; }.cvHotel .cvList h4 a { display:block; outline:none; }.cvHotel .cvList .pr { float:right; font-size:12px; color:#f60; cursor:pointer; }.cvHotel .cvList p { padding:2px 0; line-height:18px; }.cvHotel .cvList p.intro { padding-bottom:5px; }.cvHotel .cvList p.bt { clear:both; }.cvHotel .cvList p .rank { float:right; width:125px; }.cvHotel .wi .img { float:left; width:70px; }.cvHotel .wi .img img { padding:1px; border:1px solid #ddd;width:60px;height:60px; }.cvHotel .wi p.intro { margin-left:70px; }.cvHotel .cvFt { float:right;font:normal 12px/17px Arial; }";
+            if (H.styleSheet) {
+                H.styleSheet.cssText = o;
             } else {
-                var K = document.createTextNode(g);
-                E.appendChild(K);
+                var y = document.createTextNode(o);
+                H.appendChild(y);
             }
-            var C = document.getElementsByTagName("head")[0];
-            C.appendChild(E);
-            recommendedHotels.con.innerHTML = a;
+            var f = document.getElementsByTagName("head")[0];
+            f.appendChild(H);
+            recommendedHotels.con.innerHTML = d;
             recommendedHotels.con.style.display = "block";
         } else {
             if (recommendedHotels.fns) {
