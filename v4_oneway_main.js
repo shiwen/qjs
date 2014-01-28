@@ -2883,6 +2883,9 @@ var FlightUtil = {
         return b;
     },
     interDuration: function(c) {
+        if (c == Number.MAX_VALUE) {
+            return "";
+        }
         var a = Math.floor(c / 60);
         var d = c % 60;
         if (d >= 24 && d <= 36) {
