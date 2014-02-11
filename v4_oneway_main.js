@@ -10497,7 +10497,7 @@ recommendedHotels.show = function(M, m, l) {
         for (var N = 0; N < m.length; N++) {
             var I = m[N].hs || [];
             for (var C = 0; C < I.length; C++) {
-                if (I[N].isGroupPrice === "0") {
+                if (I[C].isGroupPrice === "0") {
                     I[C].isGroupPrice -= 0;
                 }
             }
@@ -13545,6 +13545,12 @@ var _tabConfig = {
             }, {
                 name: "阿克苏",
                 country: "中国"
+            }, {
+                name: "阿拉善左旗",
+                country: "中国"
+            }, {
+                name: "阿拉善右旗",
+                country: "中国"
             }]
         }, {
             "char": "B",
@@ -13652,6 +13658,9 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "二连浩特",
+                country: "中国"
+            }, {
+                name: "额济纳旗",
                 country: "中国"
             }]
         }],
