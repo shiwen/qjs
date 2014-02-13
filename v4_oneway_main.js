@@ -12505,36 +12505,41 @@ XPopupManager.prototype.get = function(a) {
 };
 
 function FlightCityXCombox(c, d, b) {
-    var g = new Date();
+    var h = new Date();
     var a = this;
     this.setting = b || {};
+    var g;
     var f = new ScriptRequest({
-        oncomplete: function(h) {
-            a.suggLoaded(h);
+        oncomplete: function(i) {
+            a.suggLoaded(i);
         },
         callbackName: "callback"
     });
     FlightCityXCombox.superclass.constructor.call(this, c, {
         button: {
-            mousedown: function(h) {
+            mousedown: function(i) {
                 this.openMainMenu();
-                h && $jex.stopEvent(h);
+                i && $jex.stopEvent(i);
             }
         },
         input: {
-            change: function(k, i, j) {
-                if (!j) {
+            change: function(l, j, k) {
+                g = l.replace(/\s+/g, " ");
+                g = g.replace(/^\s+/, "");
+                g = g.replace(/\s+$/, "");
+                l = l.replace(/\s/g, "");
+                if (!k) {
                     this.vidx = -1;
-                    this.inputold = k;
-                    k = k.replace(/[~!@#\$%\^&\*\(\)_\+<>\?:\\\\"\|\{\}`,\.\/;'\\\{\}]+/ig, "");
-                    if (k) {
-                        var h = this.popups.get("suggest");
-                        h && h.layer && (h.layer.cursor = -1);
+                    this.inputold = l;
+                    l = l.replace(/[~!@#\$%\^&\*\(\)_\+<>\?:\\\\"\|\{\}`,\.\/;'\\\{\}]+/ig, "");
+                    if (l) {
+                        var i = this.popups.get("suggest");
+                        i && i.layer && (i.layer.cursor = -1);
                         f.cancel();
-                        if (this.cache[k]) {
-                            a.suggLoaded(this.cache[k]);
+                        if (this.cache[l]) {
+                            a.suggLoaded(this.cache[l]);
                         } else {
-                            f.send("http://www.qunar.com/suggest/livesearch2.jsp?lang=zh&q=" + encodeURIComponent(k) + "&sa=true");
+                            f.send("http://www.qunar.com/suggest/livesearch2.jsp?lang=zh&q=" + encodeURIComponent(l) + "&sa=true&ver=1");
                         }
                     } else {
                         this.popups.close();
@@ -12543,8 +12548,8 @@ function FlightCityXCombox(c, d, b) {
                     $jex.event.trigger(d, "cityfinished", this.getValue());
                 }
             },
-            keypress: function(h) {
-                this.keypress(h, h.keyCode);
+            keypress: function(i) {
+                this.keypress(i, i.keyCode);
             }
         },
         focus: function() {
@@ -12552,13 +12557,13 @@ function FlightCityXCombox(c, d, b) {
         },
         blur: function() {
             if (this.vidx == -1) {
-                var h = this.popups.get("suggest");
-                if (h && h.layer && (h.layer.cursor > -1)) {
-                    var i = h.layer.nodes[h.layer.cursor].item;
-                    this.setCountry(i.country);
-                    this.setValue(i.key);
+                var i = this.popups.get("suggest");
+                if (i && i.layer && (i.layer.cursor > -1)) {
+                    var j = i.layer.nodes[i.layer.cursor].item;
+                    this.setCountry(j.country);
+                    this.setValue(j.key);
                     this.vidx = 0;
-                    $jex.event.trigger(a, "select", i.key);
+                    $jex.event.trigger(a, "select", j.key);
                 }
             } else {
                 if (this.getValue() == "") {
@@ -12569,100 +12574,100 @@ function FlightCityXCombox(c, d, b) {
         popups: {
             main: {
                 initialize: function() {
-                    var p = a.getHotCityConfig("tabs");
-                    var m = a.getHotCityConfig("contents");
-                    if (!p || !m) {
+                    var q = a.getHotCityConfig("tabs");
+                    var n = a.getHotCityConfig("contents");
+                    if (!q || !n) {
                         return false;
                     }
-                    var h = [];
-                    var k = new UIObject();
-                    var q = "__flightcitybox_" + $jex.globalID();
-                    var o = function(i) {
-                        return function(t) {
-                            var C = [];
-                            if (!m[i]) {
+                    var j = [];
+                    var l = new UIObject();
+                    var s = "__flightcitybox_" + $jex.globalID();
+                    var p = function(i) {
+                        return function(u) {
+                            var D = [];
+                            if (!n[i]) {
                                 return false;
                             }
-                            var B = m[i].cityList;
-                            if (!B) {
+                            var C = n[i].cityList;
+                            if (!C) {
                                 return false;
                             }
-                            var u = m[i].charSort;
-                            if (!u) {
-                                C.push("<ul>");
-                                for (var y = 0; y < B.length; y++) {
-                                    var w = B[y];
-                                    C.push('<li country="' + w.country + '" key="' + w.name + '"><a href="#nogo#">' + w.name + "</a></li>");
+                            var w = n[i].charSort;
+                            if (!w) {
+                                D.push("<ul>");
+                                for (var z = 0; z < C.length; z++) {
+                                    var x = C[z];
+                                    D.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
                                 }
-                                C.push("</ul>");
+                                D.push("</ul>");
                             } else {
-                                for (var y = 0; y < B.length; y++) {
-                                    var w = B[y];
-                                    var z = w.list;
-                                    C.push('<dl class="e_hct_lst"><dt>' + w["char"] + " </dt><dd><ul>");
-                                    for (var x = 0; x < z.length; x++) {
-                                        var A = z[x];
-                                        C.push('<li country="' + A.country + '" key="' + A.name + '"><a href="#nogo#">' + A.name + "</a></li>");
+                                for (var z = 0; z < C.length; z++) {
+                                    var x = C[z];
+                                    var A = x.list;
+                                    D.push('<dl class="e_hct_lst"><dt>' + x["char"] + " </dt><dd><ul>");
+                                    for (var y = 0; y < A.length; y++) {
+                                        var B = A[y];
+                                        D.push('<li country="' + B.country + '" key="' + B.name + '"><a href="#nogo#">' + B.name + "</a></li>");
                                     }
-                                    C.push("</ul></dd></dl>");
+                                    D.push("</ul></dd></dl>");
                                 }
                             }
-                            t.innerHTML = C.join("");
-                            if (m[i].cls) {
-                                $jex.$(q).className = m[i].cls;
+                            u.innerHTML = D.join("");
+                            if (n[i].cls) {
+                                $jex.$(s).className = n[i].cls;
                             } else {
-                                $jex.$(q).className = "";
+                                $jex.$(s).className = "";
                             }
                         };
                     };
-                    k.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://source.qunar.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
-                    for (var n = 0; n < p.length; n++) {
-                        var j = "tab_" + n + $jex.globalID();
-                        h.push({
-                            tabID: j,
-                            tabname: p[n],
-                            render: o(p[n])
+                    l.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://source.qunar.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
+                    for (var o = 0; o < q.length; o++) {
+                        var k = "tab_" + o + $jex.globalID();
+                        j.push({
+                            tabID: k,
+                            tabname: q[o],
+                            render: p(q[o])
                         });
-                        k.text('<span id="', j, '" key="', p[n], '"');
-                        if (n == 0) {
-                            k.text(' class="active" ');
+                        l.text('<span id="', k, '" key="', q[o], '"');
+                        if (o == 0) {
+                            l.text(' class="active" ');
                         }
-                        k.text(">", p[n], "</span>");
+                        l.text(">", q[o], "</span>");
                     }
-                    k.text("</div>", '<div id="', q, '"></div>', "</div>");
-                    k.write(this.panel);
-                    var l = new TabGroup({
-                        panelContainerID: q,
-                        items: h
+                    l.text("</div>", '<div id="', s, '"></div>', "</div>");
+                    l.write(this.panel);
+                    var m = new TabGroup({
+                        panelContainerID: s,
+                        items: j
                     });
-                    $jex.event.bind(l, "onselected", function(t) {
-                        var i = m[t.tabname];
-                        k.getDomNode("title").innerHTML = i.title;
-                        k.getDomNode("desc").innerHTML = i.desc;
+                    $jex.event.bind(m, "onselected", function(u) {
+                        var i = n[u.tabname];
+                        l.getDomNode("title").innerHTML = i.title;
+                        l.getDomNode("desc").innerHTML = i.desc;
                         if (i.cls) {
-                            $jex.$(q).className = i.cls;
+                            $jex.$(s).className = i.cls;
                         } else {
-                            $jex.$(q).className = "";
+                            $jex.$(s).className = "";
                         }
                     });
                     $jex.event.add(this, "open", function() {
                         $jex.event.trigger(a, "openHotCity");
                     });
-                    var s = this.own;
-                    $jex.event.bindDom($jex.$(q), "mousedown", this, function(i, t) {
+                    var t = this.own;
+                    $jex.event.bindDom($jex.$(s), "mousedown", this, function(i, u) {
                         if (i.target.tagName == "A") {
-                            var u = $jex.trim(i.target.innerHTML);
-                            s.setCountry(i.target.parentNode.getAttribute("country"));
-                            s.setValue(u);
-                            s.setInfo("");
-                            s.popups.close();
-                            $jex.event.trigger(a, "selectHotCity", u);
-                            $jex.event.trigger(a, "select", u);
+                            var w = $jex.trim(i.target.innerHTML);
+                            t.setCountry(i.target.parentNode.getAttribute("country"));
+                            t.setValue(w);
+                            t.setInfo("");
+                            t.popups.close();
+                            $jex.event.trigger(a, "selectHotCity", w);
+                            $jex.event.trigger(a, "select", w);
                             a._invalid = false;
                         }
                     });
-                    $jex.event.bind(k.getDomNode("close"), "click", function() {
-                        s.popups.close();
+                    $jex.event.bind(l.getDomNode("close"), "click", function() {
+                        t.popups.close();
                     });
                 },
                 open: function() {
@@ -12672,23 +12677,23 @@ function FlightCityXCombox(c, d, b) {
             suggest: {
                 initialize: function() {
                     this.layer = new FlightSuggestItemListLayer(this);
-                    $jex.event.bind(this.layer, "select", function(h, j) {
-                        if (h > -1) {
-                            this.popup.own.setCountry(this.nodes[h].item.country);
+                    $jex.event.bind(this.layer, "select", function(i, k) {
+                        if (i > -1) {
+                            this.popup.own.setCountry(this.nodes[i].item.country);
                         }
-                        if (h > -1) {
-                            j ? this.popup.own.setValue(this.nodes[h].item.key) : this.popup.own.volateValue(this.nodes[h].item.key);
+                        if (i > -1) {
+                            k ? this.popup.own.setValue(this.nodes[i].item.key) : this.popup.own.volateValue(this.nodes[i].item.key);
                         } else {
-                            j ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
+                            k ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
                         }
-                        this.popup.own.vidx = h;
-                        if (j) {
-                            var k = this.nodes[h].item.key;
-                            $jex.event.trigger(a, "select", k);
+                        this.popup.own.vidx = i;
+                        if (k) {
+                            var l = this.nodes[i].item.key;
+                            $jex.event.trigger(a, "select", l);
                             this.popup.close();
-                            var i = window.newTrackAction || window.trackAction;
-                            if (i) {
-                                i("QH|HCT|suggest|" + encodeURIComponent(k), null, false);
+                            var j = window.newTrackAction || window.trackAction;
+                            if (j) {
+                                j("QH|HCT|suggest|" + encodeURIComponent(l), null, false);
                             }
                         }
                     });
@@ -12704,62 +12709,70 @@ function FlightCityXCombox(c, d, b) {
                 }
             },
             clear: function() {
-                var h = this.popups.get("suggest");
-                h && h.layer && (h.layer.cursor = -1);
+                var i = this.popups.get("suggest");
+                i && i.layer && (i.layer.cursor = -1);
                 this.setValue("");
                 this.setTip();
             },
-            getHotCityConfig: function(i) {
-                var h = this.setting.hotCityConfig;
-                if (h && h[i]) {
-                    return h[i];
+            getHotCityConfig: function(j) {
+                var i = this.setting.hotCityConfig;
+                if (i && i[j]) {
+                    return i[j];
                 }
             },
-            setHotCityConfig: function(h) {
-                this.setting.hotCityConfig = h;
+            setHotCityConfig: function(i) {
+                this.setting.hotCityConfig = i;
             },
             invalid: function() {
                 return this._invalid;
             },
             cache: {},
-            suggLoaded: function(h) {
-                if (h) {
-                    this.cache[h.userInput] = h;
+            suggLoaded: function(j) {
+                var l = this.popups.open("suggest"),
+                    i = j ? j.result : null,
+                    k = i ? i[0] : null;
+                if (j) {
+                    this.cache[j.userInput] = j;
                 }
-                if (!h || !h.result || h.result.length == 0 || !h.result[0]["key"] || !h.result[0]["type"] || !h.result[0]["display"]) {
+                if (!j || !i || i.length == 0 || !k.key || !k.type || !k.display) {
                     this.setInfo("");
-                    h.q = h.userInput;
-                    var i = this.popups.open("suggest");
-                    i.layer.error();
-                    this._invalid = true;
+                    j.q = j.userInput;
+                    if (this.lastCache) {
+                        this.lastCache.userInput = j.q;
+                        l.layer.refresh(this.lastCache, true, g);
+                        l.layer.enter(0);
+                    } else {
+                        l.layer.error();
+                        this._invalid = true;
+                    }
                     return;
                 }
                 this._invalid = false;
                 this.setInfo("");
-                h.q = h.userInput;
-                var i = this.popups.open("suggest");
-                i.layer.refresh(h);
-                i.layer.enter(0);
+                j.q = j.userInput;
+                l.layer.refresh(j, false, g);
+                this.lastCache = $jex.extend({}, j);
+                l.layer.enter(0);
             },
-            keypress: function(i, j) {
+            keypress: function(j, k) {
                 if (this._invalid) {
                     return;
                 }
-                var h = this.popups.get("suggest");
-                if (!h || !h.isOpend()) {
+                var i = this.popups.get("suggest");
+                if (!i || !i.isOpend()) {
                     return;
                 }
-                switch (j) {
+                switch (k) {
                     case 40:
-                        h.layer.moveCursor(1, true);
+                        i.layer.moveCursor(1, true);
                         break;
                     case 38:
-                        h.layer.moveCursor(-1, true);
+                        i.layer.moveCursor(-1, true);
                         break;
                     case 13:
-                        $jex.stopEvent(i);
-                        h.layer.select(h.layer.cursor, true);
-                        h.close();
+                        $jex.stopEvent(j);
+                        i.layer.select(i.layer.cursor, true);
+                        i.close();
                         break;
                     default:
                 }
@@ -12786,7 +12799,7 @@ FlightSuggestItemListLayer.prototype.error = function() {
     a.text('<tr class="illrow error">', "<td>", this.popup.own.setting.errorSuggestTip || "输入错误", "</td>", "</tr>");
     a.write(this.popup.panel);
 };
-FlightSuggestItemListLayer.prototype.refresh = function(g) {
+FlightSuggestItemListLayer.prototype.refresh = function(g, k, n) {
     this.cursor = -1;
     if (this.nodes.length > 0) {
         for (var h = 0; h < this.nodes.length; h++) {
@@ -12797,19 +12810,25 @@ FlightSuggestItemListLayer.prototype.refresh = function(g) {
         }
     }
     this.nodes.length = 0;
-    var k = g.q;
+    var l = g.q;
     var j = g.result;
-    var l = g.userInput;
-    var a = new RegExp("(" + l + ")", "i");
+    var m = g.userInput;
+    var a = new RegExp("(" + m + ")", "i");
     var c = new UIObject();
     if ( !! g.c) {
-        c.text('<div class="qcity_guess">你要找的是不是<span class="hl">', l, "</span></div>");
+        c.text('<div class="qcity_guess">你要找的是不是<span class="hl">', m, "</span></div>");
+    }
+    if (k) {
+        c.text('<div class="qcity_guess">找不到<span class="hl">', n, "</span></div>");
     }
     c.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
     for (var h = 0; h < j.length; h++) {
         var f = j[h];
-        var m = (f.type == 4) ? "nearbyAirport" : "";
-        c.text('<tr class="illrow ', m, '"', ">");
+        var o = (f.type == 4) ? "nearbyAirport" : "";
+        if (f.display.indexOf(n) != -1) {
+            a = new RegExp("(" + n + ")", "i");
+        }
+        c.text('<tr class="illrow ', o, '"', ">");
         c.append("<td ", h).text(' class="illn" hashkey="', f.key, '"', ((f.type == 1) ? 'noAirport="true"' : ""), ">", ((f.type == 4) ? "·邻近机场:" : ""), ((f.type == 9) ? "·相关城市:" : ""), f.display.replace(a, '<span class="keystring">$1</span>'), ((f.type == 9) ? "<span>(" + f.enname + ")</span>" : ""), ((f.length) ? "<span>-" + f.length + "公里</span>" : ""), ((f.type == 1) ? "-该城市没有机场" : ""), ((f.type == 2) ? "-该地区的机场有" : ""), ((f.type == 6) ? "-该景点没有机场" : ""), ((f.type == 7) ? "-该目的地为省份" : ""), ((f.type == 8) ? "-该目的地为国家" : ""), "</td>");
         c.text("</tr>");
     }
