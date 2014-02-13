@@ -13412,89 +13412,89 @@ var __hotCityListInterTo__ = [{
     name: "曼谷",
     country: "泰国"
 }, {
-    name: "台北",
-    country: "中国台湾"
+    name: "新加坡",
+    country: "新加坡"
 }, {
     name: "马尼拉",
     country: "菲律宾"
 }, {
-    name: "首尔",
-    country: "韩国"
-}, {
-    name: "新加坡",
-    country: "新加坡"
-}, {
-    name: "吉隆坡",
-    country: "马来西亚"
-}, {
-    name: "清迈",
-    country: "泰国"
-}, {
-    name: "东京",
-    country: "日本"
-}, {
-    name: "普吉",
-    country: "泰国"
-}, {
-    name: "悉尼",
+    name: "墨尔本",
     country: "澳大利亚"
 }, {
-    name: "纽约",
-    country: "美国"
+    name: "首尔",
+    country: "韩国"
 }, {
     name: "澳门",
     country: "中国澳门"
 }, {
-    name: "洛杉矶",
-    country: "美国"
-}, {
-    name: "墨尔本",
-    country: "澳大利亚"
-}, {
-    name: "巴黎",
-    country: "法国"
-}, {
-    name: "胡志明市",
-    country: "越南"
-}, {
-    name: "伦敦",
-    country: "英国"
-}, {
-    name: "济州岛",
-    country: "韩国"
-}, {
-    name: "奥克兰",
-    country: "新西兰"
-}, {
-    name: "巴厘岛",
-    country: "印度尼西亚"
-}, {
-    name: "暹粒",
-    country: "柬埔寨"
-}, {
-    name: "高雄",
-    country: "中国台湾"
-}, {
-    name: "马累",
-    country: "马尔代夫"
-}, {
-    name: "大阪",
-    country: "日本"
+    name: "吉隆坡",
+    country: "马来西亚"
 }, {
     name: "旧金山",
     country: "美国"
 }, {
-    name: "金边",
+    name: "暹粒",
     country: "柬埔寨"
 }, {
-    name: "法兰克福",
-    country: "德国"
+    name: "台北",
+    country: "中国台湾"
+}, {
+    name: "普吉",
+    country: "泰国"
+}, {
+    name: "大阪",
+    country: "日本"
+}, {
+    name: "巴厘岛",
+    country: "印度尼西亚"
+}, {
+    name: "伦敦",
+    country: "英国"
+}, {
+    name: "东京",
+    country: "日本"
+}, {
+    name: "胡志明市",
+    country: "越南"
+}, {
+    name: "纽约",
+    country: "美国"
+}, {
+    name: "高雄",
+    country: "中国台湾"
+}, {
+    name: "釜山",
+    country: "韩国"
+}, {
+    name: "洛杉矶",
+    country: "美国"
+}, {
+    name: "悉尼",
+    country: "澳大利亚"
+}, {
+    name: "苏梅岛",
+    country: "泰国"
+}, {
+    name: "济州岛",
+    country: "韩国"
 }, {
     name: "温哥华",
     country: "加拿大"
 }, {
-    name: "多伦多",
-    country: "加拿大"
+    name: "清迈",
+    country: "泰国"
+}, {
+    name: "加德满都",
+    country: "尼泊尔"
+}, {
+    name: "雅加达",
+    country: "印度尼西亚"
+}, {
+    name: "金边",
+    country: "柬埔寨"
+}, {
+    name: "迪拜",
+    country: "阿拉伯联合酋长国"
 }];
 var _tabConfig = {
     "热门-from": {
