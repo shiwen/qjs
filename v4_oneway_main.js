@@ -4835,7 +4835,7 @@ VendorEntity.prototype.__getIconInfo = function(a) {
             return {
                 key: "ico_official",
                 text: "官网",
-                title: ""
+                title: "航空公司官网购票，权威服务，值得信赖。"
             };
         case "direct":
             return {
