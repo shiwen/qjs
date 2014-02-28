@@ -11798,27 +11798,27 @@ function setIfrmHeight(c, b) {
 var LazyScrollShow = (function() {
     var b = [],
         f;
-    var l = ["dTrendflashPanel", "dReversePanel_normal", "hotelSearch", "frmTuan"];
+    var m = ["dTrendflashPanel", "dReversePanel_normal", "hotelSearch", "frmTuan"];
 
     function i() {
-        var s = window.document,
-            q = s.documentElement.clientHeight;
-        return $jex.boxModel() && q || s.body && s.body.clientHeight || q;
+        var t = window.document,
+            s = t.documentElement.clientHeight;
+        return $jex.boxModel() && s || t.body && t.body.clientHeight || s;
     }
 
     function d() {
-        var q = window,
-            t = "pageYOffset",
-            s = "scrollTop";
-        return (t in q) ? q[t] : $jex.boxModel() && q.document.documentElement[s] || q.document.body[s];
+        var s = window,
+            u = "pageYOffset",
+            t = "scrollTop";
+        return (u in s) ? s[u] : $jex.boxModel() && s.document.documentElement[t] || s.document.body[t];
     }
     var g = {
         hotelSearch: function() {
-            var t = window.location.param();
-            var s = t.searchDepartureTime;
-            var u = $jex.date.add(s, 2);
-            var q = "http://hotel.qunar.com/hotelHot.htm?new=1&city=" + encodeURIComponent(t.searchArrivalAirport) + "&fromDate=" + s + "&toDate=" + u + "&frmid=hotelSearch&from=oneway";
-            QNR.AD.createAdFrame("hotelSearch", q);
+            var u = window.location.param();
+            var t = u.searchDepartureTime;
+            var w = $jex.date.add(t, 2);
+            var s = "http://hotel.qunar.com/hotelHot.htm?new=1&city=" + encodeURIComponent(u.searchArrivalAirport) + "&fromDate=" + t + "&toDate=" + w + "&frmid=hotelSearch&from=oneway";
+            QNR.AD.createAdFrame("hotelSearch", s);
         },
         frmTuan: function() {
             QNR.AD.loadOneAD("frmTuan");
@@ -11837,88 +11837,106 @@ var LazyScrollShow = (function() {
     };
 
     function h() {
-        var q = 0;
-        $jex.foreach(b, function(t, s) {
-            if (!t) {
+        var s = 0;
+        $jex.foreach(b, function(u, t) {
+            if (!u) {
                 return;
             }
-            var u = $jex.offset(t);
-            if (f.stop + f.height > (u.top - 50)) {
-                b[s] = null;
-                g[t.id]();
+            var w = $jex.offset(u);
+            if (f.stop + f.height > (w.top - 50)) {
+                b[t] = null;
+                g[u.id]();
             } else {
-                q++;
+                s++;
             }
         });
-        if (q == 0) {
+        if (s == 0) {
             b = null;
-            j();
+            k();
         }
     }
 
-    function a(s) {
-        var t, q = 0;
+    function a(t) {
+        var u, s = 0;
         return function() {
-            clearTimeout(t);
-            var u = (new Date()).valueOf();
-            if (u - q > 100) {
-                s();
+            clearTimeout(u);
+            var w = (new Date()).valueOf();
+            if (w - s > 100) {
+                t();
             }
-            q = u;
-            t = setTimeout(s, 100);
+            s = w;
+            u = setTimeout(t, 100);
         };
     }
-    var k = a(function() {
+    var l = a(function() {
         f.height = i();
         h();
     });
-    var p = a(function() {
+    var q = a(function() {
         f.stop = d();
         h();
     });
 
-    function m(q, t, s) {
-        if (q.removeEventListener) {
-            q.removeEventListener(t, s, false);
+    function j(s, w, u) {
+        if (s.addEventListener) {
+            s.addEventListener(w, u, false);
         } else {
-            if (q.detachEvent) {
-                q.detachEvent("on" + t, s);
+            if (s.attachEvent) {
+                s.attachEvent("on" + w, u);
             } else {
-                if (q["on" + t] === s) {
-                    q["on" + t] = null;
+                var t = s["on" + w];
+                if (t) {
+                    s["on" + w] = function() {
+                        t();
+                        u();
+                    };
                 }
             }
         }
     }
 
+    function n(s, u, t) {
+        if (s.removeEventListener) {
+            s.removeEventListener(u, t, false);
+        } else {
+            if (s.detachEvent) {
+                s.detachEvent("on" + u, t);
+            } else {
+                if (s["on" + u] === t) {
+                    s["on" + u] = null;
+                }
+            }
+        }
+    }
+
+    function p() {
+        j(window, "scroll", q);
+        j(window, "resize", l);
+    }
+
+    function k() {
+        n(window, "scroll", q);
+        n(window, "resize", l);
+    }
+
     function o() {
-        $jex.event.bind(window, "scroll", p);
-        $jex.event.bind(window, "resize", k);
-    }
-
-    function j() {
-        m(window, "scroll", p);
-        m(window, "resize", k);
-    }
-
-    function n() {
-        $jex.foreach(["dFlightPanel", "hdivTrendFlash"], function(s) {
-            var q = $jex.$(s);
-            q && $jex.element.show(q);
+        $jex.foreach(["dFlightPanel", "hdivTrendFlash"], function(t) {
+            var s = $jex.$(t);
+            s && $jex.element.show(s);
         });
-        $jex.foreach(["hotelSearch", "frmTuan"], function(s) {
-            var q = $jex.$(s);
-            q && $jex.element.show(q.parentNode);
+        $jex.foreach(["hotelSearch", "frmTuan"], function(t) {
+            var s = $jex.$(t);
+            s && $jex.element.show(s.parentNode);
         });
     }
 
     function c() {
-        n();
+        o();
         setTimeout(function() {
-            $jex.foreach(l, function(q) {
-                var s = $jex.$(q);
-                if (s) {
-                    b.push(s);
+            $jex.foreach(m, function(s) {
+                var t = $jex.$(s);
+                if (t) {
+                    b.push(t);
                 }
             });
             if (b.length > 0) {
@@ -11926,22 +11944,22 @@ var LazyScrollShow = (function() {
                     stop: d(),
                     height: i()
                 };
-                o();
+                p();
                 h();
             }
         }, 100);
     }
     return {
-        addShow: function(s, q) {
-            g[s] = q;
+        addShow: function(t, s) {
+            g[t] = s;
         },
-        addDoms: function(s) {
-            for (var t = 0, q = l.length; t < q; t++) {
-                if (l[t] === s) {
+        addDoms: function(t) {
+            for (var u = 0, s = m.length; u < s; u++) {
+                if (m[u] === t) {
                     return;
                 }
             }
-            l[t] = s;
+            m[u] = t;
         },
         start: function() {
             setTimeout(c, 100);
