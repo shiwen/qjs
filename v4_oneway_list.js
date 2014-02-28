@@ -1371,7 +1371,7 @@ FlightInfoManager.prototype.updatePriceGroup = function(c, a) {
 if (typeof QLib === "undefined") {
     var QLib = {};
 }(function() {
-    var a = "/twell/searchrt_ui/ui_qunar_gsriw.do";
+    var a = "/twell/searchrt_ui/ui_qunar_gsriiw.do";
     QLib.setCookieForSpider = function(d) {
         var c = b();
         if (!c) {
@@ -1389,7 +1389,7 @@ if (typeof QLib === "undefined") {
         }
     }
     QLib.setUrl = function(c) {
-        a = "/twelli/searchrt_ui/ui_qunar_gsriw.do";
+        a = c;
         return this;
     };
 })();
