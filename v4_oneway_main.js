@@ -3859,7 +3859,7 @@ FlashAdUI.config = {
     },
     noResult: {
         info1: "<span class='textRed'>该航线当前无可售航班<br />请您尝试其他航线或日期</span>",
-        info2: "搜索结束",
+        info2: "搜索结束<br /><a hidefocus='on' href='#' id='flightReserve' style='display:none;'>订阅本航线信息</a>",
         img: "http://source.qunar.com/site/images/no_loading.gif"
     },
     inValidQuery: {
