@@ -3606,13 +3606,7 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
     var b = new FlightInfoExtBarUI();
     b.dataSource(d);
     b.updateSource();
-    var c = new TransferFlightWrapperListUI({
-        handler: {
-            createWrapperUI: function() {
-                return new SingleTripFlightWrapperUI();
-            }
-        }
-    });
+    var c = new TransferFlightWrapperListUI();
     c.dataSource(d);
     c.updateSource();
     this.append("<div", f.id, ' style="z-index:' + f.zIndex + ';position:relative;zoom:1">');
@@ -3723,12 +3717,25 @@ function TransferFlightWrapperListUI(a) {
     TransferFlightWrapperListUI.superclass.constructor.call(this, a);
 }
 $jex.extendClass(TransferFlightWrapperListUI, WrapperListUI);
+TransferFlightWrapperListUI.prototype.createWrapperUI = function(c, b, a) {
+    if (b.vType() !== undefined) {
+        return new ZiyouxingSingleTripFlightWrapperUI();
+    } else {
+        return new SingleTripFlightWrapperUI();
+    }
+};
 
 function SingleTripFlightWrapperUI(a) {
     SingleTripFlightWrapperUI.superclass.constructor.call(this, a);
     this._type = "SingleTripFlightWrapperUI";
 }
 $jex.extendClass(SingleTripFlightWrapperUI, OnewayFlightWrapperUI);
+
+function ZiyouxingSingleTripFlightWrapperUI(a) {
+    ZiyouxingSingleTripFlightWrapperUI.superclass.constructor.call(this, a);
+    this._type = "ZiyouxingSingleTripFlightWrapperUI";
+}
+$jex.extendClass(ZiyouxingSingleTripFlightWrapperUI, ZiyouxingOnewayFlightWrapperUI);
 var RoundTripFlightRecommend = (new function(a) {
     this.init = function() {
         if (!a) {

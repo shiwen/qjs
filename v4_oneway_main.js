@@ -4475,6 +4475,80 @@ WrapperEntity.prototype.showInsTip = function(a) {
 WrapperEntity.prototype.parValue = function() {
     return this.dataSource().vppr;
 };
+WrapperEntity.prototype.vType = function() {
+    return this.dataSource().vt;
+};
+WrapperEntity.prototype.vAmount = function() {
+    return parseInt(this.dataSource().va, 10);
+};
+WrapperEntity.prototype.vPrice = function() {
+    return this.dataSource().vup;
+};
+WrapperEntity.prototype.vTitle = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 1:
+        case 2:
+            return "机票 + 租车服务";
+        case 4:
+            return "机票 + 送机服务";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.vDes = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 1:
+        case 2:
+            return "代金券仅供易到新注册用户使用，节假日亦可使用，每次最多使用一张，代金券不可兑换现金。";
+        case 4:
+            return "每张送机服务券对应一次机场送机服务（限起飞城市），自购买机票之日起6个月内可用，需提前24小时预约，不可单独退款";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.vClass = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 1:
+        case 2:
+            return "ico_zyx_quan";
+        case 4:
+            return "ico_zyx_scar";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.vPrd = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 1:
+        case 2:
+            return "租车券";
+        case 4:
+            return "送机服务";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.vName = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 0:
+            return "去哪儿团购代金券";
+        case 1:
+            return "易到租车代金券";
+        case 2:
+            return "易到租车代金券";
+        case 3:
+            return "去哪儿酒店代金券";
+        case 4:
+            return "送机服务券";
+        default:
+            return "";
+    }
+};
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
 };
@@ -6451,19 +6525,27 @@ $jex.extendClass(BookingLockScreenUI, XControl);
 BookingLockScreenUI.prototype.setEntity = function(a) {
     this.entity = a;
 };
-BookingLockScreenUI.prototype.preBooking = function(f, a) {
+BookingLockScreenUI.prototype.preBooking = function(f, b) {
     this.bFunc = f;
     this._vpr = 0;
     var d = this.entity,
-        c = (a === 1 && d.afeePrice()) ? d.afeePrice() : d.bprPrice(),
-        g = typeof d.ownerFlight().priceInfo == "function" ? d.ownerFlight().priceInfo() : null;
-    oprice = g ? g.op : Number.MAX_VALUE, attrs = [], carrierCode = d.ownerFlight().carrierCode();
-    var b = d.typeOfCabin().indexOf("经济舱") > -1;
+        a = d.vType() !== undefined;
+    price = (b === 1 && d.afeePrice()) ? d.afeePrice() : d.bprPrice(), priceInfo = typeof d.ownerFlight().priceInfo == "function" ? d.ownerFlight().priceInfo() : null;
+    oprice = priceInfo ? priceInfo.op : Number.MAX_VALUE, attrs = [], carrierCode = d.ownerFlight().carrierCode();
+    var c = d.typeOfCabin().indexOf("经济舱") > -1;
     if (d.isApplyPrice()) {
-        attrs.push("app");
+        if (a) {
+            attrs.push("zyxapp");
+        } else {
+            attrs.push("app");
+        }
     } else {
         if (d.ownerFlight().type == "onewayInTransfer") {
-            attrs.push("transfer");
+            if (a) {
+                attrs.push("zyxtransfer");
+            } else {
+                attrs.push("transfer");
+            }
         }
     } if (attrs.length > 0) {
         this.showDialog(attrs.join("+"));
@@ -6471,31 +6553,53 @@ BookingLockScreenUI.prototype.preBooking = function(f, a) {
         f();
     }
 };
-BookingLockScreenUI.prototype.getMsgInfo = function(c) {
-    var f = this._vpr || 0;
-    var g = {
+BookingLockScreenUI.prototype.getMsgInfo = function(g) {
+    var f = this.entity;
+    var a = f.vPrice();
+    var i = f.vAmount();
+    var c = f.vName();
+    var k = this._vpr || 0;
+    var l = {
         app: {
             txt: "您所选购的是特殊机票产品，机票需要申请，申请成功后将短信通知您。"
         },
+        zyxapp: {
+            txt: ["您购买的是自由行产品，包括机票和价值", a * i, "元（", a, "元*", i, "张）", c, "。机票需要申请，代理商将在申请成功后与您取得联系。"].join("")
+        },
         transfer: {
             txt: ['您预订的是中转联程票，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
+        },
+        zyxtransfer: {
+            txt: ["您所选购的是中转联程的自由行产品，包括机票和价值", a * i, "元（", a, "元*", i, "张）", c, '，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
         }
     };
-    var b = g[c],
-        a = /app/.test(c),
-        d = /transfer/.test(c);
-    b.className = "icon_apply";
-    if (a) {
-        b.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+    var m = l[g],
+        b = /app/.test(g),
+        j = /transfer/.test(g),
+        d = /zyxapp/.test(g),
+        h = /zyxtransfer/.test(g);
+    m.className = "icon_apply";
+    if (b) {
+        m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
     } else {
-        if (d) {
-            b.className = "icon_transfer";
-            b.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
+        if (j) {
+            m.className = "icon_transfer";
+            m.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
         } else {
-            b.note = "";
+            if (d) {
+                magInfo.className = "icon_zyxapply";
+                m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+            } else {
+                if (h) {
+                    m.className = "icon_zyxtransfer";
+                    m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+                } else {
+                    m.note = "";
+                }
+            }
         }
     }
-    return b;
+    return m;
 };
 BookingLockScreenUI.prototype.showDialog = function(d) {
     $jex.event.trigger(this, "open");
@@ -7313,6 +7417,9 @@ OnewayFlightWrapperListUI.prototype.resetInvokeData = function() {
     this.invokeDataStatus = 0;
 };
 OnewayFlightWrapperListUI.prototype.createWrapperUI = function(c, b, a) {
+    if (b.vType() !== undefined) {
+        return new ZiyouxingOnewayFlightWrapperUI();
+    }
     if (c.type && c.type == "compose") {
         return new TransPackageFlightWrapperUI();
     } else {
@@ -7927,6 +8034,7 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     if (g) {
         this.append("<a", g, ' data-evtDataId="' + this.newid("") + '" class="btn_book_org" href="#"><span><b>' + a + "</b></span></a>");
     } else {
+        this.append("<a", g);
         this.text('<a class="btn_book_org" href="#"><span><b>' + a + "</b></span></a>");
     }
     this.text("</div>");
@@ -7940,7 +8048,7 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
         this._buttonHTML("pr", b, "btnBook");
     }
     if (a) {
-        this._buttonHTML("bpr", b);
+        this._buttonHTML("bpr", b, "lbtnBook");
     }
     if (!c || !a) {
         this.text('<div class="ut">', this.insert_UPDATETIME(b), "</div>");
@@ -7961,6 +8069,130 @@ OnewayFlightWrapperUI.prototype.insert_BOOKING_BUTTON = function(a) {
     }
 };
 $jex.register("OnewayFlightWrapperUI", OnewayFlightWrapperUI);
+
+function ZiyouxingOnewayFlightWrapperUI(a) {
+    ZiyouxingOnewayFlightWrapperUI.superclass.constructor.call(this, a);
+    this._type = "ZiyouxingOnewayFlightWrapperUI";
+    this._itemClass = "qvt_column qvt_column_zyx";
+    UICacheManager.addToCache(this);
+}
+$jex.extendClass(ZiyouxingOnewayFlightWrapperUI, OnewayFlightWrapperUI);
+ZiyouxingOnewayFlightWrapperUI.prototype.update = function(d) {
+    var b = d;
+    this.clear();
+    this.bookingScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
+    this.bookingLockScreenUI.setEntity(b);
+    this.bookingLockScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
+    var c = this.ownerListUI().zIndex,
+        a = this.ownerListUI().firstIndex;
+    this.append("<div", "flightbar", "");
+    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, a == c ? " qvt_column_first" : "", '">');
+    this.zIndex = this.ownerListUI().zIndex;
+    this.ownerListUI().zIndex--;
+    this.text('<div class="v_zyx">');
+    this.text('<div class="t_ban"><span class="i_ban">自由行</span><em class="i_arr"></em></div>');
+    this.text('<div class="t_name">', b.vTitle(), "</div>");
+    this.insert_zyxPackage(b);
+    this.text("</div>");
+    this.text('<div class="v3">');
+    this.text(b.vendor().name(), "代售");
+    this.text("</div>");
+    this.text('<div class="v4">');
+    this.append("<div", "js-stopClick", ' class="t_st">');
+    this.append('<span class="dot_gy"', "zyx", ">使用说明</span>");
+    this.insert_ZYX(b);
+    this.text("</div>");
+    this.text("</div>");
+    this.insert_PRICE(b);
+    this.text('<div class="v7">');
+    this.insert_BOOKING_BUTTON(b);
+    this.text("</div>");
+    this.text("</div>");
+    this._bindHoverEvent(b);
+    this._bindOnInitEvent(b);
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(d) {
+    var c = d.vClass();
+    var b = d.vAmount() > 1 ? "*" + d.vAmount() : "";
+    var a = d.vPrd();
+    this.text('<div class="t_cmt">产品包含：<i class="ico_zyx_jp"></i>机票 + <i class="', c, '"></i>', a, b, "</div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(a) {
+    if (a.isNotWork()) {
+        this.text('<div class="v5"><span class="noPrice">暂无报价</span></div><div class="v6">&nbsp;</div>');
+    } else {
+        this.insert_PRICE_ZYX(a);
+    }
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
+    var b = a.afeePrice();
+    b = parseInt(b);
+    this.text('<div class="v5">');
+    this.priceHTML(b);
+    this.text("</div>");
+    this.text('<div class="v6"><div class="t_ins">');
+    this.text("+", a.afee(), "保险");
+    this.text("</div></div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_ZYX = function(a) {
+    this.append('<div class="p_tips_cont" ', "zyx_notice_panel", ">");
+    this.text('<div class="p_tips_wrap" style="left:-160px"><div class="p_tips_arr p_tips_arr_t" style="left:170px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.append('<div class="p_tips_content" ', "zyx_notice", " >");
+    this.text(a.vDes());
+    this.text("</div></div></div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_notWorking_BUTTON = function(b) {
+    var a = this.bookingScreenUI.getButtonMsg("预 订");
+    this.text('<div class="t_bk">');
+    this.text('<a class="btn_book" href="#"><span><b>' + a + "</b></span></a>");
+    this.text("</div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(a) {
+    var b = a.afeePrice();
+    b = parseInt(b);
+    if (b) {
+        this._buttonHTML("pr", a, "zyxBtnBook");
+    }
+};
+ZiyouxingOnewayFlightWrapperUI.prototype._buttonHTML = function(b, d, f) {
+    var a = "";
+    var c = this.bookingScreenUI;
+    if (d.isApplyPrice()) {
+        a = "申 请";
+    } else {
+        a = c.getButtonMsg("预 订");
+    }
+    this.text('<div class="t_bk">');
+    this.append("<a", f, ' data-evtDataId="' + this.newid("") + '" class="btn_book" href="#"><span><b>' + a + "</b></span></a>");
+    this.text("</div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
+    var a = b;
+    this.onInit(function() {
+        var c = this;
+        var f = this.find("zyx");
+        var g = false;
+        if (a.vType() !== undefined) {
+            var d = this.find("zyx_notice_panel");
+            $jex.hover({
+                act: f,
+                extra: [this.find("zyx_notice_panel")],
+                onmouseover: function(h) {
+                    if (g) {
+                        return;
+                    }
+                    $jex.element.show(d);
+                    g = true;
+                },
+                onmouseout: function(h) {
+                    g = false;
+                    $jex.element.hide(d);
+                }
+            });
+        }
+    });
+};
+$jex.register("ZiyouxingOnewayFlightWrapperUI", ZiyouxingOnewayFlightWrapperUI);
 
 function HistoryPriceUI(b) {
     HistoryPriceUI.superclass.constructor.call(this, b);
@@ -9190,11 +9422,17 @@ var FlightEventProxy = (function() {
             });
             return false;
         },
+        _zyxBtnBookClick: function(d) {
+            return b(d, 1);
+        },
         _btnBookClick: function(d) {
             return b(d, 1);
         },
-        _flightbarClick: function(d) {
+        _lbtnBookClick: function(d) {
             return b(d, 0);
+        },
+        _flightbarClick: function(d) {
+            return b(d, 1);
         },
         _openwrapperbtnClick: function(f) {
             var d = c(f);
