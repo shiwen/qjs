@@ -14063,6 +14063,9 @@ var _tabConfig = {
             }, {
                 name: "金昌",
                 country: "中国"
+            }, {
+                name: "揭阳",
+                country: "中国"
             }]
         }],
         title: "拼音F-J城市",
@@ -14232,9 +14235,6 @@ var _tabConfig = {
         }, {
             "char": "S",
             list: [{
-                name: "汕头",
-                country: "中国"
-            }, {
                 name: "深圳",
                 country: "中国"
             }, {
