@@ -12076,22 +12076,24 @@ var LazyScrollShow = (function() {
 
     function h() {
         var s = 0;
-        $jex.foreach(b, function(u, t) {
-            if (!u) {
-                return;
+        try {
+            $jex.foreach(b, function(w, u) {
+                if (!w) {
+                    return;
+                }
+                var x = $jex.offset(w);
+                if (f.stop + f.height > (x.top - 50)) {
+                    b[u] = null;
+                    g[w.id]();
+                } else {
+                    s++;
+                }
+            });
+            if (s == 0) {
+                b = null;
+                k();
             }
-            var w = $jex.offset(u);
-            if (f.stop + f.height > (w.top - 50)) {
-                b[t] = null;
-                g[u.id]();
-            } else {
-                s++;
-            }
-        });
-        if (s == 0) {
-            b = null;
-            k();
-        }
+        } catch (t) {}
     }
 
     function a(t) {
