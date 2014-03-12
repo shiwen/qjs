@@ -5367,6 +5367,12 @@ OnewayFlightWrapperEntity.prototype.afeePrice = function() {
 OnewayFlightWrapperEntity.prototype.bprPrice = function() {
     return this.bpr();
 };
+WrapperEntity.prototype.isLowestPr = function() {
+    return this.dataSource().prColor;
+};
+WrapperEntity.prototype.isLowestBpr = function() {
+    return this.dataSource().bprColor;
+};
 
 function OnewayFlightWrapperListEntity() {
     OnewayFlightWrapperListEntity.superclass.constructor.call(this);
@@ -7954,10 +7960,10 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
     b = parseInt(b);
     this.text('<div class="v5">');
     if (f) {
-        this.priceHTML(f);
+        this.priceHTML(f, d.isLowestPr() ? "t_prc_lp" : "");
     }
     if (b) {
-        this.priceHTML(b);
+        this.priceHTML(b, d.isLowestBpr() ? "t_prc_lp" : "");
     }
     if (!f || !b) {
         this.text("<div>");
