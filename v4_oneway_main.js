@@ -11900,24 +11900,28 @@ var QadAdUnits = (function() {
         QNR.AD.add_AD_iframe(s, o, 1);
     }
 
-    function g(q, l, n) {
-        var p = n && n.key_data && n.key_data.length;
+    function g(s, l, o) {
+        var q = o && o.key_data && o.key_data.length;
         l.style.display = "none";
-        if (!p) {
+        if (!q) {
             return;
         }
-        var j = '<style type="text/css">.topicLink { height:24px; text-align:center; color:#333; }.topicLink p { padding-top:8px;}.topicLink p .ico_vl{ margin-left:2px;vertical-align:middle;margin-top:-2px;*margin-top:2px;_margin-top:-3px;}</style>';
-        var o = ['<div class="topicLink">'],
-            n = n.key_data,
-            k, s;
-        for (var m = 0; m < p; m++) {
-            s = n[m];
-            k = ["http://clk.qunar.com/q?k=", s.s || "", "&e=", s.e].join("");
-            o.push('<p><a href="', k, '" target="_blank" title="', s.title + '">', s.description, '<img src="', s.img, '" alt="hot" class="ico_vl"></a></p>');
+        var m = "text-align:center;";
+        if (s == "topicLinkR" || s == "topicLinkL") {
+            m = "text-align:right;*padding-right:10px;";
         }
-        o.push("</div>");
-        o = j + o.join("");
-        QNR.AD.add_AD_iframe(q, o, 1);
+        var j = '<style type="text/css">.topicLink { height:24px;color:#333;' + m + "}.topicLink p { padding-top:8px;}.topicLink p .ico_vl{ margin-left:2px;vertical-align:middle;margin-top:-2px;*margin-top:2px;_margin-top:-3px;}</style>";
+        var p = ['<div class="topicLink">'],
+            o = o.key_data,
+            k, t;
+        for (var n = 0; n < q; n++) {
+            t = o[n];
+            k = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
+            p.push('<p><a href="', k, '" target="_blank" title="', t.title + '">', t.description, '<img src="', t.img, '" alt="hot" class="ico_vl"></a></p>');
+        }
+        p.push("</div>");
+        p = j + p.join("");
+        QNR.AD.add_AD_iframe(s, p, 1);
     }
     QNR.AD.createCallback("listBottomAD", function(j, k) {
         d("listBottomAD", j, k);
