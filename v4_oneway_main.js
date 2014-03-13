@@ -6322,7 +6322,8 @@ DomesticOnewayFilterListUI.prototype.update = function() {
     this.append("<div", "filterMore", ' class="hide">');
     this.appendFilter("起飞时间", "m_sep2_1");
     this.appendFilter("方式", "m_sep2_1");
-    this.appendFilter("起降机场", "m_sep2_1");
+    this.appendFilter("起飞机场", "m_sep2_1");
+    this.appendFilter("降落机场", "m_sep2_1");
     this.appendFilter("机型", "m_sep2_1");
     this.appendFilter("航空公司", "m_sep_full");
     this.text("</div>");
@@ -6400,7 +6401,7 @@ DomesticOnewayFilterListUI.prototype.layout = function() {
         d = 0,
         h = false;
     var a = [];
-    $jex.foreach(["起飞时间", "方式", "起降机场", "航空公司", "机型"], function(k, j) {
+    $jex.foreach(["起飞时间", "方式", "起飞机场", "降落机场", "航空公司", "机型"], function(k, j) {
         if (c.getFilterUI(k)) {
             a.push(k);
         }

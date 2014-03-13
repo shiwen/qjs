@@ -1536,7 +1536,10 @@ var DomesticOnewayDataAnalyzer = new(function() {
                 "机型": function(I) {
                     return I.planeType();
                 },
-                "起降机场": function(I) {
+                "起飞机场": function(I) {
+                    return I.airportCodes();
+                },
+                "降落机场": function(I) {
                     return I.airportCodes();
                 },
                 "方式": function(I) {
@@ -1579,70 +1582,56 @@ var DomesticOnewayDataAnalyzer = new(function() {
         });
         var I = this.deptAirport();
         $jex.event.trigger(t, "updateFilter", {
-            catalog: "起降机场",
+            catalog: "起飞机场",
             group: this.deptCityCode(),
             name: I.ab,
             value: I.key || I.code
         });
         var J = this.arriAirport();
         $jex.event.trigger(t, "updateFilter", {
-            catalog: "起降机场",
+            catalog: "降落机场",
             group: this.arriCityCode(),
             name: J.ab,
             value: J.key || J.code
         });
     };
     var q = function() {
-        var M = this.firstTrip();
+        var K = this.firstTrip();
         if (this.carrierCode()) {
             $jex.event.trigger(t, "updateFilter", {
                 catalog: "航空公司",
-                name: M.carrier().zh,
-                value: M.flightInfo().ca
+                name: K.carrier().zh,
+                value: K.flightInfo().ca
             });
         }
-        var K = M.deptTimeRange();
+        var I = K.deptTimeRange();
         $jex.event.trigger(t, "updateFilter", {
             catalog: "起飞时间",
-            name: K.zh,
-            value: K.value
+            name: I.zh,
+            value: I.value
         });
-        var L = M.plane();
-        $jex.foreach(L.type, function(O) {
+        var J = K.plane();
+        $jex.foreach(J.type, function(M) {
             $jex.event.trigger(t, "updateFilter", {
                 catalog: "机型",
-                name: O,
-                value: O
+                name: M,
+                value: M
             });
         });
-        var I = M.deptAirport();
-        $jex.event.trigger(t, "updateFilter", {
-            catalog: "起降机场",
-            group: M.deptCityCode(),
-            name: I.ab,
-            value: I.key || I.code
-        });
-        M = this.secondTrip();
-        var L = M.plane();
-        $jex.foreach(L.type, function(O) {
+        K = this.secondTrip();
+        var J = K.plane();
+        $jex.foreach(J.type, function(M) {
             $jex.event.trigger(t, "updateFilter", {
                 catalog: "机型",
-                name: O,
-                value: O
+                name: M,
+                value: M
             });
         });
-        var J = M.arriAirport();
-        $jex.event.trigger(t, "updateFilter", {
-            catalog: "起降机场",
-            group: M.arriCityCode(),
-            name: J.ab,
-            value: J.key || J.code
-        });
-        var N = M.deptCity();
+        var L = K.deptCity();
         $jex.event.trigger(t, "updateFilter", {
             catalog: "中转城市",
-            name: N.zh,
-            value: N.en
+            name: L.zh,
+            value: L.en
         });
     };
     this.hasWrapper = function(I) {
@@ -5395,7 +5384,10 @@ flightResultController.prototype.initUI = function() {
     this.filterGroup = new DomesticOnewayFilterListUI({
         elemId: "hdivfilterPanel",
         filterConf: {
-            "起降机场": {
+            "起飞机场": {
+                type: 8
+            },
+            "降落机场": {
                 type: 8
             },
             "起飞时间": {
@@ -5451,7 +5443,7 @@ flightResultController.prototype.initUI = function() {
         var i = [];
         var h = [];
         var c = this.filterGroup;
-        $jex.foreach(["起飞时间", "机型", "航空公司", "起降机场", "方式"], function(k, j) {
+        $jex.foreach(["起飞时间", "机型", "航空公司", "起飞机场", "降落机场", "方式"], function(k, j) {
             var l = c.getFilterUI(k);
             if (l) {
                 i.push(l);
