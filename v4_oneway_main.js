@@ -11273,7 +11273,8 @@ recommendedHotels.query = function(f, c, i, h, d) {
         var ap = $doc.createElement("div");
         ap.style.display = "none";
         var ao = [];
-        j = "http://vata.qunar.com/vata?chan=" + (Q || ""), ao.push('<form name="vata_main_form" target="vata_main_frame" action="' + j + '" method="POST">');
+        j = "http://vata.qunar.com/vata?chan=" + (Q || "");
+        ao.push('<form name="vata_main_form" target="vata_main_frame" action="' + j + '" method="POST">');
         aq.ads = aq.ads || {};
         for (var an in aq.ads) {
             if (aq.ads.hasOwnProperty(an)) {

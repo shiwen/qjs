@@ -2192,7 +2192,8 @@ var DomesticOnewaySearchService = new(function() {
             searchLangs: "zh",
             searchType: "OneWayFlight",
             tags: 1,
-            mergeFlag: 0
+            mergeFlag: 0,
+            xd: LONGWELLVERSION
         };
         k = {
             departureCity: E.fromCity,
