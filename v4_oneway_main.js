@@ -15561,22 +15561,14 @@ function SearchBox(a) {
 var SearchBoxCreate = (function() {
     var d, f;
 
-    function b(j) {
-        var h = $jex.$("js-sbtn_list");
-        if (h) {
-            var i = h.getElementsByTagName("button"),
-                g = h.getElementsByTagName("b");
-            $jex.foreach([i[0], i[1]], function(l, k) {
-                l.style.display = "block";
-                g[k].style.display = "none";
-            });
-        }
-        j.setValue(d);
-        j.setSearchType(f || "oneway");
+    function b(h) {
+        var g = $jex.$("js-sbtn_list");
+        h.setValue(d);
+        h.setSearchType(f || "oneway");
         if ($jex.$("forecast")) {
             $jex.element.show($jex.$("forecast").parentNode);
             $jex.event.click("forecast", function() {
-                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(j.fromCity.getValue()) + "&departureDate=" + j.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(j.toCity.getValue()));
+                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(h.fromCity.getValue()) + "&departureDate=" + h.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(h.toCity.getValue()));
             });
         }
         $jex.console.end("第一屏,快速搜索返程等功能");
