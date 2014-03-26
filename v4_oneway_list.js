@@ -3808,7 +3808,7 @@ var SpringHotRoundtrip = (new function() {
         try {
             (function(_OUT, _CONTEXT) {
                 with(_CONTEXT) {
-                    var day210 = 210 * 24 * 60 * 60 * 1000;
+                    var day363 = 363 * 24 * 60 * 60 * 1000;
                     var idx = 1;
                     _OUT.write('<ul class="ul_flt_date">');
                     var __LIST__day = days;
@@ -3832,7 +3832,7 @@ var SpringHotRoundtrip = (new function() {
                                 _OUT.write('<p class="date">');
                                 _OUT.write(_MODIFIERS.GetTitle(day.date));
                                 _OUT.write("</p>");
-                                if ((deptDate - (SERVER_TIME || new Date())) <= day210) {
+                                if ((deptDate - (SERVER_TIME || new Date())) <= day363) {
                                     _OUT.write('<p class="price">');
                                     if (day.price > 0) {
                                         _OUT.write('<i class="rmb">&yen;</i>');
@@ -4258,8 +4258,8 @@ var SpringHotRoundtrip = (new function() {
         var _noPriceData = [];
         var offsetToday = this.offsetToday,
             min = 3;
-        if (offsetToday > 207) {
-            min += (offsetToday - 207);
+        if (offsetToday > 360) {
+            min += (offsetToday - 360);
         }
         var _startDate = new Date(this.searchDate.getTime() - Math.min(min, offsetToday) * 24 * 3600000);
         this.eachDay(function(day) {
@@ -4470,12 +4470,7 @@ var SpringHotRoundtrip = (new function() {
     };
     this.priceCacheData = {};
     this.getPriceData = function(_dateStr) {
-        if ($jex.date.parse(_dateStr).getMonth() == SERVER_TIME.getMonth()) {
-            _dateStr = $jex.date.format(SERVER_TIME);
-            var _qtime = _dateStr;
-        } else {
-            var _qtime = _dateStr.replace(_dateStr.split("-")[2], "01");
-        }
+        var _qtime = _dateStr.replace(_dateStr.split("-")[2], "01");
         this._dateStr = _dateStr;
         var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random()].join("");
         var sr = new ScriptRequest({
@@ -4498,7 +4493,7 @@ var SpringHotRoundtrip = (new function() {
         if (!this._sdate) {
             this._sdate = _date;
         }
-        var _maxDate = new Date(210 * 24 * 3600 * 1000 + SERVER_TIME.getTime());
+        var _maxDate = new Date(363 * 24 * 3600 * 1000 + SERVER_TIME.getTime());
         var _cdata = {};
         var _year = _date.getFullYear();
         var _month = _date.getMonth() + 1;

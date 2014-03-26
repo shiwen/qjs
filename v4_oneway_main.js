@@ -2904,132 +2904,6 @@ var FlightUtil = {
 };
 var QunarDate = $jex.exec(function() {
     var b = {
-        "2013-01-01": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "元旦"
-        },
-        "2013-02-09": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "除夕"
-        },
-        "2013-02-10": {
-            afterTime: 6,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "春节"
-        },
-        "2013-02-24": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "元宵"
-        },
-        "2013-04-04": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "清明"
-        },
-        "2013-05-01": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "五一"
-        },
-        "2013-06-12": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "端午"
-        },
-        "2013-09-19": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "中秋"
-        },
-        "2013-10-01": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "国庆"
-        },
-        "2013-12-25": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "圣诞"
-        },
-        "2014-01-01": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "元旦"
-        },
-        "2014-01-30": {
-            afterTime: 0,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "除夕"
-        },
-        "2014-01-31": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "春节"
-        },
-        "2014-02-01": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初二",
-            nodatepickerico: true
-        },
-        "2014-02-02": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初三",
-            nodatepickerico: true
-        },
-        "2014-02-03": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初四",
-            nodatepickerico: true
-        },
-        "2014-02-04": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初五",
-            nodatepickerico: true
-        },
-        "2014-02-05": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初六",
-            nodatepickerico: true
-        },
-        "2014-02-06": {
-            afterTime: 0,
-            beforeTime: 0,
-            dayindex: 0,
-            holidayName: "正月初七",
-            nodatepickerico: true
-        },
-        "2014-02-14": {
-            afterTime: 3,
-            beforeTime: 3,
-            dayindex: 0,
-            holidayName: "元宵"
-        },
         "2014-04-05": {
             afterTime: 3,
             beforeTime: 3,
@@ -3061,6 +2935,66 @@ var QunarDate = $jex.exec(function() {
             holidayName: "国庆"
         },
         "2014-12-25": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "圣诞"
+        },
+        "2015-01-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "元旦"
+        },
+        "2015-02-18": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "除夕"
+        },
+        "2015-02-19": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "春节"
+        },
+        "2015-03-05": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "元宵"
+        },
+        "2015-04-05": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "清明"
+        },
+        "2015-05-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "五一"
+        },
+        "2015-06-20": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "端午"
+        },
+        "2015-09-27": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "中秋"
+        },
+        "2015-10-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "国庆"
+        },
+        "2015-12-25": {
             afterTime: 3,
             beforeTime: 3,
             dayindex: 0,
@@ -13302,7 +13236,7 @@ function DatePickerXCombox(f, g, d) {
                         if (!i.pos) {
                             i.pos = b.fromDateBox["pos"];
                         }
-                        h.resetMax(h.getMin(), 211);
+                        h.resetMax(h.getMin(), 363);
                         var k = h.checkDate2(this.own.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
                         var j = QunarDate.getDatesOffset(h.getDate1(), h.getDate2());
                         this.dateLayer.render(k.recommendDate, new Date(QunarDate.parse(c.getValue()).getTime()), new Date(QunarDate.plus(h.getMax(), 0)), i.pos, j);
@@ -15279,7 +15213,7 @@ function SearchBox(a) {
     });
     var f = this.fromCity;
     var o = this.toCity;
-    var q = new DateChecker(211);
+    var q = new DateChecker(363);
     var j = this.fromDate = new DatePickerXCombox(a.fromDate, c, {
         dateChecker: q
     });
@@ -15490,7 +15424,7 @@ function SearchBox(a) {
         });
         j.setMark(B ? "从" : "往");
         t.setMark(B ? "到" : "返");
-        q.setSpan(211);
+        q.setSpan(363);
         q.setDelay2(3);
         if (x == "oneway") {
             q.hideDate2();
