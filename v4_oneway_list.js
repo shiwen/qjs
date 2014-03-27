@@ -4191,7 +4191,12 @@ var SpringHotRoundtrip = (new function() {
         }
         var _goDate = $jex.date.format(this.searchDate);
         if (this.offsetToday > 0) {
-            var x = new Date(this.searchDate.getTime() - Math.min(3, this.offsetToday) * 24 * 3600000);
+            var offsetToday = this.offsetToday,
+                min = 3;
+            if (offsetToday > 360) {
+                min += (offsetToday - 360);
+            }
+            var x = new Date(this.searchDate.getTime() - Math.min(min, offsetToday) * 24 * 3600000);
             _goDate = $jex.date.format(x);
         }
         var _count = 90;
