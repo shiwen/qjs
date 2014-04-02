@@ -13113,6 +13113,7 @@ function SearchSwitcher(b, a) {
     this._memories = {};
     this._globalmemories = {};
     this._state = {};
+    this._count = 0;
     if (a) {
         a();
     }
@@ -13138,6 +13139,7 @@ SearchSwitcher.prototype.active = function(b) {
     }
     if (a.active) {
         a.active();
+        this._count++;
     }
     this._oldtype = b;
 };
@@ -15442,6 +15444,15 @@ function SearchBox(a) {
             q.showDate2();
             $jex.element.show($jex.$("arrivalDateDiv"));
             $jex.element.hide($jex.$("arrivalDateDiv_disable"));
+            if (n._count >= 1) {
+                t.mousedown({
+                    preventDefault: function() {},
+                    stopPropagation: function() {}
+                });
+                setTimeout(function() {
+                    $jex.$("searchTypeRnd").checked = true;
+                }, 0);
+            }
         }
         c.searchType = x;
         $jex.event.trigger(c, "switch", c, x);
