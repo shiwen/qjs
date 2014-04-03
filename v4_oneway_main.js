@@ -13114,6 +13114,7 @@ function SearchSwitcher(b, a) {
     this._globalmemories = {};
     this._state = {};
     this._count = 0;
+    this._type = null;
     if (a) {
         a();
     }
@@ -13161,6 +13162,12 @@ SearchSwitcher.prototype.getmem = function(b, a) {
 };
 SearchSwitcher.prototype.getgmem = function(a) {
     return this._globalmemories[a] || "";
+};
+SearchSwitcher.prototype.getEleType = function() {
+    return this._type;
+};
+SearchSwitcher.prototype.setEleType = function(a) {
+    return this._type = a;
 };
 
 function DatePickerXCombox(f, g, d) {
@@ -15412,20 +15419,21 @@ function SearchBox(a) {
     });
     $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(x) {
         $jex.$("searchTypeRnd").checked = true;
+        n.setEleType("disable");
         n.active("roundtrip");
     });
 
     function s(x) {
-        var B = x == "deal";
-        $jex.foreach(["fromCity", "toCity"], function(C) {
-            var D = c[C];
-            D.info = B ? "城市名（可不填）" : "城市名";
-            D.hideError();
-            D.setValue(n.getgmem(C));
-            D.setTip();
+        var C = x == "deal";
+        $jex.foreach(["fromCity", "toCity"], function(D) {
+            var E = c[D];
+            E.info = C ? "城市名（可不填）" : "城市名";
+            E.hideError();
+            E.setValue(n.getgmem(D));
+            E.setTip();
         });
-        j.setMark(B ? "从" : "往");
-        t.setMark(B ? "到" : "返");
+        j.setMark(C ? "从" : "往");
+        t.setMark(C ? "到" : "返");
         q.setSpan(363);
         q.setDelay2(3);
         if (x == "oneway") {
@@ -15434,17 +15442,18 @@ function SearchBox(a) {
             $jex.element.show($jex.$("arrivalDateDiv_disable"));
         } else {
             try {
-                var y = t.getValue();
-                if (!y) {
-                    y = QunarDate.format(QunarDate.plus(QunarDate.parse(j.getValue()), 3));
+                var z = t.getValue();
+                if (!z) {
+                    z = QunarDate.format(QunarDate.plus(QunarDate.parse(j.getValue()), 3));
                 }
-                var A = q.checkDate2(y, j.getValue(), QunarDate.format(QunarDate.plus(q.getMax(), 0)));
-                t.setValue(A.recommend);
-            } catch (z) {}
+                var B = q.checkDate2(z, j.getValue(), QunarDate.format(QunarDate.plus(q.getMax(), 0)));
+                t.setValue(B.recommend);
+            } catch (A) {}
             q.showDate2();
             $jex.element.show($jex.$("arrivalDateDiv"));
             $jex.element.hide($jex.$("arrivalDateDiv_disable"));
-            if (n._count >= 1) {
+            var y = n.getEleType();
+            if ("disable" === y || (z === j.getValue() && n._count >= 1 && "radio" === y)) {
                 t.mousedown({
                     preventDefault: function() {},
                     stopPropagation: function() {}
@@ -15492,12 +15501,13 @@ function SearchBox(a) {
     n = this.sswitcher = new SearchSwitcher(d, function() {
         for (var x = 0, y = a.searchType.length; x < y; x++) {
             (function(z) {
-                $jex.event.bindDom(a.searchType[z], "click", a.searchType[z], function() {
+                $jex.event.bindDom(a.searchType[z], "click", a.searchType[z], function(A, B) {
                     switch (this.id) {
                         case "searchTypeSng":
                             n.active("oneway");
                             break;
                         case "searchTypeRnd":
+                            n.setEleType(B.type);
                             n.active("roundtrip");
                             break;
                         case "searchTypeDeals":
