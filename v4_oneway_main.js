@@ -11883,6 +11883,20 @@ var QadAdUnits = (function() {
     QNR.AD.createCallback("topicLinkR", function(j, k) {
         g("topicLinkR", j, k);
     });
+    QNR.AD.createCallback("ifmRightFlightOwner", function(k, p) {
+        var j = p && p.key_data && p.key_data.length;
+        k.style.display = "none";
+        if (!j) {
+            return;
+        }
+        var n = [];
+        for (var m = 0; m < j; m++) {
+            var o = p.key_data[m];
+            var l = ["http://clk.qunar.com/q?k=", o.s || "", "&e=", o.e].join("");
+            n.push('<a style="display:block;padding-bottom:7px;" href="', l, '" target="_blank" title="', o.title + '">', '<img style="display:block;" src="', o.img, '" /></a>');
+        }
+        document.getElementById("js_rightFlightOwnerBanner").innerHTML = n.join("");
+    });
     var a = 0;
 
     function f() {
