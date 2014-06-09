@@ -400,14 +400,30 @@ var $jex = {
             }
         }
     },
-    stopEvent: function(a) {
-        if (window.event) {
-            event.returnValue = false;
-            event.cancelBubble = true;
-        } else {
-            a.preventDefault();
-            a.stopPropagation();
+    stopPropagation: function(a) {
+        if (!a) {
+            return;
         }
+        if (a.stopPropagation) {
+            a.stopPropagation();
+        } else {
+            a.cancelBubble = true;
+        }
+    },
+    preventDefault: function(a) {
+        if (!a) {
+            return;
+        }
+        if (a.preventDefault) {
+            a.preventDefault();
+        } else {
+            a.returnValue = false;
+        }
+    },
+    stopEvent: function(a) {
+        a = a || window.event;
+        $jex.preventDefault(a);
+        $jex.stopPropagation(a);
     },
     callback: function(b, a) {
         return function() {
@@ -2903,7 +2919,7 @@ var FlightUtil = {
     }
 };
 var QunarDate = $jex.exec(function() {
-    var b = {
+    var k = {
         "2014-04-05": {
             afterTime: 3,
             beforeTime: 3,
@@ -2999,12 +3015,72 @@ var QunarDate = $jex.exec(function() {
             beforeTime: 3,
             dayindex: 0,
             holidayName: "圣诞"
+        },
+        "2016-01-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "元旦"
+        },
+        "2016-02-07": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "除夕"
+        },
+        "2016-02-08": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "春节"
+        },
+        "2016-02-22": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "元宵"
+        },
+        "2016-04-04": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "清明"
+        },
+        "2016-05-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "五一"
+        },
+        "2016-06-09": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "端午"
+        },
+        "2016-09-15": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "中秋"
+        },
+        "2016-10-01": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "国庆"
+        },
+        "2016-12-25": {
+            afterTime: 3,
+            beforeTime: 3,
+            dayindex: 0,
+            holidayName: "圣诞"
         }
     };
-    var f = ["今天", "明天", "后天"];
-    var i = 24 * 60 * 60 * 1000;
-    var h = ["日", "一", "二", "三", "四", "五", "六"];
-    var c = {
+    var h = ["今天", "明天", "后天"];
+    var c = 24 * 60 * 60 * 1000;
+    var a = ["日", "一", "二", "三", "四", "五", "六"];
+    var d = {
         week: "周",
         day: "天",
         before: "前",
@@ -3018,179 +3094,243 @@ var QunarDate = $jex.exec(function() {
         DAY: "天",
         YEAR: "年"
     };
-    var a = null;
-    var d = null;
+    var f = null;
+    var b = null;
+    var j = ["1周之内", "1个月内", "3个月内", "半年内", "1年"];
+    var i = ["+1周", "+2周", "1个月内", "3个月内", "1年"];
+    var l = {
+        "1周之内": {
+            valid: true,
+            value: "1周之内",
+            range: 7
+        },
+        "2周之内": {
+            valid: true,
+            value: "2周之内",
+            range: 14
+        },
+        "+1周": {
+            valid: false,
+            value: "2周之内",
+            range: 14
+        },
+        "+2周": {
+            valid: false,
+            value: "3周之内",
+            range: 21
+        },
+        "3周之内": {
+            valid: true,
+            value: "3周之内",
+            range: 21
+        },
+        "1个月内": {
+            valid: true,
+            value: "1个月内",
+            range: 30
+        },
+        "3个月内": {
+            valid: true,
+            value: "3个月内",
+            range: 90
+        },
+        "半年内": {
+            valid: true,
+            value: "半年内",
+            range: 180
+        },
+        "1年": {
+            valid: true,
+            value: "1年",
+            range: 360
+        }
+    };
     return {
-        getTimeRange: function(k) {
-            var j = parseInt(k.replace(/(\d+):\d+/i, "$1"), 10);
-            if (j >= 6 && j < 12) {
+        getFuzzyDate: function(o) {
+            var n = this.today();
+            var m = l[o];
+            if (m) {
+                m.start = this.format(this.plus(n, 1));
+                m.end = this.format(this.plus(n, m.range));
+            }
+            return m;
+        },
+        getFuzzyDateText0: function() {
+            return j;
+        },
+        getFuzzyDateText1: function() {
+            return i;
+        },
+        getTimeRange: function(n) {
+            var m = parseInt(n.replace(/(\d+):\d+/i, "$1"), 10);
+            if (m >= 6 && m < 12) {
                 return 0;
             }
-            if (j == 12) {
+            if (m == 12) {
                 return 1;
             }
-            if (j > 12 && j <= 18) {
+            if (m > 12 && m <= 18) {
                 return 2;
             }
             return 3;
         },
-        isHoliday: function(j) {
-            return !!b[j];
+        isHoliday: function(m) {
+            return !!k[m];
         },
-        parseTimeToNL_et: function(j) {
-            if (j >= i) {
-                j = i;
+        parseTimeToNL_et: function(m) {
+            if (m >= c) {
+                m = c;
             }
-            return this.parseTimeToNL(j);
+            return this.parseTimeToNL(m);
         },
-        parseTimeToNL: function(o) {
-            var n = o % 1000;
-            var m = (o - n) % 60000;
-            var k = (o - m * 1000 - n) % 3600000;
-            var p = (o - k * 60000 - m * 1000 - n) % (24 * 3600000);
-            var j = (o - p * 3600000 - k * 60000 - m * 1000 - n) % (24 * 3600000);
-            var l = "";
-            if (o < 1000) {
-                l = 1 + g.SECOND;
+        parseTimeToNL: function(s) {
+            var q = s % 1000;
+            var p = (s - q) % 60000;
+            var n = (s - p * 1000 - q) % 3600000;
+            var t = (s - n * 60000 - p * 1000 - q) % (24 * 3600000);
+            var m = (s - t * 3600000 - n * 60000 - p * 1000 - q) % (24 * 3600000);
+            var o = "";
+            if (s < 1000) {
+                o = 1 + g.SECOND;
             } else {
-                if (o < 60000) {
-                    l = parseInt(o / 1000) + g.SECOND;
+                if (s < 60000) {
+                    o = parseInt(s / 1000) + g.SECOND;
                 } else {
-                    if (o < 3600000) {
-                        l = parseInt(o / 60000) + g.MINUTE;
+                    if (s < 3600000) {
+                        o = parseInt(s / 60000) + g.MINUTE;
                     } else {
-                        if (o < (24 * 3600000)) {
-                            l = parseInt(o / 3600000) + g.HOUR;
+                        if (s < (24 * 3600000)) {
+                            o = parseInt(s / 3600000) + g.HOUR;
                         } else {
-                            if (o < (365 * 24 * 3600000)) {
-                                l = parseInt(o / (24 * 3600000)) + g.DAY;
+                            if (s < (365 * 24 * 3600000)) {
+                                o = parseInt(s / (24 * 3600000)) + g.DAY;
                             } else {
-                                l = parseInt(o / (365 * 24 * 3600000)) + g.YEAR;
+                                o = parseInt(s / (365 * 24 * 3600000)) + g.YEAR;
                             }
                         }
                     }
                 }
             }
-            return l;
+            return o;
         },
-        plus: function(j, k) {
-            return new Date(j.getTime() + k * i);
+        plus: function(m, n) {
+            return new Date(m.getTime() + n * c);
         },
-        getMinute: function(l) {
-            var n = l.split(":");
-            var k = parseInt(n[0], 10);
-            var j = parseInt(n[1], 10);
-            return k * 60 + j;
+        getMinute: function(p) {
+            var q = p.split(":");
+            var o = parseInt(q[0], 10);
+            var n = parseInt(q[1], 10);
+            return o * 60 + n;
         },
         today: function() {
-            if (a) {
-                return a;
+            if (f) {
+                return f;
             }
-            var j = window.SERVER_TIME || new Date();
-            return a = new Date(j.getFullYear(), j.getMonth(), j.getDate());
+            var m = window.SERVER_TIME || new Date();
+            return f = new Date(m.getFullYear(), m.getMonth(), m.getDate());
         },
-        parse: function(k) {
-            var j = k.split("-");
-            return new Date(j[0], j[1] - 1, j[2]);
+        parse: function(n) {
+            var m = n.split("-");
+            return new Date(m[0], m[1] - 1, m[2]);
         },
-        format: function(j) {
-            if (typeof j == "number") {
-                j = new Date(j);
+        format: function(m) {
+            if (typeof m == "number") {
+                m = new Date(m);
             }
-            return j.getFullYear() + "-" + this.convert2digit(j.getMonth() + 1) + "-" + this.convert2digit(j.getDate());
+            return m.getFullYear() + "-" + this.convert2digit(m.getMonth() + 1) + "-" + this.convert2digit(m.getDate());
         },
-        convert2digit: function(j) {
-            return j < 10 ? "0" + j : j;
+        convert2digit: function(m) {
+            return m < 10 ? "0" + m : m;
         },
-        compareDate: function(k, j) {
-            return k.getTime() - j.getTime();
+        compareDate: function(n, m) {
+            return n.getTime() - m.getTime();
         },
-        getFirstDaysOfMonth: function(j) {
-            return new Date(j.getFullYear(), j.getMonth(), 1);
+        getFirstDaysOfMonth: function(m) {
+            return new Date(m.getFullYear(), m.getMonth(), 1);
         },
-        getLastDaysOfMonth: function(j) {
-            return new Date(j.getFullYear(), j.getMonth() + 1, 0);
+        getLastDaysOfMonth: function(m) {
+            return new Date(m.getFullYear(), m.getMonth() + 1, 0);
         },
-        getHolidayName: function(j) {
-            return b[j]["holidayName"];
+        getHolidayName: function(m) {
+            return k[m]["holidayName"];
         },
-        showIcon: function(j) {
-            return !b[j]["nodatepickerico"];
+        showIcon: function(m) {
+            return !k[m]["nodatepickerico"];
         },
-        getDateTip: function(j) {
-            var k = this.parse(j);
-            var l = (k.getTime() - this.today().getTime()) / 1000 / 3600 / 24;
-            var m = "";
-            if (l < 3) {
-                m = f[l];
-                if (this.isHoliday(j)) {
-                    m = b[j]["holidayName"];
+        getDateTip: function(m) {
+            var n = this.parse(m);
+            var o = (n.getTime() - this.today().getTime()) / 1000 / 3600 / 24;
+            var p = "";
+            if (o < 3) {
+                p = h[o];
+                if (this.isHoliday(m)) {
+                    p = k[m]["holidayName"];
                 }
             } else {
                 this.initDataTable();
-                if (d[j]) {
-                    m = d[j].holidayName;
+                if (b[m]) {
+                    p = b[m].holidayName;
                 }
-            } if (m == "") {
-                m = c.week + h[k.getDay()];
+            } if (p == "") {
+                p = d.week + a[n.getDay()];
             }
-            return m;
+            return p;
         },
-        seconds2days: function(j) {
-            var k = 60 * 1000 * 60 * 24;
-            return j / k;
+        seconds2days: function(m) {
+            var n = 60 * 1000 * 60 * 24;
+            return m / n;
         },
-        getDatesOffset: function(q, j) {
-            var n = {};
-            var k = this.compareDate(this.parse(j), this.parse(q));
-            var p = this.seconds2days(k);
-            var o = this.parse(q);
-            for (var l = 1; l < p; l++) {
-                o = QunarDate.plus(o, 1);
-                var m = this.format(o);
-                n[m] = o;
+        getDatesOffset: function(u, m) {
+            var q = {};
+            var n = this.compareDate(this.parse(m), this.parse(u));
+            var t = this.seconds2days(n);
+            var s = this.parse(u);
+            for (var o = 1; o < t; o++) {
+                s = QunarDate.plus(s, 1);
+                var p = this.format(s);
+                q[p] = s;
             }
-            return n;
+            return q;
         },
         initDataTable: function() {
-            if (d != null) {
-                return d;
+            if (b != null) {
+                return b;
             }
-            d = {};
-            for (var t in b) {
-                var k = t;
-                var o = b[t];
-                d[t] = o;
-                var n = "";
-                var p = "";
-                if (o.beforeTime > 0) {
-                    for (var l = 1; l <= o.beforeTime; l++) {
-                        var q = {};
-                        var u = new Date(this.parse(k).getTime() - l * 24 * 3600 * 1000);
-                        var m = this.format(u);
-                        q.holidayName = o.holidayName + c.before + l + c.day;
-                        q.dayindex = o.dayindex;
-                        if (!d[m]) {
-                            d[m] = q;
+            b = {};
+            for (var x in k) {
+                var n = x;
+                var s = k[x];
+                b[x] = s;
+                var q = "";
+                var t = "";
+                if (s.beforeTime > 0) {
+                    for (var o = 1; o <= s.beforeTime; o++) {
+                        var u = {};
+                        var y = new Date(this.parse(n).getTime() - o * 24 * 3600 * 1000);
+                        var p = this.format(y);
+                        u.holidayName = s.holidayName + d.before + o + d.day;
+                        u.dayindex = s.dayindex;
+                        if (!b[p]) {
+                            b[p] = u;
                         } else {
-                            if ((o.dayindex > d[m].dayindex) && d[m].beforeTime == null) {
-                                d[m] = q;
+                            if ((s.dayindex > b[p].dayindex) && b[p].beforeTime == null) {
+                                b[p] = u;
                             }
                         }
                     }
                 }
-                if (o.afterTime > 0) {
-                    for (var l = 1; l <= o.afterTime; l++) {
-                        var q = {};
-                        var s = new Date(this.parse(k).getTime() + l * 24 * 3600 * 1000);
-                        var j = this.format(s);
-                        q.holidayName = o.holidayName + c.after + l + c.day;
-                        q.dayindex = o.dayindex;
-                        if (!d[j]) {
-                            d[j] = q;
+                if (s.afterTime > 0) {
+                    for (var o = 1; o <= s.afterTime; o++) {
+                        var u = {};
+                        var w = new Date(this.parse(n).getTime() + o * 24 * 3600 * 1000);
+                        var m = this.format(w);
+                        u.holidayName = s.holidayName + d.after + o + d.day;
+                        u.dayindex = s.dayindex;
+                        if (!b[m]) {
+                            b[m] = u;
                         } else {
-                            if ((o.dayindex > d[j].dayindex) && d[this.format(new Date(u))].afterTime == null) {
-                                d[j] = q;
+                            if ((s.dayindex > b[m].dayindex) && b[this.format(new Date(y))].afterTime == null) {
+                                b[m] = u;
                             }
                         }
                     }
@@ -3224,16 +3364,18 @@ function DateChecker(a, g, f) {
     this.checkDate1 = function(h) {
         return this.checkDate(h, b, d, c);
     };
-    this.checkDate2 = function(l, j, i) {
-        var h = d;
+    this.checkDate2 = function(m, k, i) {
+        var h = d,
+            j;
         if (i) {
             h = QunarDate.parse(i);
         }
-        var k = new Date(this.date1.getTime() + f * 24 * 3600000);
-        if (k.getTime() > h.getTime()) {
-            k = h;
+        var l = new Date(this.date1.getTime() + f * 24 * 3600000);
+        if (l.getTime() > h.getTime()) {
+            l = h;
         }
-        return this.checkDate(l, this.date1, h, k);
+        j = this.date1;
+        return this.checkDate(m, j, h, l);
     };
     this.setDelay2 = function(h) {
         f = h || f;
@@ -3326,251 +3468,375 @@ function DateChecker(a, g, f) {
         }
         return k;
     };
+    this.isInter = false;
 }
 
-function DateLayer(m, z) {
-    this.panel = m;
-    var g = this;
-    var q = [];
-    var y = true;
-    if (m.parentNode.parentNode.className.indexOf("toD") > -1) {
-        y = false;
+function DateLayer(s, u) {
+    this.panel = s;
+    var m = this;
+    var F = [];
+    var K = true;
+    if (s.parentNode.parentNode.className.indexOf("toD") > -1) {
+        K = false;
     }
-    var c;
+    var a;
+    var h = {};
+    var c = [];
+    var E = [];
+    var M, x, z, A;
     var b = {};
-    var o = [];
-    var n = [];
-    var u, x, i, B;
-    var a = {};
+    var d, i, k, J;
+
+    function j() {
+        h = {};
+        b = {};
+        c.length = 0;
+        E.length = 0;
+        M = x = z = A = null;
+    }
 
     function C() {
-        b = {};
-        a = {};
-        o.length = 0;
-        n.length = 0;
-        u = x = i = B = null;
-    }
-
-    function t() {
-        var F = this.getAttribute("value");
-        var H = this.getAttribute("data-pos");
-        var G = QunarDate.parse(F);
-        if ((G.getTime() >= u.getTime()) && (G.getTime() <= x.getTime())) {
-            $jex.event.trigger(g, "selected", [G, H]);
+        var N = this.getAttribute("value");
+        var P = this.getAttribute("data-pos");
+        var O = QunarDate.parse(N);
+        if (O && (O.getTime() >= M.getTime()) && (O.getTime() <= x.getTime())) {
+            $jex.event.trigger(m, "selected", [O, P]);
+        } else {
+            $jex.event.trigger(m, "fuzzySelected", [N]);
+            d = this.getAttribute("start");
+            i = this.getAttribute("end");
         }
     }
 
-    function A() {
-        g.render(QunarDate.parse(this.getAttribute("ym")), u, x, null, B);
-    }
-
-    function D(F) {
-        if (!a[F]) {
-            var G = b[F];
-            a[F] = c.getDomNode(G);
+    function G() {
+        if (!k) {
+            m.render(QunarDate.parse(this.getAttribute("ym")), M, x, null, A);
+        } else {
+            m.fuzzyRenderPanel(QunarDate.parse(this.getAttribute("ym")), M, x, null, A);
         }
-        return a[F];
     }
 
-    function p(I) {
-        var J, H, I = I || {};
-        for (var G = 0, F = o.length; G < F; G++) {
-            H = o[G];
-            if (I[H]) {
-                I[H] = 0;
+    function p(N) {
+        if (!b[N]) {
+            var O = h[N];
+            b[N] = a.getDomNode(O);
+        }
+        return b[N];
+    }
+
+    function L(Q) {
+        var R, P, Q = Q || {};
+        for (var O = 0, N = c.length; O < N; O++) {
+            P = c[O];
+            if (Q[P]) {
+                Q[P] = 0;
             } else {
-                J = D(H);
-                $jex.removeClassName(J, "day_sel_area");
+                R = p(P);
+                $jex.removeClassName(R, "day_sel_area");
             }
         }
     }
 
-    function l(F) {
-        o.length = 0;
-        $jex.each(F, function(G, I) {
-            o[o.length] = G;
-            if (F[G]) {
-                var H = D(G);
-                $jex.addClassName(H, "day_sel_area");
+    function l(N) {
+        c.length = 0;
+        $jex.each(N, function(O, Q) {
+            c[c.length] = O;
+            if (N[O]) {
+                var P = p(O);
+                $jex.addClassName(P, "day_sel_area");
             }
         });
     }
 
-    function E(G) {
-        var F = D(QunarDate.format(G));
-        $jex.addClassName(F, "curr");
+    function y(O) {
+        var N = p(QunarDate.format(O));
+        $jex.addClassName(N, "curr");
     }
 
-    function s(G) {
-        var F = D(QunarDate.format(G));
-        $jex.removeClassName(F, "curr");
+    function n(O) {
+        var N = p(QunarDate.format(O));
+        $jex.removeClassName(N, "curr");
     }
-    var w = function(L, G) {
-        var K = $jex.ie ? "mouseenter" : "mouseover";
-        var J = $jex.ie ? "mouseleave" : "mouseout";
-        var I;
-        for (var H = 0, F = n.length; H < F; H++) {
-            I = D(n[H]);
-            $jex.event.bind(I, K, function() {
-                L(this);
+    var q = function(T, O) {
+        var S = $jex.ie ? "mouseenter" : "mouseover";
+        var R = $jex.ie ? "mouseleave" : "mouseout";
+        var Q;
+        for (var P = 0, N = E.length; P < N; P++) {
+            Q = p(E[P]);
+            $jex.event.bind(Q, S, function() {
+                T(this);
+                D(this);
                 $jex.addClassName(this, "hover");
             });
-            $jex.event.bind(I, J, function() {
-                G(this);
+            $jex.event.bind(Q, R, function() {
+                O(this);
+                H(this);
                 $jex.removeClassName(this, "hover");
             });
-            $jex.event.bind(I, "click", t);
-            q.push(I);
+            $jex.event.bind(Q, "click", C);
+            F.push(Q);
+        }
+        if (J) {
+            Q = p(J);
+            $jex.event.bind(Q, "click", C);
         }
     };
-    var h = function() {
-        for (var F = 0; F < 2; F++) {
-            var G = c.getDomNode("a" + F);
-            $jex.event.bind(G, "mousedown", A);
-            q.push(G);
+    var f = function() {
+        for (var N = 0; N < 2; N++) {
+            var O = a.getDomNode("a" + N);
+            $jex.event.bind(O, "mousedown", G);
+            F.push(O);
         }
     };
-    var d = function() {
-        var F = function() {};
-        w(F, F);
-    };
-    var k = function() {
-        var I = null;
-        var H = function(L) {
-            clearTimeout(I);
-            var M = L.getAttribute("value");
-            var N = QunarDate.parse(M);
-            var O = z.date1;
-            var J = z.date2;
-            var K = {};
-            if (y) {
-                if (QunarDate.compareDate(O, N) > 0) {
-                    K = QunarDate.getDatesOffset(M, QunarDate.format(J));
-                } else {
-                    if (QunarDate.compareDate(N, J) > 0) {
-                        K = {};
-                    } else {
-                        K = QunarDate.getDatesOffset(M, QunarDate.format(J));
-                    }
-                }
-                s(O);
-                E(J);
-            } else {
-                K = QunarDate.getDatesOffset(QunarDate.format(O), M);
-                s(J);
-                E(O);
-            }
-            p(K);
-            l(K);
+    var t = function() {
+        var Q = null;
+        var P = function(R) {
+            clearTimeout(Q);
         };
-        var F = function() {
-            var L = z.date1;
-            var J = z.date2;
-            var K = QunarDate.getDatesOffset(QunarDate.format(L), QunarDate.format(J));
-            E(L);
-            E(J);
-            p(K);
-            l(K);
+        var N = function(R) {
+            L();
+            c.length = 0;
+            y(u.date1);
         };
-        var G = function() {
-            clearTimeout(I);
-            I = setTimeout(function() {
-                F();
+        var O = function(R) {
+            clearTimeout(Q);
+            Q = setTimeout(function() {
+                N(R);
             }, 150);
         };
-        w(H, G);
+        q(P, O);
     };
-    var j = function() {
-        for (var F = 0, G = q.length; F < G; F++) {
-            $jex.event.clear(q[F]);
-        }
-        q.length = 0;
-    };
-    var f = function(G, I, K, J, L) {
-        i = J || 0;
-        u = I || z.getMin();
-        x = K || z.getMax();
-        B = L || {};
-        var F = 0;
-        var H = 0;
-        c = new UIObject();
-        c.text('<div class="dpanel">');
-        $jex.array.each([0, 1], function(R, S) {
-            var ae = new Date(G.getFullYear(), G.getMonth() + R - i, 1);
-            var Y = ae.getMonth() + 1;
-            var aa = QunarDate.convert2digit(Y);
-            var V = ae.getFullYear();
-            var af = new Date(V, ae.getMonth(), 0);
-            var P = new Date(V, ae.getMonth(), 1);
-            var M = new Date(V, ae.getMonth() + 1, 1);
-            var T = new Date(V, Y - 1, 1).getDay() - 1;
-            if (T < 0) {
-                T = 6;
-            }
-            var X = new Date(V, Y, 0).getDate();
-            var Q = S == 0 ? u.getTime() <= af.getTime() : M.getTime() <= x.getTime();
-            c.text('<div class="dpart">');
-            c.text('<div class="cld_dbg">' + Y + "</div>");
-            c.text("<h3>");
-            c.append("<a ", "a" + (H++)).text(' class="', (S ? "downTd" : "upTd"), '" ym="', (QunarDate.format(S ? P : af)), '" style="', (Q ? "display:block" : "display:none"), '" href="javascript:;"></a>', V, "年", Y, "月</h3>");
-            c.text('<table cellspacing="0" cellpadding="0" border="0">');
-            c.text('<tr class="thead"><td>一</td><td>二</td><td>三</td><td>四</td><td>五</td><td class="holi">六</td><td class="holi">日</td></tr>');
-            var ac = 0;
-            var W = /out$/;
-            var N = "";
-            for (var Z = 0; Z < 42; Z++) {
-                if (Z % 7 == 0) {
-                    c.text('<tr class="tdate">');
-                }
-                if (Z < T) {
-                    c.text('<td class="cnone">&nbsp;</td>');
+    var g = function() {
+        var Q = null;
+        var P = function(T) {
+            clearTimeout(Q);
+            var U = T.getAttribute("value");
+            var V = QunarDate.parse(U);
+            var W = u.date1;
+            var R = u.date2;
+            var S = {};
+            if (K) {
+                if (QunarDate.compareDate(W, V) > 0) {
+                    S = QunarDate.getDatesOffset(U, QunarDate.format(R));
                 } else {
-                    if (ac < X) {
-                        ac++;
-                        var ag = ac;
-                        var ad = QunarDate.convert2digit(ac);
-                        var U = V + "-" + aa + "-" + ad;
-                        var O = new Date(V, Y - 1, ac);
-                        var ab = QunarDate.today();
-                        if (QunarDate.compareDate(O, ab) === 0) {
-                            ag = "今天";
+                    if (QunarDate.compareDate(V, R) > 0) {
+                        S = {};
+                    } else {
+                        S = QunarDate.getDatesOffset(U, QunarDate.format(R));
+                    }
+                }
+                n(W);
+                y(R);
+            } else {
+                S = QunarDate.getDatesOffset(QunarDate.format(W), U);
+                n(R);
+                y(W);
+            }
+            L(S);
+            l(S);
+        };
+        var N = function() {
+            var T = u.date1;
+            var R = u.date2;
+            var S = QunarDate.getDatesOffset(QunarDate.format(T), QunarDate.format(R));
+            y(T);
+            y(R);
+            L(S);
+            l(S);
+        };
+        var O = function() {
+            clearTimeout(Q);
+            Q = setTimeout(function() {
+                N();
+            }, 150);
+        };
+        q(P, O);
+    };
+    var D = function(P) {
+        var Q = P.getAttribute("start"),
+            N = P.getAttribute("end"),
+            O = {};
+        if (!Q || !N) {
+            return;
+        }
+        n(u.date1);
+        n(u.date2);
+        y(QunarDate.parse(Q));
+        y(QunarDate.parse(N));
+        O = QunarDate.getDatesOffset(Q, N);
+        L(O);
+        l(O);
+    };
+    var H = function(P) {
+        var Q = P.getAttribute("start"),
+            N = P.getAttribute("end"),
+            O = {};
+        if (!Q || !N) {
+            return;
+        }
+        n(QunarDate.parse(Q));
+        n(QunarDate.parse(N));
+    };
+    var w = function() {
+        var Q = null;
+        var P = function(R) {
+            clearTimeout(Q);
+            if (QunarDate.getFuzzyDate(R.getAttribute("value"))) {
+                n(QunarDate.parse(i));
+            }
+        };
+        var N = function() {
+            var R = QunarDate.getDatesOffset(d, i);
+            L(R);
+            l(R);
+            y(QunarDate.parse(d));
+            y(QunarDate.parse(i));
+        };
+        var O = function() {
+            clearTimeout(Q);
+            Q = setTimeout(function() {
+                N();
+            }, 150);
+        };
+        q(P, O);
+    };
+    var o = function() {
+        for (var N = 0, O = F.length; N < O; N++) {
+            $jex.event.clear(F[N]);
+        }
+        F.length = 0;
+    };
+    var B = function(O, R, T, S, U) {
+        z = S || 0;
+        M = R || u.getMin();
+        x = T || u.getMax();
+        A = U || {};
+        var N = 0;
+        var Q = 0;
+        a = new UIObject();
+        a.text('<div class="dpanel">');
+        $jex.array.each([0, 1], function(aa, ab) {
+            var an = new Date(O.getFullYear(), O.getMonth() + aa - z, 1);
+            var ah = an.getMonth() + 1;
+            var aj = QunarDate.convert2digit(ah);
+            var ae = an.getFullYear();
+            var ao = new Date(ae, an.getMonth(), 0);
+            var Y = new Date(ae, an.getMonth(), 1);
+            var V = new Date(ae, an.getMonth() + 1, 1);
+            var ac = new Date(ae, ah - 1, 1).getDay() - 1;
+            if (ac < 0) {
+                ac = 6;
+            }
+            var ag = new Date(ae, ah, 0).getDate();
+            var Z = ab == 0 ? M.getTime() <= ao.getTime() : V.getTime() <= x.getTime();
+            a.text('<div class="dpart">');
+            a.text('<div class="cld_dbg">' + ah + "</div>");
+            a.text("<h3>");
+            a.append("<a ", "a" + (Q++)).text(' class="', (ab ? "downTd" : "upTd"), '" ym="', (QunarDate.format(ab ? Y : ao)), '" style="', (Z ? "display:block" : "display:none"), '" href="javascript:;"></a>', ae, "年", ah, "月</h3>");
+            a.text('<table cellspacing="0" cellpadding="0" border="0">');
+            a.text('<tr class="thead"><td>一</td><td>二</td><td>三</td><td>四</td><td>五</td><td class="holi">六</td><td class="holi">日</td></tr>');
+            var al = 0;
+            var af = /out$/;
+            var W = "";
+            for (var ai = 0; ai < 42; ai++) {
+                if (ai % 7 == 0) {
+                    a.text('<tr class="tdate">');
+                }
+                if (ai < ac) {
+                    a.text('<td class="cnone">&nbsp;</td>');
+                } else {
+                    if (al < ag) {
+                        al++;
+                        var ap = al;
+                        var am = QunarDate.convert2digit(al);
+                        var ad = ae + "-" + aj + "-" + am;
+                        var X = new Date(ae, ah - 1, al);
+                        var ak = QunarDate.today();
+                        if (QunarDate.compareDate(X, ak) === 0) {
+                            ap = "今天";
                         }
-                        if (QunarDate.isHoliday(U) && QunarDate.showIcon && QunarDate.showIcon(U)) {
-                            ag = QunarDate.getHolidayName(U);
+                        if (QunarDate.isHoliday(ad) && QunarDate.showIcon && QunarDate.showIcon(ad)) {
+                            ap = QunarDate.getHolidayName(ad);
                         }
-                        b[U] = F;
-                        N = z.getTdStyle(O, u, x);
-                        if (!W.test(N)) {
-                            n[n.length] = U;
+                        h[ad] = N;
+                        W = u.getTdStyle(X, M, x);
+                        if (!af.test(W)) {
+                            E[E.length] = ad;
                         }
-                        if ( !! B[U]) {
-                            o[o.length] = U;
-                            c.append("<td ", F++).text(' value="', U, '" data-pos="', R, '" class=" day_sel_area  ', N, '" >', ag, "</td>");
+                        if ( !! A[ad]) {
+                            c[c.length] = ad;
+                            a.append("<td ", N++).text(' value="', ad, '" data-pos="', aa, '" class=" day_sel_area  ', W, '" >', ap, "</td>");
                         } else {
-                            c.append("<td ", F++).text(' value="', U, '" data-pos="', R, '" class="', N, '" >', ag, "</td>");
+                            a.append("<td ", N++).text(' value="', ad, '" data-pos="', aa, '" class="', W, '" >', ap, "</td>");
                         }
                     } else {
-                        c.text('<td class="cnone">&nbsp;</td>');
+                        a.text('<td class="cnone">&nbsp;</td>');
                     }
-                } if (Z % 7 == 6) {
-                    c.text("</tr>");
+                } if (ai % 7 == 6) {
+                    a.text("</tr>");
                 }
             }
-            c.text("</table></div>");
+            a.text("</table></div>");
         });
-        c.text("</div>");
-        c.write(m);
-    };
-    this.render = function(G, H, F, J, I) {
-        j();
-        C();
-        f(G, H, F, J, I);
-        if (z.date2Hide) {
-            d();
-        } else {
-            k();
+        if (u.isInter) {
+            a.text('<div class="fuzzy_t_box">');
+            a.text(' <ul class="fuzzy_t_list clrfix">');
+            var P = k == "1周之内" && !K ? QunarDate.getFuzzyDateText1() : QunarDate.getFuzzyDateText0();
+            $jex.array.each(P, function(W, V) {
+                var X = QunarDate.getFuzzyDate(W);
+                if (k == W) {
+                    _class = "hover";
+                    J = W;
+                    h[W] = N;
+                } else {
+                    E[E.length] = W;
+                    h[W] = N;
+                    _class = "";
+                }
+                a.append("<li ", N++).text(' value="', X.value, '" start="', X.start, '" end="', X.end, '" class="', _class, '">', W, "</li>");
+            });
+            a.text(" </ul>");
+            a.text("</div>");
         }
-        h();
+        a.text("</div>");
+        a.write(s);
+    };
+    var I = function() {
+        var N = function() {};
+        q(N, N);
+    };
+    this.render = function(O, P, N, R, Q) {
+        k = "";
+        o();
+        j();
+        B(O, P, N, R, Q);
+        if (u.date2Hide) {
+            t();
+        } else {
+            g();
+        }
+        f();
+    };
+    this.fuzzyRenderPanel = function(P, R, N, U, S) {
+        var O = QunarDate.getFuzzyDate(P),
+            Q, T;
+        o();
+        j();
+        if (!O) {
+            B(P, R, N, U, S);
+        } else {
+            k = P;
+            d = O.start;
+            i = O.end;
+            Q = QunarDate.getDatesOffset(d, i);
+            u.setDate1(d);
+            u.setDate2(i);
+            T = K ? 0 : QunarDate.parse(d);
+            B(QunarDate.today(), T, 0, 0, Q);
+            y(QunarDate.parse(i));
+        }
+        w();
+        f();
     };
 }
 var TraceAnalyzer = function(a) {
@@ -4499,6 +4765,9 @@ WrapperEntity.prototype.bpr = function() {
 WrapperEntity.prototype.pid = function() {
     return this.dataSource().pid;
 };
+WrapperEntity.prototype.hasAgeLimit = function() {
+    return this.dataSource().type === "q";
+};
 WrapperEntity.prototype.getTGQInfo = function() {
     var h = this.dataSource();
     if (!h.hasOwnProperty("tgq")) {
@@ -4573,7 +4842,7 @@ WrapperEntity.prototype._booking_url = function(b, d) {
         a.from = f;
     }
     this._addEx_track(a);
-    if (b && this.ownerFlight().type != "onewayInTransfer") {
+    if (b) {
         a.stat = b.value();
     }
     if (this.ownerFlight().type == "onewayInTransfer") {
@@ -4646,7 +4915,10 @@ WrapperEntity.prototype.getVpr = function() {
     return this._vpr || 0;
 };
 WrapperEntity.prototype.coupon = function() {
-    return this.dataSource().cd || 0;
+    return Number(this.dataSource().cd) || 0;
+};
+WrapperEntity.prototype.cat = function() {
+    return this.dataSource().cat || 1;
 };
 WrapperEntity.prototype.couponAdwords = function() {
     return this.dataSource().caw;
@@ -5201,6 +5473,9 @@ $jex.extendClass(OnewayFlightWrapperEntity, WrapperEntity);
 OnewayFlightWrapperEntity.prototype.wrapperId = function() {
     return this.dataSource().wrid;
 };
+OnewayFlightWrapperEntity.prototype.b2bpf = function() {
+    return this.dataSource().b2bpf || "";
+};
 OnewayFlightWrapperEntity.prototype.rank = function() {
     return this.groupInfo().rank || 999999;
 };
@@ -5720,15 +5995,12 @@ WrapperUI.prototype.insert_BOOKING_BUTTON = function(a) {
 };
 var StatProvider = function() {
     this.ownerWrapperEntity = function(g) {
-        if (g.ownerFlight().type == "onewayInTransfer") {
-            return;
-        }
         if (g.isApplyPrice() || g.isFakeNormalPrice()) {
             this.location(4);
         }
         this.fake(g.fake());
         if (g.ownerFlight().lowestPrice() == g.price()) {
-            this.lowestStat(g.ownerFlight().lowestWrapperIds().length);
+            this.lowestStat(g.ownerFlight().lowestWrapperIds ? g.ownerFlight().lowestWrapperIds().length : 1);
         } else {
             this.lowestStat(0);
         } if (g.advalue() > 100) {
@@ -6421,7 +6693,7 @@ var HotSale = (function() {
     var b = {
         ps: "航班票量较少",
         hot: "一周内热门预订",
-        lcc: "廉价航空公司不提供免费餐饮，免费携带的行李额度低，<br />详情咨询春秋航空：021-95524"
+        lcc: "除商务经济座外，其他机票不提供免费餐饮，免<br/>费行李额度低，详情请咨询春秋航空：95524"
     };
     var d = -1,
         a = 100;
@@ -6989,7 +7261,7 @@ OnewayFlightUI.prototype.insert_recommandWrapper = function(c, j) {
     this.text("</a></p>");
     if (b.isOta()) {
         this.append("<div", "reCommOtaTip", ' class="p_tips_cont" style="display:none;">');
-        this.text('<div class="p_tips_wrap" style="left:-93px;top:3px;">', '<div class="p_tips_arr p_tips_arr_t" style="left:153px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>");
+        this.text('<div class="p_tips_wrap" style="left:-93px;top:3px;">', '<div class="p_tips_arr p_tips_arr_t" style="left:153px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后极速出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>");
         if (!j) {
             this.onInit(function() {
                 this.onInit(function() {
@@ -7584,6 +7856,12 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
         this.insert_TGQ(d);
         this.text("</div>");
     }
+    if (d.hasAgeLimit()) {
+        this.append("<div", "js-stopClick", ' class="t_st">');
+        this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
+        this.insertAgeLimit(d);
+        this.text("</div>");
+    }
     if (c && !d.isApplyPrice()) {
         f = 1;
         this.text('<div class="t_st">');
@@ -7620,10 +7898,20 @@ OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
     var b = a;
     if (b.coupon() > 0 && (typeof a.vendor === "function" && a.vendor().rebateTye() !== "RM")) {
         this.text('<div class="t_ofc_sep" >');
-        this.text('    <p class="direct_red">官网特惠直减', b.coupon(), "元</p>");
+        this.text('    <p class="direct_red">', this.getRebateText(a), b.coupon(), "元</p>");
         this.text("</div>");
     }
 };
+OnewayFlightWrapperUI.prototype.getRebateText = function() {
+    var a = {
+        "1": "官网特惠直减",
+        "2": "优惠码直减",
+        "3": "折上再减"
+    };
+    return function(b) {
+        return a[b.cat()] || "";
+    };
+}();
 OnewayFlightWrapperUI.prototype._getTipHTML = function(a) {
     return ['<div class="p_tips_cont"><div class="p_tips_wrap"> <div class="p_tips_arr p_tips_arr_t"> <p class="arr_o">◆</p> <p class="arr_i">◆</p> </div> <div class="p_tips_content"> <p>', a, "</p> </div> </div> </div>"].join("");
 };
@@ -7645,34 +7933,35 @@ OnewayFlightWrapperUI.prototype._bindHoverEvent = function(b) {
         });
     });
 };
-OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
-    var a = b;
+OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
+    var b = c;
+    var a = this;
     this.onInit(function() {
-        var f = this;
-        f.loadedTgq = false;
-        var d = this.find("tgq"),
-            c = false;
-        var h = a.getTGQInfo();
+        a.loadedTgq = false;
+        var f = this.find("tgq"),
+            d = false;
+        var h = b.getTGQInfo();
 
         function i() {
             var k = "/twell/flight/getTGQ.jsp";
-            var n = a.ownerFlight();
-            var m = f.find("tgq_notice");
+            var n = b.ownerFlight();
+            var m = a.find("tgq_notice");
             var l = "";
             $jex.jsonp(k, {
                 flightNum: n.flightInfo().co,
                 deptAirport: n.deptAirport().code,
                 arrAirport: n.arriAirport().code,
                 deptDate: n.deptDate().replace(/-/g, ""),
-                printPrice: a.parValue(),
-                wrapperId: a.wrapperId(),
-                cabin: a.cabin(),
-                policyId: a.pid(),
-                maxSellPrice: Math.max(a.afeePrice(), a.bprPrice()),
-                minSellPrice: Math.min(a.afeePrice() || Number.MAX_VALUE, a.bprPrice() || Number.MAX_VALUE),
-                tag: a.tag()
+                printPrice: b.parValue(),
+                wrapperId: b.wrapperId(),
+                cabin: b.cabin(),
+                policyId: b.pid(),
+                maxSellPrice: Math.max(b.afeePrice(), b.bprPrice()),
+                minSellPrice: Math.min(b.afeePrice() || Number.MAX_VALUE, b.bprPrice() || Number.MAX_VALUE),
+                tag: b.tag(),
+                b2bpf: b.b2bpf()
             }, function(p) {
-                f.loadedTgq = true;
+                a.loadedTgq = true;
                 if (!p || (p && !p.tgqAdult)) {
                     m.innerHTML = h;
                     return;
@@ -7732,27 +8021,89 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
             }
             return q.join("");
         }
-        if (d) {
+        if (f) {
             var j = this.find("tgq_notice_panel");
             $jex.hover({
-                act: d,
+                act: f,
                 extra: [this.find("tgq_notice_panel")],
                 onmouseover: function(k) {
-                    if (c) {
+                    if (d) {
                         return;
                     }
-                    if (a.pid() && !f.loadedTgq) {
+                    if (b.pid() && !a.loadedTgq) {
                         i();
                     }
                     $jex.element.show(j);
                     $jex.event.trigger($jex.$("hdivResultPanel"), "fem_showTGQ");
-                    c = true;
+                    d = true;
                 },
                 onmouseout: function(k) {
-                    c = false;
+                    d = false;
                     $jex.element.hide(j);
                 }
             });
+        }
+    });
+    this.onInit(function() {
+        var i = a.find("ageLimit");
+        if (!i) {
+            return;
+        }
+        var d = a.find("ageLimit-tips");
+        var g = false;
+        $jex.hover({
+            act: i,
+            extra: [this.find("ageLimit-tips")],
+            onmouseover: function() {
+                if (g) {
+                    d.style.display = "";
+                    return;
+                }
+                f();
+            },
+            onmouseout: function() {
+                $jex.element.hide(d);
+            }
+        });
+
+        function f() {
+            var j = "/twell/flight/getQLN.jsp";
+            $jex.jsonp(j, {
+                wrapperId: b.wrapperId(),
+                policyId: b.pid()
+            }, function(k) {
+                h(k);
+            }, {
+                timeout: {
+                    time: 3000,
+                    func: function() {
+                        if (!g) {
+                            h({});
+                        }
+                    }
+                }
+            });
+        }
+
+        function h(n) {
+            g = true;
+            var l = "该产品限制乘机人年龄，下单时请注意相关提示";
+            var k = a.find("ageLimit-tips-content");
+            var j = n.maxAge;
+            var m = n.minAge;
+            if (j && m) {
+                l = "限" + m + "-" + j + "（含）周岁购买";
+            } else {
+                if (j && !m) {
+                    l = "限<" + j + "（含）周岁购买";
+                } else {
+                    if (!j && m) {
+                        l = "限>" + m + "（含）周岁购买";
+                    }
+                }
+            }
+            k.innerHTML = l;
+            d.style.display = "";
         }
     });
 };
@@ -7799,7 +8150,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
     this.text('<div class="t_cmt">');
-    this.text("支付后3分钟内出票；起飞后可邮寄行程单；<br/>7*24小时全天候服务");
+    this.text("支付后极速出票；起飞后可邮寄行程单；<br/>7*24小时全天候服务");
     this.text("</div>");
     this.text("</div>");
 };
@@ -7827,9 +8178,9 @@ OnewayFlightWrapperUI.prototype.insertOta = function(d) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="t_sv">');
-    this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_youxuan"><b>3</b>分钟出票</i></span>');
+    this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_youxuan">极速出票</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
-    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后3分钟内出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单</p>', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
+    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后极速出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单</p>', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
             var g = this.find("superOtaBtn");
@@ -7860,6 +8211,13 @@ OnewayFlightWrapperUI.prototype.insert_Services = function(f) {
             }
         }
     });
+};
+OnewayFlightWrapperUI.prototype.insertAgeLimit = function() {
+    this.append('<div class="p_tips_cont" ', "ageLimit-tips", ">");
+    this.text('<div class="p_tips_wrap" style="left:-80px"><div class="p_tips_arr p_tips_arr_t" style="left:95px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.append('<div style="text-align:center;min-width:160px;_width:160px;" class="p_tips_content" ', "ageLimit-tips-content", " >");
+    this.text('<img class="p_tips_tgq_img" src="http://source.qunar.com/site/images/new_main/m_loading.gif" />');
+    this.text("</div></div></div>");
 };
 OnewayFlightWrapperUI.prototype.insert_TGQ = function(b) {
     var a = b.getTGQInfo();
@@ -10091,14 +10449,15 @@ var $OTALOGIC = (function() {
                     elsCount: j
                 });
                 $OTALOGIC.ts2 = new Date().getTime();
-                $OTA.load(function(k) {
-                    k.write($jex.$("divOTA"));
-                    var l = this.getLength();
-                    if (l > 0) {
-                        $jex.$("divOTA").style.display = "block";
+                var k = $jex.$("divOTA");
+                $OTA.load(function(m) {
+                    m.write(k);
+                    var n = this.getLength();
+                    if (n > 0) {
+                        k.style.display = "block";
                     }
                     $OTALOGIC.te2 = new Date().getTime();
-                    j = j - l;
+                    j = j - n;
                     if (d) {
                         j = 10;
                     }
@@ -10107,6 +10466,19 @@ var $OTALOGIC = (function() {
                     } else {
                         $OTALOGIC.ts3 = $OTALOGIC.te3 = new Date().getTime();
                         $OTALOGIC.track();
+                    }
+                });
+                var l = new Date().getTime();
+                $jex.event.bind(k, "click", function(m) {
+                    var n = m.target || event.srcElement;
+                    if (n.tagName == "A") {
+                        if ((new Date().getTime() - l) > 10 * 60 * 1000) {
+                            LockScreen(null, {
+                                msg: "您的前一次搜索已经过去了10分钟，<br />正在为您重新搜索以提供更准确报价",
+                                lockNow: true
+                            });
+                            $jex.stopEvent(m);
+                        }
                     }
                 });
             }
@@ -11786,144 +12158,154 @@ var QadAdUnits = (function() {
 (function() {
     var c = QadAdUnits.$E;
 
-    function b(l) {
-        var j = l && l.key_data && l.key_data.length;
-        if (!j) {
-            return;
-        }
-        var k = l.key_data[0].description;
+    function g(m) {
+        var k = m && m.key_data && m.key_data.length;
         if (!k) {
             return;
         }
-        k = k.replace(/(st)_(yle)/ig, "$1$2");
-        k = k.replace(/(scr)_(ipt)/gi, "$1$2");
-        return k;
+        var l = m.key_data[0].description;
+        if (!l) {
+            return;
+        }
+        l = l.replace(/(st)_(yle)/ig, "$1$2");
+        l = l.replace(/(scr)_(ipt)/gi, "$1$2");
+        return l;
     }
 
-    function h(j) {
-        return function(k, l) {
-            k.style.display = "none";
-            html = b(l);
-            QNR.AD.add_AD_iframe(j, html, 1);
+    function j(k) {
+        return function(l, m) {
+            l.style.display = "none";
+            html = g(m);
+            QNR.AD.add_AD_iframe(k, html, 1);
         };
     }
-    QNR.AD.createCallback("ifrHelperAd", h("ifrHelperAd"));
-    QNR.AD.createCallback("ifrCataAd", h("ifrCataAd"));
+    QNR.AD.createCallback("ifrHelperAd", j("ifrHelperAd"));
+    QNR.AD.createCallback("ifrCataAd", j("ifrCataAd"));
 
     function i() {
-        var j = c("ifmRightTextlink_title");
-        if (j) {
-            j.style.display = "block";
+        var k = c("ifmRightTextlink_title");
+        if (k) {
+            k.style.display = "block";
         }
-        j = c("ifmRightTextlink_footer");
-        if (j) {
-            j.style.display = "block";
+        k = c("ifmRightTextlink_footer");
+        if (k) {
+            k.style.display = "block";
         }
     }
-    QadAdUnits.create_text_call("ifmRightTextlink", function(j) {
-        if (j > 0) {
+    QadAdUnits.create_text_call("ifmRightTextlink", function(k) {
+        if (k > 0) {
             i();
         }
     });
 
-    function d(s, l, n) {
-        var p = n && n.key_data && n.key_data.length;
-        l.style.display = "none";
-        if (!p) {
-            return;
-        }
-        var k = '<style type="text/css">.f_org { color: #FF6600; }.ul_listBticket li { display: inline-block; float: left; line-height: 20px; text-align: left; width: 27%; }.ul_listBticket li a { display: block; }.ul_listBticket li a .tit { display: block;}.ul_listBticket li.col_qnr { padding-top: 0; text-align: left; width: 18%; }.ul_listBticket li.col_qnr .txtlnk_qnr { background: none repeat scroll 0 0 #EFEFEF; color: #333; display: inline-block; height: 17px; line-height: 17px; padding: 0 6px; }</style>';
-        var o = ['<div class="bannerTK_cont" id="result">'],
-            q = n.key_data,
-            t, j;
-        o.push('<ul class="ul_listBticket clr_after">');
-        o.push('<li class="col_qnr"><span class="txtlnk_qnr">去哪儿提供的链接</span></li>');
-        for (var m = 0; m < p; m++) {
-            t = q[m];
-            j = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
-            o.push('<li><a href="', j, '" target="_blank"><span class="tit">', t.title, '</span> <span class="f_org">', t.show, "</span> </a></li>");
-        }
-        o.push("</ul></div>");
-        var o = k + o.join("");
-        QNR.AD.add_AD_iframe(s, o, 1);
-    }
-
-    function g(s, l, o) {
+    function a(t, m, o) {
         var q = o && o.key_data && o.key_data.length;
-        l.style.display = "none";
+        m.style.display = "none";
         if (!q) {
             return;
         }
-        var m = "text-align:center;";
-        if (s == "topicLinkR" || s == "topicLinkL") {
-            m = "text-align:right;*padding-right:10px;";
-        }
-        var j = '<style type="text/css">.topicLink { height:24px;color:#333;' + m + "}.topicLink p { padding-top:8px;}.topicLink p .ico_vl{ margin-left:2px;vertical-align:middle;margin-top:-2px;*margin-top:2px;_margin-top:-3px;}</style>";
-        var p = ['<div class="topicLink">'],
-            o = o.key_data,
-            k, t;
+        var l = '<style type="text/css">.f_org { color: #FF6600; }.ul_listBticket li { display: inline-block; float: left; line-height: 20px; text-align: left; width: 27%; }.ul_listBticket li a { display: block; }.ul_listBticket li a .tit { display: block;}.ul_listBticket li.col_qnr { padding-top: 0; text-align: left; width: 18%; }.ul_listBticket li.col_qnr .txtlnk_qnr { background: none repeat scroll 0 0 #EFEFEF; color: #333; display: inline-block; height: 17px; line-height: 17px; padding: 0 6px; }</style>';
+        var p = ['<div class="bannerTK_cont" id="result">'],
+            s = o.key_data,
+            u, k;
+        p.push('<ul class="ul_listBticket clr_after">');
+        p.push('<li class="col_qnr"><span class="txtlnk_qnr">去哪儿提供的链接</span></li>');
         for (var n = 0; n < q; n++) {
-            t = o[n];
-            k = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
-            p.push('<p><a href="', k, '" target="_blank" title="', t.title + '">', t.description, '<img src="', t.img, '" alt="hot" class="ico_vl"></a></p>');
+            u = s[n];
+            k = ["http://clk.qunar.com/q?k=", u.s || "", "&e=", u.e].join("");
+            p.push('<li><a href="', k, '" target="_blank"><span class="tit">', u.title, '</span> <span class="f_org">', u.show, "</span> </a></li>");
         }
-        p.push("</div>");
-        p = j + p.join("");
-        QNR.AD.add_AD_iframe(s, p, 1);
+        p.push("</ul></div>");
+        var p = l + p.join("");
+        QNR.AD.add_AD_iframe(t, p, 1);
     }
-    QNR.AD.createCallback("listBottomAD", function(j, k) {
-        d("listBottomAD", j, k);
-    });
-    QNR.AD.createCallback("ifrNTOPAD", function(j, k) {
-        d("ifrNTOPAD", j, k);
-    });
-    QNR.AD.createCallback("topicLinkL", function(j, k) {
-        g("topicLinkL", j, k);
-    });
-    QNR.AD.createCallback("topicLinkR", function(j, k) {
-        g("topicLinkR", j, k);
-    });
-    QNR.AD.createCallback("ifmRightFlightOwner", function(k, p) {
-        var j = p && p.key_data && p.key_data.length;
-        k.style.display = "none";
-        if (!j) {
+
+    function h(t, m, p) {
+        var s = p && p.key_data && p.key_data.length;
+        m.style.display = "none";
+        if (!s) {
             return;
         }
-        var n = [];
-        for (var m = 0; m < j; m++) {
-            var o = p.key_data[m];
-            var l = ["http://clk.qunar.com/q?k=", o.s || "", "&e=", o.e].join("");
-            n.push('<a style="display:block;padding-bottom:7px;" href="', l, '" target="_blank" title="', o.title + '">', '<img style="display:block;" src="', o.img, '" /></a>');
+        var n = "text-align:center;";
+        var w = "padding-top:8px;";
+        if (t == "topicLinkR" || t == "topicLinkL") {
+            n = "text-align:right;*padding-right:10px;";
+            w = "padding-top:6px;*padding-top:4px;_padding-top:8px;";
         }
-        document.getElementById("js_rightFlightOwnerBanner").innerHTML = n.join("");
-    });
-    var a = 0;
-
-    function f() {
-        return "ad_dyna_" + (a++);
+        var l = '<style type="text/css">.topicLink { height:24px;color:#333;' + n + "}.topicLink p {" + w + " }.topicLink p .ico_vl{ margin-left:2px;vertical-align:middle;margin-top:-2px;*margin-top:2px;_margin-top:-3px;}</style>";
+        var q = ['<div class="topicLink">'],
+            p = p.key_data,
+            k, u;
+        for (var o = 0; o < s; o++) {
+            u = p[o];
+            k = ["http://clk.qunar.com/q?k=", u.s || "", "&e=", u.e].join("");
+            q.push('<p><a href="', k, '" target="_blank" title="', u.title + '">', u.description, '<img src="', u.img, '" alt="hot" class="ico_vl"></a></p>');
+        }
+        q.push("</div>");
+        q = l + q.join("");
+        QNR.AD.add_AD_iframe(t, q, 1);
     }
-    AD_Manage.createFlightAD = function(k) {
-        var l = QNR.AD.create_div_container(k);
-        var p = /inter/.test(location.pathname) ? "QNR_ZDM%3D_CN" : "QNR_YjM%3D_CN";
-        var s = QadAdUnits.$E(k);
-        k = f();
-        var q = k + "_qad",
-            n = k + "_qde";
-        var j = '<span style="display:none;" data-query="vataposition=' + p + '&tag=0&rows=3&cur_page_num=0&rep=1&f=s" data-type="qad" data-style="width:100%;" id="' + q + '"></span><div style="padding: 0 6px;"><span style="display:none;" data-style="width:100%;" data-type="qde" data-query="" id="' + n + '"></span></div>';
-        l.innerHTML = j;
-        var m = AD_Manage.isDebug();
-        QNR.AD.createQdeCallback(n, function(t) {
-            if (!t || m) {
-                QNR.AD.loadOneAD(q);
+    QNR.AD.createCallback("listBottomAD", function(k, l) {
+        a("listBottomAD", k, l);
+    });
+    QNR.AD.createCallback("ifrNTOPAD", function(k, l) {
+        a("ifrNTOPAD", k, l);
+    });
+    QNR.AD.createCallback("topicLinkL", function(k, l) {
+        h("topicLinkL", k, l);
+    });
+    QNR.AD.createCallback("topicLinkR", function(k, l) {
+        h("topicLinkR", k, l);
+    });
+    d("ifmRightFlightOwner", "js_rightFlightOwnerBanner");
+    d("ifmRightFlightExt", "js_rightFlightExtBanner");
+    d("ifmOwnFlightRightBottom", "js_ownFlightRightBottom");
+
+    function d(l, k) {
+        QNR.AD.createCallback(l, function(o, u) {
+            var m = u && u.key_data && u.key_data.length;
+            o.style.display = "none";
+            var n = document.getElementById(k);
+            if (!m) {
+                n.parentNode.style.display = "none";
+                return;
+            }
+            var s = [];
+            for (var q = 0; q < m; q++) {
+                var t = u.key_data[q];
+                var p = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
+                s.push('<a style="display:block;padding-bottom:7px;" href="', p, '" target="_blank">', '<img style="display:block;" src="', t.img, '" /></a>');
+            }
+            n.innerHTML = s.join("");
+        });
+    }
+    var f = 0;
+
+    function b() {
+        return "ad_dyna_" + (f++);
+    }
+    AD_Manage.createFlightAD = function(l) {
+        var m = QNR.AD.create_div_container(l);
+        var q = /inter/.test(location.pathname) ? "QNR_ZDM%3D_CN" : "QNR_YjM%3D_CN";
+        var t = QadAdUnits.$E(l);
+        l = b();
+        var s = l + "_qad",
+            o = l + "_qde";
+        var k = '<span style="display:none;" data-query="vataposition=' + q + '&tag=0&rows=3&cur_page_num=0&rep=1&f=s" data-type="qad" data-style="width:100%;" id="' + s + '"></span><div style="padding: 0 6px;"><span style="display:none;" data-style="width:100%;" data-type="qde" data-query="" id="' + o + '"></span></div>';
+        m.innerHTML = k;
+        var n = AD_Manage.isDebug();
+        QNR.AD.createQdeCallback(o, function(u) {
+            if (!u || n) {
+                QNR.AD.loadOneAD(s);
             }
         });
-        QNR.AD.createCallback(q, function(t, u) {
-            d(q, t, u);
+        QNR.AD.createCallback(s, function(u, w) {
+            a(s, u, w);
         });
-        var o = s.getAttribute("querystring");
-        QadAdUnits.$E(n).setAttribute("data-query", o);
-        QNR.AD.__cur_qde_ad = n;
-        QNR.AD.loadOneAD(n);
+        var p = t.getAttribute("querystring");
+        QadAdUnits.$E(o).setAttribute("data-query", p);
+        QNR.AD.__cur_qde_ad = o;
+        QNR.AD.loadOneAD(o);
     };
 })();
 (function() {
@@ -12682,18 +13064,20 @@ XPopupManager.prototype.createPopup = function(a, b) {
 XPopupManager.prototype.open = function(b) {
     var a = this.popups[b];
     if (a) {
-        if (!a.inited) {
-            var c = a.panel;
-            if (!c) {
-                c = $jex.doc(this.container).createElement("DIV");
-                c.className = a.className;
-                c.style.display = "none";
+        var c = a.panel;
+        if (!c) {
+            c = $jex.doc(this.container).createElement("DIV");
+            c.className = a.className;
+            c.style.display = "none";
+            if (!a.inited) {
                 this.container.appendChild(c);
-                a.panel = c;
+            } else {
+                this.container.replaceChild(c, this.container.childNodes);
             }
-            a.initialize();
-            a.inited = true;
+            a.panel = c;
         }
+        a.initialize();
+        a.inited = true;
         if (this.current && this.current != a && this.current.isOpend()) {
             this.current.close();
         }
@@ -12778,6 +13162,7 @@ function FlightCityXCombox(c, d, b) {
         },
         focus: function() {
             this.inputEl.select();
+            this.setInfo("");
         },
         blur: function() {
             if (this.vidx == -1) {
@@ -12789,11 +13174,8 @@ function FlightCityXCombox(c, d, b) {
                     this.vidx = 0;
                     $jex.event.trigger(a, "select", j.key);
                 }
-            } else {
-                if (this.getValue() == "") {
-                    this.setTip();
-                }
             }
+            this.setTip();
         },
         popups: {
             main: {
@@ -12808,7 +13190,7 @@ function FlightCityXCombox(c, d, b) {
                     var s = "__flightcitybox_" + $jex.globalID();
                     var p = function(i) {
                         return function(u) {
-                            var D = [];
+                            var E = [];
                             if (!n[i]) {
                                 return false;
                             }
@@ -12818,25 +13200,35 @@ function FlightCityXCombox(c, d, b) {
                             }
                             var w = n[i].charSort;
                             if (!w) {
-                                D.push("<ul>");
+                                E.push("<ul>");
                                 for (var z = 0; z < C.length; z++) {
                                     var x = C[z];
-                                    D.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
+                                    E.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
                                 }
-                                D.push("</ul>");
+                                E.push("</ul>");
                             } else {
                                 for (var z = 0; z < C.length; z++) {
                                     var x = C[z];
                                     var A = x.list;
-                                    D.push('<dl class="e_hct_lst"><dt>' + x["char"] + " </dt><dd><ul>");
+                                    E.push('<dl class="e_hct_lst"><dt>' + x["char"] + " </dt><dd><ul>");
                                     for (var y = 0; y < A.length; y++) {
                                         var B = A[y];
-                                        D.push('<li country="' + B.country + '" key="' + B.name + '"><a href="#nogo#">' + B.name + "</a></li>");
+                                        E.push('<li country="' + B.country + '" key="' + B.name + '"><a href="#nogo#">' + B.name + "</a></li>");
                                     }
-                                    D.push("</ul></dd></dl>");
+                                    E.push("</ul></dd></dl>");
                                 }
                             }
-                            u.innerHTML = D.join("");
+                            var D = n[i].countryList;
+                            if (D) {
+                                E.push('<span class="fuzzy_area_line"></span>');
+                                E.push("<ul>");
+                                for (var z = 0; z < D.length; z++) {
+                                    var x = D[z];
+                                    E.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
+                                }
+                                E.push("</ul>");
+                            }
+                            u.innerHTML = E.join("");
                             if (n[i].cls) {
                                 $jex.$(s).className = n[i].cls;
                             } else {
@@ -12900,7 +13292,7 @@ function FlightCityXCombox(c, d, b) {
             },
             suggest: {
                 initialize: function() {
-                    this.layer = new FlightSuggestItemListLayer(this);
+                    this.layer = new FlightSuggestItemListLayer(this, a.setting.suggestType);
                     $jex.event.bind(this.layer, "select", function(i, k) {
                         if (i > -1) {
                             this.popup.own.setCountry(this.nodes[i].item.country);
@@ -13012,10 +13404,16 @@ FlightCityXCombox.prototype.getCountry = function(a) {
     return this.country;
 };
 
-function FlightSuggestItemListLayer(a) {
+function FlightSuggestItemListLayer(a, b) {
     this.popup = a;
     this.cursor = -1;
     this.nodes = [];
+    this.specialType = [1, 6, 7];
+    this.isFuzzy = !b;
+    this.allPlace = "所有地点";
+    if (b) {
+        this.specialType.push(b);
+    }
 }
 FlightSuggestItemListLayer.prototype.error = function() {
     var a = new UIObject();
@@ -13044,6 +13442,15 @@ FlightSuggestItemListLayer.prototype.refresh = function(g, k, n) {
     }
     if (k) {
         c.text('<div class="qcity_guess">找不到<span class="hl">', n, "</span></div>");
+    } else {
+        if (this.isFuzzy && j[j.length - 1].display != this.allPlace) {
+            j.push({
+                country: "中国",
+                display: this.allPlace,
+                key: this.allPlace,
+                type: 0
+            });
+        }
     }
     c.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
     for (var h = 0; h < j.length; h++) {
@@ -13070,13 +13477,13 @@ FlightSuggestItemListLayer.prototype.refresh = function(g, k, n) {
     }
 };
 FlightSuggestItemListLayer.prototype.mouseover = function(a) {
-    if (this.item.type == 1 || this.item.type == 6 || this.item.type == 7 || this.item.type == 8) {
+    if ($jex.array.indexOf(this.layer.specialType, this.item.type) > -1) {
         return;
     }
     this.layer.enter(this.idx);
 };
 FlightSuggestItemListLayer.prototype.click = function(a) {
-    if (this.item.type == 1 || this.item.type == 6 || this.item.type == 7 || this.item.type == 8) {
+    if ($jex.array.indexOf(this.layer.specialType, this.item.type) > -1) {
         return;
     }
     this.layer.select(this.idx, true);
@@ -13090,7 +13497,7 @@ FlightSuggestItemListLayer.prototype.enter = function(a) {
     }
     if (a > -1) {
         var c = this.nodes[a].item;
-        if (c.type == 1 || c.type == 6 || c.type == 7 || c.type == 8) {
+        if ($jex.array.indexOf(this.specialType, c.type) > -1) {
             a++;
         }
         $jex.addClassName(this.nodes[a].parentNode, "tllover");
@@ -13106,7 +13513,7 @@ FlightSuggestItemListLayer.prototype.moveCursor = function(c, b) {
     } else {
         var a = this.nodes[this.cursor + c];
         if (a) {
-            if (a.item.type == 1 || a.item.type == 6 || a.item.type == 7 || a.item.type == 8) {
+            if ($jex.array.indexOf(this.specialType, a.item.type) > -1) {
                 c *= 2;
             }
         }
@@ -13184,122 +13591,163 @@ SearchSwitcher.prototype.setEleType = function(a) {
     return this._type = a;
 };
 
-function DatePickerXCombox(f, g, d) {
-    var b = this;
-    var a = new ActionDelay(100);
-    this.setting = d || {};
+function DatePickerXCombox(d, a, j) {
+    var i = this;
+    var g = this;
+    var h = new ActionDelay(100);
+    this.setting = j || {};
+    var b = this.setting.maxRange || 3630;
     var c = this.fromDateBox = this.setting.fromDateBox || null;
-    var h = this.dateChecker = this.setting.dateChecker || null;
-    DatePickerXCombox.superclass.constructor.call(this, f, {
+    var f = this.dateChecker = this.setting.dateChecker || null;
+    f.isInter = this.setting.isInter || false;
+    this.refDateBox = this.setting.refDateBox || null;
+    DatePickerXCombox.superclass.constructor.call(this, d, {
         button: {
-            mousedown: function(i) {
+            mousedown: function(k) {
                 this.openMainMenu();
-                $jex.stopEvent(i);
+                $jex.stopEvent(k);
             }
         },
         input: {
-            click: function(i) {
+            click: function(k) {
                 this.openMainMenu();
-                $jex.stopEvent(i);
+                $jex.stopEvent(k);
             },
-            change: function(k, i, j) {
-                if (!b.fromDateBox) {
-                    var l = h.checkDate1(this.getValue());
-                    if (!l.error) {
-                        h.setDate1(l.recommend);
-                        a.reset(function() {
-                            $jex.event.trigger(g, "fromDateChanged");
+            change: function(m, k, l) {
+                var o = QunarDate.getFuzzyDate(m);
+                if (!i.fromDateBox || i.refDateBox) {
+                    if (o && o.valid) {
+                        this.setInfo("");
+                        $jex.event.trigger(a, "fuzzyFromDateChanged");
+                        f.setDate1(o.start);
+                        return;
+                    }
+                    var n = f.checkDate1(this.getValue());
+                    if (!n.error) {
+                        f.setDate1(n.recommend);
+                        h.reset(function() {
+                            $jex.event.trigger(a, "fromDateChanged");
                         });
                     }
-                    this.setTip(l);
+                    this.setTip(n);
                 } else {
-                    var l = h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
-                    if (!l.error) {
-                        h.setDate2(l.recommend, QunarDate.format(QunarDate.plus(h.getMax(), 0)));
-                        a.reset(function() {
-                            $jex.event.trigger(g, "toDateChanged");
+                    if (o && o.valid) {
+                        this.setInfo("");
+                        $jex.event.trigger(a, "fuzzyToDateChanged");
+                        f.setDate1(o.start);
+                        return;
+                    }
+                    var n = f.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(f.getMax(), 0)));
+                    if (!n.error) {
+                        f.setDate2(n.recommend, QunarDate.format(QunarDate.plus(f.getMax(), 0)));
+                        h.reset(function() {
+                            $jex.event.trigger(a, "toDateChanged");
                         });
                     }
-                    this.setTip(l);
+                    this.setTip(n);
                 }
             },
-            keypress: function(i) {
-                this.keypress(i, i.keyCode);
+            keypress: function(k) {
+                this.keypress(k, k.keyCode);
             }
         },
         blur: function() {
-            if (b.fromDateBox) {
-                var i = h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
-                h.setDate2(i.recommend, QunarDate.format(QunarDate.plus(h.getMax(), 0)));
-                this.setValue(i.recommend);
+            var l = QunarDate.getFuzzyDate(this.getValue());
+            if (l && l.valid) {
+                f.setDate1(l.start);
+                return;
+            }
+            if (i.fromDateBox) {
+                var k = f.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(f.getMax(), 0)));
+                f.setDate2(k.recommend, QunarDate.format(QunarDate.plus(f.getMax(), 0)));
+                this.setValue(k.recommend);
             } else {
-                var i = h.checkDate1(this.getValue());
-                h.setDate1(i.recommend);
-                this.setValue(i.recommend);
+                var k = f.checkDate1(this.getValue());
+                f.setDate1(k.recommend);
+                this.setValue(k.recommend);
             }
         },
         popups: {
             main: {
                 initialize: function() {
-                    this.dateLayer = new DateLayer(this.panel, h);
-                    var j = this.own;
-                    var i = this;
-                    $jex.event.add(this.dateLayer, "selected", function(k) {
-                        j.setValue(QunarDate.format(k[0]));
-                        j.pos = k[1];
-                        i.close();
+                    this.dateLayer = new DateLayer(this.panel, f);
+                    var l = this.own;
+                    var k = this;
+                    $jex.event.add(this.dateLayer, "selected", function(m) {
+                        l.setValue(QunarDate.format(m[0]));
+                        l.pos = m[1];
+                        k.close();
+                    });
+                    $jex.event.add(this.dateLayer, "fuzzySelected", function(m) {
+                        l.setValue(m[0]);
+                        l.pos = 0;
+                        k.close();
                     });
                     $jex.event.add(this, "open", function() {
-                        $jex.event.trigger(b, "openDatepicker");
+                        $jex.event.trigger(i, "openDatepicker");
                     });
                 },
                 open: function() {
-                    var i = this.own;
-                    if (b.fromDateBox) {
-                        if (!i.pos) {
-                            i.pos = b.fromDateBox["pos"];
+                    var k = this.own;
+                    var l = this.own.getValue();
+                    if (QunarDate.getFuzzyDate(l)) {
+                        this.dateLayer.fuzzyRenderPanel(l);
+                        return;
+                    }
+                    if (i.fromDateBox) {
+                        if (!k.pos) {
+                            k.pos = i.fromDateBox["pos"];
                         }
-                        h.resetMax(h.getMin(), 363);
-                        var k = h.checkDate2(this.own.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
-                        var j = QunarDate.getDatesOffset(h.getDate1(), h.getDate2());
-                        this.dateLayer.render(k.recommendDate, new Date(QunarDate.parse(c.getValue()).getTime()), new Date(QunarDate.plus(h.getMax(), 0)), i.pos, j);
+                        f.resetMax(f.getMin(), b);
+                        var n = QunarDate.parse(c.getValue()).getTime() || QunarDate.today().getTime();
+                        var o = f.checkDate2(this.own.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(f.getMax(), 0)));
+                        var m = QunarDate.getDatesOffset(f.getDate1(), f.getDate2());
+                        this.dateLayer.render(o.recommendDate, new Date(n), new Date(QunarDate.plus(f.getMax(), 0)), k.pos, m);
                     } else {
-                        h.resetMax();
-                        var k = h.checkDate1(this.own.getValue());
-                        var j = {};
-                        if (!h.date2Hide) {
-                            j = QunarDate.getDatesOffset(h.getDate1(), h.getDate2());
+                        f.resetMax();
+                        var o = f.checkDate1(this.own.getValue());
+                        var m = {};
+                        if (!f.date2Hide) {
+                            m = QunarDate.getDatesOffset(f.getDate1(), f.getDate2());
                         }
-                        this.dateLayer.render(k.recommendDate, h.getMin(), 0, i.pos, j);
+                        if (i.refDateBox) {
+                            this.dateLayer.render(o.recommendDate, new Date(QunarDate.parse(i.refDateBox.getValue()).getTime()), 0, k.pos, m);
+                        } else {
+                            this.dateLayer.render(o.recommendDate, f.getMin(), 0, k.pos, m);
+                        }
                     }
                 }
             }
         },
         attrs: {
-            keypress: function(i, j) {
-                switch (j) {
+            keypress: function(k, l) {
+                switch (l) {
                     case 13:
                         if (this.popups.isOpend()) {
-                            $jex.stopEvent(i);
+                            $jex.stopEvent(k);
                             this.popups.close();
                         }
                         break;
                     case 27:
-                        $jex.stopEvent(i);
+                        $jex.stopEvent(k);
                         this.popups.close();
                         break;
                     default:
                 }
             },
-            setTip: function(i) {
-                if (b.fromDateBox) {
-                    var i = i || h.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(h.getMax(), 0)));
+            setTip: function(k) {
+                if (!this.getValue() && typeof(k) == "string") {
+                    this.setInfo(k, "txtleft", "");
+                    return;
+                }
+                if (i.fromDateBox) {
+                    var k = k || f.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(f.getMax(), 0)));
                 } else {
-                    var i = i || h.checkDate1(this.getValue());
-                } if (i.error) {
-                    this.setInfo(i.value, "errtext", i.tip);
+                    var k = k || f.checkDate1(this.getValue());
+                } if (k.error) {
+                    this.setInfo(k.value, "errtext", k.tip);
                 } else {
-                    this.setInfo(QunarDate.getDateTip(i.recommend), "", "");
+                    this.setInfo(QunarDate.getDateTip(k.recommend), "", "");
                 }
             },
             invalid: function() {
@@ -13748,6 +14196,128 @@ var __hotCityListInterTo__ = [{
     name: "迪拜",
     country: "阿拉伯联合酋长国"
 }];
+var __inter__ = [{
+    name: "香港",
+    country: "中国香港"
+}, {
+    name: "曼谷",
+    country: "泰国"
+}, {
+    name: "新加坡",
+    country: "新加坡"
+}, {
+    name: "马尼拉",
+    country: "菲律宾"
+}, {
+    name: "墨尔本",
+    country: "澳大利亚"
+}, {
+    name: "首尔",
+    country: "韩国"
+}, {
+    name: "澳门",
+    country: "中国澳门"
+}, {
+    name: "吉隆坡",
+    country: "马来西亚"
+}, {
+    name: "旧金山",
+    country: "美国"
+}, {
+    name: "暹粒",
+    country: "柬埔寨"
+}, {
+    name: "台北",
+    country: "中国台湾"
+}, {
+    name: "普吉",
+    country: "泰国"
+}, {
+    name: "大阪",
+    country: "日本"
+}, {
+    name: "巴厘岛",
+    country: "印度尼西亚"
+}, {
+    name: "伦敦",
+    country: "英国"
+}, {
+    name: "东京",
+    country: "日本"
+}, {
+    name: "胡志明市",
+    country: "越南"
+}, {
+    name: "纽约",
+    country: "美国"
+}, {
+    name: "高雄",
+    country: "中国台湾"
+}, {
+    name: "釜山",
+    country: "韩国"
+}, {
+    name: "洛杉矶",
+    country: "美国"
+}, {
+    name: "悉尼",
+    country: "澳大利亚"
+}, {
+    name: "苏梅岛",
+    country: "泰国"
+}, {
+    name: "济州岛",
+    country: "韩国"
+}, {
+    name: "温哥华",
+    country: "加拿大"
+}, {
+    name: "清迈",
+    country: "泰国"
+}, {
+    name: "加德满都",
+    country: "尼泊尔"
+}, {
+    name: "雅加达",
+    country: "印度尼西亚"
+}, {
+    name: "金边",
+    country: "柬埔寨"
+}, {
+    name: "迪拜",
+    country: "阿拉伯联合酋长国"
+}];
+var __interCountry__ = [{
+    name: "中国",
+    country: "中国"
+}, {
+    name: "韩国",
+    country: "韩国"
+}, {
+    name: "泰国",
+    country: "泰国"
+}, {
+    name: "美国",
+    country: "美国"
+}, {
+    name: "加拿大",
+    country: "加拿大"
+}, {
+    name: "日本",
+    country: "日本"
+}, {
+    name: "澳大利亚",
+    country: "澳大利亚"
+}, {
+    name: "英国",
+    country: "英国"
+}, {
+    name: "法国",
+    country: "法国"
+}, {
+    name: "马来西亚",
+    country: "马来西亚"
+}];
 var _tabConfig = {
     "热门-from": {
         cityList: __hotCityListFrom__,
@@ -13766,6 +14336,7 @@ var _tabConfig = {
     },
     "热门-inter-to": {
         cityList: __hotCityListInterTo__,
+        countryList: __interCountry__,
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
@@ -13931,6 +14502,9 @@ var _tabConfig = {
                 country: "中国"
             }, {
                 name: "阜阳",
+                country: "中国"
+            }, {
+                name: "抚远",
                 country: "中国"
             }]
         }, {
@@ -14118,6 +14692,9 @@ var _tabConfig = {
             }, {
                 name: "临沂",
                 country: "中国"
+            }, {
+                name: "吕梁",
+                country: "中国"
             }]
         }, {
             "char": "M",
@@ -14171,6 +14748,9 @@ var _tabConfig = {
             "char": "P",
             list: [{
                 name: "攀枝花",
+                country: "中国"
+            }, {
+                name: "普洱",
                 country: "中国"
             }]
         }],
@@ -14227,7 +14807,7 @@ var _tabConfig = {
                 name: "上海",
                 country: "中国"
             }, {
-                name: "思茅",
+                name: "神农架",
                 country: "中国"
             }]
         }, {
@@ -14432,203 +15012,29 @@ var _tabConfig = {
         title: "拼音X-Z城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
+    "国际·港澳台_fuzzy": {
+        cityList: __inter__,
+        countryList: __interCountry__,
+        title: "国际·港澳台城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
     "国际·港澳台": {
+        cityList: __inter__,
+        title: "国际·港澳台城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "热门城市_fuzzy": {
         cityList: __hotCityListInterTo__,
-        title: "热门国际·港澳台城市",
-        desc: "可直接输入城市或城市拼音",
+        countryList: __interCountry__,
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: ""
     },
-    "热门城市1-30": {
-        cityList: [{
-            name: "香港",
-            country: "中国香港"
-        }, {
-            name: "新加坡",
-            country: "新加坡"
-        }, {
-            name: "首尔",
-            country: "韩国"
-        }, {
-            name: "曼谷",
-            country: "泰国"
-        }, {
-            name: "东京",
-            country: "日本"
-        }, {
-            name: "台北",
-            country: "中国台湾"
-        }, {
-            name: "吉隆坡",
-            country: "马来西亚"
-        }, {
-            name: "悉尼",
-            country: "澳大利亚"
-        }, {
-            name: "纽约",
-            country: "美国"
-        }, {
-            name: "澳门",
-            country: "中国澳门"
-        }, {
-            name: "伦敦",
-            country: "英国"
-        }, {
-            name: "巴黎",
-            country: "伦敦"
-        }, {
-            name: "洛杉矶",
-            country: "美国"
-        }, {
-            name: "马尼拉",
-            country: "菲律宾"
-        }, {
-            name: "墨尔本",
-            country: "澳大利亚"
-        }, {
-            name: "大阪",
-            country: "日本"
-        }, {
-            name: "胡志明市",
-            country: "越南"
-        }, {
-            name: "普吉",
-            country: "泰国"
-        }, {
-            name: "温哥华",
-            country: "加拿大"
-        }, {
-            name: "迪拜",
-            country: "阿联酋"
-        }, {
-            name: "釜山",
-            country: "韩国"
-        }, {
-            name: "多伦多",
-            country: "加拿大"
-        }, {
-            name: "法兰克福",
-            country: "德国"
-        }, {
-            name: "河内",
-            country: "越南"
-        }, {
-            name: "旧金山",
-            country: "美国"
-        }, {
-            name: "加德满都",
-            country: "尼泊尔"
-        }, {
-            name: "金边",
-            country: "柬埔寨"
-        }, {
-            name: "马累",
-            country: "马尔代夫"
-        }, {
-            name: "雅加达",
-            country: "印度尼西亚"
-        }, {
-            name: "名古屋",
-            country: "日本"
-        }],
-        title: "热门城市1-30",
-        desc: "可直接输入城市或城市拼音",
-        cls: "inter"
-    },
-    "热门城市31-60": {
-        cityList: [{
-            name: "奥克兰",
-            country: "新西兰"
-        }, {
-            name: "芝加哥",
-            country: "美国"
-        }, {
-            name: "暹粒",
-            country: "柬埔寨"
-        }, {
-            name: "巴厘岛",
-            country: "印度尼西亚"
-        }, {
-            name: "莫斯科",
-            country: "俄罗斯"
-        }, {
-            name: "罗马",
-            country: "意大利"
-        }, {
-            name: "济州岛",
-            country: "韩国"
-        }, {
-            name: "布里斯班",
-            country: "澳大利亚"
-        }, {
-            name: "福冈",
-            country: "日本"
-        }, {
-            name: "阿姆斯特丹",
-            country: "荷兰"
-        }, {
-            name: "高雄",
-            country: "中国台湾"
-        }, {
-            name: "米兰",
-            country: "意大利"
-        }, {
-            name: "槟城",
-            country: "马来西亚"
-        }, {
-            name: "新德里",
-            country: "印度"
-        }, {
-            name: "慕尼黑",
-            country: "伊朗"
-        }, {
-            name: "亚庇",
-            country: "马来西亚"
-        }, {
-            name: "华盛顿",
-            country: "美国"
-        }, {
-            name: "西雅图",
-            country: "美国"
-        }, {
-            name: "马德里",
-            country: "西班牙"
-        }, {
-            name: "大邱",
-            country: "韩国"
-        }, {
-            name: "柏林",
-            country: "德国"
-        }, {
-            name: "宿务",
-            country: "西班牙"
-        }, {
-            name: "开罗",
-            country: "埃及"
-        }, {
-            name: "阿德莱德",
-            country: "澳大利亚"
-        }, {
-            name: "札幌",
-            country: "日本"
-        }, {
-            name: "波士顿",
-            country: "美国"
-        }, {
-            name: "斯德哥尔摩",
-            country: "瑞典"
-        }, {
-            name: "珀斯",
-            country: "澳大利亚"
-        }, {
-            name: "伊斯坦布尔",
-            country: "土耳其"
-        }, {
-            name: "雅典",
-            country: "希腊"
-        }],
-        title: "热门城市31-60",
-        desc: "可直接输入城市或城市拼音",
-        cls: "inter"
+    "热门城市": {
+        cityList: __hotCityListInterTo__,
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: ""
     },
     "亚洲/大洋洲": {
         cityList: [{
@@ -14972,223 +15378,34 @@ var _tabConfig = {
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: "inter"
     },
-    "热门城市": {
-        cityList: [{
-            name: "香港",
-            country: "中国香港"
-        }, {
-            name: "新加坡",
-            country: "新加坡"
-        }, {
-            name: "首尔",
-            country: "韩国"
-        }, {
-            name: "曼谷",
-            country: "泰国"
-        }, {
-            name: "东京",
-            country: "日本"
-        }, {
-            name: "台北",
-            country: "中国台湾"
-        }, {
-            name: "吉隆坡",
-            country: "马来西亚"
-        }, {
-            name: "悉尼",
-            country: "澳大利亚"
-        }, {
-            name: "纽约",
-            country: "美国"
-        }, {
-            name: "澳门",
-            country: "中国澳门"
-        }, {
-            name: "伦敦",
-            country: "英国"
-        }, {
-            name: "巴黎",
-            country: "伦敦"
-        }, {
-            name: "洛杉矶",
-            country: "美国"
-        }, {
-            name: "马尼拉",
-            country: "菲律宾"
-        }, {
-            name: "墨尔本",
-            country: "澳大利亚"
-        }, {
-            name: "大阪",
-            country: "日本"
-        }, {
-            name: "胡志明市",
-            country: "越南"
-        }, {
-            name: "普吉",
-            country: "泰国"
-        }, {
-            name: "温哥华",
-            country: "加拿大"
-        }, {
-            name: "迪拜",
-            country: "阿联酋"
-        }, {
-            name: "釜山",
-            country: "韩国"
-        }, {
-            name: "多伦多",
-            country: "加拿大"
-        }, {
-            name: "法兰克福",
-            country: "德国"
-        }, {
-            name: "河内",
-            country: "越南"
-        }, {
-            name: "旧金山",
-            country: "美国"
-        }, {
-            name: "加德满都",
-            country: "尼泊尔"
-        }, {
-            name: "金边",
-            country: "柬埔寨"
-        }, {
-            name: "马累",
-            country: "马尔代夫"
-        }, {
-            name: "奥克兰",
-            country: "新西兰"
-        }, {
-            name: "皇后镇",
-            country: "新西兰"
-        }],
+    "国内": {
+        cityList: __hotCityListFrom__,
         title: "热门城市",
-        desc: "可直接输入中文名/拼音/英文名/三字码",
-        cls: "inter"
-    },
-    "热门城市61-90": {
-        cityList: [{
-            name: "巴塞罗那",
-            country: "西班牙"
-        }, {
-            name: "仰光",
-            country: "缅甸"
-        }, {
-            name: "兰卡威",
-            country: "马来西亚"
-        }, {
-            name: "苏黎世",
-            country: "瑞士"
-        }, {
-            name: "蒙特利尔",
-            country: "加拿大"
-        }, {
-            name: "哥本哈根",
-            country: "丹麦"
-        }, {
-            name: "底特律",
-            country: "美国"
-        }, {
-            name: "维也纳",
-            country: "奥地利"
-        }, {
-            name: "布鲁塞尔",
-            country: "比利时"
-        }, {
-            name: "约翰内斯堡",
-            country: "南非"
-        }, {
-            name: "广岛",
-            country: "日本"
-        }, {
-            name: "亚特兰大",
-            country: "美国"
-        }, {
-            name: "塞班",
-            country: "美国"
-        }, {
-            name: "火奴鲁鲁",
-            country: "美国"
-        }, {
-            name: "丁加奴",
-            country: "马来西亚"
-        }, {
-            name: "孟买",
-            country: "印度"
-        }, {
-            name: "万象",
-            country: "老挝"
-        }, {
-            name: "休斯敦",
-            country: "美国"
-        }, {
-            name: "仙台",
-            country: "日本"
-        }, {
-            name: "曼彻斯特",
-            country: "英国"
-        }, {
-            name: "赫尔辛基",
-            country: "芬兰"
-        }, {
-            name: "日内瓦",
-            country: "瑞士"
-        }, {
-            name: "台中-清泉岗",
-            country: "中国台湾"
-        }, {
-            name: "清迈",
-            country: "泰国"
-        }, {
-            name: "科伦坡",
-            country: "斯里兰卡"
-        }, {
-            name: "杜塞尔多夫",
-            country: "德国"
-        }, {
-            name: "圣彼得堡",
-            country: "俄罗斯"
-        }, {
-            name: "达拉斯",
-            country: "美国"
-        }, {
-            name: "哥打巴鲁",
-            country: "马来西亚"
-        }, {
-            name: "拉斯维加斯",
-            country: "美国"
-        }],
-        title: "热门城市61-90",
-        desc: "可直接输入城市或城市拼音",
-        cls: "inter"
+        desc: "可直接输入中文名/拼音/英文名/三字码"
     }
 };
 var FlightLang = {
     hotCityConfig: {
         "domestic-from": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ"],
             contents: {
                 "热门": _tabConfig["热门-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
-                XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                XYZ: _tabConfig.XYZ
             }
         },
         "domestic-to": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ"],
             contents: {
                 "热门": _tabConfig["热门-to"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
-                XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                XYZ: _tabConfig.XYZ
             }
         },
         "international-from": {
@@ -15200,275 +15417,362 @@ var FlightLang = {
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
                 XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                "国际·港澳台": _tabConfig["国际·港澳台_fuzzy"]
             }
         },
         "international-to": {
-            tabs: ["热门", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
+            tabs: ["热门城市和国家", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
             contents: {
-                "热门": _tabConfig["热门-inter-to"],
+                "热门城市和国家": _tabConfig["热门城市_fuzzy"],
                 "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
                 "美洲": _tabConfig["美洲"],
                 "欧洲": _tabConfig["欧洲"],
                 "非洲": _tabConfig["非洲"],
-                "国内": _tabConfig["热门-from"]
+                "国内": _tabConfig["国内"]
+            }
+        },
+        "multitrip-from": {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门-inter-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
+            }
+        },
+        "multitrip-to": {
+            tabs: ["热门城市", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
+            contents: {
+                "热门城市": _tabConfig["热门城市"],
+                "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
+                "美洲": _tabConfig["美洲"],
+                "欧洲": _tabConfig["欧洲"],
+                "非洲": _tabConfig["非洲"],
+                "国内": _tabConfig["国内"]
+            }
+        },
+        "domestic-list-from": {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
+            }
+        },
+        "domestic-list-to": {
+            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "热门": _tabConfig["热门-to"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台"]
             }
         }
     },
+    specPlace: ["所有地点", "中国", "日本", "泰国", "马来西亚", "韩国", "英国", "美国", "澳大利亚", "加拿大", "法国", "德国", "俄罗斯", "菲律宾", "印度", "新西兰", "西班牙", "意大利"],
     _CAPTIAL: "北京",
     _COUNTRY: "中国",
     _blankInput: "城市名"
 };
 
-function SearchBox(a) {
-    var n;
+function SearchBox(a, c) {
+    var o;
     this.type = "domestic";
-    var c = this;
-    var w = FlightLang;
+    var d = this;
+    var z = FlightLang;
     this.sswitcher = null;
-    $jex.foreach(["fromCity", "toCity"], function(z, y) {
-        c[z] = new FlightCityXCombox(a[z], c, {
-            errorSuggestTip: "请输入正确的" + (y ? "到达" : "出发") + "城市"
+    $jex.foreach(["fromCity", "toCity"], function(C, B) {
+        d[C] = new FlightCityXCombox(a[C], d, {
+            errorSuggestTip: "请输入正确的" + (B ? "到达" : "出发") + "城市",
+            suggestType: c.suggestType
         });
-        var x = a[z].getAttribute("international") || a[z].getAttribute("domestic");
-        c[z].setHotCityConfig(w.hotCityConfig[x]);
-        c[z].setMark(y ? "到" : "从");
+        var A = B ? c.toHotCity : c.fromHotCity;
+        d[C].setHotCityConfig(z.hotCityConfig[A]);
+        d[C].setMark(B ? "到" : "从");
     });
-    var f = this.fromCity;
-    var o = this.toCity;
-    var q = new DateChecker(363);
-    var j = this.fromDate = new DatePickerXCombox(a.fromDate, c, {
-        dateChecker: q
+    var g = this.fromCity;
+    var p = this.toCity;
+    g.info = p.info = c.info;
+    var t = new DateChecker(3630);
+    var k = this.fromDate = new DatePickerXCombox(a.fromDate, d, {
+        dateChecker: t
     });
-    var t = this.toDate = new DatePickerXCombox(a.toDate, c, {
-        dateChecker: q,
-        fromDateBox: j
+    var w = this.toDate = new DatePickerXCombox(a.toDate, d, {
+        dateChecker: t,
+        fromDateBox: k
     });
-    this.setValue = function(A) {
-        var z = [f, A.searchDepartureAirport || A.fromCity, o, A.searchArrivalAirport || A.toCity, j, A.searchDepartureTime || A.fromDate];
-        var B = A.searchArrivalTime || A.toDate;
-        if (B) {
-            z.push(t, B);
+    t.isInter = c.isFuzzy;
+    this.setValue = function(D) {
+        var C = [g, D.searchDepartureAirport || D.fromCity, p, D.searchArrivalAirport || D.toCity, k, D.searchDepartureTime || D.fromDate];
+        var E = D.searchArrivalTime || D.toDate;
+        if (E) {
+            C.push(w, E);
         }
-        for (var y = 0, x = z.length; y < x; y = y + 2) {
-            if (!z[y] || !z[y + 1]) {
+        for (var B = 0, A = C.length; B < A; B = B + 2) {
+            if (!C[B] || !C[B + 1]) {
                 continue;
             }
-            z[y].setValue(z[y + 1]);
-            z[y].setTip();
+            C[B].setValue(C[B + 1]);
+            C[B].setTip();
         }
-        this.param = A;
+        this.param = D;
     };
-    var p = {
+    var s = {
         roundtrip: "searchTypeRnd",
         oneway: "searchTypeSng",
         deal: "searchTypeDeals"
     };
-    this.setSearchType = function(x) {
-        if (!p[x]) {
-            throw "no searchType" + x;
+    this.setSearchType = function(A) {
+        if (!s[A]) {
+            throw "no searchType" + A;
         }
-        $jex.$(p[x]).checked = true;
-        n.active(x);
-        if (x === "roundtrip") {
-            var y = this.param;
-            t.setValue(y.searchArrivalTime || y.toDate);
-            t.setTip();
+        $jex.$(s[A]).checked = true;
+        o.active(A);
+        if (A === "roundtrip") {
+            var B = this.param;
+            w.setValue(B.searchArrivalTime || B.toDate);
+            w.setTip();
         }
     };
     $jex.event.add(this, "fromDateChanged", function() {
-        var y = q.checkDate1(j.getValue()).recommend;
-        var x = q.checkDate2(t.getValue(), y, QunarDate.format(QunarDate.plus(q.getMax(), 0))).recommend;
-        q.setDate2(x, QunarDate.format(QunarDate.plus(q.getMax(), 0)));
-        t.setValue(x);
+        var B = t.checkDate1(k.getValue()).recommend;
+        var A = t.checkDate2(w.getValue(), B, QunarDate.format(QunarDate.plus(t.getMax(), 0))).recommend;
+        t.setDate2(A, QunarDate.format(QunarDate.plus(t.getMax(), 0)));
+        w.setValue(A);
     });
-    $jex.event.addEx([f, o], "openHotCity", function() {
-        $jex.event.trigger(c, "openHotCity");
+    $jex.event.add(this, "toDateChanged", function() {
+        var A = t.checkDate1(k.getValue()).recommend;
+        k.setValue(A);
     });
-    $jex.event.addEx([f, o], "selectHotCity", function(y) {
-        $jex.event.trigger(c, "selectHotCity", y);
-        var x = window.newTrackAction || window.trackAction;
-        if (x) {
-            x("QH|HCT|select|" + encodeURIComponent(y), null, false);
+    $jex.event.add(this, "fuzzyFromDateChanged", function() {
+        w.setValue(k.getValue());
+    });
+    $jex.event.add(this, "fuzzyToDateChanged", function() {
+        var A = w.getValue();
+        if (A.indexOf("周") == -1 || A == "1周之内") {
+            k.setValue(A);
         }
     });
-    $jex.event.addEx([j, t], "openDatepicker", function() {
-        $jex.event.trigger(c, "openDatepicker");
+    $jex.event.addEx([g, p], "openHotCity", function() {
+        $jex.event.trigger(d, "openHotCity");
     });
-    $jex.event.bindDom(f.inputEl, "mousedown", this, function(x) {
-        $jex.event.trigger(f, "buttonmousedown");
+    $jex.event.addEx([g, p], "selectHotCity", function(B) {
+        $jex.event.trigger(d, "selectHotCity", B);
+        var A = window.newTrackAction || window.trackAction;
+        if (A) {
+            A("QH|HCT|select|" + encodeURIComponent(B), null, false);
+        }
+    });
+    $jex.event.addEx([k, w], "openDatepicker", function() {
+        $jex.event.trigger(d, "openDatepicker");
+    });
+    $jex.event.bindDom(g.inputEl, "mousedown", this, function(A) {
+        $jex.event.trigger(g, "buttonmousedown");
         return false;
     });
-    $jex.event.bindDom(o.inputEl, "mousedown", this, function(x) {
-        $jex.event.trigger(o, "buttonmousedown");
+    $jex.event.bindDom(p.inputEl, "mousedown", this, function(A) {
+        $jex.event.trigger(p, "buttonmousedown");
         return false;
     });
-    var l = new ActionDelay(200);
+    var m = new ActionDelay(200);
 
-    function i() {
-        l.reset(function() {
-            $jex.event.trigger(c, "dateFinish");
+    function j() {
+        m.reset(function() {
+            $jex.event.trigger(d, "dateFinish");
         });
     }
-    $jex.event.addEx([f, o], "valuechange", function(y, x, z) {
-        if (z) {
-            $jex.event.trigger(c, "citychange", this.inputEl.name, y);
+    $jex.event.addEx([g, p], "valuechange", function(B, A, C) {
+        if (C) {
+            $jex.event.trigger(d, "citychange", this.inputEl.name, B);
         }
     });
-    $jex.event.add(this, "fromDateChanged", i);
-    $jex.event.add(this, "toDateChanged", i);
+    $jex.event.add(this, "fromDateChanged", j);
+    $jex.event.add(this, "toDateChanged", j);
 
-    function k() {
-        if (c.searchType == "deal") {
+    function l() {
+        if (d.searchType == "deal") {
             return false;
         }
-        var x = false;
-        var y = document.activeElement;
-        $jex.foreach([f, o], function(C, z) {
-            var B = z == 0 ? "出发" : "到达";
-            if (y === C.inputEl) {
+        var A = false;
+        var B = document.activeElement;
+        $jex.foreach([g, p], function(F, C) {
+            var E = C == 0 ? "出发" : "到达";
+            if (B === F.inputEl) {
                 try {
-                    C.inputEl.blur();
-                } catch (A) {}
+                    F.inputEl.blur();
+                } catch (D) {}
             }
-            if (!C.getValue()) {
-                C.showError("请输入" + B + "城市");
-                x = true;
+            if (F.invalid()) {
+                F.showError("请输入正确的" + E + "城市");
+                A = true;
                 return;
             }
-            if (C.invalid()) {
-                C.showError("请输入正确的" + B + "城市");
-                x = true;
-                return;
-            }
-            C.hideError();
+            F.hideError();
         });
-        return x;
+        return A;
     }
 
-    function u() {
-        if (c.searchType == "deal") {
+    function x() {
+        var A = g.getValue();
+        if (d.searchType == "deal") {
             return false;
         }
-        var x = k();
-        if (x) {
-            return x;
+        var B = l();
+        if (B) {
+            return B;
         }
-        if (f.getValue() === o.getValue()) {
-            o.showError("不能和出发地相同");
-            x = true;
+        if (A && A === p.getValue() && $jex.array.indexOf(z.specPlace, A) == -1) {
+            p.showError("不能和出发地相同");
+            B = true;
         }
-        return x;
+        return B;
     }
-    $jex.event.bindDom(a, "submit", this, function(x) {
-        f.initValue(f.getValue());
-        o.initValue(o.getValue());
-        if (u()) {
-            $jex.stopEvent(x);
+    $jex.event.bindDom(a, "submit", this, function(A) {
+        g.initValue(g.getValue());
+        p.initValue(p.getValue());
+        if (x()) {
+            $jex.stopEvent(A);
             return false;
         }
         b();
-        $jex.event.trigger(c, "pre_submit");
+        q();
+        if (!y()) {
+            $jex.stopEvent(A);
+            return false;
+        }
+        $jex.event.trigger(d, "pre_submit");
     });
-    var m = $jex.$("hbtnReturnResearch");
-    if (m) {
-        $jex.event.click(m, function(x) {
-            $jex.stopEvent(x);
+    var n = $jex.$("hbtnReturnResearch");
+    if (n) {
+        $jex.event.click(n, function(A) {
+            $jex.stopEvent(A);
             setTimeout(function() {
-                h();
+                i();
                 setTimeout(function() {
-                    if (!u()) {
+                    if (!x()) {
                         b();
-                        a.submit();
+                        q();
+                        if (y()) {
+                            a.submit();
+                        }
                     }
                 });
             });
             return false;
         });
-        $jex.event.binding(c, "switch", function(y, x) {
-            if (x == "oneway") {
-                $jex.element.show(m);
+        $jex.event.binding(d, "switch", function(B, A) {
+            if (A == "oneway") {
+                $jex.element.show(n);
             } else {
-                $jex.element.hide(m);
+                $jex.element.hide(n);
             }
         });
+    }
+
+    function y() {
+        var A = {
+            fd: k.getValue(),
+            td: w.getValue(),
+            fromCity: g.getValue(),
+            toCity: p.getValue(),
+            type: "国内",
+            searchType: $jex.$("searchTypeSng").checked ? "oneway" : "roundtrip"
+        };
+        var B = window.searchCaution;
+        if (B && B.check(A)) {
+            B.show();
+            return false;
+        }
+        return true;
     }
 
     function b() {
-        var z = window.QLib && QLib.getEx_track && QLib.getEx_track();
-        if (!z) {
+        var C = window.QLib && QLib.getEx_track && QLib.getEx_track();
+        if (!C) {
             return;
         }
-        var x = z.split("=");
-        var y = document.createElement("input");
-        y.type = "hidden";
-        y.name = x[0];
-        y.value = x[1];
-        a.appendChild(y);
+        var A = C.split("=");
+        var B = document.createElement("input");
+        B.type = "hidden";
+        B.name = A[0];
+        B.value = A[1];
+        a.appendChild(B);
     }
 
-    function h() {
-        var x = f.getValue();
-        f.setValue(o.getValue());
-        o.setValue(x);
-        x = f._invalid;
-        f._invalid = o._invalid;
-        o._invalid = x;
-        x = f.getCountry();
-        f.setCountry(o.getCountry());
-        o.setCountry(x);
-        f.setTip();
-        o.setTip();
-        k();
+    function q() {
+        var A = $jex.parseQueryParam();
+        var B = A.from;
+        if (!B) {
+            return;
+        }
+        a.from && (a.from.value = B);
     }
-    $jex.event.bindDom($jex.$("js-exchagne-city"), "click", this, function(x) {
-        $jex.stopEvent(x);
+
+    function i() {
+        var A = g.getValue();
+        g.setValue(p.getValue());
+        p.setValue(A);
+        A = g._invalid;
+        g._invalid = p._invalid;
+        p._invalid = A;
+        A = g.getCountry();
+        g.setCountry(p.getCountry());
+        p.setCountry(A);
+        g.setTip();
+        p.setTip();
+        l();
+    }
+    $jex.event.bindDom($jex.$("js-exchagne-city"), "click", this, function(A) {
+        $jex.stopEvent(A);
         setTimeout(function() {
-            h();
-            var y = window.newTrackAction || window.trackAction;
-            if (y) {
-                y("FL|SB|huan");
+            i();
+            var B = window.newTrackAction || window.trackAction;
+            if (B) {
+                B("FL|SB|huan");
             }
         }, 0);
     });
-    $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(x) {
+    $jex.event.bindDom($jex.$("arrivalDateDiv_disable"), "click", this, function(A) {
         $jex.$("searchTypeRnd").checked = true;
-        n.setEleType("disable");
-        n.active("roundtrip");
+        o.setEleType("disable");
+        o.active("roundtrip");
     });
 
-    function s(x) {
-        var C = x == "deal";
-        $jex.foreach(["fromCity", "toCity"], function(D) {
-            var E = c[D];
-            E.info = C ? "城市名（可不填）" : "城市名";
-            E.hideError();
-            E.setValue(n.getgmem(D));
-            E.setTip();
+    function u(A) {
+        var D = A == "deal";
+        $jex.foreach(["fromCity", "toCity"], function(E) {
+            var F = d[E];
+            F.info = D ? "城市名（可不填）" : c.info;
+            F.hideError();
+            F.setValue(o.getgmem(E));
+            F.setTip();
         });
-        j.setMark(C ? "从" : "往");
-        t.setMark(C ? "到" : "返");
-        q.setSpan(363);
-        q.setDelay2(3);
-        if (x == "oneway") {
-            q.hideDate2();
+        k.setMark(D ? "从" : "往");
+        w.setMark(D ? "到" : "返");
+        t.setSpan(3630);
+        t.setDelay2(3);
+        if (A == "oneway") {
+            t.hideDate2();
             $jex.element.hide($jex.$("arrivalDateDiv"));
             $jex.element.show($jex.$("arrivalDateDiv_disable"));
         } else {
-            try {
-                var z = t.getValue();
-                if (!z) {
-                    z = QunarDate.format(QunarDate.plus(QunarDate.parse(j.getValue()), 3));
-                }
-                var B = q.checkDate2(z, j.getValue(), QunarDate.format(QunarDate.plus(q.getMax(), 0)));
-                t.setValue(B.recommend);
-            } catch (A) {}
-            q.showDate2();
+            var C = w.getValue();
+            t.showDate2();
             $jex.element.show($jex.$("arrivalDateDiv"));
             $jex.element.hide($jex.$("arrivalDateDiv_disable"));
-            var y = n.getEleType();
-            if ("disable" === y || (z === j.getValue() && n._count >= 1 && "radio" === y)) {
-                t.mousedown({
+            var B = o.getEleType();
+            if ("disable" === B || (C === k.getValue() && o._count >= 1 && "radio" === B)) {
+                w.mousedown({
                     preventDefault: function() {},
                     stopPropagation: function() {}
                 });
@@ -15477,59 +15781,59 @@ function SearchBox(a) {
                 }, 0);
             }
         }
-        c.searchType = x;
-        $jex.event.trigger(c, "switch", c, x);
+        d.searchType = A;
+        $jex.event.trigger(d, "switch", d, A);
     }
-    var d = {
+    var f = {
         memories: {
             fromCity: {
                 value: function() {
-                    return f.getValue();
+                    return g.getValue();
                 }
             },
             toCity: {
                 value: function() {
-                    return o.getValue();
+                    return p.getValue();
                 }
             },
             toDate: {
                 value: function() {
-                    return t.getValue();
+                    return w.getValue();
                 }
             },
             fromDate: {
                 value: function() {
-                    return j.getValue();
+                    return k.getValue();
                 }
             }
         }
     };
-    var g = ["oneway", "roundtrip", "deal"];
-    $jex.foreach(g, function(y, x) {
-        d[y] = {
+    var h = ["oneway", "roundtrip", "deal"];
+    $jex.foreach(h, function(B, A) {
+        f[B] = {
             active: function() {
-                s(y);
+                u(B);
             }
         };
     });
-    n = this.sswitcher = new SearchSwitcher(d, function() {
-        for (var x = 0, y = a.searchType.length; x < y; x++) {
-            (function(z) {
-                $jex.event.bindDom(a.searchType[z], "click", a.searchType[z], function(A, B) {
+    o = this.sswitcher = new SearchSwitcher(f, function() {
+        for (var A = 0, B = a.searchType.length; A < B; A++) {
+            (function(C) {
+                $jex.event.bindDom(a.searchType[C], "click", a.searchType[C], function(D, E) {
                     switch (this.id) {
                         case "searchTypeSng":
-                            n.active("oneway");
+                            o.active("oneway");
                             break;
                         case "searchTypeRnd":
-                            n.setEleType(B.type);
-                            n.active("roundtrip");
+                            o.setEleType(E.type);
+                            o.active("roundtrip");
                             break;
                         case "searchTypeDeals":
-                            n.active("deal");
+                            o.active("deal");
                             break;
                     }
                 });
-            })(x);
+            })(A);
         }
     });
 }
@@ -15551,20 +15855,21 @@ var SearchBoxCreate = (function() {
 
     function a() {
         var i = $jex.$("searchboxForm");
-        var l = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
-        if (l) {
+        var j = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
+        if (j) {
             var g = document.createElement("input");
             g.type = "hidden";
-            g.value = l;
+            g.value = j;
             g.name = "ex_track";
             i.appendChild(g);
         }
-        var i = $jex.$("searchboxForm");
-        var j = i.toCity,
-            k = i.fromCity;
-        j.setAttribute("domestic", "domestic-to");
-        k.setAttribute("domestic", "domestic-from");
-        var h = new SearchBox(i);
+        var h = new SearchBox(i, {
+            fromHotCity: "domestic-list-from",
+            toHotCity: "domestic-list-to",
+            isFuzzy: false,
+            info: "城市名",
+            suggestType: 8
+        });
         b(h);
         return h;
     }

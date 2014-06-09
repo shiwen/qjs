@@ -3753,19 +3753,23 @@ var RoundTripFlightRecommend = (new function(a) {
         }
         this.render(b.data);
     };
-    this.render = function(f) {
-        var e, b = f.list.length || 0;
+    this.render = function(h) {
+        var g, b = h.list.length || 0;
         if (b === 0) {
             return;
         }
-        var d = ['<div class="b_rec_sqwp">', '<div class="b_rec_sq">', '<div class="bg_sq"></div>', '<div class="e_sq_tit"> 往返一起买 </div>', '<div class="e_sq_cont">', '<div class="m_sq_ct">' + f.fromCity + '<i class="ico_wf_sq"></i>' + f.toCity + "</div>", '<ul class="ul_wf_rec">'];
-        for (e = 0; e < b; e++) {
-            var c = f.list[e].url;
+        var f = ['<div class="b_rec_sqwp">', '<div class="b_rec_sq">', '<div class="bg_sq"></div>', '<div class="e_sq_tit"> 往返一起买 </div>', '<div class="e_sq_cont">', '<div class="m_sq_ct">' + h.fromCity + '<i class="ico_wf_sq"></i>' + h.toCity + "</div>", '<ul class="ul_wf_rec">'];
+        for (g = 0; g < b; g++) {
+            var c = h.list[g].url;
             c += (/&$/.test(c) ? "" : "&") + "from=flight_youce_wangfantuijian";
-            d.push('<li><a class="a_blk" target="_blank" href="' + c + '"><div class="m1"><span class="s_day">' + f.list[e].fromDate + '去</span>&nbsp;&nbsp;<span class="s_day">' + f.list[e].toDate + '回</span>&nbsp;&nbsp;<span class="s_prc s_oldprc"><i class="rmb">¥</i>' + f.list[e].oPrice + '</span></div><div class="m2">特价包&nbsp;&nbsp;<span class="s_prc"><i class="rmb">¥</i>' + f.list[e].pPrice + '</span>&nbsp;&nbsp;<span class="highlight">节省<span class="s_prc"><i class="rmb">¥</i>' + f.list[e].save + "</span></span></div></a></li>");
+            f.push('<li><a class="a_blk" target="_blank" href="' + c + '"><div class="m1"><span class="s_day">' + h.list[g].fromDate + '去</span>&nbsp;&nbsp;<span class="s_day">' + h.list[g].toDate + '回</span>&nbsp;&nbsp;<span class="s_prc s_oldprc"><i class="rmb">¥</i>' + h.list[g].oPrice + '</span></div><div class="m2">特价包&nbsp;&nbsp;<span class="s_prc"><i class="rmb">¥</i>' + h.list[g].pPrice + '</span>&nbsp;&nbsp;<span class="highlight">节省<span class="s_prc"><i class="rmb">¥</i>' + h.list[g].save + "</span></span></div></a></li>");
         }
-        d.push("</ul></div></div></div>");
-        this.ele.innerHTML = d.join("");
+        f.push("</ul></div></div></div>");
+        this.ele.innerHTML = f.join("");
+        var d = ["FL", "DRTFRShow"].join("|");
+        try {
+            newTrackAction(d);
+        } catch (j) {}
     };
     this.init();
 }(document.getElementById("js-mod-recommendRoundtrip")));
@@ -5359,7 +5363,7 @@ ConfigManager.setConfig({
             s6: "承诺购买机票赠送保险",
             s7: "服务保障",
             s8: "购买机票可免费邮寄行程单",
-            s9: "担保通实现金牌机票服务安全保障"
+            s9: "全程预订保障，去哪儿都放心"
         }
     }
 });
@@ -5711,8 +5715,6 @@ SortHandler.prototype._init = function() {
             return;
         }
         SearchBoxCreate(f);
-        $jex.element.show($jex.$("queryTicketState").parentNode);
-        $jex.element.hide($jex.$("forecast").parentNode);
     };
     var c = new CACTI_monitoring({
         url: "http://bmrg.qunar.com/f",
@@ -5971,3 +5973,139 @@ fem.addMonitor(listPanel, "fem_showTGQ", "ShowTGQ");
 fem.addMonitor(listPanel, "fem_booking", "Booking");
 var detailPage = __$__("detailPage");
 fem.addMonitor(detailPage, "fem_pageNum");
+(function() {
+    var c = window.SERVER_TIME;
+    var a = new Date(c.getTime() + 1000 * 60 * 60 * 24 * 363);
+    var b = "http://flight.qunar.com/twell/flight/Search.jsp?";
+    window.searchCaution = function() {
+        var h = $jex.lightbox,
+            j, k = {};
+        var o = function(t) {
+            var s = t || {};
+            var r = "";
+            if (t.round) {
+                r = '<p>去程：&nbsp;<span class="fb">' + t.departureDate + "</span></p>";
+                r = r + '<p>回程：&nbsp;<span class="fb">' + t.arrivalDate + "</span>&nbsp;&nbsp;马上为您显示搜索结果。</p>";
+            } else {
+                r = '<p>去程：&nbsp;<span class="fb">' + t.departureDate + "</span>&nbsp;&nbsp;马上为您显示搜索结果。</p>";
+            }
+            return r;
+        };
+        var e = function(s) {
+            var r = '<div class="p_lyr_ct" style="width:522px;"><div class="lyr_in"> <a id="search-caution-close" class="btn_close" href="javascript:;"></a><div class="lyr_ct" style="width: 450px;"><div class="b_alt_day"><div class="p1">目前<span class="fb">' + s.fromCity + '</span>到<span class="fb">' + s.toCity + '</span>机票最远支持搜索以下日期的航班：</div><div class="p2">' + o(s) + '</div><div class="p_btn"><a href="' + s.href + '" class="btn_sure_bl" id="search-caution-ok"><span>确&nbsp;定</span></a></div></div><div class="b_alt_dode clearfix"><a href="http://app.qunar.com/" target="_blank"><p class="m_code_img"><img src="http://source.qunar.com/site/images/flight/home/img_qnkhd.png"></p><p class="m_code_rt"><span class="h1">为您提供更多航班搜索，<br>我们一直在努力！</span><span class="h3">扫描或点击下载去哪儿旅行客户端</span></p></a></div></div></div></div>';
+            return r;
+        };
+        var n = function() {
+            p();
+        };
+        var p = function() {
+            h.hide();
+        };
+        var l = function() {
+            $jex.event.bind($jex.$("search-caution-close"), "click", p);
+            $jex.event.bind($jex.$("search-caution-ok"), "click", n);
+        };
+        var d = function(s, r) {
+            return Math.min(s, r);
+        };
+
+        function g(t) {
+            var s = "";
+            for (var r in t) {
+                s += "&" + r + "=" + t[r];
+            }
+            return b + s;
+        }
+        var i = {
+            "国内_oneway": "fi_dom_search",
+            "国内_roundtrip": "fi_ont_search",
+            "国际_oneway": "fi_int_search",
+            "国际_roundtrip": "fi_ont_search",
+            "特价_lowestprice": "tejia_fi"
+        };
+        var q = {
+            oneway: "OnewayFlight",
+            roundtrip: "RoundTripFlight",
+            lowestprice: "DealsFlight"
+        };
+
+        function m(r) {
+            var s = {
+                fromCity: r.fromCity,
+                toCity: r.toCity,
+                fromDate: r.fd
+            };
+            if (r.searchType === "roundtrip") {
+                s.toDate = r.td;
+            }
+            if (r.searchType === "lowestprice") {
+                s.drange = r.drange;
+            }
+            s.from = i[r.type + "_" + r.searchType];
+            s.searchType = q[r.searchType];
+            return s;
+        }
+
+        function f(s) {
+            try {
+                new Image().src = "http://flight.qunar.com/site/track.htm?action=" + s + "&t=" + Math.random();
+            } catch (r) {}
+        }
+        k.check = function(t) {
+            this.data = {};
+            this.data.fromCity = t.fromCity;
+            this.data.toCity = t.toCity;
+            var r = false;
+            var s = $jex.date.parse(t.fd);
+            var v = $jex.date.parse(t.td);
+            if ("oneway" === t.searchType) {
+                if (s > a) {
+                    r = true;
+                    this.data.type = t.type;
+                    this.data.round = false;
+                    this.data.departureDate = $jex.date.format(a);
+                    var u = m(t);
+                    u.fromDate = this.data.departureDate;
+                    this.data.href = g(u);
+                }
+            } else {
+                if ("roundtrip" === t.searchType) {
+                    if (s > a || v > a) {
+                        r = true;
+                        this.data.type = t.type;
+                        this.data.round = true;
+                        this.data.departureDate = $jex.date.format(new Date(d(s, a)));
+                        this.data.arrivalDate = $jex.date.format(new Date(d(v, a)));
+                        var u = m(t);
+                        u.fromDate = this.data.departureDate;
+                        u.toDate = this.data.arrivalDate;
+                        this.data.href = g(u);
+                    }
+                } else {
+                    if ("lowestprice" === t.searchType) {
+                        if (s > a) {
+                            r = true;
+                            this.data.type = t.type;
+                            this.data.round = false;
+                            this.data.departureDate = $jex.date.format(a);
+                            this.data.drange = t.drange, this.data.search = t.search;
+                            var u = m(t);
+                            u.fromDate = this.data.departureDate;
+                            this.data.href = g(u);
+                        }
+                    }
+                }
+            }
+            return r;
+        };
+        k.show = function() {
+            var s = e(this.data);
+            h.show(s);
+            j = h.content;
+            l();
+            var r = ["FL", "EQR"].join("|");
+            f(r);
+        };
+        return k;
+    }();
+})();
