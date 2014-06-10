@@ -3458,7 +3458,7 @@ TransferFlightUI.prototype.hideVendorPanel = function() {
 TransferFlightUI.prototype._insertColums = function(c, a) {
     var d = a ? c.secondTrip() : c.firstTrip();
     this.text('<div class="c0">');
-    this.text('    <div class="a_logo"><img width="16" height="16" title="', d.carrier().full, '" alt="', d.carrier().full, '" src="http://source.qunar.com/site/images/airlines/small/', d.carrier().key, '.gif"></div>');
+    this.text('    <div class="a_logo"><img width="16" height="16" title="', d.carrier().full, '" alt="', d.carrier().full, '" src="http://simg1.qunarzz.com/site/images/airlines/small/', d.carrier().key, '.gif"></div>');
     this.text("</div>");
     this.text('<div class="c1">');
     var b = FlightUtil.codePatch(d.code());
@@ -5992,7 +5992,7 @@ fem.addMonitor(detailPage, "fem_pageNum");
             return r;
         };
         var e = function(s) {
-            var r = '<div class="p_lyr_ct" style="width:522px;"><div class="lyr_in"> <a id="search-caution-close" class="btn_close" href="javascript:;"></a><div class="lyr_ct" style="width: 450px;"><div class="b_alt_day"><div class="p1">目前<span class="fb">' + s.fromCity + '</span>到<span class="fb">' + s.toCity + '</span>机票最远支持搜索以下日期的航班：</div><div class="p2">' + o(s) + '</div><div class="p_btn"><a href="' + s.href + '" class="btn_sure_bl" id="search-caution-ok"><span>确&nbsp;定</span></a></div></div><div class="b_alt_dode clearfix"><a href="http://app.qunar.com/" target="_blank"><p class="m_code_img"><img src="http://source.qunar.com/site/images/flight/home/img_qnkhd.png"></p><p class="m_code_rt"><span class="h1">为您提供更多航班搜索，<br>我们一直在努力！</span><span class="h3">扫描或点击下载去哪儿旅行客户端</span></p></a></div></div></div></div>';
+            var r = '<div class="p_lyr_ct" style="width:522px;"><div class="lyr_in"> <a id="search-caution-close" class="btn_close" href="javascript:;"></a><div class="lyr_ct" style="width: 450px;"><div class="b_alt_day"><div class="p1">目前<span class="fb">' + s.fromCity + '</span>到<span class="fb">' + s.toCity + '</span>机票最远支持搜索以下日期的航班：</div><div class="p2">' + o(s) + '</div><div class="p_btn"><a href="' + s.href + '" class="btn_sure_bl" id="search-caution-ok"><span>确&nbsp;定</span></a></div></div><div class="b_alt_dode clearfix"><a href="http://app.qunar.com/" target="_blank"><p class="m_code_img"><img src="http://simg1.qunarzz.com/site/images/flight/home/img_qnkhd.png"></p><p class="m_code_rt"><span class="h1">为您提供更多航班搜索，<br>我们一直在努力！</span><span class="h3">扫描或点击下载去哪儿旅行客户端</span></p></a></div></div></div></div>';
             return r;
         };
         var n = function() {

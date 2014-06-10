@@ -2499,7 +2499,7 @@ XSelect.prototype.update = function() {
     a.text("<div>");
     a.text('		<div class="CSContainer">');
     a.append("			<div ", "btnDown", ' class="CSTitleLine">');
-    a.text('				<div class="CSButton"> <img src="http://source.qunar.com/site/images/new_main/icon_MoreNextDays.gif"/> </div>');
+    a.text('				<div class="CSButton"> <img src="http://simg1.qunarzz.com/site/images/new_main/icon_MoreNextDays.gif"/> </div>');
     a.text('				<div class="CSTitleText"> ');
     a.append("					<span ", "curr", " ></span>");
     a.text("				</div>");
@@ -4050,32 +4050,32 @@ FlashAdUI.config = {
     systembusy: {
         info1: "<span class='textRed'>此ip操作过于频繁，请稍后再来。</span>",
         info2: "搜索结束",
-        img: "http://source.qunar.com/site/images/no_loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/no_loading.gif"
     },
     searching: {
         info1: "请稍等,您查询的结果正在实时搜索中...",
         info2: "想去哪儿就去哪儿",
-        img: "http://source.qunar.com/site/images/loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/loading.gif"
     },
     noResult: {
         info1: "<span class='textRed'>该航线当前无可售航班<br />请您尝试其他航线或日期</span>",
         info2: "搜索结束<br /><a hidefocus='on' href='#' id='flightReserve' style='display:none;'>订阅本航线信息</a>",
-        img: "http://source.qunar.com/site/images/no_loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/no_loading.gif"
     },
     inValidQuery: {
         info1: "<span class='textRed'>抱歉，无直达航班，正试图搜索联程航班。</span>",
         info2: "想去哪儿就去哪儿",
-        img: "http://source.qunar.com/site/images/loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/loading.gif"
     },
     sameCity: {
         info1: "<span class='textRed'>噢噢~Orz 原地打转的话搜不到结果哦！<br />请立即输入目的地城市，想去哪儿就去哪儿！<br />--Qunar 员工语录!<br /><b>您输入出发城市与到达城市相同，请至少修改其中之一。</b></span>",
         info2: "",
-        img: "http://source.qunar.com/site/images/no_loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/no_loading.gif"
     },
     internopack: {
         info1: "<span class='textRed' style='text-align:left;'><b>没有找到您所查询的航班，可能原因如下：</b><br>1、您所查询的航线在“去哪儿”暂无往返报价，<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;可以更改为查询单程报价，也期待您联系<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010-57603866，协助我们补充航班信息。<br />2、网络暂时繁忙。</span>",
         info2: "",
-        img: "http://source.qunar.com/site/images/no_loading.gif"
+        img: "http://simg1.qunarzz.com/site/images/no_loading.gif"
     }
 };
 FlashAdUI.prototype.show = function(b) {
@@ -4140,7 +4140,7 @@ var LockScreen = function(c, b) {
         lockNow: false
     };
     if (((new Date() - CLIENT_TIME) / 1000 / 60 > 10) || b.lockNow) {
-        var a = ['<div class="p_layer_cont"><div class="layer_inner" style="width: 370px"><div class="e_tit_pop">&nbsp;</div><div class="layer_cont"><div id="pageBoxText">', b.msg, '<br /><img src="http://source.qunar.com/site/images/loading.gif" />', "</div></div></div></div>"].join("");
+        var a = ['<div class="p_layer_cont"><div class="layer_inner" style="width: 370px"><div class="e_tit_pop">&nbsp;</div><div class="layer_cont"><div id="pageBoxText">', b.msg, '<br /><img src="http://simg1.qunarzz.com/site/images/loading.gif" />', "</div></div></div></div>"].join("");
         $jex.lightbox.show(a);
         $jex.lightbox.overlay.style.backgroundColor = "#fff";
         setTimeout(function() {
@@ -5796,7 +5796,7 @@ WrapperUI.prototype.insert_IATAIMG = function(c) {
             if (a.url.indexOf("http") != -1) {
                 this.text("onclick=\"window.open('", a.url, "');return false;\"");
             }
-            this.text(' align="absmiddle" src="http://source.qunar.com/site/images/new_main/iatav2.gif" title="经Qunar验证：该网站已获得《中国民用航空运输销售代理业务资格认可证书》" />');
+            this.text(' align="absmiddle" src="http://simg1.qunarzz.com/site/images/new_main/iatav2.gif" title="经Qunar验证：该网站已获得《中国民用航空运输销售代理业务资格认可证书》" />');
             break;
         default:
             break;
@@ -6948,7 +6948,7 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     var c = [],
         d = b;
     c.push('<div class="c0">');
-    c.push('<div class="a_logo"><img width="16" height="16" title="', d.carrier().full, '" alt="', d.carrier().full, '" src="http://source.qunar.com/site/images/airlines/small/', d.carrier().key, '.gif"></div>');
+    c.push('<div class="a_logo"><img width="16" height="16" title="', d.carrier().full, '" alt="', d.carrier().full, '" src="http://simg1.qunarzz.com/site/images/airlines/small/', d.carrier().key, '.gif"></div>');
     c.push("</div>");
     c.push('<div class="c1">');
     var a = FlightUtil.codePatch(d.code());
@@ -7749,7 +7749,7 @@ OnewayFlightWrapperListUI.prototype.cancelShareCodeRule = function(b, a) {
     this.enableShareCode = false;
 };
 OnewayFlightWrapperListUI.prototype.loadingPanel = function(a) {
-    this.text('<div class="qvt_loadding"><img style="text-align:center;" src="http://source.qunar.com/site/images/new_main/m_loading.gif" /></div>');
+    this.text('<div class="qvt_loadding"><img style="text-align:center;" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" /></div>');
 };
 OnewayFlightWrapperListUI.filterWrappers_shareCode = function(f, d, c) {
     if (!this.enableShareCode) {
@@ -8216,7 +8216,7 @@ OnewayFlightWrapperUI.prototype.insertAgeLimit = function() {
     this.append('<div class="p_tips_cont" ', "ageLimit-tips", ">");
     this.text('<div class="p_tips_wrap" style="left:-80px"><div class="p_tips_arr p_tips_arr_t" style="left:95px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div style="text-align:center;min-width:160px;_width:160px;" class="p_tips_content" ', "ageLimit-tips-content", " >");
-    this.text('<img class="p_tips_tgq_img" src="http://source.qunar.com/site/images/new_main/m_loading.gif" />');
+    this.text('<img class="p_tips_tgq_img" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" />');
     this.text("</div></div></div>");
 };
 OnewayFlightWrapperUI.prototype.insert_TGQ = function(b) {
@@ -8227,7 +8227,7 @@ OnewayFlightWrapperUI.prototype.insert_TGQ = function(b) {
     if (b.pid() == null) {
         this.text(a);
     } else {
-        this.text('<img class="p_tips_tgq_img" src="http://source.qunar.com/site/images/new_main/m_loading.gif" />');
+        this.text('<img class="p_tips_tgq_img" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" />');
     }
     this.text("</div></div></div>");
 };
@@ -8552,7 +8552,7 @@ HistoryPriceUI.AvgPriceIcon = function(j, a) {
     var d = HistoryPriceUI.languageVars;
     var f = parseFloat(j[1]);
     var g = parseInt(a);
-    var i = "http://source.qunar.com/flighthistory/icons/";
+    var i = "http://simg1.qunarzz.com/flighthistory/icons/";
     var b = "";
     var h = "";
     var c = "";
@@ -8631,7 +8631,7 @@ HistoryPriceUI.historyPrice = new function() {
         var o = g + j + l + c;
         var f = "";
         var p = this.praseHistory(h.flightHistory());
-        var f = "http://source.qunar.com/flighthistory/pics/";
+        var f = "http://simg1.qunarzz.com/flighthistory/pics/";
         var b = HistoryPriceUI.AvgPriceIcon(h.flightHistory(), h.lowestPrice());
         var k = {
             code: c,
@@ -10353,7 +10353,7 @@ var $OTALOGIC = (function() {
             };
 
             function b() {
-                return ".inter_rc {padding:5px; border-top:1px solid #ccc; } .inter_rc li{float:left;} .inter_rc li.perrc { float:left; display:inline; margin-top:3px;width:100px; height:24px;line-height:22px;background:url(http://source.qunar.com/site/images/2011/bt_detail.png) 0px 0px no-repeat; } .inter_rc li.perrc .t {float:left;padding:0px 0 0 24px;padding-top:2px\9;_padding-top:0px;height:22px;overflow:hidden;} .inter_rc li.pr { width:103px;float:left; display:inline; margin-right:10px; font-family:arial; font-size:14px; color:#0069ca; } .inter_rc li.pr b { font-size:20px; } .inter_rc li.city { width:320px;text-align:center;float:left; display:inline; margin-right:30px; font-size:14px; line-height:30px; color:#0069ca; } .inter_rc li.no_pr{ width:433px;}.inter_rc li.ops { float:right; display:inline; margin-top:5px; } .inter_rc li.ops .btnView { display:block; width:70px; height:22px; line-height:22px; text-align:center; background:url(http://source.qunar.com/site/images/2011/bt_detail.png) 0px -40px no-repeat; color:#fff; } .inter_rc li.ops .btnView:hover { background-position:0 -67px; color:#fff; } .inter_rc li.ops .btnView:active { background-position:0 -94px; color:#fff; }";
+                return ".inter_rc {padding:5px; border-top:1px solid #ccc; } .inter_rc li{float:left;} .inter_rc li.perrc { float:left; display:inline; margin-top:3px;width:100px; height:24px;line-height:22px;background:url(http://simg1.qunarzz.com/site/images/2011/bt_detail.png) 0px 0px no-repeat; } .inter_rc li.perrc .t {float:left;padding:0px 0 0 24px;padding-top:2px\9;_padding-top:0px;height:22px;overflow:hidden;} .inter_rc li.pr { width:103px;float:left; display:inline; margin-right:10px; font-family:arial; font-size:14px; color:#0069ca; } .inter_rc li.pr b { font-size:20px; } .inter_rc li.city { width:320px;text-align:center;float:left; display:inline; margin-right:30px; font-size:14px; line-height:30px; color:#0069ca; } .inter_rc li.no_pr{ width:433px;}.inter_rc li.ops { float:right; display:inline; margin-top:5px; } .inter_rc li.ops .btnView { display:block; width:70px; height:22px; line-height:22px; text-align:center; background:url(http://simg1.qunarzz.com/site/images/2011/bt_detail.png) 0px -40px no-repeat; color:#fff; } .inter_rc li.ops .btnView:hover { background-position:0 -67px; color:#fff; } .inter_rc li.ops .btnView:active { background-position:0 -94px; color:#fff; }";
             }
 
             function d() {
@@ -11170,7 +11170,7 @@ recommendedHotels.show = function(M, m, l) {
         var h = function() {
             switch (recommendedHotels.type) {
                 case 0:
-                    return '					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0}						<div class="b_htl_pmt">							<div class="e_htl_tit">						        <a class="more" target="_blank" href="${hotelinfo.footerlink}">更多</a><h3>${hotelinfo.title}</h3>						    </div>							<div class="e_pmt_cont">							    {for hotel in hotelinfo.hs}								<dl class="dl_htl_pmt clrfix">						            <dt><a target="_blank" title="${hotel.name}" href="${hotel.url}">						            {if !hotel.isGroupPrice}						            <i class="rmb">&yen;</i><em class="f_tmt">${hotel.pr}</em>起{/if}${hotel.sname}{if hotel.isGroupPrice}<img class="tuan" title="${hotel.name}" alt="${hotel.name}" src="http://source.qunar.com/site/images/flight/flight_v1/ico_fly_tuan.png" width="26" height="12">{/if}</a></dt>						            <dd>						            <div class="h_img">						            <a target="_blank"  href="${hotel.url}">						            	{if hotel.purl}						            	<img width="61" height="61" src="${hotel.purl}" title="${hotel.name}" />						            	{else}						            	<img width="61" height="61" src="http://source.qunar.com/site/images/new_main/imgnull.gif" />						            	{/if}						            </a></div>						            <div class="h_ifo">${hotel.sd}</div>						            </dd>						        </dl>						        {/for}						    </div>						</div>						{/if}					{/for}';
+                    return '					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0}						<div class="b_htl_pmt">							<div class="e_htl_tit">						        <a class="more" target="_blank" href="${hotelinfo.footerlink}">更多</a><h3>${hotelinfo.title}</h3>						    </div>							<div class="e_pmt_cont">							    {for hotel in hotelinfo.hs}								<dl class="dl_htl_pmt clrfix">						            <dt><a target="_blank" title="${hotel.name}" href="${hotel.url}">						            {if !hotel.isGroupPrice}						            <i class="rmb">&yen;</i><em class="f_tmt">${hotel.pr}</em>起{/if}${hotel.sname}{if hotel.isGroupPrice}<img class="tuan" title="${hotel.name}" alt="${hotel.name}" src="http://simg1.qunarzz.com/site/images/flight/flight_v1/ico_fly_tuan.png" width="26" height="12">{/if}</a></dt>						            <dd>						            <div class="h_img">						            <a target="_blank"  href="${hotel.url}">						            	{if hotel.purl}						            	<img width="61" height="61" src="${hotel.purl}" title="${hotel.name}" />						            	{else}						            	<img width="61" height="61" src="http://simg1.qunarzz.com/site/images/new_main/imgnull.gif" />						            	{/if}						            </a></div>						            <div class="h_ifo">${hotel.sd}</div>						            </dd>						        </dl>						        {/for}						    </div>						</div>						{/if}					{/for}';
                 case 1:
                     return '					<div class="cvHotel cvAD_180">					{for hotelinfo in hotelinfos}						{if hotelinfo.hs && hotelinfo.hs.length > 0 && hotelinfo.tp == "b"}							<div class="cvHd">								<div class="t3"></div><div class="t2"></div><div class="t1"></div>								<h3>${hotelinfo.stitle}</h3>							</div>						{/if}						<ul class="cvList">							{for hotel in hotelinfo.hs}							{if hotelinfo.tp == "b"}							<li>								<h4><a href="${hotel.url}" title="${hotel.name}" target="_blank">${hotel.sname}<span class="pr">&yen;${hotel.pr}起</span></a></h4>								{if hotel.ap.length > 0}									{if city == "上海"}										<p>距机场公里数:											{for airp in hotel.ap}												${airp.apname}（${airp.dist}）											{/for}										</p>									{else}										{for airp in hotel.ap}										<p>距${airp.apname}:${airp.dist}公里</p>										{/for}									{/if}								{else}									<p>暂无距离机场数据</p>								{/if}								{if hotel.cbd}									<p>${hotel.star} 位于：<a href="http://hotel.qunar.com/search.jsp?toCity=${toCity}&from=${from}-${hotelinfo.tp}&qtype=${qtype}&q=${encodeURIComponent(hotel.scbd)}" target="_blank">${hotel.cbd}</a></p>								{/if}							</li>							{/for}							{/if}						</ul>						{if hotelinfo.tp == "b"}							<div class="cvFt"><a href="${hotelinfo.sfooterlink}" target="_blank">${hotelinfo.sfooter}</a></div>						{/if}					{/for}					</div>					';
                 default:
@@ -13236,7 +13236,7 @@ function FlightCityXCombox(c, d, b) {
                             }
                         };
                     };
-                    l.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://source.qunar.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
+                    l.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://simg1.qunarzz.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
                     for (var o = 0; o < q.length; o++) {
                         var k = "tab_" + o + $jex.globalID();
                         j.push({
@@ -15840,14 +15840,22 @@ function SearchBox(a, c) {
 var SearchBoxCreate = (function() {
     var d, f;
 
-    function b(h) {
+    function b(i) {
         var g = $jex.$("js-sbtn_list");
-        h.setValue(d);
-        h.setSearchType(f || "oneway");
+        if (g) {
+            var h = g.getElementsByTagName("button");
+            if (h.length > 0) {
+                $jex.foreach([h[0], h[1]], function(k, j) {
+                    k.removeAttribute("disabled");
+                });
+            }
+        }
+        i.setValue(d);
+        i.setSearchType(f || "oneway");
         if ($jex.$("forecast")) {
             $jex.element.show($jex.$("forecast").parentNode);
             $jex.event.click("forecast", function() {
-                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(h.fromCity.getValue()) + "&departureDate=" + h.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(h.toCity.getValue()));
+                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(i.fromCity.getValue()) + "&departureDate=" + i.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(i.toCity.getValue()));
             });
         }
         $jex.console.end("第一屏,快速搜索返程等功能");
