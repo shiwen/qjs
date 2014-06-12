@@ -8339,8 +8339,7 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     if (g) {
         this.append("<a", g, ' data-evtDataId="' + this.newid("") + '" class="btn_book_org" href="#"><span><b>' + a + "</b></span></a>");
     } else {
-        this.append("<a", g);
-        this.text('<a class="btn_book_org" href="#"><span><b>' + a + "</b></span></a>");
+        this.text('<a class="btn_book_org" href="javascript:void(0)"><span><b>' + a + "</b></span></a>");
     }
     this.text("</div>");
 };
