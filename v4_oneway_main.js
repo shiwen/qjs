@@ -1214,6 +1214,7 @@ $jex.exec(function() {
                     try {
                         var str = request.responseText;
                         if (str) {
+                            str = $jex.trim(str);
                             if (str.charAt(0, 1) == "{") {
                                 str = "(" + str + ")";
                             }
@@ -5061,6 +5062,9 @@ VendorEntity.prototype.isWorking = function() {
 };
 VendorEntity.prototype.getStatus = function() {
     return this.dataSource().status;
+};
+VendorEntity.prototype.info = function() {
+    return this.dataSource().info || {};
 };
 VendorEntity.prototype.starRank = function() {
     var a = this.dataSource().star;
