@@ -453,12 +453,12 @@ var $jex = {
             }
             return -1;
         },
-        each: function(a, c) {
+        each: function(a, d, c) {
             if (!a) {
                 return;
             }
-            for (var b = 0, d = a.length; b < d; b++) {
-                c(a[b], b);
+            for (var b = 0, f = a.length; b < f; b++) {
+                d.call(c, a[b], b);
             }
         },
         select: function(a, d) {
@@ -491,6 +491,30 @@ var $jex = {
                 }
             }
             return b;
+        },
+        map: function(b, g, d) {
+            if (typeof b.map === "function") {
+                return b.map(g, d);
+            }
+            var a = b.length;
+            var f = new Array(a);
+            for (var c = 0; c < a; c++) {
+                if (c in b) {
+                    f[c] = g.call(d, b[c], c, b);
+                }
+            }
+            return f;
+        },
+        some: function(b, f, d) {
+            if (typeof b.some === "function") {
+                return b.some(f, d);
+            }
+            for (var c = 0, a = b.length; c < a; c++) {
+                if (c in b && callback.call(d, b[c], c, b)) {
+                    return true;
+                }
+            }
+            return false;
         }
     },
     hash: {
