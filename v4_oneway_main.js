@@ -4664,6 +4664,9 @@ WrapperEntity.prototype.isBCabin = function() {
 WrapperEntity.prototype.isTCabin = function() {
     return /^t/i.test(this.dataSource().type);
 };
+WrapperEntity.prototype.isLCabin = function() {
+    return /^l/i.test(this.dataSource().type);
+};
 WrapperEntity.prototype.isOta = function() {
     return this.dataSource().type == "s";
 };
@@ -7880,7 +7883,11 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
     if (d.getTGQInfo()) {
         f = 1;
         this.append("<div", "js-stopClick", ' class="t_st">');
-        this.append('<span class="dot_gy"', "tgq", ">退改签</span>");
+        if (d.isLCabin()) {
+            this.append('<span class="dot_gy"', "tgq", ">不可退改签</span>");
+        } else {
+            this.append('<span class="dot_gy"', "tgq", ">退改签</span>");
+        }
         this.insert_TGQ(d);
         this.text("</div>");
     }
@@ -8188,6 +8195,9 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(b) {
     this.text('<div class="t_name">', a.vendor().name());
     if (a.isTCabin()) {
         this.text('<i class="i_bns_thui">特惠</i>');
+    }
+    if (a.isLCabin()) {
+        this.text('<i class="i_bns_shm">甩卖</i>');
     }
     this.text("</div>");
     this.text('<div class="t_cmt">');
