@@ -7883,11 +7883,7 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
     if (d.getTGQInfo()) {
         f = 1;
         this.append("<div", "js-stopClick", ' class="t_st">');
-        if (d.isLCabin()) {
-            this.append('<span class="dot_gy"', "tgq", ">不可退改签</span>");
-        } else {
-            this.append('<span class="dot_gy"', "tgq", ">退改签</span>");
-        }
+        this.append('<span class="dot_gy"', "tgq", ">退改签</span>");
         this.insert_TGQ(d);
         this.text("</div>");
     }
