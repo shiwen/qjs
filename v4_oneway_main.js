@@ -7736,6 +7736,13 @@ OnewayFlightWrapperListUI.prototype.getWrapperFormEntity = function(c) {
                 TsinghuaOneWayTracker.noWrapperList(c);
             }
             c.lowestPrice(c.priceInfo().lowpr);
+            if (c.type === "oneway") {
+                DomesticOnewayDataAnalyzer.lowestOneway(c);
+            } else {
+                if (c.type === "compose") {
+                    DomesticOnewayDataAnalyzer.lowestCompose(c);
+                }
+            }
             b.ownerVendorListUI().owner().updateLowestPrice();
             b.ownerVendorListUI().owner().insert_recommandWrapper(undefined, true);
             $jex.event.trigger(PAGE_EVENT, "lowPriceChange");
