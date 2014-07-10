@@ -5167,6 +5167,20 @@ VendorEntity.prototype.__getIconInfo = function(a) {
         title: ""
     };
 };
+VendorEntity.prototype.isOffical = function() {
+    var b = this.dataSource();
+    if (!b) {
+        return false;
+    }
+    var a = b.info.icon;
+    if (!a) {
+        return false;
+    }
+    if (a == "official") {
+        return true;
+    }
+    return false;
+};
 VendorEntity.prototype.__getService = function(a) {
     var c = this.dataSource();
     if (!c) {
@@ -7894,13 +7908,16 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
         this.insert_TGQ(d);
         this.text("</div>");
     }
-    if (d.hasAgeLimit()) {
-        this.append("<div", "js-stopClick", ' class="t_st">');
-        this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
-        this.insertAgeLimit(d);
-        this.text("</div>");
-    }
-    if (c && !d.isApplyPrice()) {
+    if (d.hasAgeLimit() && d.vendor().isOffical()) {
+        this.text('<i class="i_yao_pre">青老年优惠</i>');
+    } else {
+        if (d.hasAgeLimit()) {
+            this.append("<div", "js-stopClick", ' class="t_st">');
+            this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
+            this.insertAgeLimit(d);
+            this.text("</div>");
+        }
+    } if (c && !d.isApplyPrice()) {
         f = 1;
         this.text('<div class="t_st">');
         if ($jex.ie == 6) {

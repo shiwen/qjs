@@ -1686,7 +1686,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
             J();
         };
         var K = L.getWrapperListType();
-        H.invoke_flightPriceData(L.key(), I, M, K);
+        H.invoke_flightPriceData(L.key(), I, M, K, L);
     };
 
     function d(L) {
@@ -2040,19 +2040,19 @@ var DomesticOnewaySearchService = new(function() {
     var o = $jex.isdebug ? "http://local.qunar.com" : "";
     var e = null;
     var s = 0;
-    var x = new Date();
+    var y = new Date();
     var v = 0;
     var d = 0;
     var i = 0;
     var m = 0;
-    var A = "";
+    var B = "";
     var h = "";
-    var z = false;
+    var A = false;
     var f = false;
     var l = false;
-    var w = null;
+    var x = null;
     this.longwell = function() {
-        return w || {};
+        return x || {};
     };
     var c = [];
     var j = [];
@@ -2060,46 +2060,50 @@ var DomesticOnewaySearchService = new(function() {
     var n = null;
     var t = "";
     var k = null;
+    var w = null;
+    this.setAnalyzer = function(C) {
+        w = C;
+    };
     var r = false;
-    this.isValidQuery = function(B) {
-        if (B == null) {
+    this.isValidQuery = function(C) {
+        if (C == null) {
             return r;
         } else {
-            r = B;
+            r = C;
         }
     };
-    var y = null;
-    this.queryId = function(B) {
-        if (B == null) {
-            return y;
+    var z = null;
+    this.queryId = function(C) {
+        if (C == null) {
+            return z;
         } else {
-            y = B;
+            z = C;
         }
     };
     var q = null;
-    this.tserver = function(B) {
-        if (B == null) {
+    this.tserver = function(C) {
+        if (C == null) {
             return q;
         } else {
-            q = B;
+            q = C;
         }
     };
-    this.search = function(D) {
+    this.search = function(E) {
         if (p.searchEnd()) {
             return;
         }
         $jex.merge(this.param, {
-            fromCity: D.searchDepartureAirport,
-            toCity: D.searchArrivalAirport,
-            fromDate: D.searchDepartureTime
+            fromCity: E.searchDepartureAirport,
+            toCity: E.searchArrivalAirport,
+            fromDate: E.searchDepartureTime
         });
         $jex.merge(this.oparam, {
-            ex_track: D.ex_track,
-            from: D.from
+            ex_track: E.ex_track,
+            from: E.from
         });
-        var C = $jex.date.parse(this.param.fromDate);
-        var B = window.SERVER_TIME || new Date();
-        if (B.getTime() - C.getTime() > 86400000) {
+        var D = $jex.date.parse(this.param.fromDate);
+        var C = window.SERVER_TIME || new Date();
+        if (C.getTime() - D.getTime() > 86400000) {
             $jex.event.trigger(this, "expireQuery");
             return;
         }
@@ -2118,15 +2122,15 @@ var DomesticOnewaySearchService = new(function() {
         }, 15000);
     };
     this.queryZYF = function() {
-        var B = this;
-        var C = o + "/zyf/api/ads.json";
-        $jex.ajax(C, {
-            dpt: B.param.fromCity,
-            arr: B.param.toCity,
-            dptDate: B.param.fromDate
-        }, function(D) {
-            if (D) {
-                B._process_zyf(D);
+        var C = this;
+        var D = o + "/zyf/api/ads.json";
+        $jex.ajax(D, {
+            dpt: C.param.fromCity,
+            arr: C.param.toCity,
+            dptDate: C.param.fromDate
+        }, function(E) {
+            if (E) {
+                C._process_zyf(E);
             }
         });
     };
@@ -2136,8 +2140,8 @@ var DomesticOnewaySearchService = new(function() {
         }
         $jex.console.warn("[queryNext]", new Date().getTime() - e);
         if (this.getTask()) {
-            var B = this.getTask();
-            $jex.console.info("queryNext: 等待插入任务结束. TaskID:", B);
+            var C = this.getTask();
+            $jex.console.info("queryNext: 等待插入任务结束. TaskID:", C);
             setTimeout(function() {
                 p.queryNext();
             }, 100);
@@ -2146,7 +2150,7 @@ var DomesticOnewaySearchService = new(function() {
                 p._invoke_AVData();
             } else {
                 if (i != 2 && (d == 2 || (d != 2 && c.length >= 2))) {
-                    $jex.console.info("queryNext:处理联程", " transferSearchState:", i, " isValidQuery:", w.isValidQuery, " onewayDatasLength:", c.length);
+                    $jex.console.info("queryNext:处理联程", " transferSearchState:", i, " isValidQuery:", x.isValidQuery, " onewayDatasLength:", c.length);
                     p._invoke_transfer();
                 } else {
                     $jex.console.info("queryNext:处理直飞");
@@ -2180,13 +2184,13 @@ var DomesticOnewaySearchService = new(function() {
     };
     this._invoke_longwell = function() {
         $jex.console.start("调用longwell");
-        var E = this.param;
-        var C = c;
-        var D = {
-            "http://www.travelco.com/searchArrivalAirport": E.toCity,
-            "http://www.travelco.com/searchDepartureAirport": E.fromCity,
-            "http://www.travelco.com/searchDepartureTime": E.fromDate,
-            "http://www.travelco.com/searchReturnTime": E.fromDate,
+        var F = this.param;
+        var D = c;
+        var E = {
+            "http://www.travelco.com/searchArrivalAirport": F.toCity,
+            "http://www.travelco.com/searchDepartureAirport": F.fromCity,
+            "http://www.travelco.com/searchDepartureTime": F.fromDate,
+            "http://www.travelco.com/searchReturnTime": F.fromDate,
             locale: "zh",
             nextNDays: "0",
             searchLangs: "zh",
@@ -2196,47 +2200,47 @@ var DomesticOnewaySearchService = new(function() {
             xd: LONGWELLVERSION
         };
         k = {
-            departureCity: E.fromCity,
-            arrivalCity: E.toCity,
-            departureDate: E.fromDate,
-            returnDate: E.fromDate,
+            departureCity: F.fromCity,
+            arrivalCity: F.toCity,
+            departureDate: F.fromDate,
+            returnDate: F.fromDate,
             nextNDays: "0",
             searchType: "OneWayFlight",
             searchLangs: "zh",
             locale: "zh"
         };
-        $jex.merge(D, this.oparam);
+        $jex.merge(E, this.oparam);
         $jex.merge(k, this.oparam);
-        var B = o + "/twell/longwell";
-        $jex.ajax(B, D, function(H) {
-            u && console.log("longwell回数", H, new Date());
+        var C = o + "/twell/longwell";
+        $jex.ajax(C, E, function(I) {
+            u && console.log("longwell回数", I, new Date());
             $jex.console.end("调用longwell");
-            if (H.isLimit) {
+            if (I.isLimit) {
                 $jex.event.trigger(p, "ipBlock");
                 return;
             }
-            $jex.event.trigger(p, "getQueryId", H);
-            w = H;
-            p.queryId(H.queryID);
-            k.queryID = H.queryID;
-            k.serverIP = H.serverIP;
-            var G = H.validate;
-            if (G) {
-                if (G.dept.country != "中国" || G.arri.country != "中国") {
+            $jex.event.trigger(p, "getQueryId", I);
+            x = I;
+            p.queryId(I.queryID);
+            k.queryID = I.queryID;
+            k.serverIP = I.serverIP;
+            var H = I.validate;
+            if (H) {
+                if (H.dept.country != "中国" || H.arri.country != "中国") {
                     $jex.event.trigger(p, "interSearch");
                     return;
                 }
-                if (G.dept.value == G.arri.value) {
+                if (H.dept.value == H.arri.value) {
                     $jex.event.trigger(p, "sameCity");
                     return;
                 }
-                $jex.event.trigger(p, "validateComplete", H.validate);
+                $jex.event.trigger(p, "validateComplete", I.validate);
             }
-            if (H.isBackendBusy) {
+            if (I.isBackendBusy) {
                 $jex.event.trigger(p, "systemBusy");
                 return;
             }
-            if (H.isValidQuery) {
+            if (I.isValidQuery) {
                 p.isValidQuery(true);
                 d = 1;
                 $jex.event.trigger(p, "validQuery");
@@ -2244,18 +2248,18 @@ var DomesticOnewaySearchService = new(function() {
                 p.isValidQuery(false);
                 d = 2;
                 $jex.event.trigger(p, "invalidQuery");
-            } if (!H.isTransferFlightsNeeded) {
+            } if (!I.isTransferFlightsNeeded) {
                 i = 2;
                 $jex.event.trigger(p, "TransferDataReady");
             }
-            $jex.event.trigger(p, "loadedLongwell", H);
-            var F = H.oneway_data || {};
+            $jex.event.trigger(p, "loadedLongwell", I);
+            var G = I.oneway_data || {};
             setTimeout(function() {
                 k.deduce = true;
                 m = 1;
             }, 1000);
-            if (!$jex.$empty(F.priceInfo)) {
-                p._process_oneway(F);
+            if (!$jex.$empty(G.priceInfo)) {
+                p._process_oneway(G);
             } else {
                 $jex.event.trigger(p, "noOnewayData");
                 p.queryNext();
@@ -2265,27 +2269,27 @@ var DomesticOnewaySearchService = new(function() {
         });
     };
     this._invoke_oneway = function() {
-        var D = c;
+        var E = c;
         if (m == 1) {
             $jex.console.info("本次为deduce jsp调用.");
-            var C = o + "/twell/flight/tags/deduceonewayflight_groupdata.jsp";
+            var D = o + "/twell/flight/tags/deduceonewayflight_groupdata.jsp";
         } else {
-            var C = o + "/twell/flight/tags/onewayflight_groupdata.jsp";
+            var D = o + "/twell/flight/tags/onewayflight_groupdata.jsp";
         } if (h) {
             k.flightCode = h;
         }
-        var B = h;
+        var C = h;
         this._lastGinfoData = null;
-        $jex.ajax(C, k, function(E) {
-            u && console.log("GROUP_DATA回数：", E, new Date());
+        $jex.ajax(D, k, function(F) {
+            u && console.log("GROUP_DATA回数：", F, new Date());
             if (m == 1) {
                 m = 2;
             }
-            if (B !== h) {
-                p.correctPriceInfo(E, h);
+            if (C !== h) {
+                p.correctPriceInfo(F, h);
             }
-            E.flightCode = B;
-            p._process_oneway(E);
+            F.flightCode = C;
+            p._process_oneway(F);
             if (k.deduce == true) {
                 f = true;
             }
@@ -2293,28 +2297,28 @@ var DomesticOnewaySearchService = new(function() {
             onerror: p._onerror
         });
     };
-    this._process_oneway = function(C) {
-        var B = c;
-        k.status = C.status;
-        B.push(C);
-        if (!$jex.$empty(C.priceInfo)) {
-            $jex.event.trigger(p, "loadedOnewayData", C);
-            PAGE_EVENT.trigger("wrapper_loadData", C);
-            if (!z) {
-                $jex.event.trigger(p, "loadedFirstData", C);
-                z = true;
+    this._process_oneway = function(D) {
+        var C = c;
+        k.status = D.status;
+        C.push(D);
+        if (!$jex.$empty(D.priceInfo)) {
+            $jex.event.trigger(p, "loadedOnewayData", D);
+            PAGE_EVENT.trigger("wrapper_loadData", D);
+            if (!A) {
+                $jex.event.trigger(p, "loadedFirstData", D);
+                A = true;
             }
         } else {
             $jex.console.info("直飞价格数据为空.");
-        } if (!C.dataCompleted) {
+        } if (!D.dataCompleted) {
             $jex.console.info("dataCompleted:搜索未结束");
             if (new Date() - e > 60000) {
                 $jex.console.info("dataCompleted:超时停止");
                 d = 2;
                 p.queryNext();
             } else {
-                s = $jex.$defined(C.invokeInterval) ? C.invokeInterval * 2 : 100;
-                x = new Date().getTime() + s;
+                s = $jex.$defined(D.invokeInterval) ? D.invokeInterval * 2 : 100;
+                y = new Date().getTime() + s;
                 $jex.console.info("dataCompleted:继续搜索直飞,", s);
                 p.queryNext();
             }
@@ -2328,94 +2332,102 @@ var DomesticOnewaySearchService = new(function() {
             this.queryNext();
         }
     };
-    this._process_zyf = function(B) {
-        $jex.event.trigger(p, "zyfLoaded", B);
+    this._process_zyf = function(C) {
+        $jex.event.trigger(p, "zyfLoaded", C);
     };
     this._invoke_transfer = function() {
         if (p.searchEnd()) {
             return;
         }
         $jex.console.info("---->调用联程");
-        var C = $jex.merge({}, k);
+        var D = $jex.merge({}, k);
         if (i == 1) {
-            C.isReSearch = true;
+            D.isReSearch = true;
         }
-        var B = o + "/twell/flight/tags/OneWayFlight_data_more.jsp";
-        $jex.ajax(B, C, function(D) {
-            u && console.log("transfer回数：", D, new Date());
-            j.push(D);
-            p.tserver(D.server);
-            if (D.needNewSearch == true) {
+        var C = o + "/twell/flight/tags/OneWayFlight_data_more.jsp";
+        $jex.ajax(C, D, function(E) {
+            u && console.log("transfer回数：", E, new Date());
+            j.push(E);
+            p.tserver(E.server);
+            if (E.needNewSearch == true) {
                 i = 1;
-                $jex.console.info("[联程需要再次调用 ] data.needNewSearch:", D.needNewSearch);
+                $jex.console.info("[联程需要再次调用 ] data.needNewSearch:", E.needNewSearch);
                 setTimeout(function() {
                     p.queryNext();
                 }, 3500);
             } else {
                 $jex.event.trigger(p, "TransferDataReady");
-                if (!$jex.$empty(D.data)) {
-                    $jex.event.trigger(p, "loadedTransfer", D);
-                    if (!z) {
-                        $jex.event.trigger(p, "loadedFirstData", D);
-                        z = true;
+                if (!$jex.$empty(E.data)) {
+                    $jex.event.trigger(p, "loadedTransfer", E);
+                    if (!A) {
+                        $jex.event.trigger(p, "loadedFirstData", E);
+                        A = true;
                     }
                 } else {
-                    $jex.event.trigger(p, "noTransferData", D);
+                    $jex.event.trigger(p, "noTransferData", E);
                     $jex.console.info("联程价格数据为空.");
                 }
                 i = 2;
                 p.queryNext();
-                s = Math.max(new Date() - x, 0);
+                s = Math.max(new Date() - y, 0);
             }
         }, {
             onerror: p._onerror
         });
     };
-    this.syncCurrentFlightCode = function(B) {};
+    this.syncCurrentFlightCode = function(C) {};
     var a = "all";
-    this.invoke_flightPriceData = function(F, D, E, C) {
-        a = C;
-        if (D) {
-            A = F;
+    this.invoke_flightPriceData = function(H, F, G, E, D) {
+        a = E;
+        if (F) {
+            B = H;
         } else {
-            h = F;
-            A = "";
+            h = H;
+            B = "";
         }
-        var B = function() {
-            if (C === a) {
-                E && E();
+        var C = function() {
+            if (E === a) {
+                G && G();
             }
         };
-        p._invoke_flightPriceData(F, B);
+        p._invoke_flightPriceData(H, C, D);
     };
-    this.correctPriceInfo = function(C, D) {
-        var B = this._lastGinfoData;
+    this.correctPriceInfo = function(D, E) {
+        var C = this._lastGinfoData;
         this._lastGinfoData = null;
-        if (B && B.priceData[D]) {
-            C.priceData = {};
-            C.labelType = null;
-            C.priceInfo[D] = B.priceInfo[D];
+        if (C && C.priceData[E]) {
+            D.priceData = {};
+            D.labelType = null;
+            D.priceInfo[E] = C.priceInfo[E];
         }
     };
-    this._invoke_flightPriceData = function(E, D) {
-        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", E);
-        var C = o + "/twell/flight/tags/onewayflight_groupinfo.jsp";
-        var B = a;
-        k.flightCode = E;
+    this._invoke_flightPriceData = function(H, G, F) {
+        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", H);
+        var E = w.lowestOneway().lowestPrice();
+        if (F.lowestPrice() == E) {
+            k.lowflight = true;
+            k.lowflightpr = E;
+        } else {
+            delete k.lowflight;
+            delete k.lowflightpr;
+        }
+        var D = o + "/twell/flight/tags/onewayflight_groupinfo.jsp";
+        var C = a;
+        k.flightCode = H;
         k.label = a;
         this._lastGinfoData = null;
-        $jex.ajax(C, k, function(F) {
-            u && console.log("groupInfo", F);
-            F.flightCode = E;
-            F.labelType = B;
-            $jex.event.trigger(p, "loadedGroupinfo", F);
-            p._lastGinfoData = F;
-            $jex.event.trigger(p, "parsingFlightPriceData", F);
-            if (D) {
-                D();
+        $jex.ajax(D, k, function(I) {
+            u && console.log("groupInfo", I);
+            I.flightCode = H;
+            I.labelType = C;
+            $jex.event.trigger(p, "loadedGroupinfo", I);
+            p._lastGinfoData = I;
+            $jex.event.trigger(p, "parsingFlightPriceData", I);
+            if (G) {
+                G();
             }
             $jex.console.info("[invoke_flightPriceData] 处理完毕");
-            PAGE_EVENT.trigger("wrapper_loadData", F);
+            PAGE_EVENT.trigger("wrapper_loadData", I);
         }, {
             onerror: p._onerror
         });
@@ -2437,36 +2449,36 @@ var DomesticOnewaySearchService = new(function() {
     };
     this._invoke_ExtInfo = function() {
         $jex.console.info("调用扩展信息及准点率");
-        var D = this.param;
-        var B = o + "/twell/flight/DynamicFlightInfo.jsp";
-        var C = {
-            departureCity: D.fromCity,
-            arrivalCity: D.toCity,
-            departureDate: D.fromDate,
-            fromCity: D.fromCity,
-            toCity: D.toCity
+        var E = this.param;
+        var C = o + "/twell/flight/DynamicFlightInfo.jsp";
+        var D = {
+            departureCity: E.fromCity,
+            arrivalCity: E.toCity,
+            departureDate: E.fromDate,
+            fromCity: E.fromCity,
+            toCity: E.toCity
         };
-        $jex.merge(C, this.oparam);
-        $jex.ajax(B, C, function(E) {
-            u && console.log("扩展信息回数：", E, new Date());
-            b = E;
-            $jex.event.trigger(p, "loadedExtInfo", E);
+        $jex.merge(D, this.oparam);
+        $jex.ajax(C, D, function(F) {
+            u && console.log("扩展信息回数：", F, new Date());
+            b = F;
+            $jex.event.trigger(p, "loadedExtInfo", F);
         }, {
             onerror: p._onerror
         });
     };
     this._invoke_AVData = function() {
         $jex.console.info("调用AV数据");
-        var B = o + "/twell/flight/OneWayFlight_Info.jsp";
-        $jex.ajax(B, k, function(C) {
-            u && console.log("AVData回数：", C, new Date());
-            n = C;
-            $jex.event.trigger(p, "loadedAVData", C);
+        var C = o + "/twell/flight/OneWayFlight_Info.jsp";
+        $jex.ajax(C, k, function(D) {
+            u && console.log("AVData回数：", D, new Date());
+            n = D;
+            $jex.event.trigger(p, "loadedAVData", D);
             l = true;
-            if (!$jex.$empty(C.flightInfo)) {
-                if (!z) {
-                    $jex.event.trigger(p, "loadedFirstData", C);
-                    z = true;
+            if (!$jex.$empty(D.flightInfo)) {
+                if (!A) {
+                    $jex.event.trigger(p, "loadedFirstData", D);
+                    A = true;
                 }
             }
             p.queryNext();
@@ -2479,9 +2491,9 @@ var DomesticOnewaySearchService = new(function() {
     };
     var g = [];
     this.insertTask = function() {
-        var B = "task" + $jex.globalID();
-        g.push(B);
-        return B;
+        var C = "task" + $jex.globalID();
+        g.push(C);
+        return C;
     };
     this.getTask = function() {
         if (g.length == 0) {
@@ -2489,10 +2501,10 @@ var DomesticOnewaySearchService = new(function() {
         }
         return g[0];
     };
-    this.finishTask = function(C) {
-        for (var B = 0; B < g.length; B++) {
-            if (g[B] == C) {
-                g.splice(B, 1);
+    this.finishTask = function(D) {
+        for (var C = 0; C < g.length; C++) {
+            if (g[C] == D) {
+                g.splice(C, 1);
             }
         }
     };
@@ -5704,6 +5716,7 @@ SortHandler.prototype._init = function() {
     var i = DomesticOnewaySearchService;
     var h = DomesticOnewayDataAnalyzer;
     h.setSearchService(i);
+    i.setAnalyzer(h);
     window.SS = i;
     var a = new flightResultController(i, h);
     var l = new FlashAdUI({
