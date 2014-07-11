@@ -5367,6 +5367,9 @@ var OnewayFlightEntity = function() {
     };
 };
 $jex.extendClass(OnewayFlightEntity, FlightEntity);
+OnewayFlightEntity.prototype.isCodeShare = function() {
+    return !!(this.codeShare() && this.codeShareFlight());
+};
 OnewayFlightEntity.prototype.isAV = function() {
     return this.lowestPrice() == null;
 };

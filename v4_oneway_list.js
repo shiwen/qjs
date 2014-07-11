@@ -2907,202 +2907,268 @@ SingleTripFlightWrapperEntity.prototype.bprPrice = function() {
 };
 var FlightListUISorter = {};
 $jex.exec(function() {
+    var c = null;
     var b = null;
-    var a = null;
-    FlightListUISorter.userSorted = function(c) {
-        if (c == null) {
-            return a;
+    FlightListUISorter.userSorted = function(e) {
+        if (e == null) {
+            return b;
         } else {
-            a = c;
+            b = e;
         }
     };
-    FlightListUISorter.open = function(c) {
-        if (c.isAV && c.isAV()) {
+    FlightListUISorter.open = function(e) {
+        if (e.isAV && e.isAV()) {
             return;
         }
-        b = c;
-        var d = $jex.offset($jex.$("resultAnchor"));
-        window.scrollTo(d.left, d.top);
+        c = e;
+        var f = $jex.offset($jex.$("resultAnchor"));
+        window.scrollTo(f.left, f.top);
     };
     FlightListUISorter.close = function() {
-        b = null;
+        c = null;
     };
-    FlightListUISorter.resortPage = function(e) {
-        if (!b) {
+    FlightListUISorter.resortPage = function(g) {
+        if (!c) {
             return;
         }
-        for (var d = 0, c = e.length; d < c; d++) {
-            if (e[d] === b) {
-                e.splice(d, 1);
-                e.splice(0, 0, b);
+        for (var f = 0, e = g.length; f < e; f++) {
+            if (g[f] === c) {
+                g.splice(f, 1);
+                g.splice(0, 0, c);
                 break;
             }
         }
     };
-    FlightListUISorter.sortPrice = function(f, d) {
-        var c = ConfigManager.getConfig("NonStrikingCarrier", f);
-        if (c) {
-            d -= c;
-        }
-        var e = ConfigManager.getConfig("StrikingCarrier", f);
+    FlightListUISorter.sortPrice = function(h, f) {
+        var e = ConfigManager.getConfig("NonStrikingCarrier", h);
         if (e) {
-            d += e;
+            f -= e;
         }
-        return d;
+        var g = ConfigManager.getConfig("StrikingCarrier", h);
+        if (g) {
+            f += g;
+        }
+        return f;
     };
-    FlightListUISorter.resort = function(v, h, w, L) {
-        var s = 999999;
+
+    function d(i) {
+        var h = "14:00".split(":");
+        var g = i.split(":");
+        var e = new Date();
+        e.setHours(parseInt(g[0], 10), parseInt(g[1], 10));
+        var f = new Date();
+        f.setHours(parseInt(h[0], 10), parseInt(h[1], 10));
+        return (Math.abs(f - e) / 1000);
+    }
+
+    function a(h, e, g) {
+        f(h);
+
+        function f(w) {
+            for (var r = 0; r < w.length - 1; r++) {
+                for (var s = 0; s < w.length - 1 - r; s++) {
+                    var q = w[s];
+                    var u = w[s + 1];
+                    if (e[q].lowestPrice() !== e[u].lowestPrice()) {
+                        continue;
+                    }
+                    var p = e[q].type === "transfer" ? e[q].firstTrip() : e[q];
+                    var n = e[u].type === "transfer" ? e[u].firstTrip() : e[u];
+                    var o = 1;
+                    var m = o * 2;
+                    var t = 0;
+                    var k = 0;
+                    t = g && p.isCodeShare() ? 0 : m;
+                    k = g && n.isCodeShare() ? 0 : m;
+                    var l = d(p.deptTime());
+                    var v = d(n.deptTime());
+                    if (l > v) {
+                        k += o;
+                    }
+                    if (l < v) {
+                        t += o;
+                    }
+                    if (t < k) {
+                        w[s + 1] = q;
+                        w[s] = u;
+                    }
+                }
+            }
+        }
+    }
+    FlightListUISorter.resort = function(B, G, g, E) {
+        var j = 999999;
         if (FlightListUISorter.userSorted()) {
             return {};
         }
         $jex.console.start("FlightListUISorter.resort");
-        var M = [];
-        var m = function(i) {
-            if (h[i] != null) {
-                var k = h[i].lowestPrice();
+        var m = [];
+        var Q = function(i) {
+            if (G[i] != null) {
+                var k = G[i].lowestPrice();
                 if (k != null) {
                     return k;
                 } else {
-                    return s;
+                    return j;
                 }
             }
         };
-        var x = function(i) {
-            if (h[i] != null) {
-                var k = FlightListUISorter.sortPrice(h[i].carrierCode(), h[i].lowestPrice());
+        var z = function(i) {
+            if (G[i] != null) {
+                var k = FlightListUISorter.sortPrice(G[i].carrierCode(), G[i].lowestPrice());
                 if (k != null) {
                     return k;
                 } else {
-                    return s;
+                    return j;
                 }
             }
         };
-        v.sort(function(k, i) {
-            return m(k) - m(i);
+        B.sort(function(k, i) {
+            return Q(k) - Q(i);
         });
-        var q;
-        var t;
-        var N;
-        var j = [];
-        var D = 0;
-        for (var J = 0; J < v.length; J++) {
-            var H = v[J];
-            if (h[H].type == "oneway") {
-                q = H;
-                t = h[H].carrierCode();
-                N = m(H) + h[H].totalTax();
-                D = J;
-                v.splice(D, 1);
-                break;
+        var o;
+        var v;
+        var r;
+        var x = [];
+        var J = 0;
+        var w;
+        var e = [];
+        for (var P = 0; P < B.length; P++) {
+            var N = B[P];
+            var S = G[N].type;
+            if (S !== "oneway") {
+                continue;
+            }
+            if (!w) {
+                w = N;
+                e.push(N);
+            } else {
+                if (Q(N) === Q(w)) {
+                    w = N;
+                    e.push(N);
+                } else {
+                    a(e, G, true);
+                    var t = e[0];
+                    o = t;
+                    v = G[t].carrierCode();
+                    r = Q(t) + G[t].totalTax();
+                    J = $jex.array.indexOf(B, t);
+                    B.splice(J, 1);
+                    break;
+                }
             }
         }
-        var B = [];
-        var e;
-        var d;
-        var r = [];
+        var R = [];
+        var M;
         var C;
-        var K;
-        var I = ConfigManager.getConfig("PayCarrierSort");
-        for (var z in I) {
-            if (I.hasOwnProperty(z)) {
-                I[z] = [];
+        var D = [];
+        var y;
+        var l;
+        var u = ConfigManager.getConfig("PayCarrierSort");
+        for (var K in u) {
+            if (u.hasOwnProperty(K)) {
+                u[K] = [];
             }
         }
-        var F = [];
-        var l = [];
-        var f, u;
-        var c = [];
-        $jex.foreach(v, function(i) {
-            if (h[i].type == "oneway") {
-                f = h[i].carrierCode();
-                u = m(i);
-                if (u != s && f != t && f in I) {
-                    if ($jex.array.indexOf(I[f], i) < 0) {
-                        I[f].push(i);
+        var f = [];
+        var O = [];
+        var T, A;
+        var I = [];
+        $jex.foreach(B, function(i) {
+            if (G[i].type == "oneway") {
+                T = G[i].carrierCode();
+                A = Q(i);
+                if (A != j && T != v && T in u) {
+                    if ($jex.array.indexOf(u[T], i) < 0) {
+                        u[T].push(i);
                     }
                 } else {
-                    if (u == s) {
-                        j.push(i);
+                    if (A == j) {
+                        x.push(i);
                     } else {
-                        c.push(i);
+                        I.push(i);
                     }
                 }
             } else {
-                if (h[i].type == "transfer") {
-                    r.push(i);
+                if (G[i].type == "transfer") {
+                    D.push(i);
                 } else {
-                    if (h[i].type == "compose") {
-                        B.push(i);
+                    if (G[i].type == "compose") {
+                        R.push(i);
                     }
                 }
             }
         });
-        if (B.length > 0) {
-            d = m(B[0]) + h[B[0]].totalTax();
-            if (d < N) {
-                e = B[0];
-                B.splice(0, 1);
+        if (R.length > 0) {
+            C = Q(R[0]) + G[R[0]].totalTax();
+            if (C < r) {
+                M = R[0];
+                R.splice(0, 1);
             }
+            a(R, G, false);
         }
-        if (r.length > 0) {
-            K = m(r[0]) + h[r[0]].totalTax();
-            if (K < N) {
-                C = r[0];
-                r.splice(0, 1);
+        if (D.length > 0) {
+            l = Q(D[0]) + G[D[0]].totalTax();
+            if (l < r) {
+                y = D[0];
+                D.splice(0, 1);
             }
+            a(D, G, false);
         }
-        $jex.foreach(I, function(i) {
+        $jex.foreach(u, function(i) {
             if (i.length > 0) {
                 i.sort(function(n, k) {
-                    return x(n) - x(k);
+                    return z(n) - z(k);
                 });
-                F.push(i[0]);
+                f.push(i[0]);
                 i.splice(0, 1);
-                l = l.concat(i);
+                O = O.concat(i);
             }
         });
-        c = c.concat(l);
-        c.sort(function(k, i) {
-            return x(k) - x(i);
+        I = I.concat(O);
+        I.sort(function(k, i) {
+            return z(k) - z(i);
         });
-        c = c.concat(B);
-        c = c.concat(r);
-        var G = [];
-        var o;
-        var g = [];
-        if (q != undefined && q != "") {
-            G.push(q);
+        a(I, G, true);
+        I = I.concat(R);
+        I = I.concat(D);
+        var F = [];
+        var h;
+        var q = [];
+        if (o != undefined && o != "") {
+            F.push(o);
         }
-        if (e != undefined && e != "") {
-            G.push(e);
+        if (M != undefined && M != "") {
+            F.push(M);
         }
-        if (C != undefined && C != "") {
-            G.push(C);
+        if (y != undefined && y != "") {
+            F.push(y);
         }
-        g = g.concat(F);
-        if (G.length < 15) {
-            o = 15 - G.length - F.length;
-            g = g.concat(c.splice(0, o));
+        q = q.concat(f);
+        if (F.length < 15) {
+            h = 15 - F.length - f.length;
+            q = q.concat(I.splice(0, h));
         }
-        var y = [];
-        var E = [];
-        for (var J = 0, A = g.length; J < A; J++) {
-            if (h[g[J]].type != "transfer" && h[g[J]].type != "compose") {
-                E.push(g[J]);
+        var s = [];
+        var H = [];
+        for (var P = 0, L = q.length; P < L; P++) {
+            if (G[q[P]].type != "transfer" && G[q[P]].type != "compose") {
+                H.push(q[P]);
             } else {
-                y.push(g[J]);
+                s.push(q[P]);
             }
         }
-        E.sort(function(k, i) {
-            return x(k) - x(i);
+        H.sort(function(k, i) {
+            return z(k) - z(i);
         });
-        G = G.concat(E, y);
-        M = M.concat(G, c, j);
-        v.splice(0, v.length);
-        $jex.foreach(M, function(i) {
-            v.push(i);
+        a(H, G, true);
+        F = F.concat(H, s);
+        m = m.concat(F, I, x);
+        B.splice(0, B.length);
+        $jex.foreach(m, function(i) {
+            B.push(i);
         });
-        $jex.event.trigger(FlightListUISorter, "dosort", v, h);
+        $jex.event.trigger(FlightListUISorter, "dosort", B, G);
         $jex.console.end("FlightListUISorter.resort");
     };
 });
