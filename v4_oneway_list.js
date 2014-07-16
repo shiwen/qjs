@@ -4557,7 +4557,10 @@ var SpringHotRoundtrip = (new function() {
     };
     this.priceCacheData = {};
     this.getPriceData = function(_dateStr) {
-        var _qtime = _dateStr.replace(_dateStr.split("-")[2], "01");
+        var _qtime;
+        if (_dateStr && _dateStr.split("-")[2].length == 2) {
+            _qtime = _dateStr.replace(/\d{2}$/, "01");
+        }
         this._dateStr = _dateStr;
         var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random()].join("");
         var sr = new ScriptRequest({

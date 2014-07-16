@@ -7084,7 +7084,7 @@ OnewayFlightUI.prototype.getPriceInfoHTML = function(c) {
     }
     this._lastPrice = b;
     var a = [];
-    if (b) {
+    if (b && b != 100000) {
         a.push('<div class="a_low_prc">', Price_html.getHTML(b), '<i class="rmb">&yen;</i></div>');
         a.push('<div class="a_low_dsc">', PriceUtil.getOneWayDiscount(c.lowestDiscount()), "</div>");
     } else {
