@@ -738,276 +738,2836 @@ var TsinghuaOneWayTracker = (function() {
     };
 }(window));
 (function(b) {
-        var e = b.document;
-        BOOMR = BOOMR || {};
-        BOOMR.plugins = BOOMR.plugins || {};
-        var a = [{
-            name: "image-0.png",
-            size: 11483,
-            timeout: 1400
-        }, {
-            name: "image-1.png",
-            size: 40658,
-            timeout: 1200
-        }, {
-            name: "image-2.png",
-            size: 164897,
-            timeout: 1300
-        }, {
-            name: "image-3.png",
-            size: 381756,
-            timeout: 1500
-        }, {
-            name: "image-4.png",
-            size: 1234664,
-            timeout: 1200
-        }, {
-            name: "image-5.png",
-            size: 4509613,
-            timeout: 1200
-        }, {
-            name: "image-6.png",
-            size: 9084559,
-            timeout: 1200
-        }];
-        a.end = a.length;
-        a.start = 0;
-        a.l = {
-            name: "image-l.gif",
-            size: 35,
-            timeout: 1000
-        };
-        var c = {
-            base_url: "images/",
-            timeout: 15000,
-            nruns: 5,
-            latency_runs: 10,
-            user_ip: "",
-            cookie_exp: 7 * 86400,
-            cookie: "BA",
-            results: [],
-            latencies: [],
-            latency: null,
-            runs_left: 0,
-            aborted: false,
-            complete: false,
-            running: false,
-            ncmp: function(f, d) {
-                return (f - d);
-            },
-            iqr: function(h) {
-                var g = h.length - 1,
-                    f, m, k, d = [],
-                    j;
-                f = (h[Math.floor(g * 0.25)] + h[Math.ceil(g * 0.25)]) / 2;
-                m = (h[Math.floor(g * 0.75)] + h[Math.ceil(g * 0.75)]) / 2;
-                k = (m - f) * 1.5;
-                g++;
-                for (j = 0; j < g && h[j] < m + k; j++) {
-                    if (h[j] > f - k) {
-                        d.push(h[j]);
+    var e = b.document;
+    BOOMR = BOOMR || {};
+    BOOMR.plugins = BOOMR.plugins || {};
+    var a = [{
+        name: "image-0.png",
+        size: 11483,
+        timeout: 1400
+    }, {
+        name: "image-1.png",
+        size: 40658,
+        timeout: 1200
+    }, {
+        name: "image-2.png",
+        size: 164897,
+        timeout: 1300
+    }, {
+        name: "image-3.png",
+        size: 381756,
+        timeout: 1500
+    }, {
+        name: "image-4.png",
+        size: 1234664,
+        timeout: 1200
+    }, {
+        name: "image-5.png",
+        size: 4509613,
+        timeout: 1200
+    }, {
+        name: "image-6.png",
+        size: 9084559,
+        timeout: 1200
+    }];
+    a.end = a.length;
+    a.start = 0;
+    a.l = {
+        name: "image-l.gif",
+        size: 35,
+        timeout: 1000
+    };
+    var c = {
+        base_url: "images/",
+        timeout: 15000,
+        nruns: 5,
+        latency_runs: 10,
+        user_ip: "",
+        cookie_exp: 7 * 86400,
+        cookie: "BA",
+        results: [],
+        latencies: [],
+        latency: null,
+        runs_left: 0,
+        aborted: false,
+        complete: false,
+        running: false,
+        ncmp: function(f, d) {
+            return (f - d);
+        },
+        iqr: function(h) {
+            var g = h.length - 1,
+                f, m, k, d = [],
+                j;
+            f = (h[Math.floor(g * 0.25)] + h[Math.ceil(g * 0.25)]) / 2;
+            m = (h[Math.floor(g * 0.75)] + h[Math.ceil(g * 0.75)]) / 2;
+            k = (m - f) * 1.5;
+            g++;
+            for (j = 0; j < g && h[j] < m + k; j++) {
+                if (h[j] > f - k) {
+                    d.push(h[j]);
+                }
+            }
+            return d;
+        },
+        calc_latency: function() {
+            var h, f, j = 0,
+                g = 0,
+                k, m, d, o, l;
+            l = this.iqr(this.latencies.sort(this.ncmp));
+            f = l.length;
+            BOOMR.debug(l, "bw");
+            for (h = 1; h < f; h++) {
+                j += l[h];
+                g += l[h] * l[h];
+            }
+            f--;
+            k = Math.round(j / f);
+            d = Math.sqrt(g / f - j * j / (f * f));
+            o = (1.96 * d / Math.sqrt(f)).toFixed(2);
+            d = d.toFixed(2);
+            f = l.length - 1;
+            m = Math.round((l[Math.floor(f / 2)] + l[Math.ceil(f / 2)]) / 2);
+            return {
+                mean: k,
+                median: m,
+                stddev: d,
+                stderr: o
+            };
+        },
+        calc_bw: function() {
+            var y, x, t = 0,
+                p, g = [],
+                v = [],
+                f = 0,
+                o = 0,
+                C = 0,
+                u = 0,
+                q, A, B, h, d, w, k, m, l, z, s;
+            for (y = 0; y < this.nruns; y++) {
+                if (!this.results[y] || !this.results[y].r) {
+                    continue;
+                }
+                p = this.results[y].r;
+                l = 0;
+                for (x = p.length - 1; x >= 0 && l < 3; x--) {
+                    if (typeof p[x] === "undefined") {
+                        break;
                     }
-                }
-                return d;
-            },
-            calc_latency: function() {
-                var h, f, j = 0,
-                    g = 0,
-                    k, m, d, o, l;
-                l = this.iqr(this.latencies.sort(this.ncmp));
-                f = l.length;
-                BOOMR.debug(l, "bw");
-                for (h = 1; h < f; h++) {
-                    j += l[h];
-                    g += l[h] * l[h];
-                }
-                f--;
-                k = Math.round(j / f);
-                d = Math.sqrt(g / f - j * j / (f * f));
-                o = (1.96 * d / Math.sqrt(f)).toFixed(2);
-                d = d.toFixed(2);
-                f = l.length - 1;
-                m = Math.round((l[Math.floor(f / 2)] + l[Math.ceil(f / 2)]) / 2);
-                return {
-                    mean: k,
-                    median: m,
-                    stddev: d,
-                    stderr: o
-                };
-            },
-            calc_bw: function() {
-                var y, x, t = 0,
-                    p, g = [],
-                    v = [],
-                    f = 0,
-                    o = 0,
-                    C = 0,
-                    u = 0,
-                    q, A, B, h, d, w, k, m, l, z, s;
-                for (y = 0; y < this.nruns; y++) {
-                    if (!this.results[y] || !this.results[y].r) {
+                    if (p[x].t === null) {
                         continue;
                     }
-                    p = this.results[y].r;
-                    l = 0;
-                    for (x = p.length - 1; x >= 0 && l < 3; x--) {
-                        if (typeof p[x] === "undefined") {
-                            break;
-                        }
-                        if (p[x].t === null) {
-                            continue;
-                        }
-                        t++;
-                        l++;
-                        z = a[x].size * 1000 / p[x].t;
-                        g.push(z);
-                        s = a[x].size * 1000 / (p[x].t - this.latency.mean);
-                        v.push(s);
-                    }
+                    t++;
+                    l++;
+                    z = a[x].size * 1000 / p[x].t;
+                    g.push(z);
+                    s = a[x].size * 1000 / (p[x].t - this.latency.mean);
+                    v.push(s);
                 }
-                BOOMR.debug("got " + t + " readings", "bw");
-                BOOMR.debug("bandwidths: " + g, "bw");
-                BOOMR.debug("corrected: " + v, "bw");
-                if (g.length > 3) {
-                    g = this.iqr(g.sort(this.ncmp));
-                    v = this.iqr(v.sort(this.ncmp));
-                } else {
-                    g = g.sort(this.ncmp);
-                    v = v.sort(this.ncmp);
+            }
+            BOOMR.debug("got " + t + " readings", "bw");
+            BOOMR.debug("bandwidths: " + g, "bw");
+            BOOMR.debug("corrected: " + v, "bw");
+            if (g.length > 3) {
+                g = this.iqr(g.sort(this.ncmp));
+                v = this.iqr(v.sort(this.ncmp));
+            } else {
+                g = g.sort(this.ncmp);
+                v = v.sort(this.ncmp);
+            }
+            BOOMR.debug("after iqr: " + g, "bw");
+            BOOMR.debug("corrected: " + v, "bw");
+            t = Math.max(g.length, v.length);
+            for (y = 0; y < t; y++) {
+                if (y < g.length) {
+                    f += g[y];
+                    o += Math.pow(g[y], 2);
                 }
-                BOOMR.debug("after iqr: " + g, "bw");
-                BOOMR.debug("corrected: " + v, "bw");
-                t = Math.max(g.length, v.length);
-                for (y = 0; y < t; y++) {
-                    if (y < g.length) {
-                        f += g[y];
-                        o += Math.pow(g[y], 2);
-                    }
-                    if (y < v.length) {
-                        C += v[y];
-                        u += Math.pow(v[y], 2);
-                    }
+                if (y < v.length) {
+                    C += v[y];
+                    u += Math.pow(v[y], 2);
                 }
-                t = g.length;
-                q = Math.round(f / t);
-                A = Math.sqrt(o / t - Math.pow(f / t, 2));
-                B = Math.round(1.96 * A / Math.sqrt(t));
-                A = Math.round(A);
-                t = g.length - 1;
-                h = Math.round((g[Math.floor(t / 2)] + g[Math.ceil(t / 2)]) / 2);
-                t = v.length;
-                d = Math.round(C / t);
-                w = Math.sqrt(u / t - Math.pow(C / t, 2));
-                k = (1.96 * w / Math.sqrt(t)).toFixed(2);
-                w = w.toFixed(2);
-                t = v.length - 1;
-                m = Math.round((v[Math.floor(t / 2)] + v[Math.ceil(t / 2)]) / 2);
-                BOOMR.debug("amean: " + q + ", median: " + h, "bw");
-                BOOMR.debug("corrected amean: " + d + ", median: " + m, "bw");
-                return {
-                    mean: q,
-                    stddev: A,
-                    stderr: B,
-                    median: h,
-                    mean_corrected: d,
-                    stddev_corrected: w,
-                    stderr_corrected: k,
-                    median_corrected: m
-                };
-            },
-            defer: function(f) {
-                var d = this;
-                return setTimeout(function() {
-                    f.call(d);
-                    d = null;
-                }, 10);
-            },
-            load_img: function(g, k, m) {
-                var f = this.base_url + a[g].name + "?t=" + (new Date().getTime()) + Math.random(),
-                    l = 0,
-                    j = 0,
-                    d = new Image(),
-                    h = this;
-                d.onload = function() {
-                    d.onload = d.onerror = null;
-                    d = null;
-                    clearTimeout(l);
-                    if (m) {
-                        m.call(h, g, j, k, true);
-                    }
-                    h = m = null;
-                };
-                d.onerror = function() {
-                    d.onload = d.onerror = null;
-                    d = null;
-                    clearTimeout(l);
-                    if (m) {
-                        m.call(h, g, j, k, false);
-                    }
-                    h = m = null;
-                };
-                l = setTimeout(function() {
-                    if (m) {
-                        m.call(h, g, j, k, null);
-                    }
-                }, a[g].timeout + Math.min(400, this.latency ? this.latency.mean : 400));
-                j = new Date().getTime();
-                d.src = f;
-            },
-            lat_loaded: function(d, f, h, j) {
-                if (h !== this.latency_runs + 1) {
-                    return;
+            }
+            t = g.length;
+            q = Math.round(f / t);
+            A = Math.sqrt(o / t - Math.pow(f / t, 2));
+            B = Math.round(1.96 * A / Math.sqrt(t));
+            A = Math.round(A);
+            t = g.length - 1;
+            h = Math.round((g[Math.floor(t / 2)] + g[Math.ceil(t / 2)]) / 2);
+            t = v.length;
+            d = Math.round(C / t);
+            w = Math.sqrt(u / t - Math.pow(C / t, 2));
+            k = (1.96 * w / Math.sqrt(t)).toFixed(2);
+            w = w.toFixed(2);
+            t = v.length - 1;
+            m = Math.round((v[Math.floor(t / 2)] + v[Math.ceil(t / 2)]) / 2);
+            BOOMR.debug("amean: " + q + ", median: " + h, "bw");
+            BOOMR.debug("corrected amean: " + d + ", median: " + m, "bw");
+            return {
+                mean: q,
+                stddev: A,
+                stderr: B,
+                median: h,
+                mean_corrected: d,
+                stddev_corrected: w,
+                stderr_corrected: k,
+                median_corrected: m
+            };
+        },
+        defer: function(f) {
+            var d = this;
+            return setTimeout(function() {
+                f.call(d);
+                d = null;
+            }, 10);
+        },
+        load_img: function(g, k, m) {
+            var f = this.base_url + a[g].name + "?t=" + (new Date().getTime()) + Math.random(),
+                l = 0,
+                j = 0,
+                d = new Image(),
+                h = this;
+            d.onload = function() {
+                d.onload = d.onerror = null;
+                d = null;
+                clearTimeout(l);
+                if (m) {
+                    m.call(h, g, j, k, true);
                 }
-                if (j !== null) {
-                    var g = new Date().getTime() - f;
-                    this.latencies.push(g);
+                h = m = null;
+            };
+            d.onerror = function() {
+                d.onload = d.onerror = null;
+                d = null;
+                clearTimeout(l);
+                if (m) {
+                    m.call(h, g, j, k, false);
                 }
-                if (this.latency_runs === 0) {
-                    this.latency = this.calc_latency();
+                h = m = null;
+            };
+            l = setTimeout(function() {
+                if (m) {
+                    m.call(h, g, j, k, null);
                 }
-                this.defer(this.iterate);
-            },
-            img_loaded: function(f, g, h, j) {
-                if (h !== this.runs_left + 1) {
-                    return;
-                }
-                if (this.results[this.nruns - h].r[f]) {
-                    return;
-                }
-                if (j === null) {
-                    this.results[this.nruns - h].r[f + 1] = {
-                        t: null,
-                        state: null,
-                        run: h
-                    };
-                    return;
-                }
-                var d = {
-                    start: g,
-                    end: new Date().getTime(),
+            }, a[g].timeout + Math.min(400, this.latency ? this.latency.mean : 400));
+            j = new Date().getTime();
+            d.src = f;
+        },
+        lat_loaded: function(d, f, h, j) {
+            if (h !== this.latency_runs + 1) {
+                return;
+            }
+            if (j !== null) {
+                var g = new Date().getTime() - f;
+                this.latencies.push(g);
+            }
+            if (this.latency_runs === 0) {
+                this.latency = this.calc_latency();
+            }
+            this.defer(this.iterate);
+        },
+        img_loaded: function(f, g, h, j) {
+            if (h !== this.runs_left + 1) {
+                return;
+            }
+            if (this.results[this.nruns - h].r[f]) {
+                return;
+            }
+            if (j === null) {
+                this.results[this.nruns - h].r[f + 1] = {
                     t: null,
-                    state: j,
+                    state: null,
                     run: h
                 };
-                if (j) {
-                    d.t = d.end - d.start;
+                return;
+            }
+            var d = {
+                start: g,
+                end: new Date().getTime(),
+                t: null,
+                state: j,
+                run: h
+            };
+            if (j) {
+                d.t = d.end - d.start;
+            }
+            this.results[this.nruns - h].r[f] = d;
+            if (f >= a.end - 1 || typeof this.results[this.nruns - h].r[f + 1] !== "undefined") {
+                BOOMR.debug(this.results[this.nruns - h], "bw");
+                if (h === this.nruns) {
+                    a.start = f;
                 }
-                this.results[this.nruns - h].r[f] = d;
-                if (f >= a.end - 1 || typeof this.results[this.nruns - h].r[f + 1] !== "undefined") {
-                    BOOMR.debug(this.results[this.nruns - h], "bw");
-                    if (h === this.nruns) {
-                        a.start = f;
-                    }
-                    this.defer(this.iterate);
+                this.defer(this.iterate);
+            } else {
+                this.load_img(f + 1, h, this.img_loaded);
+            }
+        },
+        finish: function() {
+            if (!this.latency) {
+                this.latency = this.calc_latency();
+            }
+            var f = this.calc_bw(),
+                d = {
+                    bw: f.median_corrected,
+                    bw_err: parseFloat(f.stderr_corrected, 10),
+                    lat: this.latency.mean,
+                    lat_err: parseFloat(this.latency.stderr, 10),
+                    bw_time: Math.round(new Date().getTime() / 1000)
+                };
+            BOOMR.addVar(d);
+            if (!isNaN(d.bw)) {
+                BOOMR.utils.setCookie(this.cookie, {
+                    ba: Math.round(d.bw),
+                    be: d.bw_err,
+                    l: d.lat,
+                    le: d.lat_err,
+                    ip: this.user_ip,
+                    t: d.bw_time
+                }, (this.user_ip ? this.cookie_exp : 0), "/", null);
+            }
+            this.complete = true;
+            BOOMR.sendBeacon();
+            this.running = false;
+        },
+        iterate: function() {
+            if (this.aborted) {
+                return false;
+            }
+            if (!this.runs_left) {
+                this.finish();
+            } else {
+                if (this.latency_runs) {
+                    this.load_img("l", this.latency_runs--, this.lat_loaded);
                 } else {
-                    this.load_img(f + 1, h, this.img_loaded);
+                    this.results.push({
+                        r: []
+                    });
+                    this.load_img(a.start, this.runs_left--, this.img_loaded);
+                }
+            }
+        },
+        setVarsFromCookie: function(l) {
+            var i = parseInt(l.ba, 10),
+                k = parseFloat(l.be, 10),
+                j = parseInt(l.l, 10) || 0,
+                f = parseFloat(l.le, 10) || 0,
+                d = l.ip.replace(/\.\d+$/, "0"),
+                m = parseInt(l.t, 10),
+                h = this.user_ip.replace(/\.\d+$/, "0"),
+                g = Math.round((new Date().getTime()) / 1000);
+            if (d === h && m >= g - this.cookie_exp) {
+                this.complete = true;
+                BOOMR.addVar({
+                    bw: i,
+                    lat: j,
+                    bw_err: k,
+                    lat_err: f
+                });
+                return true;
+            }
+            return false;
+        }
+    };
+    BOOMR.plugins.BW = {
+        init: function(d) {
+            var f;
+            BOOMR.utils.pluginConfig(c, d, "BW", ["base_url", "timeout", "nruns", "cookie", "cookie_exp"]);
+            if (d && d.user_ip) {
+                c.user_ip = d.user_ip;
+            }
+            a.start = 0;
+            c.runs_left = c.nruns;
+            c.latency_runs = 10;
+            c.results = [];
+            c.latencies = [];
+            c.latency = null;
+            c.complete = false;
+            c.aborted = false;
+            BOOMR.removeVar("ba", "ba_err", "lat", "lat_err");
+            f = BOOMR.utils.getSubCookies(BOOMR.utils.getCookie(c.cookie));
+            if (!f || !f.ba || !c.setVarsFromCookie(f)) {
+                BOOMR.subscribe("page_ready", this.run, null, this);
+            }
+            return this;
+        },
+        run: function() {
+            if (c.running || c.complete) {
+                return this;
+            }
+            if (b.location.protocol === "https:") {
+                BOOMR.info("HTTPS detected, skipping bandwidth test", "bw");
+                c.complete = true;
+                return this;
+            }
+            c.running = true;
+            setTimeout(this.abort, c.timeout);
+            c.defer(c.iterate);
+            return this;
+        },
+        abort: function() {
+            c.aborted = true;
+            if (c.running) {
+                c.finish();
+            }
+            return this;
+        },
+        is_complete: function() {
+            return c.complete;
+        }
+    };
+}(window));
+
+function CACTI_monitoring(a) {
+    this.timerList = a.timerList || ["t_done"];
+    this._timersEnded = 0;
+    this._url = a.url;
+    this._pageId = a.pageId;
+    this._init();
+}
+CACTI_monitoring.prototype._init = function() {
+    if (typeof(BOOMR) == "undefined") {
+        $jex.console.error("未引用BOOMR!");
+        return;
+    }
+    if (!this._url || !this._pageId) {
+        $jex.console.error("CACTI_monitoring 缺少配置，初始化失败!");
+        return;
+    }
+    var a = this;
+    this.isStart = true;
+    BOOMR.init({
+        beacon_url: this._url,
+        autorun: false,
+        RT: {
+            enabled: true,
+            strict_referrer: true
+        },
+        BW: {
+            enabled: false
+        }
+    }).addVar("page_id", this._pageId).subscribe("before_beacon", function(d) {
+        var b = [],
+            c;
+        if ("t_done" in d) {
+            return;
+        }
+        for (c in d) {
+            if (d.hasOwnProperty(c)) {
+                b.push(c);
+            }
+        }
+        BOOMR.removeVar(b);
+    });
+    $jex.event.bind(window, "load", function() {
+        a.end("t_done");
+    });
+};
+CACTI_monitoring.prototype._inList = function(a) {
+    if ($jex.array.indexOf(this.timerList, a) > -1) {
+        return true;
+    }
+    return false;
+};
+CACTI_monitoring.prototype.start = function(a) {
+    if (!this.isStart || !this._inList(a)) {
+        return;
+    }
+    BOOMR.plugins.RT.startTimer(a);
+};
+CACTI_monitoring.prototype.end = function(a) {
+    if (!this.isStart || !this._inList(a)) {
+        return;
+    }
+    BOOMR.plugins.RT.endTimer(a);
+};
+CACTI_monitoring.prototype.send = function() {
+    BOOMR.page_ready();
+};
+var CommonInfoManager = function() {
+    CommonInfoManager.superclass.constructor.call(this);
+    var f = null;
+    this.service = function(g) {
+        if (g == null) {
+            return f;
+        } else {
+            f = g;
+        }
+    };
+    var d = null;
+    this.analyzer = function(g) {
+        if (g == null) {
+            return d;
+        } else {
+            d = g;
+        }
+    };
+    var c = null;
+    this.entityManager = function(g) {
+        if (g == null) {
+            return c;
+        } else {
+            c = g;
+        }
+    };
+    var e = null;
+    this.deptCityCode = function(g) {
+        if (g == null) {
+            return e;
+        } else {
+            e = g;
+        }
+    };
+    var b = null;
+    this.arriCityCode = function(g) {
+        if (g == null) {
+            return b;
+        } else {
+            b = g;
+        }
+    };
+    var a = null;
+    this.mainEntityManager = function(g) {
+        if (g == null) {
+            return a;
+        } else {
+            a = g;
+        }
+    };
+};
+$jex.extendClass(CommonInfoManager, InfoManager);
+CommonInfoManager.prototype.setDataLoad = function(a) {
+    this._dataStat = a;
+};
+CommonInfoManager.prototype.getDataLoad = function() {
+    return this._dataStat;
+};
+CommonInfoManager.prototype.addAirportSource = function(b, a) {
+    this.addSource("airport", b, a);
+};
+CommonInfoManager.prototype.addVendorSource = function(b, a) {
+    this.addSource("vendor", b, a);
+};
+CommonInfoManager.prototype.addNotWorkVendors = function(b, a) {
+    this.addSource("notWork", b, a);
+};
+CommonInfoManager.prototype.addSuperOTAMaxNum = function(b, a) {
+    this.addSource("maxSuper", b, a);
+};
+CommonInfoManager.prototype.addCarrierSource = function(b, a) {
+    this.addSource("carrier", b, a);
+};
+CommonInfoManager.prototype.addCitySource = function(b, a) {
+    this.addSource("city", b, a);
+};
+CommonInfoManager.prototype.addPlaneSource = function(b, a) {
+    this.addSource("plane", b, a);
+};
+CommonInfoManager.prototype.addFlightLineVendorSource = function(b, a) {
+    this.addSource("flightLineVendor", b, a);
+};
+CommonInfoManager.prototype.addOriginalPrice = function(b, a) {
+    this.addSource("oprice", b, a);
+};
+CommonInfoManager.prototype.addInsuranceSum = function(b, a) {
+    this.addSource("insurancesum", b, a);
+};
+var FlightInfoManager = function() {
+    FlightInfoManager.superclass.constructor.call(this);
+};
+$jex.extendClass(FlightInfoManager, InfoManager);
+FlightInfoManager.prototype.addFlightInfoSource = function(b, a) {
+    this.addSource("flightInfo", b, a);
+};
+FlightInfoManager.prototype.updateFlightInfoSource = function(c, b) {
+    var a = this.get("flightInfo");
+    $jex.foreach(c, function(e, d, f) {
+        if (!a[f]) {
+            a[f] = e;
+        }
+    });
+};
+FlightInfoManager.prototype.addFlightInfoItem = function(b, c, a) {
+    this.addItem("flightInfo", b, c, a);
+};
+FlightInfoManager.prototype.addCorrSource = function(b, a) {
+    this.addSource("corrInfo", b, a);
+};
+FlightInfoManager.prototype.addExtInfoSource = function(b, a) {
+    this.addSource("extInfo", b, a);
+};
+FlightInfoManager.prototype.replacePriceData = function(c, b) {
+    b = this._getPriceType(b);
+    var a = this.get(b);
+    $jex.foreach(c, function(e, d, f) {
+        a[f] = e;
+    });
+};
+FlightInfoManager.prototype._getPriceType = function(a) {
+    return (!a || a == "all") ? "my_wrappInfo" : ("my_wrappInfo_" + a);
+};
+FlightInfoManager.prototype.updateRecommendInfo = function(c, b) {
+    var a = this.get("Recommend_wrapper");
+    $jex.foreach(c, function(e, d, f) {
+        if (!a[f]) {
+            a[f] = {};
+        }
+        a[f] = c[f];
+    });
+};
+FlightInfoManager.prototype.addPriceDataItem = function(b, c, a) {
+    this.addItem("priceData", b, c, a);
+};
+FlightInfoManager.prototype.addPriceGroupDataSource = function(d, b) {
+    var c;
+    for (var a in d) {
+        c = this.get("priceGroup", a);
+        if (c) {
+            this.addItem("lastPriceGroup", a, c, b);
+        }
+    }
+    this.addSource("priceGroup", d, b);
+};
+FlightInfoManager.prototype.addSpecialWrapper = function(b, a) {
+    this.addSource("PayCarrier", b, a);
+};
+FlightInfoManager.prototype.addPriceInfoSource = function(b, a) {
+    this.addSource("priceInfo", b, a);
+};
+FlightInfoManager.prototype.addZYFAirlines = function(b, c, a) {
+    this.addItem("ZYFAirlines", b, c, a);
+};
+FlightInfoManager.prototype.addZYFReference = function(b, c, a) {
+    this.addItem("ZYFReference", b, c, a);
+};
+FlightInfoManager.prototype.getZYFAirlines = function(a) {
+    return this.get("ZYFAirlines", a);
+};
+FlightInfoManager.prototype.getZYFReference = function(a) {
+    return this.get("ZYFReference", a);
+};
+var UICacheManager = (function() {
+    var a = function() {
+        FlightInfoManager.superclass.constructor.call(this);
+    };
+    $jex.extendClass(a, InfoManager);
+    a.prototype.addToCache = function(b) {
+        this.addItem("uiCache", b.newid(""), b);
+    };
+    a.prototype.getCache = function(b) {
+        return this.get("uiCache", b);
+    };
+    return new a();
+})();
+FlightInfoManager.prototype.updatePriceGroup = function(c, a) {
+    var b = this.get("priceGroup", a).wrlist;
+    $jex.foreach(c, function(e, d, f) {
+        if (!b[f]) {
+            b[f] = {};
+        }
+        $jex.merge(b[f], c[f]);
+    });
+};
+if (typeof QLib === "undefined") {
+    var QLib = {};
+}(function() {
+    var a = "/twell/searchrt_ui/ui_qunar_gsriiw.do";
+    QLib.setCookieForSpider = function(d) {
+        var c = b();
+        if (!c) {
+            d();
+            return;
+        }
+        c(a, {}, d, {
+            onerror: d
+        });
+    };
+
+    function b() {
+        if (window.$jex && $jex.ajax) {
+            return $jex.ajax;
+        }
+    }
+    QLib.setUrl = function(c) {
+        a = c;
+        return this;
+    };
+})();
+if (typeof QLib === "undefined") {
+    var QLib = {};
+}
+QLib.getEx_track = function() {
+    var a = $jex.parseQueryParam();
+    return a.ex_track ? ("ex_track=" + a.ex_track) : "";
+};
+var DomesticOnewayDataAnalyzer = new(function() {
+    var t = this;
+    var H = null;
+    var f = null;
+    var A = null;
+    this.infoMgr = function() {
+        if (typeof A == "undefined" || A == null) {
+            A = new CommonInfoManager();
+        }
+        return A;
+    };
+    var F = null;
+    this.onewayInfoMgr = function() {
+        if (typeof F == "undefined" || F == null) {
+            F = new FlightInfoManager();
+        }
+        return F;
+    };
+    var l = null;
+    this.transferInfoMgr = function() {
+        if (typeof l == "undefined" || l == null) {
+            l = new FlightInfoManager();
+        }
+        return l;
+    };
+    var i = null;
+    this.flightEntityMgr = function() {
+        if (typeof i == "undefined" || i == null) {
+            i = new FlightEntityManager();
+        }
+        return i;
+    };
+    this.lowestPrice = function() {
+        var I = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
+        var J = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
+        var K = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
+        return Math.min(I, J, K);
+    };
+    this.lowestEntity = function() {
+        var I = (this.lowestTransfer() == null) ? Number.MAX_VALUE : this.lowestTransfer().safeLowestPrice();
+        var J = (this.lowestOneway() == null) ? Number.MAX_VALUE : this.lowestOneway().safeLowestPrice();
+        var K = (this.lowestCompose() == null) ? Number.MAX_VALUE : this.lowestCompose().safeLowestPrice();
+        if (I <= J && I <= K) {
+            return this.lowestTransfer();
+        }
+        if (J <= I && J <= K) {
+            return this.lowestOneway();
+        }
+        if (K <= I && K <= J) {
+            return this.lowestCompose();
+        }
+    };
+    var p = null;
+    this.lowestTransfer = function(I) {
+        if (I == null) {
+            return p;
+        } else {
+            if (p == null) {
+                p = I;
+            } else {
+                if (p.safeLowestPrice() > I.safeLowestPrice()) {
+                    p = I;
+                }
+            }
+        }
+    };
+    var u = null;
+    this.lowestOneway = function(I) {
+        if (I == null) {
+            return u;
+        } else {
+            if (u == null) {
+                u = I;
+            } else {
+                if (u.safeLowestPrice() > I.safeLowestPrice()) {
+                    u = I;
+                }
+            }
+        }
+    };
+    var j = null;
+    this.lowestCompose = function(I) {
+        if (I == null) {
+            return j;
+        } else {
+            if (j == null) {
+                j = I;
+            } else {
+                if (j.safeLowestPrice() > I.safeLowestPrice()) {
+                    j = I;
+                }
+            }
+        }
+    };
+    this.setSearchService = function(I) {
+        if (H) {
+            return;
+        }
+        H = I;
+        $jex.event.binding(H, "interSearch", n);
+        $jex.event.binding(H, "validQuery", x);
+        $jex.event.binding(H, "invalidQuery", B);
+        $jex.event.binding(H, "loadedLongwell", D);
+        $jex.event.binding(H, "loadedFirstData", E);
+        $jex.event.binding(H, "loadedOnewayData", k);
+        $jex.event.binding(H, "loadedTransfer", z);
+        $jex.event.binding(H, "loadedExtInfo", c);
+        $jex.event.binding(H, "loadedAVData", r);
+        $jex.event.binding(H, "parsingFlightPriceData", o);
+        $jex.event.binding(H, "searchEnd", y);
+        $jex.event.binding(H, "onerror", v);
+        $jex.event.binding(H, "pastLessSecond", b);
+        $jex.event.binding(H, "zyfLoaded", e);
+        $jex.event.binding(H, "ipBlock", g);
+        $jex.event.binding(H, "getQueryId", w);
+        $jex.event.binding(H, "loadedGroupinfo", a);
+        this.infoMgr().service(H);
+        this.infoMgr().analyzer(this);
+        this.infoMgr().entityManager(this.flightEntityMgr());
+        t._initial();
+    };
+    this._initial = function() {
+        f = new DataSet({
+            defaultSort: [
+                ["sortValue", false]
+            ],
+            filterFunc: {
+                "航空公司": function(K, I, J) {
+                    return [K.carrierCode()];
+                },
+                "起飞时间": function(I) {
+                    return [I.deptTimeRangeValue()];
+                },
+                "机型": function(I) {
+                    return I.planeType();
+                },
+                "起飞机场": function(I) {
+                    return I.airportCodes();
+                },
+                "降落机场": function(I) {
+                    return I.airportCodes();
+                },
+                "方式": function(I) {
+                    if (I.type == "compose") {
+                        return "transfer";
+                    }
+                    return I.type;
+                },
+                "中转城市": function(I) {
+                    return I.transferCity();
                 }
             },
-            finish: function() {
-                if (!this.latency) {
-                    this.latency = this.calc_latency();
+            pageSize: 30
+        });
+        if (typeof FlightListUISorter != "undefined") {
+            $jex.event.binding(f, "refreshCurrentPage", function(K, L, I, J) {
+                FlightListUISorter.resort(K, L, I, J);
+            });
+        }
+    };
+    var m = function() {
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "航空公司",
+            name: this.carrier().zh,
+            value: this.flightInfo().ca
+        });
+        var K = this.deptTimeRange();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "起飞时间",
+            name: K.zh,
+            value: K.value
+        });
+        var L = this.plane();
+        $jex.foreach(L.type, function(M) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "机型",
+                name: M,
+                value: M
+            });
+        });
+        var I = this.deptAirport();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "起飞机场",
+            group: this.deptCityCode(),
+            name: I.ab,
+            value: I.key || I.code
+        });
+        var J = this.arriAirport();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "降落机场",
+            group: this.arriCityCode(),
+            name: J.ab,
+            value: J.key || J.code
+        });
+    };
+    var q = function() {
+        var K = this.firstTrip();
+        if (this.carrierCode()) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "航空公司",
+                name: K.carrier().zh,
+                value: K.flightInfo().ca
+            });
+        }
+        var I = K.deptTimeRange();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "起飞时间",
+            name: I.zh,
+            value: I.value
+        });
+        var J = K.plane();
+        $jex.foreach(J.type, function(M) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "机型",
+                name: M,
+                value: M
+            });
+        });
+        K = this.secondTrip();
+        var J = K.plane();
+        $jex.foreach(J.type, function(M) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "机型",
+                name: M,
+                value: M
+            });
+        });
+        var L = K.deptCity();
+        $jex.event.trigger(t, "updateFilter", {
+            catalog: "中转城市",
+            name: L.zh,
+            value: L.en
+        });
+    };
+    this.hasWrapper = function(I) {
+        return this.infoMgr().get("vendor", I);
+    };
+    this.resultData = function() {
+        return f.currentPageData();
+    };
+    this.currentPageIndex = function() {
+        return f.currentPage;
+    };
+    this.getDataSet = function() {
+        return f;
+    };
+    this.getData = function() {
+        return f.getData();
+    };
+    this.pageInfo = function() {
+        var I = {
+            pageCount: f.pageCount(),
+            pageSize: f.pageSize(),
+            pageIndex: f.pageIndex()
+        };
+        return I;
+    };
+    this.resetPageSize = function(I) {
+        f.pageSize(I);
+        $jex.event.trigger(t, "dataComplete");
+    };
+    this.gotoPage = function(I) {
+        f.gotoPage(I);
+        $jex.event.trigger(t, "dataComplete");
+    };
+    this.sort = function(I) {
+        f.setPageIndex(0);
+        f.sort(I);
+        f.refresh();
+        $jex.event.trigger(t, "dataComplete");
+    };
+    this.setFilter = function(I) {
+        f.addFilter(I);
+        f.setPageIndex(0);
+        f.refresh();
+        $jex.event.trigger(t, "dataComplete");
+    };
+    this.reload = function() {
+        f.refreshPage();
+        $jex.event.trigger(t, "dataComplete");
+    };
+    this.syncPriceData = function(L, I, J) {
+        var M = function() {
+            J();
+        };
+        var K = L.getWrapperListType();
+        H.invoke_flightPriceData(L.key(), I, M, K, L);
+    };
+
+    function d(L) {
+        var I = t.infoMgr();
+        var O = t.onewayInfoMgr();
+        var J = t.flightEntityMgr();
+        var N = false;
+        var K = false;
+        var M = false;
+        $jex.foreach(L, function(T, P, R) {
+            var Q = f.hasItem(R);
+            if (Q) {
+                Q.update();
+                N = true;
+                HotSale.setMinLate(Q);
+            } else {
+                var S = OnewayFlightEntity.tryCreate(R, I, O, J);
+                if (S) {
+                    HotSale.setMinLate(S);
+                    m.call(S);
+                    $jex.event.binding(S, "updating", function() {
+                        switch (this.type) {
+                            case "oneway":
+                                t.lowestOneway(this);
+                                break;
+                            case "compose":
+                                t.lowestCompose(this);
+                                break;
+                        }
+                        if (this.updateSortKey) {
+                            this.updateSortKey();
+                        } else {
+                            $jex.console.error("没有更新排序键的方法", this);
+                        }
+                    });
+                    switch (S.type) {
+                        case "oneway":
+                            t.lowestOneway(S);
+                            M = true;
+                            break;
+                        case "compose":
+                            t.lowestCompose(S);
+                            K = true;
+                            break;
+                    }
+                    f.addItem(R, S);
                 }
-                var f = this.calc_bw(),
-                    d = {
-                        bw: f.median_corrected,
-                        bw_err: parseFloat(f.stderr_corrected
+                N = true;
+            }
+        });
+        if (N) {
+            if (M) {
+                $jex.event.trigger(t, "updateFilter", {
+                    catalog: "方式",
+                    name: "直达",
+                    value: "oneway"
+                });
+            }
+            if (K) {
+                $jex.event.trigger(t, "updateFilter", {
+                    catalog: "方式",
+                    name: "中转联程",
+                    value: "transfer"
+                });
+            }
+            $jex.event.trigger(t, "preDataComplete");
+            f.refresh();
+            $jex.event.trigger(t, "dataComplete");
+        }
+    }
+
+    function h(L) {
+        var J = t.infoMgr();
+        var I = t.transferInfoMgr();
+        var K = t.flightEntityMgr();
+        var M = false;
+        $jex.foreach(L, function(R, N, Q) {
+            var P = [];
+            $jex.foreach(R, function(W, T, V) {
+                W.co = V;
+                var U = V + "_" + W.da + "-" + W.aa;
+                var S = Q.split("|");
+                if (V == S[0]) {
+                    P[0] = U;
+                } else {
+                    if (V == S[2]) {
+                        P[1] = U;
+                    }
+                }
+                I.addFlightInfoItem(U, W);
+                I.addPriceDataItem(U, W.vl);
+            });
+            var O = TransferFlightEntity.tryCreate(P, J, I, K);
+            if (O) {
+                q.call(O);
+                t.lowestTransfer(O);
+                f.addItem(Q, O);
+                M = true;
+            }
+        });
+        if (M) {
+            $jex.event.trigger(t, "updateFilter", {
+                catalog: "方式",
+                name: "中转联程",
+                value: "transfer"
+            });
+            f.refresh();
+            $jex.event.trigger(t, "dataComplete");
+        }
+    }
+
+    function n() {
+        var I = window.location.href.toString();
+        window.location.href = I.replace("oneway_list.htm", "oneway_list_inter.htm");
+    }
+
+    function g() {
+        window.location.href = "/twell/flight/busy.jsp?ret=" + encodeURIComponent(window.location.href.toString());
+    }
+
+    function x() {}
+
+    function B() {}
+
+    function E() {}
+
+    function a(J) {
+        if (!J.serc) {
+            return;
+        }
+        var I = J.flightCode.split("|")[0].split("/")[0];
+        var K = J.priceData[J.flightCode];
+        var L = G(I);
+        if (!$jex.$empty(K)) {
+            $jex.hash.each(K, function(N, M) {
+                M.pr = M.pr + L;
+                M.npr = M.npr + L;
+                M.bpr = M.bpr + L;
+                M.vppr = M.vppr + L;
+            });
+        }
+    }
+
+    function G(I) {
+        var J = (parseInt(I.substr(0, 2) + I.substr(I.length - 1), 36) + parseInt("0" + I.substr(2, I.length - 3), 10) * 36 * 36 * 36) % 97;
+        return J;
+    }
+
+    function C(I) {
+        if (!$jex.$empty(I)) {
+            $jex.hash.each(I, function(L, K) {
+                var J = L.split("|")[0].split("/")[0];
+                var M = G(J);
+                K.lowpr = K.lowpr + M;
+            });
+        }
+    }
+
+    function D(K) {
+        var I = t.infoMgr();
+        if (K.oneway_data && K.oneway_data.priceInfo && K.serc) {
+            C(K.oneway_data.priceInfo);
+        }
+        I.addAirportSource(K.airportInfo.out);
+        I.addAirportSource(K.airportInfo.ret);
+        I.addVendorSource(K.vendors);
+        I.addOriginalPrice(K.op);
+        I.addInsuranceSum(K.inShow);
+        I.addNotWorkVendors(K.notWorkVendors);
+        I.addSuperOTAMaxNum(K.SuperOTA_NUM || 0);
+        var J = {};
+        J[K.arrivalAirport.en] = K.arrivalAirport;
+        J[K.departureAirport.en] = K.departureAirport;
+        I.addCitySource(J);
+        I.deptCityCode(K.departureAirport.en);
+        I.arriCityCode(K.arrivalAirport.en);
+    }
+
+    function k(K) {
+        var I = t.infoMgr();
+        var L = t.onewayInfoMgr();
+        I.addCarrierSource(K.carrierInfo);
+        I.addPlaneSource(K.planeInfo);
+        L.addFlightInfoSource(K.flightInfo);
+        var J, M = 0;
+        $jex.foreach(K.priceData, function(N) {
+            $jex.foreach(N, function(O) {
+                J = O.carrier;
+                M++;
+            });
+        });
+        if (J) {
+            s(K, J, M);
+        }
+        if (K.labelType) {
+            L.replacePriceData(K.priceData, K.labelType);
+        }
+        L.updateRecommendInfo(K.recommendInfo);
+        L.addPriceGroupDataSource(K.flightPriceInfo);
+        L.addPriceInfoSource(K.priceInfo);
+        d(K.priceInfo);
+    }
+
+    function z(K) {
+        var J = t.infoMgr();
+        var I = t.transferInfoMgr();
+        J.addAirportSource(K.airportInfo);
+        J.addCarrierSource(K.carrierInfo);
+        J.addPlaneSource(K.planeInfo);
+        J.addCitySource(K.citylist);
+        J.addVendorSource(K.vendors, {
+            isOverwrite: false
+        });
+        J.addFlightLineVendorSource(K.flightLineVendors);
+        I.addCorrSource(K.corrInfo);
+        I.addExtInfoSource(K.extInfo);
+        I.addPriceInfoSource(K.priceInfo);
+        h(K.data);
+    }
+
+    function c(I) {
+        var J = t.onewayInfoMgr();
+        J.addCorrSource(I.corrInfo);
+        J.addExtInfoSource(I.extInfo);
+        $jex.console.info("已经加载直飞扩展信息数据");
+    }
+
+    function r(J) {
+        var I = t.infoMgr();
+        var K = t.onewayInfoMgr();
+        I.addCarrierSource(J.carrierInfo);
+        I.addPlaneSource(J.planeInfo);
+        K.updateFlightInfoSource(J.flightInfo);
+        d(J.flightInfo);
+        $jex.console.info("已经加载AV数据");
+    }
+
+    function o(L) {
+        var P = L.flightCode,
+            N = L.labelType;
+        var I = t.infoMgr();
+        var M = t.onewayInfoMgr();
+        var J = [];
+        var K = null;
+        var O = 0;
+        $jex.foreach(L.priceData, function(R, Q, S) {
+            J.push("<b>", "[", S, "] 所返回的报价:", "</b>");
+            $jex.foreach(R, function(U) {
+                K = U.carrier;
+                J.push(U.wr || U.wrjid);
+                var T = I.get("vendor", U.wr || U.wrid);
+                if (T) {
+                    J.push("(", T.name, ")");
+                }
+                J.push(" , ");
+                O++;
+            });
+        });
+        $jex.console.trace(J.join(""));
+        s(L, K, O);
+        M.replacePriceData(L.priceData, N);
+        M.addPriceGroupDataSource(L.flightPriceInfo);
+        M.addPriceInfoSource(L.priceInfo);
+        M.updateRecommendInfo(L.recommendInfo);
+        $jex.console.info("已经加载航班价格数据");
+    }
+
+    function s(M, Q, K) {
+        var I = ConfigManager.getConfig("NoNeedStatementList") || ["9C"];
+        if ($jex.array.indexOf(I, Q) > -1) {
+            return;
+        }
+        var L = 18;
+        var O = t.infoMgr();
+        var P = O.get("carrier", Q);
+        var S = P ? (P.maxvendors || L) : L;
+        var N = O.get("notWork");
+        if (!N) {
+            return;
+        }
+        var R = N.out;
+        if (!R || R < 1) {
+            return;
+        }
+        var T = S - K;
+        if (T <= 0) {
+            return;
+        }
+        var J = R.slice(0, T);
+        $jex.foreach(M.priceData, function(V, U, W) {
+            if (W.indexOf("/") > -1) {
+                return $jex.$continue;
+            }
+            $jex.foreach(J, function(X) {
+                var Y = X + "_nw";
+                V[Y] = {
+                    wrid: X,
+                    type: "notWork",
+                    sortRank: 10000000
+                };
+            });
+        });
+    }
+
+    function w(L) {
+        if (!L.serc) {
+            return;
+        }
+        var N = L.queryID;
+        var K = N.indexOf(":");
+        var M = N.substr(0, K + 1);
+        var J = N.substring(K + 1).split("");
+        var I = [];
+        $jex.array.each(J, function(O) {
+            I.push(String.fromCharCode(O.charCodeAt(0) - 1));
+        });
+        I.reverse();
+        L.queryID = M + I.join("");
+    }
+
+    function b() {
+        if (f.getRecordCount() == 0) {
+            $jex.event.trigger(t, "noResult");
+        }
+    }
+
+    function e(J) {
+        if (!J.total) {
+            $jex.console.info("no zyf data!");
+            return;
+        }
+        var I = t.infoMgr();
+        I.addSource("zyfData", J.list);
+    }
+
+    function y() {
+        if (f.getRecordCount() == 0) {
+            $jex.event.trigger(t, "noResultEnd");
+        }
+        $jex.console.trace("搜索结束.");
+        t.infoMgr().setDataLoad(true);
+    }
+
+    function v() {}
+})();
+var DomesticOnewaySearchService = new(function() {
+    var u = false;
+    var p = this;
+    this.param = {};
+    this.oparam = {};
+    var o = $jex.isdebug ? "http://local.qunar.com" : "";
+    var e = null;
+    var s = 0;
+    var y = new Date();
+    var v = 0;
+    var d = 0;
+    var i = 0;
+    var m = 0;
+    var B = "";
+    var h = "";
+    var A = false;
+    var f = false;
+    var l = false;
+    var x = null;
+    this.longwell = function() {
+        return x || {};
+    };
+    var c = [];
+    var j = [];
+    var b = null;
+    var n = null;
+    var t = "";
+    var k = null;
+    var w = null;
+    this.setAnalyzer = function(C) {
+        w = C;
+    };
+    var r = false;
+    this.isValidQuery = function(C) {
+        if (C == null) {
+            return r;
+        } else {
+            r = C;
+        }
+    };
+    var z = null;
+    this.queryId = function(C) {
+        if (C == null) {
+            return z;
+        } else {
+            z = C;
+        }
+    };
+    var q = null;
+    this.tserver = function(C) {
+        if (C == null) {
+            return q;
+        } else {
+            q = C;
+        }
+    };
+    this.search = function(E) {
+        if (p.searchEnd()) {
+            return;
+        }
+        $jex.merge(this.param, {
+            fromCity: E.searchDepartureAirport,
+            toCity: E.searchArrivalAirport,
+            fromDate: E.searchDepartureTime
+        });
+        $jex.merge(this.oparam, {
+            ex_track: E.ex_track,
+            from: E.from
+        });
+        var D = $jex.date.parse(this.param.fromDate);
+        var C = window.SERVER_TIME || new Date();
+        if (C.getTime() - D.getTime() > 86400000) {
+            $jex.event.trigger(this, "expireQuery");
+            return;
+        }
+        if (this.param.fromCity == this.param.toCity) {
+            $jex.event.trigger(this, "sameCity");
+            return;
+        }
+        this._invoke_ExtInfo();
+        QLib.setCookieForSpider(function() {
+            p._invoke_longwell();
+        });
+        v = 1;
+        e = new Date();
+        setTimeout(function() {
+            $jex.event.trigger(p, "pastLessSecond");
+        }, 15000);
+    };
+    this.queryZYF = function() {
+        var C = this;
+        var D = o + "/zyf/api/ads.json";
+        $jex.ajax(D, {
+            dpt: C.param.fromCity,
+            arr: C.param.toCity,
+            dptDate: C.param.fromDate
+        }, function(E) {
+            if (E) {
+                C._process_zyf(E);
+            }
+        });
+    };
+    this.queryNext = function() {
+        if (this.searchEnd()) {
+            return;
+        }
+        $jex.console.warn("[queryNext]", new Date().getTime() - e);
+        if (this.getTask()) {
+            var C = this.getTask();
+            $jex.console.info("queryNext: 等待插入任务结束. TaskID:", C);
+            setTimeout(function() {
+                p.queryNext();
+            }, 100);
+        } else {
+            if (l == false && d != 2) {
+                p._invoke_AVData();
+            } else {
+                if (i != 2 && (d == 2 || (d != 2 && c.length >= 2))) {
+                    $jex.console.info("queryNext:处理联程", " transferSearchState:", i, " isValidQuery:", x.isValidQuery, " onewayDatasLength:", c.length);
+                    p._invoke_transfer();
+                } else {
+                    $jex.console.info("queryNext:处理直飞");
+                    setTimeout(function() {
+                        p._invoke_oneway();
+                    }, s);
+                }
+            }
+        }
+    };
+    this.genTraceTimeStamp = function() {
+        if (CLIENT_TIME && SERVER_TIME) {
+            p.traceTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+        } else {
+            p.traceTimeStamp = new Date().getTime();
+        }
+    };
+    this.genBookingTimeStamp = function() {
+        if (CLIENT_TIME && SERVER_TIME) {
+            p.wrapperExpandStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+        } else {
+            p.wrapperExpandStamp = new Date().getTime();
+        }
+    };
+    this.genFilterTimeStamp = function() {
+        if (CLIENT_TIME && SERVER_TIME) {
+            p.filterTimeStamp = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
+        } else {
+            p.filterTimeStamp = new Date().getTime();
+        }
+    };
+    this._invoke_longwell = function() {
+        $jex.console.start("调用longwell");
+        var F = this.param;
+        var D = c;
+        var E = {
+            "http://www.travelco.com/searchArrivalAirport": F.toCity,
+            "http://www.travelco.com/searchDepartureAirport": F.fromCity,
+            "http://www.travelco.com/searchDepartureTime": F.fromDate,
+            "http://www.travelco.com/searchReturnTime": F.fromDate,
+            locale: "zh",
+            nextNDays: "0",
+            searchLangs: "zh",
+            searchType: "OneWayFlight",
+            tags: 1,
+            mergeFlag: 0,
+            xd: LONGWELLVERSION
+        };
+        k = {
+            departureCity: F.fromCity,
+            arrivalCity: F.toCity,
+            departureDate: F.fromDate,
+            returnDate: F.fromDate,
+            nextNDays: "0",
+            searchType: "OneWayFlight",
+            searchLangs: "zh",
+            locale: "zh"
+        };
+        $jex.merge(E, this.oparam);
+        $jex.merge(k, this.oparam);
+        var C = o + "/twell/longwell";
+        $jex.ajax(C, E, function(I) {
+            u && console.log("longwell回数", I, new Date());
+            $jex.console.end("调用longwell");
+            if (I.isLimit) {
+                $jex.event.trigger(p, "ipBlock");
+                return;
+            }
+            $jex.event.trigger(p, "getQueryId", I);
+            x = I;
+            p.queryId(I.queryID);
+            k.queryID = I.queryID;
+            k.serverIP = I.serverIP;
+            var H = I.validate;
+            if (H) {
+                if (H.dept.country != "中国" || H.arri.country != "中国") {
+                    $jex.event.trigger(p, "interSearch");
+                    return;
+                }
+                if (H.dept.value == H.arri.value) {
+                    $jex.event.trigger(p, "sameCity");
+                    return;
+                }
+                $jex.event.trigger(p, "validateComplete", I.validate);
+            }
+            if (I.isBackendBusy) {
+                $jex.event.trigger(p, "systemBusy");
+                return;
+            }
+            if (I.isValidQuery) {
+                p.isValidQuery(true);
+                d = 1;
+                $jex.event.trigger(p, "validQuery");
+            } else {
+                p.isValidQuery(false);
+                d = 2;
+                $jex.event.trigger(p, "invalidQuery");
+            } if (!I.isTransferFlightsNeeded) {
+                i = 2;
+                $jex.event.trigger(p, "TransferDataReady");
+            }
+            $jex.event.trigger(p, "loadedLongwell", I);
+            var G = I.oneway_data || {};
+            setTimeout(function() {
+                k.deduce = true;
+                m = 1;
+            }, 1000);
+            if (!$jex.$empty(G.priceInfo)) {
+                p._process_oneway(G);
+            } else {
+                $jex.event.trigger(p, "noOnewayData");
+                p.queryNext();
+            }
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this._invoke_oneway = function() {
+        var E = c;
+        if (m == 1) {
+            $jex.console.info("本次为deduce jsp调用.");
+            var D = o + "/twell/flight/tags/deduceonewayflight_groupdata.jsp";
+        } else {
+            var D = o + "/twell/flight/tags/onewayflight_groupdata.jsp";
+        } if (h) {
+            k.flightCode = h;
+        }
+        var C = h;
+        this._lastGinfoData = null;
+        $jex.ajax(D, k, function(F) {
+            u && console.log("GROUP_DATA回数：", F, new Date());
+            if (m == 1) {
+                m = 2;
+            }
+            if (C !== h) {
+                p.correctPriceInfo(F, h);
+            }
+            F.flightCode = C;
+            p._process_oneway(F);
+            if (k.deduce == true) {
+                f = true;
+            }
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this._process_oneway = function(D) {
+        var C = c;
+        k.status = D.status;
+        C.push(D);
+        if (!$jex.$empty(D.priceInfo)) {
+            $jex.event.trigger(p, "loadedOnewayData", D);
+            PAGE_EVENT.trigger("wrapper_loadData", D);
+            if (!A) {
+                $jex.event.trigger(p, "loadedFirstData", D);
+                A = true;
+            }
+        } else {
+            $jex.console.info("直飞价格数据为空.");
+        } if (!D.dataCompleted) {
+            $jex.console.info("dataCompleted:搜索未结束");
+            if (new Date() - e > 60000) {
+                $jex.console.info("dataCompleted:超时停止");
+                d = 2;
+                p.queryNext();
+            } else {
+                s = $jex.$defined(D.invokeInterval) ? D.invokeInterval * 2 : 100;
+                y = new Date().getTime() + s;
+                $jex.console.info("dataCompleted:继续搜索直飞,", s);
+                p.queryNext();
+            }
+        } else {
+            $jex.console.info("dataCompleted:搜索结束 , deduceJSPState:", m);
+            if (m == 2) {
+                d = 2;
+            } else {
+                m = 1;
+            }
+            this.queryNext();
+        }
+    };
+    this._process_zyf = function(C) {
+        $jex.event.trigger(p, "zyfLoaded", C);
+    };
+    this._invoke_transfer = function() {
+        if (p.searchEnd()) {
+            return;
+        }
+        $jex.console.info("---->调用联程");
+        var D = $jex.merge({}, k);
+        if (i == 1) {
+            D.isReSearch = true;
+        }
+        var C = o + "/twell/flight/tags/OneWayFlight_data_more.jsp";
+        $jex.ajax(C, D, function(E) {
+            u && console.log("transfer回数：", E, new Date());
+            j.push(E);
+            p.tserver(E.server);
+            if (E.needNewSearch == true) {
+                i = 1;
+                $jex.console.info("[联程需要再次调用 ] data.needNewSearch:", E.needNewSearch);
+                setTimeout(function() {
+                    p.queryNext();
+                }, 3500);
+            } else {
+                $jex.event.trigger(p, "TransferDataReady");
+                if (!$jex.$empty(E.data)) {
+                    $jex.event.trigger(p, "loadedTransfer", E);
+                    if (!A) {
+                        $jex.event.trigger(p, "loadedFirstData", E);
+                        A = true;
+                    }
+                } else {
+                    $jex.event.trigger(p, "noTransferData", E);
+                    $jex.console.info("联程价格数据为空.");
+                }
+                i = 2;
+                p.queryNext();
+                s = Math.max(new Date() - y, 0);
+            }
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this.syncCurrentFlightCode = function(C) {};
+    var a = "all";
+    this.invoke_flightPriceData = function(H, F, G, E, D) {
+        a = E;
+        if (F) {
+            B = H;
+        } else {
+            h = H;
+            B = "";
+        }
+        var C = function() {
+            if (E === a) {
+                G && G();
+            }
+        };
+        p._invoke_flightPriceData(H, C, D);
+    };
+    this.correctPriceInfo = function(D, E) {
+        var C = this._lastGinfoData;
+        this._lastGinfoData = null;
+        if (C && C.priceData[E]) {
+            D.priceData = {};
+            D.labelType = null;
+            D.priceInfo[E] = C.priceInfo[E];
+        }
+    };
+    this._invoke_flightPriceData = function(H, G, F) {
+        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", H);
+        var E = w.lowestOneway().lowestPrice();
+        if (F.lowestPrice() == E) {
+            k.lowflight = true;
+            k.lowflightpr = E;
+        } else {
+            delete k.lowflight;
+            delete k.lowflightpr;
+        }
+        var D = o + "/twell/flight/tags/onewayflight_groupinfo.jsp";
+        var C = a;
+        k.flightCode = H;
+        k.label = a;
+        this._lastGinfoData = null;
+        $jex.ajax(D, k, function(I) {
+            u && console.log("groupInfo", I);
+            I.flightCode = H;
+            I.labelType = C;
+            $jex.event.trigger(p, "loadedGroupinfo", I);
+            p._lastGinfoData = I;
+            $jex.event.trigger(p, "parsingFlightPriceData", I);
+            if (G) {
+                G();
+            }
+            $jex.console.info("[invoke_flightPriceData] 处理完毕");
+            PAGE_EVENT.trigger("wrapper_loadData", I);
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this.searchEnd = function() {
+        if (v == 2) {
+            return true;
+        }
+        if (v != 2 && d == 2 && i == 2) {
+            v = 2;
+            $jex.event.trigger(p, "searchEnd");
+            $jex.console.info("searchEND ::: OK ");
+            return true;
+        }
+        return false;
+    };
+    this.isSearchEnd = function() {
+        return v == 2;
+    };
+    this._invoke_ExtInfo = function() {
+        $jex.console.info("调用扩展信息及准点率");
+        var E = this.param;
+        var C = o + "/twell/flight/DynamicFlightInfo.jsp";
+        var D = {
+            departureCity: E.fromCity,
+            arrivalCity: E.toCity,
+            departureDate: E.fromDate,
+            fromCity: E.fromCity,
+            toCity: E.toCity
+        };
+        $jex.merge(D, this.oparam);
+        $jex.ajax(C, D, function(F) {
+            u && console.log("扩展信息回数：", F, new Date());
+            b = F;
+            $jex.event.trigger(p, "loadedExtInfo", F);
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this._invoke_AVData = function() {
+        $jex.console.info("调用AV数据");
+        var C = o + "/twell/flight/OneWayFlight_Info.jsp";
+        $jex.ajax(C, k, function(D) {
+            u && console.log("AVData回数：", D, new Date());
+            n = D;
+            $jex.event.trigger(p, "loadedAVData", D);
+            l = true;
+            if (!$jex.$empty(D.flightInfo)) {
+                if (!A) {
+                    $jex.event.trigger(p, "loadedFirstData", D);
+                    A = true;
+                }
+            }
+            p.queryNext();
+        }, {
+            onerror: p._onerror
+        });
+    };
+    this._onerror = function() {
+        $jex.event.trigger(p, "onerror", arguments);
+    };
+    var g = [];
+    this.insertTask = function() {
+        var C = "task" + $jex.globalID();
+        g.push(C);
+        return C;
+    };
+    this.getTask = function() {
+        if (g.length == 0) {
+            return null;
+        }
+        return g[0];
+    };
+    this.finishTask = function(D) {
+        for (var C = 0; C < g.length; C++) {
+            if (g[C] == D) {
+                g.splice(C, 1);
+            }
+        }
+    };
+    return this;
+})();
+var PriceCheckService = (function() {
+    var a = "/twell/flight/tags/onewayflight_pricecheck.jsp";
+    var g = 10000;
+    var k = 1000;
+    var m = {};
+
+    function c(n) {
+        var o = System.service.param;
+        return {
+            queryID: System.service.queryId(),
+            departureCity: o.fromCity,
+            arrivalCity: o.toCity,
+            departureDate: o.fromDate,
+            returnDate: o.fromDate,
+            flightCode: n.split("_")[0],
+            label: n.split("_")[1]
+        };
+    }
+
+    function b(n) {
+        var o = f(n);
+        o.param = o.param || c(n);
+        o.param.interceptTime = o.lastTime;
+        return o.param;
+    }
+
+    function f(n) {
+        m[n] = m[n] || {};
+        return m[n];
+    }
+
+    function j(o, n) {
+        var p = b(o);
+        $jex.ajax(a, p, n, {
+            onerror: function() {
+                n();
+            }
+        });
+    }
+
+    function d(o, q) {
+        var p = q.lastTime;
+
+        function n(r) {
+            if (q.lastTime > p) {
+                return;
+            }
+            if (r.ret === false) {
+                h(o);
+            } else {
+                q.interval = r.interval;
+                q.data = $jex.extend(q.data || {}, r.priceData);
+                q.lastTime = r.interceptTime;
+            }
+        }
+        j(o, function(r) {
+            if (r) {
+                n(r);
+            }
+            l(o);
+        });
+    }
+
+    function i(n) {
+        l(n);
+    }
+
+    function l(n) {
+        var o = f(n);
+        if (o._timer === -1) {
+            return;
+        }
+        clearTimeout(o._timer);
+        o._timer = setTimeout(function() {
+            if (o.lastTime) {
+                d(n, o);
+            } else {
+                l(n);
+            }
+        }, o.interval || g);
+    }
+
+    function h(n) {
+        var o = m[n];
+        if (o) {
+            clearTimeout(o._timer);
+            o._timer = -1;
+        }
+    }
+    var e = {};
+    e.initData = function(n, p) {
+        var o = f(n);
+        o.lastTime = p;
+        o.interval = k;
+        o.data = {};
+    };
+    e.pause = function(n) {
+        h(n);
+    };
+    e.start = function(n) {
+        var o = f(n);
+        if (o._timer === -1) {
+            o._timer = null;
+        }
+        o.interval = k;
+        i(n);
+    };
+    e.getPriceInfo = function(o, n) {
+        var p = m[o];
+        return p && p.data && p.data[n];
+    };
+    return e;
+})();
+var TransferFlightEntity = function() {
+    TransferFlightEntity.superclass.constructor.call(this);
+    this.type = "transfer";
+    var g = null;
+    this.firstTrip = function(h) {
+        if (h == null) {
+            return g;
+        } else {
+            h.owner(this);
+            h.position(0);
+            g = h;
+        }
+    };
+    var a = null;
+    this.secondTrip = function(h) {
+        if (h == null) {
+            return a;
+        } else {
+            h.owner(this);
+            h.position(1);
+            a = h;
+        }
+    };
+    var f = null;
+    this.totalTax = function() {
+        if (typeof f == "undefined" || f == null) {
+            f = this.firstTrip().totalTax() + this.secondTrip().totalTax();
+        }
+        return f;
+    };
+    this.carrierCode = function() {
+        return (this.firstTrip().carrierCode() == this.secondTrip().carrierCode()) ? this.firstTrip().carrierCode() : "";
+    };
+    this.deptTimeRange = function() {
+        return this.firstTrip().deptTimeRange();
+    };
+    var d = null;
+    this.deptTimeValue = function() {
+        if (typeof d == "undefined" || d == null) {
+            d = this.firstTrip().deptTimeValue();
+        }
+        return d;
+    };
+    var e = null;
+    this.planeType = function() {
+        if (typeof e == "undefined" || e == null) {
+            e = this.firstTrip().planeType().concat(this.secondTrip().planeType());
+        }
+        return e;
+    };
+    var c = null;
+    this.airportCodes = function() {
+        if (typeof c == "undefined" || c == null) {
+            c = this.firstTrip().airportCodes().concat(this.secondTrip().airportCodes());
+        }
+        return c;
+    };
+    var b = null;
+    this.transferCity = function() {
+        if (typeof b == "undefined" || b == null) {
+            b = [this.firstTrip().flightInfo().ac];
+        }
+        return b;
+    };
+    this.lowestPrice = function() {
+        return this.firstTrip().lowestPrice() + this.secondTrip().lowestPrice();
+    };
+};
+$jex.extendClass(TransferFlightEntity, FlightEntity);
+TransferFlightEntity.prototype.flightKeyCode = function() {
+    return this.firstTrip().flightKeyCode() + "|" + this.secondTrip().flightKeyCode();
+};
+TransferFlightEntity.prototype.lowestDiscount = function() {
+    var a = this.flightInfoMgr().get("priceInfo", this.flightKeyCode());
+    if (!a || !a.op) {
+        return 0;
+    }
+    return Math.round((this.lowestPrice() / a.op) * 100) / 10;
+};
+TransferFlightEntity.prototype.isIntervalFlight = function() {
+    return this.firstTrip().flightInfo().dd != this.secondTrip().flightInfo().dd;
+};
+TransferFlightEntity.prototype.flightKeyCode = function() {
+    var a = this.firstTrip().flightKeyCode() + "|" + this.secondTrip().flightKeyCode();
+    return a;
+};
+TransferFlightEntity.prototype.update = function() {
+    var a = this.flightInfoMgr();
+    this.lowprInfo = a.get("priceInfo", this.flightKeyCode());
+    if (this.lowprInfo) {
+        this.lowestPrice(this.lowprInfo.lowpr);
+    }
+    this.firstTrip().update();
+    this.secondTrip().update();
+    $jex.event.trigger(this, "updating");
+};
+TransferFlightEntity.tryCreate = function(i, f, c, g) {
+    var a = i[0];
+    var e = i[1];
+    var b = SingleTripFlightEntity.tryCreate(a, f, c);
+    var h = SingleTripFlightEntity.tryCreate(e, f, c);
+    if (!b || !h) {
+        return null;
+    }
+    var d = new TransferFlightEntity();
+    d.key(i);
+    d.firstTrip(b);
+    d.secondTrip(h);
+    d.commInfoMgr(f);
+    d.flightInfoMgr(c);
+    d.update();
+    g.put(i, d);
+    return d;
+};
+var SingleTripFlightEntity = function() {
+    SingleTripFlightEntity.superclass.constructor.call(this);
+    this.type = "onewayInTransfer";
+    this.lineType = "oneway";
+    var c = null;
+    this.owner = function(f) {
+        if (f == null) {
+            return c;
+        } else {
+            c = f;
+        }
+    };
+    var a = null;
+    this.position = function(f) {
+        if (f == null) {
+            return a;
+        } else {
+            a = f;
+        }
+    };
+    var e = null;
+    this.totalTax = function() {
+        if (typeof e == "undefined" || e == null) {
+            var h = this.extInfo();
+            var f = (h ? parseInt(h.acf, 10) : 0) || ConfigManager.getConfig("default", "acf");
+            var g = (h ? parseInt(h.fot, 10) : 0) || ConfigManager.getConfig("default", "fot");
+            e = f + g;
+        }
+        return e;
+    };
+    var b = this;
+    var d = null;
+    this.wrappers = function() {
+        if (typeof d == "undefined" || d == null) {
+            d = new SingleTripFlightWrapperListEntity();
+            d.ownerFlight(this);
+            d.update = function() {
+                this.dataSource(b.flightInfoMgr().get("priceData", b.key()));
+            };
+            d.update();
+        }
+        return d;
+    };
+};
+$jex.extendClass(SingleTripFlightEntity, FlightEntity);
+SingleTripFlightEntity.prototype.codeShareFlight = function() {
+    return this.commInfoMgr().entityManager().get(this.codeShare() + "|" + this.deptDate());
+};
+SingleTripFlightEntity.prototype.update = function() {
+    var c = this.key();
+    var b = this.commInfoMgr();
+    var a = this.flightInfoMgr();
+    this.type = "onewayInTransfer";
+    this.lineType = (c.indexOf("/") == -1 && c.indexOf("+") == -1) ? "oneway" : "compose";
+    var d = a.get("flightInfo", this.key());
+    this.flightInfo(d);
+    if (d) {
+        this.lowestPrice(d.lowpr ? d.lowpr : ConfigManager.getConfig("default", "price"));
+    }
+};
+SingleTripFlightEntity.tryCreate = function(g, d, f) {
+    var h = g.split("_")[0];
+    var b = d;
+    var a = f;
+    var e = a.get("flightInfo", g);
+    if (!e) {
+        return null;
+    }
+    if (!b.get("airport", e.da)) {
+        return null;
+    }
+    if (!b.get("airport", e.aa)) {
+        return null;
+    }
+    if (!b.get("city", e.dc)) {
+        return null;
+    }
+    if (!b.get("city", e.ac)) {
+        return null;
+    }
+    if (!b.get("carrier", e.ca)) {
+        return null;
+    }
+    if (!b.get("plane", e.pt)) {
+        return null;
+    }
+    var c = new SingleTripFlightEntity();
+    c.key(g);
+    c.commInfoMgr(b);
+    c.flightInfoMgr(a);
+    return c;
+};
+
+function SingleTripFlightWrapperListEntity() {
+    SingleTripFlightWrapperListEntity.superclass.constructor.call(this);
+}
+$jex.extendClass(SingleTripFlightWrapperListEntity, WrapperListEntity);
+SingleTripFlightWrapperListEntity.prototype.createWrapperEntity = function() {
+    return new SingleTripFlightWrapperEntity();
+};
+SingleTripFlightWrapperListEntity.prototype.sort = function() {
+    var b = this.keys(),
+        a = this;
+    b.sort(function(d, c) {
+        var f = a.get(d);
+        var e = a.get(c);
+        return f.sortRank() - e.sortRank();
+    });
+    this._keysCache = b;
+    return b;
+};
+
+function SingleTripFlightWrapperEntity(a) {
+    SingleTripFlightWrapperEntity.superclass.constructor.call(this, a);
+    this._type = "SingleTripFlightWrapperEntity";
+}
+$jex.extendClass(SingleTripFlightWrapperEntity, WrapperEntity);
+SingleTripFlightWrapperEntity.prototype.rankgrade = function() {
+    return Math.round(this.dataSource().dispRank * 10) / 10 || 0;
+};
+SingleTripFlightWrapperEntity.prototype.ranktitle = function() {
+    return FlightUtil.getGTITLE(this.advalue(), 1, this.dataSource().rankline, 5 - this.dataSource().rankline);
+};
+SingleTripFlightWrapperEntity.prototype.comments = function() {
+    return this.dataSource().comments || [];
+};
+SingleTripFlightWrapperEntity.prototype._booking = function(b, c) {
+    c = c || {};
+    if (!c.BookingLocation) {
+        c.BookingLocation = "list_all";
+    }
+    var e = this._booking_url(b, c);
+    var d = 1;
+    c = c || {};
+    if (c.prt === 0) {
+        d = 2;
+    }
+    if (c.recom === 1) {
+        d = 3;
+        System.service.genTraceTimeStamp();
+        System.analyzer.triggerTrace = true;
+    }
+    System.service.genBookingTimeStamp();
+    var a = this.ownerFlight().owner();
+    if (a) {
+        d += ("&package=" + a.firstTrip().code() + "/" + a.secondTrip().code());
+    }
+    window.open(e);
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_booking");
+    this._bookingBtnTrace();
+    TsinghuaOneWayTracker.track("btype", d, System.service.traceTimeStamp, null, "&burl=" + encodeURIComponent(e) + "&wt=" + System.service.wrapperExpandStamp);
+    this._booking_track();
+};
+SingleTripFlightWrapperEntity.prototype.hasPackageprice = function() {
+    return this.bpr();
+};
+SingleTripFlightWrapperEntity.prototype._bookingBtnTrace = function() {
+    var a = this.ownerFlight().owner();
+    TsinghuaOneWayTracker.trackWrappers(a.firstTrip());
+    TsinghuaOneWayTracker.trackWrappers(a.secondTrip());
+    TsinghuaOneWayTracker.traceFlightList();
+};
+SingleTripFlightWrapperEntity.prototype.afeePrice = function() {
+    return this.bpr() && this.price();
+};
+SingleTripFlightWrapperEntity.prototype.bprPrice = function() {
+    return this.bpr() || this.price();
+};
+var FlightListUISorter = {};
+$jex.exec(function() {
+    var c = null;
+    var b = null;
+    FlightListUISorter.userSorted = function(e) {
+        if (e == null) {
+            return b;
+        } else {
+            b = e;
+        }
+    };
+    FlightListUISorter.open = function(e) {
+        if (e.isAV && e.isAV()) {
+            return;
+        }
+        c = e;
+        var f = $jex.offset($jex.$("resultAnchor"));
+        window.scrollTo(f.left, f.top);
+    };
+    FlightListUISorter.close = function() {
+        c = null;
+    };
+    FlightListUISorter.resortPage = function(g) {
+        if (!c) {
+            return;
+        }
+        for (var f = 0, e = g.length; f < e; f++) {
+            if (g[f] === c) {
+                g.splice(f, 1);
+                g.splice(0, 0, c);
+                break;
+            }
+        }
+    };
+    FlightListUISorter.sortPrice = function(h, f) {
+        var e = ConfigManager.getConfig("NonStrikingCarrier", h);
+        if (e) {
+            f -= e;
+        }
+        var g = ConfigManager.getConfig("StrikingCarrier", h);
+        if (g) {
+            f += g;
+        }
+        return f;
+    };
+
+    function d(i) {
+        var h = "14:00".split(":");
+        var g = i.split(":");
+        var e = new Date();
+        e.setHours(parseInt(g[0], 10), parseInt(g[1], 10));
+        var f = new Date();
+        f.setHours(parseInt(h[0], 10), parseInt(h[1], 10));
+        return (Math.abs(f - e) / 1000);
+    }
+
+    function a(h, e, g) {
+        f(h);
+
+        function f(w) {
+            for (var r = 0; r < w.length - 1; r++) {
+                for (var s = 0; s < w.length - 1 - r; s++) {
+                    var q = w[s];
+                    var u = w[s + 1];
+                    if (e[q].lowestPrice() !== e[u].lowestPrice()) {
+                        continue;
+                    }
+                    var p = e[q].type === "transfer" ? e[q].firstTrip() : e[q];
+                    var n = e[u].type === "transfer" ? e[u].firstTrip() : e[u];
+                    var o = 1;
+                    var m = o * 2;
+                    var t = 0;
+                    var k = 0;
+                    t = g && p.isCodeShare() ? 0 : m;
+                    k = g && n.isCodeShare() ? 0 : m;
+                    var l = d(p.deptTime());
+                    var v = d(n.deptTime());
+                    if (l > v) {
+                        k += o;
+                    }
+                    if (l < v) {
+                        t += o;
+                    }
+                    if (t < k) {
+                        w[s + 1] = q;
+                        w[s] = u;
+                    }
+                }
+            }
+        }
+    }
+    FlightListUISorter.resort = function(B, G, g, E) {
+        var j = 999999;
+        if (FlightListUISorter.userSorted()) {
+            return {};
+        }
+        $jex.console.start("FlightListUISorter.resort");
+        var m = [];
+        var Q = function(i) {
+            if (G[i] != null) {
+                var k = G[i].lowestPrice();
+                if (k != null) {
+                    return k;
+                } else {
+                    return j;
+                }
+            }
+        };
+        var z = function(i) {
+            if (G[i] != null) {
+                var k = FlightListUISorter.sortPrice(G[i].carrierCode(), G[i].lowestPrice());
+                if (k != null) {
+                    return k;
+                } else {
+                    return j;
+                }
+            }
+        };
+        B.sort(function(k, i) {
+            return Q(k) - Q(i);
+        });
+        var o;
+        var v;
+        var r;
+        var x = [];
+        var J = 0;
+        var w;
+        var e = [];
+        for (var P = 0; P < B.length; P++) {
+            var N = B[P];
+            var S = G[N].type;
+            if (S !== "oneway") {
+                continue;
+            }
+            if (!w) {
+                w = N;
+                e.push(N);
+            } else {
+                if (Q(N) === Q(w)) {
+                    w = N;
+                    e.push(N);
+                } else {
+                    a(e, G, true);
+                    var t = e[0];
+                    o = t;
+                    v = G[t].carrierCode();
+                    r = Q(t) + G[t].totalTax();
+                    J = $jex.array.indexOf(B, t);
+                    B.splice(J, 1);
+                    break;
+                }
+            }
+        }
+        var R = [];
+        var M;
+        var C;
+        var D = [];
+        var y;
+        var l;
+        var u = ConfigManager.getConfig("PayCarrierSort");
+        for (var K in u) {
+            if (u.hasOwnProperty(K)) {
+                u[K] = [];
+            }
+        }
+        var f = [];
+        var O = [];
+        var T, A;
+        var I = [];
+        $jex.foreach(B, function(i) {
+            if (G[i].type == "oneway") {
+                T = G[i].carrierCode();
+                A = Q(i);
+                if (A != j && T != v && T in u) {
+                    if ($jex.array.indexOf(u[T], i) < 0) {
+                        u[T].push(i);
+                    }
+                } else {
+                    if (A == j) {
+                        x.push(i);
+                    } else {
+                        I.push(i);
+                    }
+                }
+            } else {
+                if (G[i].type == "transfer") {
+                    D.push(i);
+                } else {
+                    if (G[i].type == "compose") {
+                        R.push(i);
+                    }
+                }
+            }
+        });
+        if (R.length > 0) {
+            C = Q(R[0]) + G[R[0]].totalTax();
+            if (C < r) {
+                M = R[0];
+                R.splice(0, 1);
+            }
+            a(R, G, false);
+        }
+        if (D.length > 0) {
+            l = Q(D[0]) + G[D[0]].totalTax();
+            if (l < r) {
+                y = D[0];
+                D.splice(0, 1);
+            }
+            a(D, G, false);
+        }
+        $jex.foreach(u, function(i) {
+            if (i.length > 0) {
+                i.sort(function(n, k) {
+                    return z(n) - z(k);
+                });
+                f.push(i[0]);
+                i.splice(0, 1);
+                O = O.concat(i);
+            }
+        });
+        I = I.concat(O);
+        I.sort(function(k, i) {
+            return z(k) - z(i);
+        });
+        a(I, G, true);
+        I = I.concat(R);
+        I = I.concat(D);
+        var F = [];
+        var h;
+        var q = [];
+        if (o != undefined && o != "") {
+            F.push(o);
+        }
+        if (M != undefined && M != "") {
+            F.push(M);
+        }
+        if (y != undefined && y != "") {
+            F.push(y);
+        }
+        q = q.concat(f);
+        if (F.length < 15) {
+            h = 15 - F.length - f.length;
+            q = q.concat(I.splice(0, h));
+        }
+        var s = [];
+        var H = [];
+        for (var P = 0, L = q.length; P < L; P++) {
+            if (G[q[P]].type != "transfer" && G[q[P]].type != "compose") {
+                H.push(q[P]);
+            } else {
+                s.push(q[P]);
+            }
+        }
+        H.sort(function(k, i) {
+            return z(k) - z(i);
+        });
+        a(H, G, true);
+        F = F.concat(H, s);
+        m = m.concat(F, I, x);
+        B.splice(0, B.length);
+        $jex.foreach(m, function(i) {
+            B.push(i);
+        });
+        $jex.event.trigger(FlightListUISorter, "dosort", B, G);
+        $jex.console.end("FlightListUISorter.resort");
+    };
+});
+
+function PagerUI(a) {
+    PagerUI.superclass.constructor.call(this, a);
+    this._type = "PagerUI";
+}
+$jex.extendClass(PagerUI, XControl);
+PagerUI.prototype.go = function(a) {
+    $jex.event.trigger(this, "changePage", a);
+};
+PagerUI.prototype.update = function(f) {
+    var h = f;
+    var c = h.pageIndex;
+    var e = h.pageSize;
+    var g = h.pageCount;
+    this.clear();
+    var d = [];
+    var a = this;
+    var b = new pageCreator(c, g);
+    b.renderPrevpage = function(i) {
+        a.append("<a ", "prev", ' href="#" value="-1"> 上一页 </a>');
+        d.push("prev");
+    };
+    b.renderNextpage = function(i) {
+        a.append("<a ", "next", ' href="#" value="-2">下一页 </a>');
+        d.push("next");
+    };
+    b.renderPage = function(i, j) {
+        if (j) {
+            a.text("<em>", i + 1, "</em>");
+        } else {
+            a.append("<a ", "p" + i).text(' href="#" value="', i, '">', i + 1, "</a>");
+            d.push("p" + i);
+        }
+    };
+    b.renderPrefixDot = function() {
+        a.text("...");
+    };
+    b.renderSuffixDot = function() {
+        a.text("...");
+    };
+    b.render();
+    this.onInit(function() {
+        var j = this;
+        for (var k = 0; k < d.length; k++) {
+            var l = d[k];
+            (function(i) {
+                $jex.event.binding(j.find(i), "click", function(m) {
+                    j.go(parseInt(this.getAttribute("value"), 10));
+                    $jex.stopEvent(m);
+                });
+            })(l);
+        }
+    });
+    this.render();
+};
+
+function pageCreator(a, d, b) {
+    var f = d;
+    var c = a;
+    var e = e || 4;
+    this.renderPrevpage = function() {};
+    this.renderNextpage = function() {};
+    this.renderPage = function() {};
+    this.renderPrefixDot = function() {};
+    this.renderSuffixDot = function() {};
+    this._renderPage = function(g) {
+        this.renderPage(g, g == c);
+    };
+    this.render = function() {
+        var h = false;
+        var j = false;
+        var g = f - 1;
+        for (var k = 0; k <= g; k++) {
+            if (k == 0 && c > 0) {
+                this.renderPrevpage(c - 1);
+            }
+            if (c - e > k && !h) {
+                this._renderPage(0);
+                if (c - e > 1) {
+                    this.renderPrefixDot();
+                }
+                h = true;
+            }
+            if (c - e <= k && c + e >= k) {
+                this._renderPage(k);
+            }
+            if (c + e < k && !j) {
+                if (c + e < g - 1) {
+                    this.renderSuffixDot();
+                }
+                this._renderPage(g);
+                j = true;
+            }
+            if (k == g && c < g) {
+                this.renderNextpage(c + 1);
+            }
+        }
+    };
+}
+
+function OnewayPagerUI(a) {
+    OnewayPagerUI.superclass.constructor.call(this, a);
+    this._type = "OnewayPagerUI";
+    this._bindClickEvent();
+}
+$jex.extendClass(OnewayPagerUI, PagerUI);
+OnewayPagerUI.prototype._bindClickEvent = function() {
+    var a = this;
+    setTimeout(function() {
+        var b = a.elem();
+        $jex.event.binding(b, "click", function(d) {
+            var c = d.target || window.event.srcElement;
+            if (c.tagName == "A") {
+                $jex.stopEvent(d);
+                a.go(parseInt(c.getAttribute("value"), 10));
+            }
+        });
+    });
+};
+OnewayPagerUI.prototype.update = function(f) {
+    var h = f;
+    var c = h.pageIndex;
+    var e = h.pageSize;
+    var g = h.pageCount;
+    this.clear();
+    var d = [];
+    var a = this;
+    var b = new pageCreator(c, g);
+    b.renderPrevpage = function(i) {
+        a.append("<a ", "prev", ' href="#" value="-1"> 上一页 </a> ');
+        d.push("prev");
+    };
+    b.renderNextpage = function(i) {
+        a.append("<a ", "next", ' href="#" value="-2">下一页 </a> ');
+        d.push("next");
+    };
+    b.renderPage = function(i, j) {
+        if (j) {
+            a.text("<em>", i + 1, "</em> ");
+        } else {
+            a.append("<a ", "p" + i).text(' href="#" value="', i, '">', i + 1, "</a> ");
+            d.push("p" + i);
+        }
+    };
+    b.renderPrefixDot = function() {
+        a.text("... ");
+    };
+    b.renderSuffixDot = function() {
+        a.text("... ");
+    };
+    b.render();
+    this.render();
+};
+
+function SearchStatusbar(a) {
+    SearchStatusbar.superclass.constructor.call(this, a);
+    this._type = "SearchStatusbar";
+    this._init();
+}
+$jex.extendClass(SearchStatusbar, XControl);
+SearchStatusbar.prototype._init = function() {
+    var b = this;
+    var a = this._setting.service;
+    var c = this._setting.analyzer;
+    this.endsearch = false;
+    this.vendorNames = [];
+    this.vendorMap = new $jex.List();
+    this.onewayCount = 0;
+    this.transferCount = 0;
+    this.onewayPriceCount = 0;
+    this.transferPriceCount = 0;
+    this.singleNum = 0;
+    this.pkgNum = 0;
+    $jex.event.binding(a, "loadedFirstData", function() {
+        b.start();
+    });
+    $jex.event.binding(a, "loadedLongwell", function(d) {
+        $jex.foreach(d.vendors, function(f, e, g) {
+            b.vendorNames.push(f.name);
+            b.vendorMap.put(g, true);
+        });
+    });
+    $jex.event.binding(a, "loadedOnewayData", function(d) {
+        if (d && typeof d.statusMap != "undefined") {
+            b.onewayCount = d.statusMap;
+        }
+        if (d && typeof d.priceCount != "undefined") {
+            b.onewayPriceCount = d.priceCount || 0;
+        }
+    });
+    $jex.event.binding(a, "loadedRoundTripData", function(d) {
+        if (d && typeof d.singleNum != "undefined") {
+            b.singleNum = d.singleNum || 0;
+        }
+        if (d && typeof d.pkgNum != "undefined") {
+            b.pkgNum = d.pkgNum || 0;
+        }
+        if (d && typeof d.priceCount != "undefined") {
+            b.onewayPriceCount = d.priceCount || 0;
+        }
+    });
+    $jex.event.binding(a, "loadedTransfer", function(d) {
+        $jex.foreach(d.vendors, function(f, e, g) {
+            b.vendorNames.push(f.name);
+            b.vendorMap.put(g, true);
+        });
+        if (d && typeof d.wrapperCount != "undefined") {
+            b.transferCount = d.wrapperCount;
+        }
+        if (d && typeof d.priceCount != "undefined") {
+            b.transferPriceCount = d.priceCount || 0;
+        }
+    });
+    $jex.event.binding(a, "searchEnd", function() {
+        b.stop();
+    });
+};
+SearchStatusbar.prototype.start = function() {
+    var a = this;
+    clearInterval(this.handler);
+    this.handler = setInterval(function() {
+        a.updateStatus();
+    }, 500);
+    this.updateStatus();
+};
+SearchStatusbar.prototype.stop = function() {
+    clearInterval(this.handler);
+    this.endsearch = true;
+    this.updateStatus();
+};
+SearchStatusbar.prototype.updateStatus = function() {
+    if (this.vendorMap.size() == 0) {
+        return;
+    }
+    this.clear();
+    var a = ["搜索<span>", this.vendorMap.size(), "</span>家网站，其中"];
+    if (this.onewayCount) {
+        a.push("<span>", this.onewayCount, "</span>家有直飞报价，");
+    }
+    if (this.singleNum) {
+        a.push("<span>", this.singleNum, "</span>家有直飞报价，");
+    }
+    if (this.pkgNum) {
+        a.push("<span>", this.pkgNum, "</span>家有双程报价，");
+    }
+    if (this.transferCount) {
+        a.push("<span>", this.transferCount, "</span>家有联程报价，");
+    }
+    if (this.endsearch) {
+        a.push("共<span>", this.onewayPriceCount + this.transferPriceCount, "</span>个报价信息，搜索结束");
+    } else {
+        var b = Math.floor(Math.random() * this.vendorNames.length);
+        a.push("正在搜索<span>", this.vendorNames[b], "</span>");
+    }
+    this.elem().innerHTML = a.join("");
+};
+
+function OneWaySearchStatusbar(a) {
+    OneWaySearchStatusbar.superclass.constructor.call(this, a);
+    this._type = "OneWaySearchStatusbar";
+    this._init();
+}
+$jex.extendClass(OneWaySearchStatusbar, SearchStatusbar);
+OneWaySearchStatusbar.prototype.updateStatus = function() {
+    if (this.vendorMap.size() == 0) {
+        return;
+    }
+    this.clear();
+    var b = window.location.param();
+    var a = ['<b class="plc">', b.searchDepartureAirport, '</b><i class="ico_arrto">&nbsp;</i><b class="plc">', b.searchArrivalAirport, '</b><em class="sep_line">|</em><b class="jn">单程</b>'];
+    a.push('<span class="dec">搜索<b class="highlight">' + this.vendorMap.size() + "</b>家网站，");
+    if (this.onewayCount) {
+        a.push('其中<b class="highlight">', this.onewayCount, "</b>家有直飞报价，");
+    }
+    if (this.singleNum) {
+        a.push('其中<b class="highlight">', this.singleNum, "</b>家有直飞报价，");
+    }
+    if (this.pkgNum) {
+        a.push('<b class="highlight">', this.pkgNum, "</b>家有双程报价，");
+    }
+    if (this.transferCount) {
+        a.push('<b class="highlight">', this.transferCount, "</b>家有联程报价，");
+    }
+    if (this.endsearch) {
+        a.push('共<b class="highlight">', this.onewayPriceCount + this.transferPriceCount, "</b>个报价信息，搜索结束");
+    } else {
+        var c = Math.floor(Math.random() * this.vendorNames.length);
+        a.push("正在搜索", '<b class="highlight">', this.vendorNames[c], "</b></span>");
+    }
+    this.elem().innerHTML = a.join("");
+    $jex.element.show(this.elem());
+};
+(function() {
+    $jex.ui = $jex.ui || {};
+
+    function a(f, e, h, g) {
+        return h * f / g + e;
+    }
+    $jex.ui.lockScreenProgress = function(e, h) {
+        var f = e && e.msg || "此次报价已过期，正在重新搜索",
+            g = e && e.time || 3000;
+        var k = ['<div class="b_pop_bjprc">', '<div class="e_btm_fliter"></div>', '<div class="e_box_fliter"></div>', '<div class="e_pop_bjprc">', '<div class="m_pop_bjprc">', "<h3>", f, '</h3><div class="prc_bjpop"><em id="js-progress_loading" style="width: 1%"></em></div></div></div></div>'].join("");
+        $jex.lightbox.show(k);
+        $jex.lightbox.overlay.style.backgroundColor = "#fff";
+        var i = $jex.$("js-progress_loading");
+        var n = 0,
+            m = 100,
+            l = 20,
+            p = 0;
+        var o = Math.floor(g / l);
+
+        function j() {
+            i.style.width = Math.ceil(a(p, n, m, l)) + "%";
+            if (p < l) {
+                p++;
+                setTimeout(j, o);
+            } else {
+                h && h();
+            }
+        }
+        j();
+    };
+})();
+
+function TransferFlightUI(a) {
+    TransferFlightUI.superclass.constructor.call(this, a);
+    this._type = "TransferFlightUI";
+}
+$jex.extendClass(TransferFlightUI, FlightUI);
+TransferFlightUI.prototype.vlistui = function() {
+    if (!this._vlistui) {
+        this._vlistui = new TransferFlightVendorListUI();
+        this._vlistui.owner(this);
+    }
+    return this._vlistui;
+};
+TransferFlightUI.prototype.toggleVendorPanel = function() {
+    if (this.state() == 0) {
+        System.service.genTraceTimeStamp();
+        System.analyzer.triggerTrace = true;
+        this.moveToFirst();
+        var a = this.vlistui();
+        a.dataSource(this.dataSource());
+        a.updateSource();
+        a.render(this.find("vendorlist"));
+        $jex.element.show(this.find("vendorlist"));
+        $jex.addClassName(this.find("itemBar"), "avt_column_on");
+        $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
+        this.state(1);
+        $jex.event.trigger(this, "open");
+    } else {
+        this.hideVendorPanel();
+    }
+};
+TransferFlightUI.prototype.hideVendorPanel = function() {
+    $jex.element.hide(this.find("vendorlist"));
+    $jex.removeClassName(this.find("itemBar"), "avt_column_on");
+    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_closeWrapperList");
+    this.state(0);
+    $jex.event.trigger(this, "close");
+};
+TransferFlightUI.prototype._insertColums = function(c, a) {
+    var d = a ? c.secondTrip() : c.firstTrip();
+    this.text('<div class="c0">');
+    this.text('    <div class="a_logo"><img width="16" height="16" title="', d.carrier().full, '" alt="', d.carrier().full, '" src="http://simg1.qunarzz.com/site/images/airlines/small/', d.carrier().key, '.gif"></div>');
+    this.text("</div>");
+    this.text('<div class="c1">');
+    var b = FlightUtil.codePatch(d.code());
+    this.text('    <div class="a_name">', d.carrier().zh, b.indexOf("/") > 0 ? "<br/>" : "", "<strong>", b, "</strong></div>");
+    this.text('    <div class="a_model">', d.plane().full);
+    this.text('<span class="lnk_sta">');
+    if (d.stopover()) {
+        this.text('<em title="该航班是经停航班" class="lnk_a">经停</em>');
+    }
+    var g = d.codeShare(),
+        f = d.codeShareFlight();
+    if (g && f) {
+        this.text('<em title="实际乘坐航班：【', f.carrier().zh, "】【", g, '】" class="lnk_a">共享</em>');
+    }
+    this.text("</span>");
+    this.text("</div>");
+    this.text("</div>");
+    this.text('<div class="c2">');
+    if (a && d.deptDate() != c.firstTrip().arriDate()) {
+        this.text('<div title="出发达时间为第2天&nbsp;', d.deptDate(), '" class="a_tm_dep">次日', d.deptTime(), "</div>");
+    } else {
+        this.text('<div class="a_tm_dep">', d.deptTime(), "</div>");
+    } if (d.stopover() && d.stops() == 1 && d.spCity()) {
+        this.text('<div class="a_tm_jt">&nbsp;</div>');
+    }
+    this.text('<div class="a_tm_arv">', d.arriTime());
+    if (d.isNextDate()) {
+        this.text('<i class="i_1day" title="到达时间为第2天：', d.arriDate(), "&nbsp;", d.arriTime(), '"></i>');
+    }
+    this.text("</div>");
+    this.text("</div>");
+    this.text('<div class="c3">');
+    this.text('    <div class="a_lacal_dep">', d.deptAirport().ab, d.dptTower(), "</div>");
+    if (d.stopover() && d.stops() == 1 && d.spCit
