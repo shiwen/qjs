@@ -4084,7 +4084,7 @@ FlashAdUI.config = {
     },
     noResult: {
         info1: "<span class='textRed'>该航线当前无可售航班<br />请您尝试其他航线或日期</span>",
-        info2: "搜索结束<br /><a hidefocus='on' href='#' id='flightReserve' style='display:none;'>订阅本航线信息</a>",
+        info2: "搜索结束<br /><a hidefocus='on' href='#' id='flightReserve' style='display:none;'>预约本航线低价机票</a>",
         img: "http://simg1.qunarzz.com/site/images/no_loading.gif"
     },
     inValidQuery: {
