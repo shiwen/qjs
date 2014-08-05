@@ -15932,11 +15932,11 @@ var SearchBoxCreate = (function() {
             i.appendChild(g);
         }
         var h = new SearchBox(i, {
-            fromHotCity: "domestic-list-from",
-            toHotCity: "domestic-list-to",
-            isFuzzy: false,
-            info: "城市名",
-            suggestType: 8
+            fromHotCity: "international-from",
+            toHotCity: "international-from",
+            isFuzzy: true,
+            info: "输入国家/城市",
+            suggestType: null
         });
         b(h);
         return h;
