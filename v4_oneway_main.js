@@ -15523,7 +15523,7 @@ var FlightLang = {
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
                 XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                "国际·港澳台": _tabConfig["国际·港澳台_fuzzy"]
             }
         },
         "domestic-list-to": {
@@ -15535,7 +15535,7 @@ var FlightLang = {
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
                 XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                "国际·港澳台": _tabConfig["国际·港澳台_fuzzy"]
             }
         }
     },
@@ -15932,8 +15932,8 @@ var SearchBoxCreate = (function() {
             i.appendChild(g);
         }
         var h = new SearchBox(i, {
-            fromHotCity: "international-from",
-            toHotCity: "international-from",
+            fromHotCity: "domestic-list-from",
+            toHotCity: "domestic-list-to",
             isFuzzy: true,
             info: "输入国家/城市",
             suggestType: null
