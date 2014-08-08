@@ -2184,63 +2184,78 @@ var DomesticOnewaySearchService = new(function() {
     };
     this._invoke_longwell = function() {
         $jex.console.start("调用longwell");
-        var F = this.param;
-        var D = c;
-        var E = {
-            "http://www.travelco.com/searchArrivalAirport": F.toCity,
-            "http://www.travelco.com/searchDepartureAirport": F.fromCity,
-            "http://www.travelco.com/searchDepartureTime": F.fromDate,
-            "http://www.travelco.com/searchReturnTime": F.fromDate,
+        var I = this.param;
+        var E = c;
+        var D;
+        var H = "loa";
+        try {
+            if (window.UA_obj.UADATA) {
+                D = window.UA_obj.UADATA;
+            } else {
+                window.UA_obj["re" + H + "dUA"]();
+                D = window.UA_obj.UADATA;
+            }
+            delete window.UA_obj.UADATA;
+            delete window.UA_obj["re" + H + "dUA"];
+        } catch (G) {
+            D = "";
+        }
+        var F = {
+            "http://www.travelco.com/searchArrivalAirport": I.toCity,
+            "http://www.travelco.com/searchDepartureAirport": I.fromCity,
+            "http://www.travelco.com/searchDepartureTime": I.fromDate,
+            "http://www.travelco.com/searchReturnTime": I.fromDate,
             locale: "zh",
             nextNDays: "0",
             searchLangs: "zh",
             searchType: "OneWayFlight",
             tags: 1,
             mergeFlag: 0,
-            xd: LONGWELLVERSION
+            xd: LONGWELLVERSION,
+            wyf: D
         };
         k = {
-            departureCity: F.fromCity,
-            arrivalCity: F.toCity,
-            departureDate: F.fromDate,
-            returnDate: F.fromDate,
+            departureCity: I.fromCity,
+            arrivalCity: I.toCity,
+            departureDate: I.fromDate,
+            returnDate: I.fromDate,
             nextNDays: "0",
             searchType: "OneWayFlight",
             searchLangs: "zh",
             locale: "zh"
         };
-        $jex.merge(E, this.oparam);
+        $jex.merge(F, this.oparam);
         $jex.merge(k, this.oparam);
         var C = o + "/twell/longwell";
-        $jex.ajax(C, E, function(I) {
-            u && console.log("longwell回数", I, new Date());
+        $jex.ajax(C, F, function(L) {
+            u && console.log("longwell回数", L, new Date());
             $jex.console.end("调用longwell");
-            if (I.isLimit) {
+            if (L.isLimit) {
                 $jex.event.trigger(p, "ipBlock");
                 return;
             }
-            $jex.event.trigger(p, "getQueryId", I);
-            x = I;
-            p.queryId(I.queryID);
-            k.queryID = I.queryID;
-            k.serverIP = I.serverIP;
-            var H = I.validate;
-            if (H) {
-                if (H.dept.country != "中国" || H.arri.country != "中国") {
+            $jex.event.trigger(p, "getQueryId", L);
+            x = L;
+            p.queryId(L.queryID);
+            k.queryID = L.queryID;
+            k.serverIP = L.serverIP;
+            var K = L.validate;
+            if (K) {
+                if (K.dept.country != "中国" || K.arri.country != "中国") {
                     $jex.event.trigger(p, "interSearch");
                     return;
                 }
-                if (H.dept.value == H.arri.value) {
+                if (K.dept.value == K.arri.value) {
                     $jex.event.trigger(p, "sameCity");
                     return;
                 }
-                $jex.event.trigger(p, "validateComplete", I.validate);
+                $jex.event.trigger(p, "validateComplete", L.validate);
             }
-            if (I.isBackendBusy) {
+            if (L.isBackendBusy) {
                 $jex.event.trigger(p, "systemBusy");
                 return;
             }
-            if (I.isValidQuery) {
+            if (L.isValidQuery) {
                 p.isValidQuery(true);
                 d = 1;
                 $jex.event.trigger(p, "validQuery");
@@ -2248,18 +2263,18 @@ var DomesticOnewaySearchService = new(function() {
                 p.isValidQuery(false);
                 d = 2;
                 $jex.event.trigger(p, "invalidQuery");
-            } if (!I.isTransferFlightsNeeded) {
+            } if (!L.isTransferFlightsNeeded) {
                 i = 2;
                 $jex.event.trigger(p, "TransferDataReady");
             }
-            $jex.event.trigger(p, "loadedLongwell", I);
-            var G = I.oneway_data || {};
+            $jex.event.trigger(p, "loadedLongwell", L);
+            var J = L.oneway_data || {};
             setTimeout(function() {
                 k.deduce = true;
                 m = 1;
             }, 1000);
-            if (!$jex.$empty(G.priceInfo)) {
-                p._process_oneway(G);
+            if (!$jex.$empty(J.priceInfo)) {
+                p._process_oneway(J);
             } else {
                 $jex.event.trigger(p, "noOnewayData");
                 p.queryNext();
