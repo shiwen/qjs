@@ -3690,6 +3690,7 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
     b.dataSource(d);
     b.updateSource();
     var c = new TransferFlightWrapperListUI();
+    c.ownerVendor(this);
     c.dataSource(d);
     c.updateSource();
     this.append("<div", f.id, ' style="z-index:' + f.zIndex + ';position:relative;zoom:1">');
@@ -3798,6 +3799,14 @@ $jex.register("TransPackageFlightWrapperUI", TransPackageFlightWrapperUI);
 
 function TransferFlightWrapperListUI(a) {
     TransferFlightWrapperListUI.superclass.constructor.call(this, a);
+    var b = null;
+    this.ownerVendor = function(c) {
+        if (c == null) {
+            return b;
+        } else {
+            b = c;
+        }
+    };
 }
 $jex.extendClass(TransferFlightWrapperListUI, WrapperListUI);
 TransferFlightWrapperListUI.prototype.createWrapperUI = function(c, b, a) {
