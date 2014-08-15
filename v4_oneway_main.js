@@ -8336,19 +8336,25 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
         this.text("</div>");
     }
     this.text("</div>");
-    this.text('<div class="v6"><div class="t_ins">');
+    this.text('<div class="v6">');
     if (f) {
+        this.text('<div class="t_fanins_wp">');
         this.insert_returnMoney(d, "-pr");
+        this.text('<div class="t_ins">');
         this.text("+", d.afee(), "保险");
         if (d.showInsTip() && d.afeeInsSum()) {
             this.text('<div class="p_tips_cont"><div class="p_tips_wrap"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险仅售5元，保额<span class="fb hl">', d.afeeInsSum(), "万</span></p></div></div></div>");
         }
+        this.text("</div>");
+        this.text("</div>");
     } else {
         this.text("&nbsp;");
     } if (b) {
+        this.text('<div class="t_fanins_wp">');
         this.insert_returnMoney(d, "-bpr");
+        this.text("</div>");
     }
-    this.text("</div></div>");
+    this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c, f) {
     var h = c;
@@ -8363,10 +8369,10 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c, f) {
         var i = "fanxianBtn" + l;
         var k = "fanxianTip" + l;
         j.text('<div class="t_fan">');
-        j.append("<span", i, '<span class="f_fan"><em class="re">返</em><em class="pr">&yen;');
+        j.append("<span", i, ' class="f_fan"><em class="re">返</em><em class="pr">&yen;');
         j.text(m, "</em></span>");
         j.append("<div", k, 'class="p_tips_cont" style="display:none;">');
-        j.text('<div class="p_tips_wrap">', '<div class="p_tips_arr p_tips_arr_t">', '<p class="arr_o">◆</p>', '<p class="arr_i">◆</p>', "</div>", '<div class="p_tips_content">', '<p class="fb">返现说明：</p>', "<p>1. 航班起飞后48小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现，下述特例:<br/>", "&#12288;", '<i class="dotted"></i>', "因航班延误或取消，申请改期或改签；<br/>", "&#12288;", '<i class="dotted"></i>', "因个人身体原因申请退票，且有航空公司规定等级的医院证明；", "</p>", "<p>3. 儿童票不参与返现。</p>", " </div>", "</div>", "</div>", "</div>");
+        j.text('<div class="p_tips_wrap">', '<div class="p_tips_arr p_tips_arr_t">', '<p class="arr_o">◆</p>', '<p class="arr_i">◆</p>', "</div>", '<div class="p_tips_content">', '<p class="fb">返现说明：</p>', "<p>1. 航班起飞后48小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现，下述特例除外:<br/>", "&#12288;", '<i class="dotted"></i>', "因航班延误或取消，申请改期或改签；<br/>", "&#12288;", '<i class="dotted"></i>', "因个人身体原因申请退票，且有航空公司规定等级的医院证明；", "</p>", "<p>3. 儿童票不参与返现。</p>", " </div>", "</div>", "</div>", "</div>");
         j.onInit(function() {
             var o = j.find(i);
             var n = j.find(k);
