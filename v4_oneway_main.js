@@ -8309,7 +8309,96 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
     if (a.coupon() > 0 && a.bprPrice()) {
         this.insert_couponPrice(a);
     } else {
-        this.insert_normalPrice(a);
+        if (a.fanxian()) {
+            this.insert_PRICE_FANXIAN(a);
+        } else {
+            this.insert_normalPrice(a);
+        }
+    }
+};
+OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(d) {
+    var b = d.fanxian();
+    var g = d.afeePrice();
+    var a = d.bprPrice();
+    var c = g - b;
+    var f = a - b;
+    g = parseInt(g, 10);
+    a = parseInt(a, 10);
+    c = parseInt(c, 10);
+    f = parseInt(f, 10);
+    this.text('<div class="v5">');
+    if (g) {
+        this.priceHTML(c, d.isLowestPr() ? "t_prc_lp" : "");
+    }
+    if (a) {}
+    this.text("</div>");
+    this.text('<div class="v6">');
+    if (g) {
+        this.text('<div class="t_fanins_wp">');
+        this.insert_returnMoney(d, "-pr");
+        this.text('<div class="t_ins">');
+        this.text("+", d.afee(), "保险");
+        if (d.showInsTip() && d.afeeInsSum()) {
+            this.text('<div class="p_tips_cont"><div class="p_tips_wrap"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险仅售5元，保额<span class="fb hl">', d.afeeInsSum(), "万</span></p></div></div></div>");
+        }
+        this.text("</div>");
+        this.text("</div>");
+    } else {
+        this.text("&nbsp;");
+    }
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c) {
+    var h = c;
+    var g = h.fanxian();
+    var i = h.afeePrice(),
+        d = h.bprPrice();
+    var b;
+    i = parseInt(i);
+    if (g) {
+        f(this);
+        a(this, g, i);
+    }
+
+    function a(k, m, n) {
+        var j = "fanxianBtn";
+        var l = "fanxianTip";
+        k.text('<div class="t_fan">');
+        k.text('<span class="f_fan">返现</span>');
+        k.text('<div style="display: block;" class="p_tips_cont">', '<div class="p_tips_wrap">', '<div class="p_tips_arr p_tips_arr_t">', '<p class="arr_o">◆</p>', '<p class="arr_i">◆</p>', "</div>", '<div class="p_tips_content">', ' 需支付<span class="hl">', '<i class="rmb">&yen;', n, '</i></span>，返现<span class="hl fb">', '<i class="rmb">&yen;', m, "</i></span>，");
+        k.append("<a", j, 'href="">查看详情</a>');
+        k.text("</div>", "</div>", "</div>", '<div class="e_fan_dtl">');
+        k.append("<div", l, 'class="m_fan_dtl" style="display:none;">');
+        k.text('<p class="fb">返现说明：</p>', "<p>1. 航班起飞后48小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现，下述特例除外:<br>", '<i class="dotted"></i>因航班延误或取消，申请改期或改签；<br>', '<i class="dotted"></i>因个人身体原因申请退票，且有航空公司规定等级的医院证明；</p>', "<p>3. 儿童票不参与返现。</p>", "</div>", "</div>", "</div>");
+        k.onInit(function() {
+            var p = k.find(j);
+            var o = k.find(l);
+            f(k);
+            $jex.hover({
+                act: p,
+                onmouseover: function() {
+                    o.style.display = "block";
+                },
+                onmouseout: function() {
+                    o.style.display = "none";
+                }
+            });
+        });
+    }
+
+    function f(k) {
+        var j;
+        if (k._type == "SingleTripFlightWrapperUI") {
+            try {
+                j = k.ownerListUI().ownerVendor().owner().find("vendorlist");
+            } catch (l) {}
+        } else {
+            try {
+                j = k.ownerListUI().ownerVendorListUI().owner().find("vendorlist");
+            } catch (l) {}
+        } if (!$jex.hasClassName(j, "e_qvt_lst_fan")) {
+            $jex.addClassName(j, "e_qvt_lst_fan");
+        }
     }
 };
 OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
@@ -8338,71 +8427,16 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
     this.text("</div>");
     this.text('<div class="v6">');
     if (f) {
-        this.text('<div class="t_fanins_wp">');
-        this.insert_returnMoney(d, "-pr");
         this.text('<div class="t_ins">');
         this.text("+", d.afee(), "保险");
         if (d.showInsTip() && d.afeeInsSum()) {
             this.text('<div class="p_tips_cont"><div class="p_tips_wrap"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险仅售5元，保额<span class="fb hl">', d.afeeInsSum(), "万</span></p></div></div></div>");
         }
         this.text("</div>");
-        this.text("</div>");
     } else {
         this.text("&nbsp;");
-    } if (b) {
-        this.text('<div class="t_fanins_wp">');
-        this.insert_returnMoney(d, "-bpr");
-        this.text("</div>");
     }
     this.text("</div>");
-};
-OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c, f) {
-    var h = c;
-    var g = h.fanxian();
-    var b;
-    if (g) {
-        d(this);
-        a(this, g, f);
-    }
-
-    function a(j, m, l) {
-        var i = "fanxianBtn" + l;
-        var k = "fanxianTip" + l;
-        j.text('<div class="t_fan">');
-        j.append("<span", i, ' class="f_fan"><em class="re">返</em><em class="pr">&yen;');
-        j.text(m, "</em></span>");
-        j.append("<div", k, 'class="p_tips_cont" style="display:none;">');
-        j.text('<div class="p_tips_wrap">', '<div class="p_tips_arr p_tips_arr_t">', '<p class="arr_o">◆</p>', '<p class="arr_i">◆</p>', "</div>", '<div class="p_tips_content">', '<p class="fb">返现说明：</p>', "<p>1. 航班起飞后48小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现，下述特例除外:<br/>", "&#12288;", '<i class="dotted"></i>', "因航班延误或取消，申请改期或改签；<br/>", "&#12288;", '<i class="dotted"></i>', "因个人身体原因申请退票，且有航空公司规定等级的医院证明；", "</p>", "<p>3. 儿童票不参与返现。</p>", " </div>", "</div>", "</div>", "</div>");
-        j.onInit(function() {
-            var o = j.find(i);
-            var n = j.find(k);
-            d(j);
-            $jex.hover({
-                act: o,
-                onmouseover: function() {
-                    n.style.display = "block";
-                },
-                onmouseout: function() {
-                    n.style.display = "none";
-                }
-            });
-        });
-    }
-
-    function d(j) {
-        var i;
-        if (j._type == "SingleTripFlightWrapperUI") {
-            try {
-                i = j.ownerListUI().ownerVendor().owner().find("vendorlist");
-            } catch (k) {}
-        } else {
-            try {
-                i = j.ownerListUI().ownerVendorListUI().owner().find("vendorlist");
-            } catch (k) {}
-        } if (!$jex.hasClassName(i, "e_qvt_lst_fan")) {
-            $jex.addClassName(i, "e_qvt_lst_fan");
-        }
-    }
 };
 OnewayFlightWrapperUI.prototype.insert_priceForReduction = function(a) {
     var c = a;
@@ -8461,19 +8495,20 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     }
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
-    var c = b.afeePrice(),
-        a = b.bprPrice();
-    c = parseInt(c);
+OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(c) {
+    var d = c.afeePrice(),
+        a = c.bprPrice();
+    var b = c.fanxian();
+    d = parseInt(d);
     a = parseInt(a);
-    if (c) {
-        this._buttonHTML("pr", b, "btnBook");
+    if (d) {
+        this._buttonHTML("pr", c, "btnBook");
     }
     if (a) {
-        this._buttonHTML("bpr", b, "lbtnBook");
+        this._buttonHTML("bpr", c, "lbtnBook");
     }
-    if (!c || !a) {
-        this.text('<div class="ut">', this.insert_UPDATETIME(b), "</div>");
+    if (!d || !a) {
+        this.text('<div class="ut">', this.insert_UPDATETIME(c), "</div>");
     }
 };
 OnewayFlightWrapperUI.prototype.insert_notWorking_BUTTON = function(b) {
