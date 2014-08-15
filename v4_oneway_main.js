@@ -8210,8 +8210,8 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     var b = c.getFot();
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
-    this.text('<div class="t_cmt">');
-    this.text("支付后极速出票；起飞后可邮寄行程单；<br/>7*24小时全天候服务");
+    this.text('<div class="t_cmt t_yxfan">');
+    this.text("登录购票支付成功后送200元红包");
     this.text("</div>");
     this.text("</div>");
 };
