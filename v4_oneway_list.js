@@ -2418,7 +2418,10 @@ var DomesticOnewaySearchService = new(function() {
     };
     this._invoke_flightPriceData = function(H, G, F) {
         $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", H);
-        var E = w.lowestOneway().lowestPrice();
+        var E;
+        if (w.lowestOneway()) {
+            E = w.lowestOneway().lowestPrice();
+        }
         if (F.lowestPrice() == E) {
             k.lowflight = true;
             k.lowflightpr = E;

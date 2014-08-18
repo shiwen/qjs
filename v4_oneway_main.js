@@ -7713,7 +7713,9 @@ OnewayFlightWrapperListUI.prototype.insert_footer = function(a) {
     var f = a.getWrlen(d);
     if (f > 1) {
         this.text('<div class="qvt_col_more qvt_col_more_hover">');
-        this.append("<a ", "gotoDetail", 'data-evtdataid="' + this.newid("") + '" data-gotype= nowType  hidefocus="true" class="lnk_more" href="##">所有报价<i class="ico_arr_more"></i></a>');
+        if (f >= 11) {
+            this.append("<a ", "gotoDetail", 'data-evtdataid="' + this.newid("") + '" data-gotype= nowType  hidefocus="true" class="lnk_more" href="##">所有报价<i class="ico_arr_more"></i></a>');
+        }
         this.text("共有", f, "个代理商报价");
         if (b) {
             this.text("，报价");
