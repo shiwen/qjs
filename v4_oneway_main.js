@@ -8371,7 +8371,7 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c) {
         k.append("<a", j, 'href="">查看详情</a>');
         k.text("</div>", "</div>", "</div>", '<div class="e_fan_dtl">');
         k.append("<div", l, 'class="m_fan_dtl" style="display:none;">');
-        k.text('<p class="fb">返现说明：</p>', "<p>1. 航班起飞后48小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现，下述特例除外:<br>", '<i class="dotted"></i>因航班延误或取消，申请改期或改签；<br>', '<i class="dotted"></i>因个人身体原因申请退票，且有航空公司规定等级的医院证明；</p>', "<p>3. 儿童票不参与返现。</p>", "</div>", "</div>", "</div>");
+        k.text('<p class="fb">返现说明：</p>', "<p>1. 航班起飞后24小时内，返现自动打入原支付账户，预计3到15个工作日到账；</p>", "<p>2. 购买后，一旦提出退票/改签等服务要求，将收回返现；", "<p>3. 儿童票不参与返现。</p>", "</div>", "</div>", "</div>");
         k.onInit(function() {
             var p = k.find(j);
             var o = k.find(l);
