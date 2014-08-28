@@ -8213,7 +8213,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
     this.text('<div class="t_cmt t_yxfan">');
-    this.text("登录购票支付成功后送200元红包");
+    this.text("登录购票支付成功后有机会领200元红包");
     this.text("</div>");
     this.text("</div>");
 };

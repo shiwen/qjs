@@ -2196,7 +2196,6 @@ var DomesticOnewaySearchService = new(function() {
                 D = window.UA_obj.UADATA;
             }
             delete window.UA_obj.UADATA;
-            delete window.UA_obj["re" + H + "dUA"];
         } catch (G) {
             D = "";
         }
@@ -4309,7 +4308,18 @@ var SpringHotRoundtrip = (new function() {
             _goDate = $jex.date.format(x);
         }
         var _count = 90;
-        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _goDate, "&backDate=", _goDate, "&count=", _count, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=9", "&output=json&n=", Math.random()].join("");
+        var wyf;
+        var temStr = "loa";
+        try {
+            if (window.UA_obj) {
+                window.UA_obj["re" + temStr + "dUA"](new Date());
+                wyf = window.UA_obj.UADATA;
+            }
+            delete window.UA_obj.UADATA;
+        } catch (e) {
+            wyf = "";
+        }
+        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _goDate, "&backDate=", _goDate, "&count=", _count, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=9", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
         var sr = new ScriptRequest({
             funcName: "SpringHotRoundtrip.parsedata",
             callbackName: "callback"
@@ -4589,7 +4599,18 @@ var SpringHotRoundtrip = (new function() {
             _qtime = _dateStr.replace(/\d{2}$/, "01");
         }
         this._dateStr = _dateStr;
-        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random()].join("");
+        var wyf;
+        var temStr = "loa";
+        try {
+            if (window.UA_obj) {
+                window.UA_obj["re" + temStr + "dUA"](new Date());
+                wyf = window.UA_obj.UADATA;
+            }
+            delete window.UA_obj.UADATA;
+        } catch (e) {
+            wyf = "";
+        }
+        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
         var sr = new ScriptRequest({
             funcName: "SpringHotRoundtrip.parsePriceData",
             callbackName: "callback"
