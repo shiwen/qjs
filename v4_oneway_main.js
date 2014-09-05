@@ -12413,6 +12413,7 @@ var QadAdUnits = (function() {
     });
     d("ifmRightFlightOwner", "js_rightFlightOwnerBanner");
     d("ifmRightFlightExt", "js_rightFlightExtBanner");
+    d("ifmRightHotelInter", "js_rightHotelInter");
     d("ifmOwnFlightRightBottom", "js_ownFlightRightBottom");
 
     function d(l, k) {
