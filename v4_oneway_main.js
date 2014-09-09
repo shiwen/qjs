@@ -5184,6 +5184,22 @@ VendorEntity.prototype.isOffical = function() {
     }
     return false;
 };
+VendorEntity.prototype.isDirect = function() {
+    var b = this.dataSource();
+    if (!b) {
+        return false;
+    }
+    var a = b.info.icon;
+    if (!a) {
+        return false;
+    }
+    var c = this.__getIconInfo(a).text;
+    if (c == "直营") {
+        return true;
+    } else {
+        return false;
+    }
+};
 VendorEntity.prototype.__getService = function(a) {
     var c = this.dataSource();
     if (!c) {
@@ -8190,19 +8206,26 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(c) {
         }
     }
 };
-OnewayFlightWrapperUI.prototype._insertSpecWR = function(c) {
-    var b = c;
+OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
+    var c = d;
+    var b = d.vendor();
     this.text('<div class="v_ofc">');
-    this.text('<dl class="dl_ofc clrfix"><dt><img class="ofc_img" src="', b.bigLogoUrl(), '"/></dt>');
-    var a = b.couponAdwords() ? b.couponAdwords() : b.vendor().adwords();
+    this.text('<dl class="dl_ofc clrfix"><dt><img class="ofc_img" src="', c.bigLogoUrl(), '"/></dt>');
+    var a = c.couponAdwords() ? c.couponAdwords() : c.vendor().adwords();
     this.text('<dd title="', a, '"><div class="f_txt">', FlightUtil.catAdtext(a, 30), "</div></dd>");
     this.text("</dl>");
-    this.text('<div class="t_cmt">');
-    this.starUI.displayPanel(b);
-    this.text('<div class="e_btn_cmt">');
-    this.starUI.insert_btn(b);
-    this.text("</div>");
-    this.text("</div>");
+    if (b.isDirect()) {
+        this.text('<div class="t_cmt t_yxfan">');
+        this.text("登录购票支付成功后有机会领200元红包");
+        this.text("</div>");
+    } else {
+        this.text('<div class="t_cmt">');
+        this.starUI.displayPanel(c);
+        this.text('<div class="e_btn_cmt">');
+        this.starUI.insert_btn(c);
+        this.text("</div>");
+        this.text("</div>");
+    }
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
@@ -8217,21 +8240,31 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     this.text("</div>");
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insertH3Normal = function(b) {
-    var a = b;
-    this.text('<div class="v1">');
-    this.text('<div class="t_name">', a.vendor().name());
-    if (a.isTCabin()) {
-        this.text('<i class="i_bns_thui">特惠</i>');
+OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
+    var b = c;
+    var a = b.vendor();
+    if (a.isDirect()) {
+        this.text('<div class="v_ofc">');
+        this.text('<div class="t_name">', b.vendor().name(), "</div>");
+        this.text('<div class="t_cmt t_yxfan">');
+        this.text("登录购票支付成功后有机会领200元红包");
+        this.text("</div>");
+        this.text("</div>");
+    } else {
+        this.text('<div class="v1">');
+        this.text('<div class="t_name">', b.vendor().name());
+        if (b.isTCabin()) {
+            this.text('<i class="i_bns_thui">特惠</i>');
+        }
+        this.text("</div>");
+        this.text('<div class="t_cmt">');
+        this.starUI.displayPanel(b);
+        this.text("</div>");
+        this.text("</div>");
+        this.text('<div class="v2"><div class="e_btn_cmt">');
+        this.starUI.insert_btn(b);
+        this.text("</div></div>");
     }
-    this.text("</div>");
-    this.text('<div class="t_cmt">');
-    this.starUI.displayPanel(a);
-    this.text("</div>");
-    this.text("</div>");
-    this.text('<div class="v2"><div class="e_btn_cmt">');
-    this.starUI.insert_btn(a);
-    this.text("</div></div>");
 };
 OnewayFlightWrapperUI.prototype.insertAirlineDirectSelling = function() {
     this.text('<div class="ico_gwzx">实时出票</div>');

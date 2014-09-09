@@ -3856,23 +3856,57 @@ var RoundTripFlightRecommend = (new function(a) {
             return;
         }
         this.render(b.data);
+        this.bind(b.data);
     };
-    this.render = function(h) {
-        var g, b = h.list.length || 0;
-        if (b === 0) {
+    this.bind = function(f) {
+        var c = f.list.length || 0;
+        if (c === 0) {
             return;
         }
-        var f = ['<div class="b_rec_sqwp">', '<div class="b_rec_sq">', '<div class="bg_sq"></div>', '<div class="e_sq_tit"> 往返一起买 </div>', '<div class="e_sq_cont">', '<div class="m_sq_ct">' + h.fromCity + '<i class="ico_wf_sq"></i>' + h.toCity + "</div>", '<ul class="ul_wf_rec">'];
-        for (g = 0; g < b; g++) {
-            var c = h.list[g].url;
-            c += (/&$/.test(c) ? "" : "&") + "from=flight_youce_wangfantuijian";
-            f.push('<li><a class="a_blk" target="_blank" href="' + c + '"><div class="m1"><span class="s_day">' + h.list[g].fromDate + '去</span>&nbsp;&nbsp;<span class="s_day">' + h.list[g].toDate + '回</span>&nbsp;&nbsp;<span class="s_prc s_oldprc"><i class="rmb">¥</i>' + h.list[g].oPrice + '</span></div><div class="m2">特价包&nbsp;&nbsp;<span class="s_prc"><i class="rmb">¥</i>' + h.list[g].pPrice + '</span>&nbsp;&nbsp;<span class="highlight">节省<span class="s_prc"><i class="rmb">¥</i>' + h.list[g].save + "</span></span></div></a></li>");
+        document.getElementById("js_moreFlight").onclick = function() {
+            var g = new Image();
+            g.src = "http://bc.qunar.com/clk?s=182&a=moreflight&t=" + Math.random();
+        };
+        var e = document.getElementById("js_lproute").getElementsByTagName("a"),
+            b = e.length;
+        for (var d = 0; d < b; d++) {
+            e[d].onclick = function() {
+                var g = new Image();
+                g.src = "http://bc.qunar.com/clk?s=182&a=rec_flight&t=" + Math.random();
+            };
         }
-        f.push("</ul></div></div></div>");
-        this.ele.innerHTML = f.join("");
-        var d = ["FL", "DRTFRShow"].join("|");
+    };
+    this.render = function(f) {
+        var g, m = f.moreUrl,
+            d = f.list.length || 0;
+        if (d === 0) {
+            return;
+        }
+        var h = ['<div class="b_rec_wp">', '<div class="b_rec_tit">', '<span class="form">' + f.fromCity + '</span><i class="centerarrow"></i><span class="arrive">' + f.toCity + "</span>", '<span class="icon">往返<br />低价</span></div>', '<ul class="b_rec_cont" id="js_lproute">', '<li class="tab">', '<div class="clo1">往返时间</div><div class="clo2">原价</div><div class="clo3">特价</div>', "</li>"];
+        for (g = 0; g < d; g++) {
+            var b = f.list[g].url;
+            b += (/&$/.test(b) ? "" : "&") + "from=flight_youce_wangfantuijian";
+            var c = [];
+            c.push("<li>");
+            c.push('<a target="_blank" href=' + b + ">");
+            c.push('<div class="clo1"><span class="fromdate">' + f.list[g].fromDate + "</span>");
+            c.push('<i class="centerarrow"></i><span class="arrdate">' + f.list[g].toDate + "</span></div>");
+            c.push('<div class="clo2">&yen;<del>' + f.list[g].oPrice + "</del></div>");
+            c.push('<div class="clo3">&yen;<span>' + f.list[g].pPrice + "</span>");
+            if (f.list[g].lowPrice) {
+                c.push('<i class="lowst"></i>');
+            }
+            c.push("  </div>");
+            c.push("</a>");
+            c.push("</li>");
+            h.push(c.join(""));
+        }
+        m += (/&$/.test(m) ? "" : "&") + "ex_from=flight_youce_wangfantuijian";
+        h.push('</ul><div class="b_rec_ft"><a target="_blank" id="js_moreFlight" href=' + m + '>更多航班低价组合<i class="ftsong">&gt;&gt;</i></a></div></div>');
+        this.ele.innerHTML = h.join("");
+        var k = ["FL", "DRTFRShow"].join("|");
         try {
-            newTrackAction(d);
+            newTrackAction(k);
         } catch (j) {}
     };
     this.init();
