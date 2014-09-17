@@ -12604,6 +12604,27 @@ var LazyScrollShow = (function() {
             if (window.dflightTool) {
                 dflightTool.start();
             }
+            if (window.Dujia_recommend) {
+                var t = {
+                    version: 1
+                };
+                var s = location.param();
+                if (location.pathname.indexOf("oneway_list.htm") > 0) {
+                    t.type = 1;
+                    t.dep = s.searchDepartureAirport;
+                    t.arr = s.searchArrivalAirport;
+                    t.to_date = s.searchDepartureTime;
+                } else {
+                    if (location.pathname.indexOf("roundtrip_list_new.htm") > 0) {
+                        t.type = 2;
+                        t.dep = s.fromCity;
+                        t.arr = s.toCity;
+                        t.to_date = s.fromDate;
+                        t.back_date = s.toDate;
+                    }
+                }
+                Dujia_recommend.init(t);
+            }
         },
         dReversePanel_normal: function() {
             RoundTripGrid.load();

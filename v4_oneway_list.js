@@ -4869,6 +4869,99 @@ var BookingPriceCheck = (function() {
     };
     return a;
 })();
+if (typeof window.Dujia_recommend === "undefined") {
+    window.Dujia_recommend = {};
+}
+Dujia_recommend.init = function(a) {
+    this.HOST = "http://combine.dujia.qunar.com/get_fp_info_to_flight_list";
+    this.WRAPPERID = "dujiaRecommend";
+    this.args = a || {};
+    this._data = [];
+    this.live();
+};
+Dujia_recommend.live = function() {
+    var a = this._parseArg();
+    this._sendRequest(a);
+};
+Dujia_recommend.update = function(d) {
+    if (d.ret) {
+        this._data = d.data;
+        for (var b = 0; b < this._data.length; b++) {
+            var c = this._data[b];
+            a(c);
+        }
+        this._render();
+    }
+
+    function a(e) {
+        var g = e.title;
+        var f = g.split("#");
+        if (f.length === 4) {
+            e.cityInfo = f[0] || "";
+            e.flightInfo = f[1] || "";
+            e.timeInfo = f[2] || "";
+            e.hotelInfo = f[3] || "";
+        }
+    }
+};
+Dujia_recommend._parseArg = function() {
+    var a = this.HOST + "?";
+    var c = this.args;
+    for (var b in c) {
+        a += b + "=" + encodeURIComponent(c[b]) + "&";
+    }
+    a = a.replace(/&$/, "");
+    return a;
+};
+Dujia_recommend._sendRequest = function(b) {
+    var a = new ScriptRequest({
+        funcName: "Dujia_recommend.update",
+        callbackName: "callback"
+    });
+    a.send(b);
+};
+Dujia_recommend._render = function() {
+    if (this._data.length) {
+        this._insertCSS();
+        this._insertHTML();
+    }
+};
+Dujia_recommend._insertCSS = function() {
+    var a = '.dujia_recommend .dj_wrap { background-color: #f7fdfc; border-bottom: 1px solid #ebebeb; border-top: 1px solid #1facab; clear: both; margin-bottom: 8px; padding: 0 5px 5px;}.dujia_recommend .dj_wrap .hd { font-size: 14px; font-weight: 700; padding: 6px 5px 5px;}.dujia_recommend .dj_wrap .ct { background-color: #fff; overflow: hidden; width: 100%;}/* add 往返机票+酒店超值打包 **/.dj_sheng{ display:inline-block; zoom:1; position:relative; top:-10px;}.jijiu{ background:#fff; width:730px; margin:0 auto;}.jijiu li{  float:left; _display:inline; border-top:1px solid #dfedeb; width:320px; margin:-1px 25px 0 20px; padding:8px 0;}.jijiu li .jijiu_sub{ display:block; cursor:pointer;}.jijiu_tit{ color:#0069ca; font-size:14px; line-height:24px; width:320px; white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow: hidden;}.jijiu{ overflow:hidden;}.jijiu li a:hover.jijiu_sub .jijiu_tit{ color:#f60;}.jijiu_info { font:0/1 Arial;}.jijiu_info .pr_y{ display:inline-block; zoom:1; font:12px/24px "\5fae\8f6f\96c5\9ed1"; color:#ff6600; padding-right:8px;}.jijiu_info .pr_y .yen{ font:12px/24px Arial;font-style:normal;}.jijiu_info .pr_y .jg{ font: bold 14px/24px Arial;}.jijiu_info .pr_s{ display:inline-block; zoom:1; height:18px; margin:3px 0;font:12px/18px sans-serif; background:#f60; color:#fff; padding:0 5px; position:relative;}.jijiu_info .pr_s .yen{font-family:arial;font-style:normal;}.jijiu_info .pr_s .sj{display:inline-block; zoom:1; height:0; width:0; overflow:hidden; border-bottom:4px dashed transparent;border-top:4px dashed transparent; border-right:4px solid #f60; position:absolute; left:-4px; top:5px;}.jijiu_info .jj_date{ display:inline-block; zoom:1; color:#333; font:14px/24px sans-serif; padding-left:10px;}';
+    $jex.createCssText(a);
+};
+Dujia_recommend._insertHTML = function() {
+    var b = [];
+    b = ['<div class="dj_wrap">', '<div class="hd">往返机票+酒店超值打包<img src="http://source.qunar.com/package/i/sheng.png" alt="省" width="24" height="22" class="dj_sheng"></div>', '<div class="ct">', '<ul class="jijiu">'];
+    for (var e = 0; e < this._data.length; e++) {
+        var c = this._data[e];
+        var a = "[" + c.cityInfo + "]" + c.flightInfo + c.timeInfo + c.hotelInfo;
+        b.push("<li>");
+        b.push('<a href="', c.url, '" class="jijiu_sub" target="_blank" title="', a, '">');
+        b.push('<div class="jijiu_tit" title=""><strong>[', c.cityInfo, "]</strong>", c.flightInfo, "+", c.timeInfo, c.hotelInfo, "</div>");
+        b.push('<div class="jijiu_info">');
+        b.push('<span class="pr_y"><i class="yen">&yen;</i><em class="jg">', c.price, "</em>起</span>");
+        b.push('<span class="pr_s"><i class="sj"></i>省<i class="yen">&yen;</i><em class="jg">', c.save, "</em></span>");
+        b.push('<span class="jj_date">', d(c.to_date), "出发</span>");
+        b.push('<span class="jj_date">', d(c.back_date), "返回</span>");
+        b.push("</div>");
+        b.push("</a>");
+        b.push("</li>");
+    }
+    b.push("</ul>");
+    b.push("</div>");
+    b.push("</div>");
+    if (document.getElementById(this.WRAPPERID)) {
+        document.getElementById(this.WRAPPERID).innerHTML = b.join("");
+    }
+
+    function d(f) {
+        var g = f.split("-");
+        if (g.length === 3) {
+            return g[1] + "." + g[2];
+        }
+    }
+};
 var dflightTool = new function() {
         this.initialize = function(args) {
             if (this.initialized) {
