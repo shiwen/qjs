@@ -12964,6 +12964,8 @@ QunarHistoryToolbar.prototype._init = function() {
             b._initList(a, c, g, f);
         }
         $jex.element.toggle(c, g, f);
+        b.opened = !b.opened;
+        b.opened ? trackAction("FI|HIS|OPEN") : trackAction("FI|HIS|CLOSE");
         $jex.stopEvent(h);
     });
     if (QunarHistory) {
@@ -12977,6 +12979,7 @@ QunarHistoryToolbar.prototype._init = function() {
     }
 };
 QunarHistoryToolbar.prototype._initList = function(k, m, b, j) {
+    var s = this;
     var c = [];
     var f = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
     try {
@@ -13003,6 +13006,7 @@ QunarHistoryToolbar.prototype._initList = function(k, m, b, j) {
             var l = "双程 " + o.FromCity() + "-" + o.ToCity() + " " + o.FromDate().replace(/^\d{4}-/, "") + "~" + o.ToDate().replace(/^\d{4}-/, "");
             a.push("toDate=" + o.ToDate(), "searchType=RoundTripFlight");
         }
+        a.push("from=history_bar");
         var n = encodeURI("/twell/flight/Search.jsp?" + a.join("&"));
         l = q(l);
         c.push('<li title="', l, '"><a href="', n, '" key="', d + "", '" target="_blank">', l, "</a></li>");
@@ -13011,6 +13015,8 @@ QunarHistoryToolbar.prototype._initList = function(k, m, b, j) {
     j.innerHTML = c.join("");
     $jex.event.binding($jex.$(k + "_close"), "click", function(i) {
         $jex.element.toggle(m, b, j);
+        s.opened = false;
+        trackAction("FI|HIS|CLOSE");
         $jex.stopEvent(i);
     });
     this.initial = true;
