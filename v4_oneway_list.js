@@ -3512,6 +3512,286 @@ OneWaySearchStatusbar.prototype.updateStatus = function() {
         j();
     };
 })();
+window.searchTrack = (function(d) {
+    var f = null;
+    var g, e;
+    var b = null;
+    var a = function(i) {
+        var h = "/site/track.htm?action=" + (window._ba_utm_s || f) + "|" + i + "|&t=" + Date.parse(new Date());
+        new Image().src = h;
+    };
+
+    function c() {
+        this.onlyOne = false;
+        this.config = {
+            TJ: {
+                type: "特价机票"
+            },
+            DMT: {
+                type: "国内机票"
+            },
+            INT: {
+                type: "国际机票"
+            },
+            MULT: {
+                type: "国际机票-多程"
+            }
+        };
+    }
+    c.prototype = {
+        constructor: c,
+        init: function(j, l, i) {
+            var k = this;
+            f = i;
+            var h = this.config[j];
+            h.flt = l;
+            this.DMT = this.config.DMT.flt;
+            this.INT = this.config.INT.flt;
+            this.MULT = this.config.MULT.flt;
+            this.TJ = this.config.TJ.flt;
+            this.ControlFlt = [];
+            this.ControlFlt.push(this.DMT, this.INT, this.TJ);
+            this.fltType = h;
+            this._bindEvents();
+        },
+        _bindEvents: function() {
+            this._bindFocusEvent();
+            this._bindSelectSuggest();
+            this._bindnoResult();
+            this._bindHaveResult();
+            this._bindErrorInfo();
+        },
+        _bindErrorInfo: function() {
+            var l = this;
+            var h = function() {
+                var i = ["ErrorSuggestInfo", l.inputElem.value, l.inputType, l._type];
+                a(i.join("|"));
+            };
+            $jex.each(this.ControlFlt, function(t, i) {
+                if (t) {
+                    var r = t.fromCity.popups.popups.suggest;
+                    var s = t.toCity.popups.popups.suggest;
+                    $jex.event.bind(r, "errorInfo", h);
+                    $jex.event.bind(s, "errorInfo", h);
+                }
+            });
+            if (this.MULT) {
+                var n = this.MULT;
+                var j = this.MULT.conf.form.fromCityMulti;
+                var o = this.MULT.conf.form.toCityMulti;
+                for (var k = 0, p = this.MULT.trips.length; k < p; k++) {
+                    var q = this.MULT.trips[k].multiSearbox.fromCity;
+                    var m = this.MULT.trips[k].multiSearbox.toCity;
+                    d.event.bind(q.popups.popups.suggest, "errorInfo", h);
+                    d.event.bind(m.popups.popups.suggest, "errorInfo", h);
+                }
+            }
+        },
+        _bindHaveResult: function() {
+            var k = this;
+            var l = function(t, i) {
+                i--;
+                var s = ["getResultData", k.inputElem.value, i, k.inputType, k._type];
+                k.noflag = false;
+                if (k.inputElem.value !== g && !k.onlyOne) {
+                    a("addItem_flag|" + k.inputType + "|" + k._type);
+                    k.onlyOne = true;
+                }
+                setTimeout(function() {
+                    a(s.join("|"));
+                }, 10);
+            };
+            var n = function(i) {
+                b = i;
+                k.notfind = true;
+            };
+            $jex.each(this.ControlFlt, function(u, i) {
+                if (u) {
+                    var s = u.fromCity.popups.popups.suggest;
+                    var t = u.toCity.popups.popups.suggest;
+                    $jex.event.bind(s, "getResultData", l);
+                    $jex.event.bind(t, "getResultData", l);
+                    $jex.event.bind(s, "haveData", n);
+                    $jex.event.bind(t, "haveData", n);
+                }
+            });
+            if (this.MULT) {
+                var o = this.MULT;
+                var h = this.MULT.conf.form.fromCityMulti;
+                var p = this.MULT.conf.form.toCityMulti;
+                for (var j = 0, q = this.MULT.trips.length; j < q; j++) {
+                    var r = this.MULT.trips[j].multiSearbox.fromCity;
+                    var m = this.MULT.trips[j].multiSearbox.toCity;
+                    d.event.bind(r.popups.popups.suggest, "getResultData", l);
+                    d.event.bind(m.popups.popups.suggest, "getResultData", l);
+                    d.event.bind(r.popups.popups.suggest, "haveData", n);
+                    d.event.bind(m.popups.popups.suggest, "haveData", n);
+                }
+            }
+        },
+        _bindnoResult: function() {
+            var m = this;
+            var k = function(i, t) {
+                if (!m.noflag && !m.notfind) {
+                    var s = "suggest-nofind-noData|" + m.inputElem.value + "|" + m.inputType + "|" + m._type;
+                    a(s);
+                    m.noflag = true;
+                    m.notfind = false;
+                }
+                if (!m.noflag && m.notfind) {
+                    var s = "suggest-nofind|" + m.inputElem.value + "|" + b + "|" + m.inputType + "|" + m._type;
+                    a(s);
+                    m.noflag = true;
+                }
+            };
+            var j = function(i, t) {
+                var s = "noDatalook";
+                a(s);
+            };
+            $jex.each(this.ControlFlt, function(u, i) {
+                if (u) {
+                    var s = u.fromCity.popups.popups.suggest;
+                    var t = u.toCity.popups.popups.suggest;
+                    $jex.event.bind(s, "suggest-nofind", k);
+                    $jex.event.bind(t, "suggest-nofind", k);
+                    $jex.event.bind(s, "noDatalook", j);
+                    $jex.event.bind(t, "noDatalook", j);
+                }
+            });
+            if (this.MULT) {
+                var o = this.MULT;
+                var h = this.MULT.conf.form.fromCityMulti;
+                var p = this.MULT.conf.form.toCityMulti;
+                for (var l = 0, q = this.MULT.trips.length; l < q; l++) {
+                    var r = this.MULT.trips[l].multiSearbox.fromCity;
+                    var n = this.MULT.trips[l].multiSearbox.toCity;
+                    d.event.bind(r.popups.popups.suggest, "suggest-nofind", k);
+                    d.event.bind(n.popups.popups.suggest, "suggest-nofind", k);
+                    d.event.bind(r.popups.popups.suggest, "noDatalook", j);
+                    d.event.bind(n.popups.popups.suggest, "noDatalook", j);
+                }
+            }
+        },
+        _bindSelectSuggest: function() {
+            var l = this;
+            var j = function(s, u, i, r) {
+                if (!l.sflag) {
+                    if (u === "所有地点") {
+                        i = "00";
+                    }
+                    if (!r) {
+                        r = "city";
+                    }
+                    var t = "suggest-selected|" + r + "|" + u + "|" + i + "|" + l.inputType + "|" + l._type;
+                    a(t);
+                    l.sflag = true;
+                }
+            };
+            $jex.each(this.ControlFlt, function(t, i) {
+                if (t) {
+                    var r = t.fromCity.popups.popups.suggest;
+                    var s = t.toCity.popups.popups.suggest;
+                    $jex.event.bind(r, "suggest-selected", j);
+                    $jex.event.bind(s, "suggest-selected", j);
+                }
+            });
+            if (this.MULT) {
+                var n = this.MULT;
+                var h = this.MULT.conf.form.fromCityMulti;
+                var o = this.MULT.conf.form.toCityMulti;
+                for (var k = 0, p = this.MULT.trips.length; k < p; k++) {
+                    var q = this.MULT.trips[k].multiSearbox.fromCity;
+                    var m = this.MULT.trips[k].multiSearbox.toCity;
+                    d.event.bind(q.popups.popups.suggest, "suggest-selected", j);
+                    d.event.bind(m.popups.popups.suggest, "suggest-selected", j);
+                }
+            }
+        },
+        _bindFocusEvent: function() {
+            var l = this;
+            var k = function() {
+                l.sflag = false;
+                if (this.value !== g && this.value === "" && !l.deleteONE) {
+                    l.noflag = false;
+                    a("deleteItem_flag|" + this.name + "|" + e);
+                    l.deleteONE = true;
+                }
+                if (this.value !== g && !l.onlyOne && !l.deleteONE) {
+                    a("addItem_flag|" + this.name + "|" + e);
+                    l.onlyOne = true;
+                }
+            };
+            var m = function(u, t, s) {
+                var i = t;
+                return function() {
+                    return u.call(s, i);
+                };
+            };
+            var r = function(i) {
+                l.onlyOne = false;
+                l.deleteONE = false;
+                l.noflag = false;
+                l.outflag = false;
+                l.inputType = this.name;
+                l._type = i;
+                l.inputElem = this;
+                l.notfind = false;
+                e = i;
+                g = this.value;
+                d.event.bind(this, "keyup", k);
+            };
+            var n = function(i) {
+                if (!l.outflag && l.noflag && !l.sflag) {
+                    var s = "suggest-nofind|" + this.value + "|" + b + "|" + i + "|" + this.name;
+                    a(s);
+                    l.outflag = true;
+                }
+            };
+            $jex.each(this.ControlFlt, function(u, i) {
+                if (u) {
+                    var s = u.fromCity.inputEl;
+                    var t = u.toCity.inputEl;
+                    $jex.event.bind(s, "focusin", m(r, u.type, s));
+                    $jex.event.bind(t, "focusin", m(r, u.type, t));
+                    $jex.event.bind(s, "focusout", m(n, u.type, s));
+                    $jex.event.bind(t, "focusout", m(n, u.type, t));
+                }
+            });
+            if (this.MULT) {
+                var o = this.MULT;
+                var h = this.MULT.conf.form.fromCityMulti;
+                var p = this.MULT.conf.form.toCityMulti;
+                for (var j = 0, q = h.length; j < q; j++) {
+                    d.event.bind(h[j], "focusin", m(r, this.MULT.type, h[j]));
+                    d.event.bind(h[j], "focusout", m(n, this.MULT.type, h[j]));
+                }
+                for (var j = 0, q = p.length; j < q; j++) {
+                    d.event.bind(p[j], "focusin", m(r, this.MULT.type, p[j]));
+                    d.event.bind(p[j], "focusout", m(n, this.MULT.type, p[j]));
+                }
+            }
+        },
+        triggerHomeClickBtn: function(h) {
+            var j = this;
+            var l = h.type;
+            var n = h.searchType;
+            var p = h.fromCity.collateValue;
+            var m = h.toCity.collateValue;
+            var i = h.toDate.collateValue;
+            var o = h.fromDate.collateValue;
+            if (n === "oneway" || n === "multitrip") {
+                i = null;
+            }
+            if (i) {
+                var k = ["search_BtnFlag", l, n, p, m, o, i];
+            } else {
+                var k = ["search_BtnFlag", l, n, p, m, o];
+            }
+            a(k.join("|"));
+        }
+    };
+    return new c();
+})($jex);
 
 function TransferFlightUI(a) {
     TransferFlightUI.superclass.constructor.call(this, a);
@@ -5925,24 +6205,24 @@ SortHandler.prototype._init = function() {
     } catch (j) {
         f.searchArrivalTime = f.searchDepartureTime;
     }
-    $jex.foreach(f, function(s, e, r) {
-        $jex.console.trace("[PARAM]", r, ":", s);
+    $jex.foreach(f, function(t, e, s) {
+        $jex.console.trace("[PARAM]", s, ":", t);
     });
     $jex.console.trace("[CLIENT]", window.navigator.userAgent.toString());
     window.location.param = function() {
         return f;
     };
-    window.location.research = function(w, u, s, e, v) {
-        var t = $jex.merge(f, {
-            searchDepartureAirport: w || f.searchDepartureAirport,
-            searchArrivalAirport: u || f.searchArrivalAirport,
-            searchDepartureTime: s || f.searchDepartureTime,
+    window.location.research = function(x, v, t, e, w) {
+        var u = $jex.merge(f, {
+            searchDepartureAirport: x || f.searchDepartureAirport,
+            searchArrivalAirport: v || f.searchArrivalAirport,
+            searchDepartureTime: t || f.searchDepartureTime,
             searchArrivalTime: e || f.searchArrivalTime,
-            from: v || f.from
+            from: w || f.from
         });
-        var r = window.location.href.split("?")[0];
-        r += "?" + $jex.toQueryString(t);
-        return r;
+        var s = window.location.href.split("?")[0];
+        s += "?" + $jex.toQueryString(u);
+        return s;
     };
     if (f.loadDynamicCss) {
         var n = document.getElementsByTagName("head").item[0];
@@ -5966,12 +6246,14 @@ SortHandler.prototype._init = function() {
     var l = new FlashAdUI({
         elemId: "hdivResultPanel"
     });
+    var p;
     var b = function() {
         if (!window.SearchBoxCreate) {
             setTimeout(b, 10);
             return;
         }
-        SearchBoxCreate(f);
+        p = SearchBoxCreate(f);
+        searchTrack.init("DMT", p);
     };
     var c = new CACTI_monitoring({
         url: "http://bmrg.qunar.com/f",
@@ -5980,14 +6262,14 @@ SortHandler.prototype._init = function() {
     });
     var k = 0;
 
-    function q() {
+    function r() {
         if (k === 1) {
             c.send();
         }
         k++;
     }
     $jex.event.bind(window, "load", function() {
-        q();
+        r();
     });
     var o = false;
     var m = function() {
@@ -5995,10 +6277,10 @@ SortHandler.prototype._init = function() {
             return;
         }
         c.end("t_firstData");
-        q();
+        r();
         $jex.console.start("第一屏数据耗时");
         setTimeout(function() {
-            function r() {
+            function s() {
                 setTimeout(function() {
                     SpringHotRoundtrip.updateSevenDayToday();
                 }, 0);
@@ -6013,10 +6295,10 @@ SortHandler.prototype._init = function() {
             });
             SpringHotRoundtrip.load();
             $jex.event.binding(h, "dataComplete", function() {
-                r();
+                s();
             });
             $jex.event.binding(PAGE_EVENT, "lowPriceChange", function() {
-                r();
+                s();
             });
             dflightTool.startSpecial();
             $jex.console.end("第一屏,七日低价 ");
@@ -6027,9 +6309,9 @@ SortHandler.prototype._init = function() {
             }, 0);
             $jex.console.start("第一屏,加载广告 ");
             var e = i.longwell();
-            AD_Manage.qde_query = function(t) {
-                var s = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
-                t(s);
+            AD_Manage.qde_query = function(u) {
+                var t = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
+                u(t);
             };
             $OTALOGIC.init(f.searchDepartureAirport, f.searchArrivalAirport, f.searchDepartureTime);
             $OTALOGIC.load_top("ifrmVendorBanner");
@@ -6041,26 +6323,26 @@ SortHandler.prototype._init = function() {
         }, 0);
         o = true;
     };
-    var d = function(x) {
+    var d = function(y) {
         if (typeof QunarHistory == "undefined" || !QunarHistory || !QunarHistory.SFlight) {
             setTimeout(function() {
-                d(x);
+                d(y);
             }, 500);
             return;
         }
-        var s = x;
-        var e = encodeURIComponent(s.dept.input);
-        var y = encodeURIComponent(s.dept.country);
-        var r = encodeURIComponent(s.arri.input);
-        var t = encodeURIComponent(s.arri.country);
-        var w = new Date(f.searchDepartureTime.replace(/-/g, "/"));
-        var u = new QunarHistory.SFlight(e, r, new Date().getTime());
-        u.addDate(w);
-        u.addCountry(y + "-" + t);
-        QunarHistory.service.addNode(u);
+        var t = y;
+        var e = encodeURIComponent(t.dept.input);
+        var z = encodeURIComponent(t.dept.country);
+        var s = encodeURIComponent(t.arri.input);
+        var u = encodeURIComponent(t.arri.country);
+        var x = new Date(f.searchDepartureTime.replace(/-/g, "/"));
+        var w = new QunarHistory.SFlight(e, s, new Date().getTime());
+        w.addDate(x);
+        w.addCountry(z + "-" + u);
+        QunarHistory.service.addNode(w);
     };
 
-    function p() {
+    function q() {
         $jex.event.binding(i, "expireQuery", function() {
             var e = window.location.research(null, null, $jex.date.add(SERVER_TIME, 1, true), $jex.date.add(SERVER_TIME, 3, true));
             top.location.href = e;
@@ -6102,14 +6384,14 @@ SortHandler.prototype._init = function() {
         });
     }
     window.$OTA = new OTABlade(new OTAInfoExtractor({
-        extract: function(r) {
+        extract: function(s) {
             var e = this;
-            $jex.foreach(r.priceInfo, function(t, w, u) {
-                var s = new OTAOnewayFlight(u);
-                s.flightInfo(r.flightInfo[u]);
-                s.priceInfo(r.priceInfo[u]);
-                e.flightType = s.type();
-                e.add(s);
+            $jex.foreach(s.priceInfo, function(u, x, w) {
+                var t = new OTAOnewayFlight(w);
+                t.flightInfo(s.flightInfo[w]);
+                t.priceInfo(s.priceInfo[w]);
+                e.flightType = t.type();
+                e.add(t);
             });
         }
     }));
@@ -6138,7 +6420,7 @@ SortHandler.prototype._init = function() {
         act: "noresult"
     });
     HotSale.init();
-    p();
+    q();
     BookingPriceCheck.init();
     c.start("t_firstData");
     i.search(f);

@@ -13517,24 +13517,46 @@ function FlightCityXCombox(c, d, b) {
             },
             suggest: {
                 initialize: function() {
+                    var i = this;
                     this.layer = new FlightSuggestItemListLayer(this, a.setting.suggestType);
-                    $jex.event.bind(this.layer, "select", function(i, k) {
-                        if (i > -1) {
-                            this.popup.own.setCountry(this.nodes[i].item.country);
+                    $jex.event.bind(this.layer, "haveData", function(j) {
+                        $jex.event.trigger(i, "haveData", j);
+                    });
+                    $jex.event.bind(this.layer, "suggest-nofind", function() {
+                        $jex.event.trigger(i, "suggest-nofind");
+                    });
+                    $jex.event.bind(this.layer, "getResultData", function(j) {
+                        $jex.event.trigger(i, "getResultData", null, j);
+                    });
+                    $jex.event.bind(this.layer, "errorInfo", function() {
+                        $jex.event.trigger(i, "errorInfo");
+                    });
+                    $jex.event.bind(this.layer, "select", function(j, n) {
+                        var m = this.popup.own,
+                            l = this.nodes;
+                        if (j > -1) {
+                            m.setCountry(l[j].item.country);
                         }
-                        if (i > -1) {
-                            k ? this.popup.own.setValue(this.nodes[i].item.key) : this.popup.own.volateValue(this.nodes[i].item.key);
+                        if (j > -1) {
+                            n ? m.setValue(l[j].item.key) : m.volateValue(l[j].item.key);
                         } else {
-                            k ? this.popup.own.initValue(this.popup.own.inputold) : this.popup.own.volateValue(this.popup.own.inputold);
+                            n ? m.initValue(m.inputold) : m.volateValue(m.inputold);
                         }
-                        this.popup.own.vidx = i;
-                        if (k) {
-                            var l = this.nodes[i].item.key;
-                            $jex.event.trigger(a, "select", l);
+                        m.vidx = j;
+                        if (n) {
+                            var p = l[j].item.key;
+                            var o;
+                            if (p === "所有地点") {
+                                o = "allPlace";
+                            } else {
+                                o = this.cacheData[j].ftypename;
+                            }
+                            $jex.event.trigger(i, "suggest-selected", null, p, j, o);
+                            $jex.event.trigger(a, "select", p);
                             this.popup.close();
-                            var j = window.newTrackAction || window.trackAction;
-                            if (j) {
-                                j("QH|HCT|suggest|" + encodeURIComponent(l), null, false);
+                            var k = window.newTrackAction || window.trackAction;
+                            if (k) {
+                                k("QH|HCT|suggest|" + encodeURIComponent(p), null, false);
                             }
                         }
                     });
@@ -13593,6 +13615,9 @@ function FlightCityXCombox(c, d, b) {
                 j.q = j.userInput;
                 l.layer.refresh(j, false, g);
                 this.lastCache = $jex.extend({}, j);
+                if (!this.lastCache && !j) {
+                    $jex.event.trigger(l, "noDatalook", null, j);
+                }
                 l.layer.enter(0);
             },
             keypress: function(j, k) {
@@ -13642,63 +13667,110 @@ function FlightSuggestItemListLayer(a, b) {
 }
 FlightSuggestItemListLayer.prototype.error = function() {
     var a = new UIObject();
+    $jex.event.trigger(this, "errorInfo");
     a.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
     a.text('<tr class="illrow error">', "<td>", this.popup.own.setting.errorSuggestTip || "输入错误", "</td>", "</tr>");
     a.write(this.popup.panel);
 };
-FlightSuggestItemListLayer.prototype.refresh = function(g, k, n) {
+FlightSuggestItemListLayer.prototype.refresh = function(x, m, g) {
+    this.cacheData = x.result;
     this.cursor = -1;
     if (this.nodes.length > 0) {
-        for (var h = 0; h < this.nodes.length; h++) {
-            var d = this.nodes[h];
-            d.item = null;
-            d.layer = null;
-            $jex.event.clear(d);
+        for (var t = 0; t < this.nodes.length; t++) {
+            var n = this.nodes[t];
+            n.item = null;
+            n.layer = null;
+            $jex.event.clear(n);
+        }
+    }
+    for (var t = 0, q = this.cacheData.length; t < q; t++) {
+        var k = this.cacheData;
+        k[t].ftype = k[t].type;
+        if (k[t].type === 4 || k[t].type === 9) {
+            var f = k[t].type;
+            var c = t - 1;
+            var s = false;
+            for (var o = t;
+                (o < q && !s); o++) {
+                if (k[o].type === f) {
+                    k[o].ftype = k[c].ftype;
+                } else {
+                    t = o - 1;
+                    o = 100;
+                    s = true;
+                }
+            }
+        }
+        if (k[t].ftype === 3) {
+            k[t].ftypename = "city";
+        }
+        if (k[t].ftype === 1) {
+            k[t].ftypename = "city";
+        }
+        if (k[t].display.indexOf("机场") !== -1 || k[t].display.indexOf("Airport") !== -1) {
+            k[t].ftypename = "airport";
+        }
+        if (k[t].ftype === 6) {
+            k[t].ftypename = "attraction";
+        }
+        if (k[t].ftype === 8) {
+            k[t].ftypename = "country";
+        }
+        if (k[t].ftype === 7) {
+            k[t].ftypename = "state";
         }
     }
     this.nodes.length = 0;
-    var l = g.q;
-    var j = g.result;
-    var m = g.userInput;
-    var a = new RegExp("(" + m + ")", "i");
-    var c = new UIObject();
-    if ( !! g.c) {
-        c.text('<div class="qcity_guess">你要找的是不是<span class="hl">', m, "</span></div>");
+    var d = x.q;
+    var k = x.result;
+    var h = x.userInput.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+    var a = new RegExp("(" + h + ")", "i");
+    var b = new UIObject();
+    if ( !! x.c) {
+        b.text('<div class="qcity_guess">你要找的是不是<span class="hl">', h, "</span></div>");
     }
-    if (k) {
-        c.text('<div class="qcity_guess">找不到<span class="hl">', n, "</span></div>");
+    if (m) {
+        b.text('<div class="qcity_guess">找不到<span class="hl">', g, "</span></div>");
     } else {
-        if (this.isFuzzy && j[j.length - 1].display != this.allPlace) {
-            j.push({
+        if (this.isFuzzy && k[k.length - 1].display != this.allPlace) {
+            k.push({
                 country: "中国",
                 display: this.allPlace,
                 key: this.allPlace,
                 type: 0
             });
         }
+    } if (!m) {
+        $jex.event.trigger(this, "getResultData", x.result.length);
     }
-    c.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
-    for (var h = 0; h < j.length; h++) {
-        var f = j[h];
-        var o = (f.type == 4) ? "nearbyAirport" : "";
-        if (f.display.indexOf(n) != -1) {
-            a = new RegExp("(" + n + ")", "i");
+    b.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
+    var u = k.length - 1;
+    for (var t = 0; t < k.length; t++) {
+        $jex.event.trigger(this, "haveData", u);
+        var p = k[t];
+        var w = (p.type == 4) ? "nearbyAirport" : "";
+        if (p.display.indexOf(g) != -1) {
+            g = g.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+            a = new RegExp("(" + g + ")", "i");
         }
-        c.text('<tr class="illrow ', o, '"', ">");
-        c.append("<td ", h).text(' class="illn" hashkey="', f.key, '"', ((f.type == 1) ? 'noAirport="true"' : ""), ">", ((f.type == 4) ? "·邻近机场:" : ""), ((f.type == 9) ? "·相关城市:" : ""), f.display.replace(a, '<span class="keystring">$1</span>'), ((f.type == 9) ? "<span>(" + f.enname + ")</span>" : ""), ((f.length) ? "<span>-" + f.length + "公里</span>" : ""), ((f.type == 1) ? "-该城市没有机场" : ""), ((f.type == 2) ? "-该地区的机场有" : ""), ((f.type == 6) ? "-该景点没有机场" : ""), ((f.type == 7) ? "-该目的地为省份" : ""), ((f.type == 8) ? "-该目的地为国家" : ""), "</td>");
-        c.text("</tr>");
+        b.text('<tr class="illrow ', w, '"', ">");
+        b.append("<td ", t).text(' class="illn" hashkey="', p.key, '"', ((p.type == 1) ? 'noAirport="true"' : ""), ">", ((p.type == 4) ? "·邻近机场:" : ""), ((p.type == 9) ? "·相关城市:" : ""), p.display.replace(a, '<span class="keystring">$1</span>'), ((p.type == 9) ? "<span>(" + p.enname + ")</span>" : ""), ((p.length) ? "<span>-" + p.length + "公里</span>" : ""), ((p.type == 1) ? "-该城市没有机场" : ""), ((p.type == 2) ? "-该地区的机场有" : ""), ((p.type == 6) ? "-该景点没有机场" : ""), ((p.type == 7) ? "-该目的地为省份" : ""), ((p.type == 8) ? "-该目的地为国家" : ""), "</td>");
+        b.text("</tr>");
     }
-    c.text("</table>");
-    c.write(this.popup.panel);
-    var b = this.nodes;
-    for (var h = 0; h < j.length; h++) {
-        var d = c.getDomNode(h);
-        d.item = j[h];
-        d.layer = this;
-        d.idx = h;
-        b[h] = d;
-        $jex.event.bind(d, "mouseover", this.mouseover);
-        $jex.event.bind(d, "click", this.click);
+    b.text("</table>");
+    b.write(this.popup.panel);
+    var l = this.nodes;
+    for (var t = 0; t < k.length; t++) {
+        var n = b.getDomNode(t);
+        n.item = k[t];
+        n.layer = this;
+        n.idx = t;
+        l[t] = n;
+        $jex.event.bind(n, "mouseover", this.mouseover);
+        $jex.event.bind(n, "click", this.click);
+    }
+    if (m) {
+        $jex.event.trigger(this, "suggest-nofind");
     }
 };
 FlightSuggestItemListLayer.prototype.mouseover = function(a) {
@@ -15871,6 +15943,7 @@ function SearchBox(a, c) {
         }
         b();
         q();
+        searchTrack.triggerHomeClickBtn(d);
         if (!y()) {
             $jex.stopEvent(A);
             return false;
@@ -16103,6 +16176,7 @@ var SearchBoxCreate = (function() {
             info: "输入国家/城市",
             suggestType: null
         });
+        searchTrack.init("DMT", h);
         b(h);
         return h;
     }
@@ -16124,3 +16198,283 @@ var SearchBoxCreate = (function() {
         return i;
     };
 })();
+window.searchTrack = (function(d) {
+    var g = null;
+    var h, f;
+    var b = null;
+    var a = function(j) {
+        var i = "/site/track.htm?action=" + (window._ba_utm_s || g) + "|" + j + "|&t=" + Date.parse(new Date());
+        new Image().src = i;
+    };
+
+    function c() {
+        this.onlyOne = false;
+        this.config = {
+            TJ: {
+                type: "特价机票"
+            },
+            DMT: {
+                type: "国内机票"
+            },
+            INT: {
+                type: "国际机票"
+            },
+            MULT: {
+                type: "国际机票-多程"
+            }
+        };
+    }
+    c.prototype = {
+        constructor: c,
+        init: function(k, m, j) {
+            var l = this;
+            g = j;
+            var i = this.config[k];
+            i.flt = m;
+            this.DMT = this.config.DMT.flt;
+            this.INT = this.config.INT.flt;
+            this.MULT = this.config.MULT.flt;
+            this.TJ = this.config.TJ.flt;
+            this.ControlFlt = [];
+            this.ControlFlt.push(this.DMT, this.INT, this.TJ);
+            this.fltType = i;
+            this._bindEvents();
+        },
+        _bindEvents: function() {
+            this._bindFocusEvent();
+            this._bindSelectSuggest();
+            this._bindnoResult();
+            this._bindHaveResult();
+            this._bindErrorInfo();
+        },
+        _bindErrorInfo: function() {
+            var m = this;
+            var j = function() {
+                var i = ["ErrorSuggestInfo", m.inputElem.value, m.inputType, m._type];
+                a(i.join("|"));
+            };
+            $jex.each(this.ControlFlt, function(w, i) {
+                if (w) {
+                    var t = w.fromCity.popups.popups.suggest;
+                    var u = w.toCity.popups.popups.suggest;
+                    $jex.event.bind(t, "errorInfo", j);
+                    $jex.event.bind(u, "errorInfo", j);
+                }
+            });
+            if (this.MULT) {
+                var o = this.MULT;
+                var k = this.MULT.conf.form.fromCityMulti;
+                var p = this.MULT.conf.form.toCityMulti;
+                for (var l = 0, q = this.MULT.trips.length; l < q; l++) {
+                    var s = this.MULT.trips[l].multiSearbox.fromCity;
+                    var n = this.MULT.trips[l].multiSearbox.toCity;
+                    d.event.bind(s.popups.popups.suggest, "errorInfo", j);
+                    d.event.bind(n.popups.popups.suggest, "errorInfo", j);
+                }
+            }
+        },
+        _bindHaveResult: function() {
+            var l = this;
+            var m = function(w, i) {
+                i--;
+                var u = ["getResultData", l.inputElem.value, i, l.inputType, l._type];
+                l.noflag = false;
+                if (l.inputElem.value !== h && !l.onlyOne) {
+                    a("addItem_flag|" + l.inputType + "|" + l._type);
+                    l.onlyOne = true;
+                }
+                setTimeout(function() {
+                    a(u.join("|"));
+                }, 10);
+            };
+            var o = function(i) {
+                b = i;
+                l.notfind = true;
+            };
+            $jex.each(this.ControlFlt, function(x, i) {
+                if (x) {
+                    var u = x.fromCity.popups.popups.suggest;
+                    var w = x.toCity.popups.popups.suggest;
+                    $jex.event.bind(u, "getResultData", m);
+                    $jex.event.bind(w, "getResultData", m);
+                    $jex.event.bind(u, "haveData", o);
+                    $jex.event.bind(w, "haveData", o);
+                }
+            });
+            if (this.MULT) {
+                var p = this.MULT;
+                var j = this.MULT.conf.form.fromCityMulti;
+                var q = this.MULT.conf.form.toCityMulti;
+                for (var k = 0, s = this.MULT.trips.length; k < s; k++) {
+                    var t = this.MULT.trips[k].multiSearbox.fromCity;
+                    var n = this.MULT.trips[k].multiSearbox.toCity;
+                    d.event.bind(t.popups.popups.suggest, "getResultData", m);
+                    d.event.bind(n.popups.popups.suggest, "getResultData", m);
+                    d.event.bind(t.popups.popups.suggest, "haveData", o);
+                    d.event.bind(n.popups.popups.suggest, "haveData", o);
+                }
+            }
+        },
+        _bindnoResult: function() {
+            var n = this;
+            var l = function(i, w) {
+                if (!n.noflag && !n.notfind) {
+                    var u = "suggest-nofind-noData|" + n.inputElem.value + "|" + n.inputType + "|" + n._type;
+                    a(u);
+                    n.noflag = true;
+                    n.notfind = false;
+                }
+                if (!n.noflag && n.notfind) {
+                    var u = "suggest-nofind|" + n.inputElem.value + "|" + b + "|" + n.inputType + "|" + n._type;
+                    a(u);
+                    n.noflag = true;
+                }
+            };
+            var k = function(i, w) {
+                var u = "noDatalook";
+                a(u);
+            };
+            $jex.each(this.ControlFlt, function(x, i) {
+                if (x) {
+                    var u = x.fromCity.popups.popups.suggest;
+                    var w = x.toCity.popups.popups.suggest;
+                    $jex.event.bind(u, "suggest-nofind", l);
+                    $jex.event.bind(w, "suggest-nofind", l);
+                    $jex.event.bind(u, "noDatalook", k);
+                    $jex.event.bind(w, "noDatalook", k);
+                }
+            });
+            if (this.MULT) {
+                var p = this.MULT;
+                var j = this.MULT.conf.form.fromCityMulti;
+                var q = this.MULT.conf.form.toCityMulti;
+                for (var m = 0, s = this.MULT.trips.length; m < s; m++) {
+                    var t = this.MULT.trips[m].multiSearbox.fromCity;
+                    var o = this.MULT.trips[m].multiSearbox.toCity;
+                    d.event.bind(t.popups.popups.suggest, "suggest-nofind", l);
+                    d.event.bind(o.popups.popups.suggest, "suggest-nofind", l);
+                    d.event.bind(t.popups.popups.suggest, "noDatalook", k);
+                    d.event.bind(o.popups.popups.suggest, "noDatalook", k);
+                }
+            }
+        },
+        _bindSelectSuggest: function() {
+            var m = this;
+            var k = function(u, x, i, t) {
+                if (!m.sflag) {
+                    if (x === "所有地点") {
+                        i = "00";
+                    }
+                    if (!t) {
+                        t = "city";
+                    }
+                    var w = "suggest-selected|" + t + "|" + x + "|" + i + "|" + m.inputType + "|" + m._type;
+                    a(w);
+                    m.sflag = true;
+                }
+            };
+            $jex.each(this.ControlFlt, function(w, i) {
+                if (w) {
+                    var t = w.fromCity.popups.popups.suggest;
+                    var u = w.toCity.popups.popups.suggest;
+                    $jex.event.bind(t, "suggest-selected", k);
+                    $jex.event.bind(u, "suggest-selected", k);
+                }
+            });
+            if (this.MULT) {
+                var o = this.MULT;
+                var j = this.MULT.conf.form.fromCityMulti;
+                var p = this.MULT.conf.form.toCityMulti;
+                for (var l = 0, q = this.MULT.trips.length; l < q; l++) {
+                    var s = this.MULT.trips[l].multiSearbox.fromCity;
+                    var n = this.MULT.trips[l].multiSearbox.toCity;
+                    d.event.bind(s.popups.popups.suggest, "suggest-selected", k);
+                    d.event.bind(n.popups.popups.suggest, "suggest-selected", k);
+                }
+            }
+        },
+        _bindFocusEvent: function() {
+            var m = this;
+            var l = function() {
+                m.sflag = false;
+                if (this.value !== h && this.value === "" && !m.deleteONE) {
+                    m.noflag = false;
+                    a("deleteItem_flag|" + this.name + "|" + f);
+                    m.deleteONE = true;
+                }
+                if (this.value !== h && !m.onlyOne && !m.deleteONE) {
+                    a("addItem_flag|" + this.name + "|" + f);
+                    m.onlyOne = true;
+                }
+            };
+            var n = function(x, w, u) {
+                var i = w;
+                return function() {
+                    return x.call(u, i);
+                };
+            };
+            var t = function(i) {
+                m.onlyOne = false;
+                m.deleteONE = false;
+                m.noflag = false;
+                m.outflag = false;
+                m.inputType = this.name;
+                m._type = i;
+                m.inputElem = this;
+                m.notfind = false;
+                f = i;
+                h = this.value;
+                d.event.bind(this, "keyup", l);
+            };
+            var o = function(i) {
+                if (!m.outflag && m.noflag && !m.sflag) {
+                    var u = "suggest-nofind|" + this.value + "|" + b + "|" + i + "|" + this.name;
+                    a(u);
+                    m.outflag = true;
+                }
+            };
+            $jex.each(this.ControlFlt, function(x, i) {
+                if (x) {
+                    var u = x.fromCity.inputEl;
+                    var w = x.toCity.inputEl;
+                    $jex.event.bind(u, "focusin", n(t, x.type, u));
+                    $jex.event.bind(w, "focusin", n(t, x.type, w));
+                    $jex.event.bind(u, "focusout", n(o, x.type, u));
+                    $jex.event.bind(w, "focusout", n(o, x.type, w));
+                }
+            });
+            if (this.MULT) {
+                var p = this.MULT;
+                var j = this.MULT.conf.form.fromCityMulti;
+                var q = this.MULT.conf.form.toCityMulti;
+                for (var k = 0, s = j.length; k < s; k++) {
+                    d.event.bind(j[k], "focusin", n(t, this.MULT.type, j[k]));
+                    d.event.bind(j[k], "focusout", n(o, this.MULT.type, j[k]));
+                }
+                for (var k = 0, s = q.length; k < s; k++) {
+                    d.event.bind(q[k], "focusin", n(t, this.MULT.type, q[k]));
+                    d.event.bind(q[k], "focusout", n(o, this.MULT.type, q[k]));
+                }
+            }
+        },
+        triggerHomeClickBtn: function(i) {
+            var k = this;
+            var m = i.type;
+            var o = i.searchType;
+            var q = i.fromCity.collateValue;
+            var n = i.toCity.collateValue;
+            var j = i.toDate.collateValue;
+            var p = i.fromDate.collateValue;
+            if (o === "oneway" || o === "multitrip") {
+                j = null;
+            }
+            if (j) {
+                var l = ["search_BtnFlag", m, o, q, n, p, j];
+            } else {
+                var l = ["search_BtnFlag", m, o, q, n, p];
+            }
+            a(l.join("|"));
+        }
+    };
+    return new c();
+})($jex);
