@@ -2415,36 +2415,52 @@ var DomesticOnewaySearchService = new(function() {
             D.priceInfo[E] = C.priceInfo[E];
         }
     };
-    this._invoke_flightPriceData = function(H, G, F) {
-        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", H);
-        var E;
+    this._invoke_flightPriceData = function(I, J, F) {
+        $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", I);
+        var K;
         if (w.lowestOneway()) {
-            E = w.lowestOneway().lowestPrice();
+            K = w.lowestOneway().lowestPrice();
         }
-        if (F.lowestPrice() == E) {
+        if (F.lowestPrice() == K) {
             k.lowflight = true;
-            k.lowflightpr = E;
+            k.lowflightpr = K;
         } else {
             delete k.lowflight;
             delete k.lowflightpr;
         }
+        var E;
+        var C = "loa";
+        try {
+            if (window.UA_obj) {
+                window.UA_obj["re" + C + "dUA"](new Date());
+                E = window.UA_obj.UADATA;
+            }
+            delete window.UA_obj.UADATA;
+        } catch (G) {
+            E = "";
+        }
+        k.wyf = E;
         var D = o + "/twell/flight/tags/onewayflight_groupinfo.jsp";
-        var C = a;
-        k.flightCode = H;
+        var H = a;
+        k.flightCode = I;
         k.label = a;
         this._lastGinfoData = null;
-        $jex.ajax(D, k, function(I) {
-            u && console.log("groupInfo", I);
-            I.flightCode = H;
-            I.labelType = C;
-            $jex.event.trigger(p, "loadedGroupinfo", I);
-            p._lastGinfoData = I;
-            $jex.event.trigger(p, "parsingFlightPriceData", I);
-            if (G) {
-                G();
+        $jex.ajax(D, k, function(L) {
+            u && console.log("groupInfo", L);
+            if (L.isLimit) {
+                $jex.event.trigger(p, "ipBlock");
+                return;
+            }
+            L.flightCode = I;
+            L.labelType = H;
+            $jex.event.trigger(p, "loadedGroupinfo", L);
+            p._lastGinfoData = L;
+            $jex.event.trigger(p, "parsingFlightPriceData", L);
+            if (J) {
+                J();
             }
             $jex.console.info("[invoke_flightPriceData] 处理完毕");
-            PAGE_EVENT.trigger("wrapper_loadData", I);
+            PAGE_EVENT.trigger("wrapper_loadData", L);
         }, {
             onerror: p._onerror
         });
