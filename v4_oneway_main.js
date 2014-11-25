@@ -12851,7 +12851,7 @@ function setIfrmHeight(c, b) {
 var LazyScrollShow = (function() {
     var b = [],
         f;
-    var m = ["dTrendflashPanel", "dReversePanel_normal", "hotelSearch", "frmTuan"];
+    var m = ["dTrendflashPanel", "hotelSearch", "frmTuan"];
 
     function i() {
         var t = window.document,
@@ -12904,9 +12904,6 @@ var LazyScrollShow = (function() {
                 }
                 Dujia_recommend.init(t);
             }
-        },
-        dReversePanel_normal: function() {
-            RoundTripGrid.load();
         }
     };
 
