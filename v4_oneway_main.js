@@ -8454,7 +8454,7 @@ OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     var b = c.getFot();
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
-    this.text('<div class="t_cmt t_yxfan">改签手续费仅5%、退票费仅10%、闪电出退票</div>');
+    this.text('<div class="t_cmt t_yxfan">跨航空公司改签、手续费低、在线自助操作</div>');
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
@@ -8533,9 +8533,9 @@ OnewayFlightWrapperUI.prototype.insertFreeMan = function(d) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="t_sv">');
-    this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_freeman">退改无忧</i></span>');
+    this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_freeman">任意改签</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
-    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">退改无忧：</span>改签手续费仅5%，退票手续费仅10%</p>', '<p><span class="fb">在线改签：</span>自助在线改签，方便快捷</p>', '<p><span class="fb">出退票快：</span>支付后极速出票、申请退票后极速退款</p>', '<p><span class="fb">报销足额：</span>起飞后邮寄足额报销凭证</p>', "</div>", "</div>", "</div>", "</div>");
+    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">改签：</span>可自由选择航空公司，手续费5%，需补机票差价</p>', '<p><span class="fb">退票：</span>退票手续费10%，申请退票后极速退款</p>', '<p><span class="fb">自助：</span>网站可快速自助申请退改签</p>', '<p><span class="fb">报销：</span>起飞后邮寄足额有效报销凭证</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
             var g = this.find("superOtaBtn");
