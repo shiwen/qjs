@@ -118,7 +118,8 @@ function trackAction(d, b, a) {
         if (trackAction.rid) {
             f += "&rId=" + trackAction.rid;
         }
-    } if (a) {
+    }
+    if (a) {
         f = f.replace("track.htm", "timetrack.htm");
     }
     if (f.length >= 1024) {
@@ -370,7 +371,8 @@ var $jex = {
             return;
         } else {
             a.appendChild(c);
-        } if (c.styleSheet) {
+        }
+        if (c.styleSheet) {
             c.styleSheet.cssText = f;
         } else {
             var b = d.createTextNode(f);
@@ -658,17 +660,13 @@ var $jex = {
 };
 $jex.createXMLHttpRequest = $jex.exec(function() {
     var b = 0,
-        a = [
-            function() {
-                return new XMLHttpRequest();
-            },
-            function() {
-                return new ActiveXObject("Msxml2.XMLHTTP");
-            },
-            function() {
-                return new ActiveXObject("Microsoft.XMLHTTP");
-            }
-        ];
+        a = [function() {
+            return new XMLHttpRequest();
+        }, function() {
+            return new ActiveXObject("Msxml2.XMLHTTP");
+        }, function() {
+            return new ActiveXObject("Microsoft.XMLHTTP");
+        }];
     return function() {
         for (var c = b; c < a.length; c++) {
             try {
@@ -887,11 +885,13 @@ $jex.exec(function() {
                     k = document.body.clientHeight;
                 }
             }
-        } if (h < k) {
+        }
+        if (h < k) {
             pageHeight = k;
         } else {
             pageHeight = h;
-        } if (j < i) {
+        }
+        if (j < i) {
             pageWidth = i;
         } else {
             pageWidth = j;
@@ -942,7 +942,8 @@ $jex.exec(function() {
                     obj = {};
                 }
             }
-        } if (childs == "1") {
+        }
+        if (childs == "1") {
             var els = el.childNodes;
             for (var i = 0; i < els.length; i++) {
                 if (els[i].nodeType == 1) {
@@ -2004,15 +2005,18 @@ $jex.hover = function(z) {
         t = null,
         s = function(b) {
             x && z.onmouseover.apply(w, [b]);
-        }, q = function(b) {
+        },
+        q = function(b) {
             x || z.onmouseout.apply(w, [b]);
-        }, p = function(b) {
+        },
+        p = function(b) {
             x = !0;
             t && clearTimeout(t);
             t = setTimeout(function() {
                 s(b);
             }, y);
-        }, o = function(b) {
+        },
+        o = function(b) {
             x = !1;
             t && clearTimeout(t);
             t = setTimeout(function() {
@@ -2108,7 +2112,8 @@ DataSet.prototype._doSort = function(a) {
                         } else {
                             l = -1;
                         }
-                    } if (h[n][1]) {
+                    }
+                    if (h[n][1]) {
                         l = (-l);
                     }
                     if (l == 0) {
@@ -2185,7 +2190,8 @@ DataSet.prototype.clearFilter = function(a) {
         return;
     } else {
         this._filtersMap[a].value = [];
-    } if (this.filteredDataMap) {
+    }
+    if (this.filteredDataMap) {
         this.filteredDataMap = [];
     } else {
         return;
@@ -2226,11 +2232,13 @@ DataSet.prototype.doFilter = function(d) {
                 var i = c.options.filterFunc[a](c._data[j], j, g);
             } else {
                 var i = c._data[j][a];
-            } if (c._checkFilter(c._filtersMap[a], i)) {
+            }
+            if (c._checkFilter(c._filtersMap[a], i)) {
                 c._filterMatrix[j] &= c._filtersMap[a].nmask;
             } else {
                 c._filterMatrix[j] |= c._filtersMap[a].mask;
-            } if (!c._filterMatrix[j]) {
+            }
+            if (!c._filterMatrix[j]) {
                 c.filteredDataMap.push(j);
             }
         });
@@ -2617,7 +2625,8 @@ XSelect.prototype._chooseItem = function(a) {
             a.getElementById("ifr" + h).src = 'javascript:\'<script>window.onload=function(){document.write(\\\'<script>document.domain=\\"qunar.com\\";parent.document.getElementById("form' + h + "\").submit();<\\\\/script>\\');document.close();};<\/script>'";
         } else {
             t.submit();
-        } if (q) {
+        }
+        if (q) {
             setTimeout(g, q);
         }
     };
@@ -2829,7 +2838,8 @@ var FlightUtil = {
                     a++;
                 } else {
                     a += 2;
-                } if (a >= 2 * b) {
+                }
+                if (a >= 2 * b) {
                     break;
                 }
             }
@@ -2893,7 +2903,8 @@ var FlightUtil = {
                     }
                 }
             }
-        } if (c[d]) {
+        }
+        if (c[d]) {
             return c[d];
         } else {
             return "";
@@ -3121,7 +3132,7 @@ var QunarDate = $jex.exec(function() {
     };
     var f = null;
     var b = null;
-    var j = ["1周之内", "1个月内", "3个月内", "半年内", "1年"];
+    var j = ["1周之内", "1个月内", "3个月内", "半年内", "1年", "圣诞", "元旦", "春节", "寒假", "清明", "五一", "暑假", "端午", "中秋", "国庆"];
     var i = ["+1周", "+2周", "1个月内", "3个月内", "1年"];
     var l = {
         "1周之内": {
@@ -3168,6 +3179,76 @@ var QunarDate = $jex.exec(function() {
             valid: true,
             value: "1年",
             range: 360
+        },
+        "国庆": {
+            valid: true,
+            value: "国庆",
+            range: "13",
+            start: "2015-9-27",
+            end: "2015-10-10"
+        },
+        "圣诞": {
+            valid: true,
+            value: "圣诞",
+            range: "6",
+            start: "2014-12-22",
+            end: "2014-12-28"
+        },
+        "元旦": {
+            valid: true,
+            value: "元旦",
+            range: "6",
+            start: "2014-12-29",
+            end: "2015-01-04"
+        },
+        "春节": {
+            valid: true,
+            value: "春节",
+            range: "13",
+            start: "2015-02-15",
+            end: "2015-02-28"
+        },
+        "寒假": {
+            valid: true,
+            value: "寒假",
+            range: "60",
+            start: "2015-01-01",
+            end: "2015-02-28"
+        },
+        "清明": {
+            valid: true,
+            value: "清明",
+            range: "6",
+            start: "2015-04-02",
+            end: "2015-04-08"
+        },
+        "五一": {
+            valid: true,
+            value: "五一",
+            range: "6",
+            start: "2015-04-28",
+            end: "2015-05-04"
+        },
+        "暑假": {
+            valid: true,
+            value: "暑假",
+            range: "60",
+            start: "2015-06-01",
+            end: "2015-08-01"
+        },
+        "端午": {
+            valid: true,
+            value: "端午",
+            range: "6",
+            start: "2015-06-18",
+            end: "2015-06-24"
+        },
+        "中秋": {
+            valid: true,
+            value: "中秋",
+            range: "6",
+            start: "2015-09-24",
+            end: "2015-09-30"
         }
     };
     return {
@@ -3175,8 +3256,13 @@ var QunarDate = $jex.exec(function() {
             var n = this.today();
             var m = l[o];
             if (m) {
-                m.start = this.format(this.plus(n, 1));
-                m.end = this.format(this.plus(n, m.range));
+                if (m.start && m.end) {
+                    m.start = m.start;
+                    m.end = m.end;
+                } else {
+                    m.start = this.format(this.plus(n, 1));
+                    m.end = this.format(this.plus(n, m.range));
+                }
             }
             return m;
         },
@@ -3296,7 +3382,8 @@ var QunarDate = $jex.exec(function() {
                 if (b[m]) {
                     p = b[m].holidayName;
                 }
-            } if (p == "") {
+            }
+            if (p == "") {
                 p = d.week + a[n.getDay()];
             }
             return p;
@@ -3479,7 +3566,8 @@ function DateChecker(a, g, f) {
             if (l == this.date2.getTime() && this.date2Hide == false) {
                 k += " curr";
             }
-        } if (i.getDay() == 0 || i.getDay() == 6) {
+        }
+        if (i.getDay() == 0 || i.getDay() == 6) {
             k += " holi";
         }
         if (QunarDate.isHoliday(QunarDate.format(i)) && QunarDate.showIcon(QunarDate.format(i))) {
@@ -3499,342 +3587,376 @@ function DateChecker(a, g, f) {
 function DateLayer(s, u) {
     this.panel = s;
     var m = this;
-    var F = [];
-    var K = true;
+    var G = [];
+    var L = true;
     if (s.parentNode.parentNode.className.indexOf("toD") > -1) {
-        K = false;
+        L = false;
     }
     var a;
     var h = {};
     var c = [];
-    var E = [];
-    var M, x, z, A;
+    var F = [];
+    var N, x, z, B;
     var b = {};
-    var d, i, k, J;
+    var d, i, k, K;
 
     function j() {
         h = {};
         b = {};
         c.length = 0;
-        E.length = 0;
-        M = x = z = A = null;
+        F.length = 0;
+        N = x = z = B = null;
     }
 
-    function C() {
-        var N = this.getAttribute("value");
-        var P = this.getAttribute("data-pos");
-        var O = QunarDate.parse(N);
-        if (O && (O.getTime() >= M.getTime()) && (O.getTime() <= x.getTime())) {
-            $jex.event.trigger(m, "selected", [O, P]);
+    function D() {
+        var O = this.getAttribute("value");
+        var Q = this.getAttribute("data-pos");
+        var P = QunarDate.parse(O);
+        if (P && (P.getTime() >= N.getTime()) && (P.getTime() <= x.getTime())) {
+            $jex.event.trigger(m, "selected", [P, Q]);
         } else {
-            $jex.event.trigger(m, "fuzzySelected", [N]);
+            $jex.event.trigger(m, "fuzzySelected", [O]);
             d = this.getAttribute("start");
             i = this.getAttribute("end");
         }
     }
 
-    function G() {
+    function H() {
         if (!k) {
-            m.render(QunarDate.parse(this.getAttribute("ym")), M, x, null, A);
+            m.render(QunarDate.parse(this.getAttribute("ym")), N, x, null, B);
         } else {
-            m.fuzzyRenderPanel(QunarDate.parse(this.getAttribute("ym")), M, x, null, A);
+            m.fuzzyRenderPanel(QunarDate.parse(this.getAttribute("ym")), N, x, null, B);
+        }
+        if (k) {
+            var O = p(i);
+            $jex.addClassName(O, "curr");
         }
     }
 
-    function p(N) {
-        if (!b[N]) {
-            var O = h[N];
-            b[N] = a.getDomNode(O);
+    function p(O) {
+        if (!b[O]) {
+            var P = h[O];
+            b[O] = a.getDomNode(P);
         }
-        return b[N];
+        return b[O];
     }
 
-    function L(Q) {
-        var R, P, Q = Q || {};
-        for (var O = 0, N = c.length; O < N; O++) {
-            P = c[O];
-            if (Q[P]) {
-                Q[P] = 0;
+    function M(R) {
+        var S, Q, R = R || {};
+        for (var P = 0, O = c.length; P < O; P++) {
+            Q = c[P];
+            if (R[Q]) {
+                R[Q] = 0;
             } else {
-                R = p(P);
-                $jex.removeClassName(R, "day_sel_area");
+                S = p(Q);
+                $jex.removeClassName(S, "day_sel_area");
             }
         }
     }
 
-    function l(N) {
+    function l(O) {
         c.length = 0;
-        $jex.each(N, function(O, Q) {
-            c[c.length] = O;
-            if (N[O]) {
-                var P = p(O);
-                $jex.addClassName(P, "day_sel_area");
+        $jex.each(O, function(P, R) {
+            c[c.length] = P;
+            if (O[P]) {
+                var Q = p(P);
+                $jex.addClassName(Q, "day_sel_area");
             }
         });
     }
 
-    function y(O) {
-        var N = p(QunarDate.format(O));
-        $jex.addClassName(N, "curr");
+    function y(P) {
+        var O = p(QunarDate.format(P));
+        $jex.addClassName(O, "curr");
     }
 
-    function n(O) {
-        var N = p(QunarDate.format(O));
-        $jex.removeClassName(N, "curr");
+    function n(P) {
+        var O = p(QunarDate.format(P));
+        $jex.removeClassName(O, "curr");
     }
-    var q = function(T, O) {
-        var S = $jex.ie ? "mouseenter" : "mouseover";
-        var R = $jex.ie ? "mouseleave" : "mouseout";
-        var Q;
-        for (var P = 0, N = E.length; P < N; P++) {
-            Q = p(E[P]);
-            $jex.event.bind(Q, S, function() {
-                T(this);
-                D(this);
+    var q = function(U, P) {
+        var T = $jex.ie ? "mouseenter" : "mouseover";
+        var S = $jex.ie ? "mouseleave" : "mouseout";
+        var R;
+        for (var Q = 0, O = F.length; Q < O; Q++) {
+            R = p(F[Q]);
+            $jex.event.bind(R, T, function() {
+                U(this);
+                E(this);
                 $jex.addClassName(this, "hover");
             });
-            $jex.event.bind(Q, R, function() {
-                O(this);
-                H(this);
+            $jex.event.bind(R, S, function() {
+                P(this);
+                I(this);
                 $jex.removeClassName(this, "hover");
             });
-            $jex.event.bind(Q, "click", C);
-            F.push(Q);
+            $jex.event.bind(R, "click", D);
+            G.push(R);
         }
-        if (J) {
-            Q = p(J);
-            $jex.event.bind(Q, "click", C);
+        if (K) {
+            R = p(K);
+            $jex.event.bind(R, "click", D);
         }
     };
     var f = function() {
-        for (var N = 0; N < 2; N++) {
-            var O = a.getDomNode("a" + N);
-            $jex.event.bind(O, "mousedown", G);
-            F.push(O);
+        for (var O = 0; O < 2; O++) {
+            var P = a.getDomNode("a" + O);
+            $jex.event.bind(P, "mousedown", H);
+            G.push(P);
         }
     };
     var t = function() {
-        var Q = null;
-        var P = function(R) {
-            clearTimeout(Q);
+        var R = null;
+        var Q = function(S) {
+            clearTimeout(R);
         };
-        var N = function(R) {
-            L();
+        var O = function(S) {
+            M();
             c.length = 0;
             y(u.date1);
         };
-        var O = function(R) {
-            clearTimeout(Q);
-            Q = setTimeout(function() {
-                N(R);
+        var P = function(S) {
+            clearTimeout(R);
+            R = setTimeout(function() {
+                O(S);
             }, 150);
         };
-        q(P, O);
+        q(Q, P);
     };
     var g = function() {
-        var Q = null;
-        var P = function(T) {
-            clearTimeout(Q);
-            var U = T.getAttribute("value");
-            var V = QunarDate.parse(U);
-            var W = u.date1;
-            var R = u.date2;
-            var S = {};
-            if (K) {
-                if (QunarDate.compareDate(W, V) > 0) {
-                    S = QunarDate.getDatesOffset(U, QunarDate.format(R));
+        var R = null;
+        var Q = function(U) {
+            clearTimeout(R);
+            var V = U.getAttribute("value");
+            var W = QunarDate.parse(V);
+            var X = u.date1;
+            var S = u.date2;
+            var T = {};
+            if (L) {
+                if (QunarDate.compareDate(X, W) > 0) {
+                    T = QunarDate.getDatesOffset(V, QunarDate.format(S));
                 } else {
-                    if (QunarDate.compareDate(V, R) > 0) {
-                        S = {};
+                    if (QunarDate.compareDate(W, S) > 0) {
+                        T = {};
                     } else {
-                        S = QunarDate.getDatesOffset(U, QunarDate.format(R));
+                        T = QunarDate.getDatesOffset(V, QunarDate.format(S));
                     }
                 }
-                n(W);
-                y(R);
+                n(X);
+                y(S);
             } else {
-                S = QunarDate.getDatesOffset(QunarDate.format(W), U);
-                n(R);
-                y(W);
+                T = QunarDate.getDatesOffset(QunarDate.format(X), V);
+                n(S);
+                y(X);
             }
-            L(S);
-            l(S);
-        };
-        var N = function() {
-            var T = u.date1;
-            var R = u.date2;
-            var S = QunarDate.getDatesOffset(QunarDate.format(T), QunarDate.format(R));
-            y(T);
-            y(R);
-            L(S);
-            l(S);
+            M(T);
+            l(T);
         };
         var O = function() {
-            clearTimeout(Q);
-            Q = setTimeout(function() {
-                N();
+            var U = u.date1;
+            var S = u.date2;
+            var T = QunarDate.getDatesOffset(QunarDate.format(U), QunarDate.format(S));
+            y(U);
+            y(S);
+            M(T);
+            l(T);
+        };
+        var P = function() {
+            clearTimeout(R);
+            R = setTimeout(function() {
+                O();
             }, 150);
         };
-        q(P, O);
+        q(Q, P);
     };
-    var D = function(P) {
-        var Q = P.getAttribute("start"),
-            N = P.getAttribute("end"),
-            O = {};
-        if (!Q || !N) {
+    var E = function(Q) {
+        var R = Q.getAttribute("start"),
+            O = Q.getAttribute("end"),
+            P = {};
+        if (!R || !O) {
             return;
         }
         n(u.date1);
         n(u.date2);
-        y(QunarDate.parse(Q));
-        y(QunarDate.parse(N));
-        O = QunarDate.getDatesOffset(Q, N);
-        L(O);
-        l(O);
+        y(QunarDate.parse(R));
+        y(QunarDate.parse(O));
+        P = QunarDate.getDatesOffset(R, O);
+        M(P);
+        l(P);
     };
-    var H = function(P) {
-        var Q = P.getAttribute("start"),
-            N = P.getAttribute("end"),
-            O = {};
-        if (!Q || !N) {
+    var I = function(Q) {
+        var R = Q.getAttribute("start"),
+            O = Q.getAttribute("end"),
+            P = {};
+        if (!R || !O) {
             return;
         }
-        n(QunarDate.parse(Q));
-        n(QunarDate.parse(N));
+        n(QunarDate.parse(R));
+        n(QunarDate.parse(O));
     };
     var w = function() {
-        var Q = null;
-        var P = function(R) {
-            clearTimeout(Q);
-            if (QunarDate.getFuzzyDate(R.getAttribute("value"))) {
+        var R = null;
+        var Q = function(S) {
+            clearTimeout(R);
+            if (QunarDate.getFuzzyDate(S.getAttribute("value"))) {
                 n(QunarDate.parse(i));
             }
         };
-        var N = function() {
-            var R = QunarDate.getDatesOffset(d, i);
-            L(R);
-            l(R);
+        var O = function() {
+            var S = QunarDate.getDatesOffset(d, i);
+            M(S);
+            l(S);
             y(QunarDate.parse(d));
             y(QunarDate.parse(i));
         };
-        var O = function() {
-            clearTimeout(Q);
-            Q = setTimeout(function() {
-                N();
+        var P = function() {
+            clearTimeout(R);
+            R = setTimeout(function() {
+                O();
             }, 150);
         };
-        q(P, O);
+        q(Q, P);
     };
     var o = function() {
-        for (var N = 0, O = F.length; N < O; N++) {
-            $jex.event.clear(F[N]);
+        for (var O = 0, P = G.length; O < P; O++) {
+            $jex.event.clear(G[O]);
         }
-        F.length = 0;
+        G.length = 0;
     };
-    var B = function(O, R, T, S, U) {
-        z = S || 0;
-        M = R || u.getMin();
-        x = T || u.getMax();
-        A = U || {};
-        var N = 0;
-        var Q = 0;
+    var C = function(P, S, U, T, V) {
+        z = T || 0;
+        N = S || u.getMin();
+        x = U || u.getMax();
+        B = V || {};
+        if (k && T !== null) {
+            $jex.foreach(B, function(Y, W, X) {
+                if (W === 0) {
+                    P = Y;
+                    return;
+                }
+            });
+        }
+        var O = 0;
+        var R = 0;
         a = new UIObject();
-        a.text('<div class="dpanel">');
-        $jex.array.each([0, 1], function(aa, ab) {
-            var an = new Date(O.getFullYear(), O.getMonth() + aa - z, 1);
-            var ah = an.getMonth() + 1;
-            var aj = QunarDate.convert2digit(ah);
-            var ae = an.getFullYear();
-            var ao = new Date(ae, an.getMonth(), 0);
-            var Y = new Date(ae, an.getMonth(), 1);
-            var V = new Date(ae, an.getMonth() + 1, 1);
-            var ac = new Date(ae, ah - 1, 1).getDay() - 1;
-            if (ac < 0) {
-                ac = 6;
+        a.text('<div class="ui-calendar">');
+        $jex.array.each([0, 1], function(ab, ac) {
+            var ao = new Date(P.getFullYear(), P.getMonth() + ab - z, 1);
+            var ai = ao.getMonth() + 1;
+            var ak = QunarDate.convert2digit(ai);
+            var af = ao.getFullYear();
+            var ap = new Date(af, ao.getMonth(), 0);
+            var Z = new Date(af, ao.getMonth(), 1);
+            var W = new Date(af, ao.getMonth() + 1, 1);
+            var ad = new Date(af, ai - 1, 1).getDay() - 1;
+            if (ad < 0) {
+                ad = 6;
             }
-            var ag = new Date(ae, ah, 0).getDate();
-            var Z = ab == 0 ? M.getTime() <= ao.getTime() : V.getTime() <= x.getTime();
-            a.text('<div class="dpart">');
-            a.text('<div class="cld_dbg">' + ah + "</div>");
+            var ah = new Date(af, ai, 0).getDate();
+            var aa = ac == 0 ? N.getTime() <= ap.getTime() : W.getTime() <= x.getTime();
+            a.text('<div class="m-part">');
             a.text("<h3>");
-            a.append("<a ", "a" + (Q++)).text(' class="', (ab ? "downTd" : "upTd"), '" ym="', (QunarDate.format(ab ? Y : ao)), '" style="', (Z ? "display:block" : "display:none"), '" href="javascript:;"></a>', ae, "年", ah, "月</h3>");
+            a.append("<a ", "a" + (R++)).text(' class="', (ac ? "downTd" : "upTd"), '" ym="', (QunarDate.format(ac ? Z : ap)), '" style="', (aa ? "display:block" : "display:none"), '" href="javascript:;"></a>', af, "年", ai, "月</h3>");
+            a.text('<div class="thwrap">');
             a.text('<table cellspacing="0" cellpadding="0" border="0">');
             a.text('<tr class="thead"><td>一</td><td>二</td><td>三</td><td>四</td><td>五</td><td class="holi">六</td><td class="holi">日</td></tr>');
-            var al = 0;
-            var af = /out$/;
-            var W = "";
-            for (var ai = 0; ai < 42; ai++) {
-                if (ai % 7 == 0) {
+            a.text("</table>");
+            a.text("</div>");
+            a.text('<div class="tdwrap">');
+            a.text('<table cellspacing="0" cellpadding="0" border="0">');
+            var am = 0;
+            var ag = /out$/;
+            var X = "";
+            for (var aj = 0; aj < 42; aj++) {
+                if (aj % 7 == 0) {
                     a.text('<tr class="tdate">');
                 }
-                if (ai < ac) {
+                if (aj < ad) {
                     a.text('<td class="cnone">&nbsp;</td>');
                 } else {
-                    if (al < ag) {
-                        al++;
-                        var ap = al;
-                        var am = QunarDate.convert2digit(al);
-                        var ad = ae + "-" + aj + "-" + am;
-                        var X = new Date(ae, ah - 1, al);
-                        var ak = QunarDate.today();
-                        if (QunarDate.compareDate(X, ak) === 0) {
-                            ap = "今天";
+                    if (am < ah) {
+                        am++;
+                        var aq = am;
+                        var an = QunarDate.convert2digit(am);
+                        var ae = af + "-" + ak + "-" + an;
+                        var Y = new Date(af, ai - 1, am);
+                        var al = QunarDate.today();
+                        if (QunarDate.compareDate(Y, al) === 0) {
+                            aq = "今天";
                         }
-                        if (QunarDate.isHoliday(ad) && QunarDate.showIcon && QunarDate.showIcon(ad)) {
-                            ap = QunarDate.getHolidayName(ad);
+                        if (QunarDate.isHoliday(ae) && QunarDate.showIcon && QunarDate.showIcon(ae)) {
+                            aq = QunarDate.getHolidayName(ae);
                         }
-                        h[ad] = N;
-                        W = u.getTdStyle(X, M, x);
-                        if (!af.test(W)) {
-                            E[E.length] = ad;
+                        h[ae] = O;
+                        X = u.getTdStyle(Y, N, x);
+                        if (!ag.test(X)) {
+                            F[F.length] = ae;
                         }
-                        if ( !! A[ad]) {
-                            c[c.length] = ad;
-                            a.append("<td ", N++).text(' value="', ad, '" data-pos="', aa, '" class=" day_sel_area  ', W, '" >', ap, "</td>");
+                        if (!!B[ae]) {
+                            c[c.length] = ae;
+                            a.append("<td ", O++).text(' value="', ae, '" data-pos="', ab, '" class=" day_sel_area  ', X, '" >', aq, "</td>");
                         } else {
-                            a.append("<td ", N++).text(' value="', ad, '" data-pos="', aa, '" class="', W, '" >', ap, "</td>");
+                            a.append("<td ", O++).text(' value="', ae, '" data-pos="', ab, '" class="', X, '" >', aq, "</td>");
                         }
                     } else {
                         a.text('<td class="cnone">&nbsp;</td>');
                     }
-                } if (ai % 7 == 6) {
+                }
+                if (aj % 7 == 6) {
                     a.text("</tr>");
                 }
             }
-            a.text("</table></div>");
+            a.text("</table></div></div>");
         });
         if (u.isInter) {
-            a.text('<div class="fuzzy_t_box">');
-            a.text(' <ul class="fuzzy_t_list clrfix">');
-            var P = k == "1周之内" && !K ? QunarDate.getFuzzyDateText1() : QunarDate.getFuzzyDateText0();
-            $jex.array.each(P, function(W, V) {
-                var X = QunarDate.getFuzzyDate(W);
-                if (k == W) {
+            a.text('<div class="m-fuzzy-box">');
+            a.text(' <ul class="m-fuzzy-lst clrfix">');
+            var Q = k == "1周之内" && !L ? QunarDate.getFuzzyDateText1() : QunarDate.getFuzzyDateText0();
+            $jex.array.each(Q, function(X, W) {
+                var Y = QunarDate.getFuzzyDate(X);
+                if (k == X) {
                     _class = "hover";
-                    J = W;
-                    h[W] = N;
+                    K = X;
+                    h[X] = O;
                 } else {
-                    E[E.length] = W;
-                    h[W] = N;
+                    F[F.length] = X;
+                    h[X] = O;
                     _class = "";
                 }
-                a.append("<li ", N++).text(' value="', X.value, '" start="', X.start, '" end="', X.end, '" class="', _class, '">', W, "</li>");
+                a.append("<li ", O++).text(' value="', Y.value, '" start="', Y.start, '" end="', Y.end, '" class="', _class, '">', X, "</li>");
             });
             a.text(" </ul>");
             a.text("</div>");
         }
         a.text("</div>");
         a.write(s);
+        A();
     };
-    var I = function() {
-        var N = function() {};
-        q(N, N);
+    var A = function() {
+        var O = QunarDate.getFuzzyDateText0().slice(5);
+        var P = 0;
+        $jex.array.each(O, function(S, Q) {
+            var U = QunarDate.getFuzzyDate(S);
+            var R = QunarDate.parse(U.start);
+            if (QunarDate.today() < R && P < 5) {
+                P++;
+            } else {
+                var T = p(S);
+                if (T) {
+                    T.style.display = "none";
+                }
+            }
+        });
     };
-    this.render = function(O, P, N, R, Q) {
+    var J = function() {
+        var O = function() {};
+        q(O, O);
+    };
+    this.render = function(P, Q, O, S, R) {
         k = "";
         o();
         j();
-        B(O, P, N, R, Q);
+        C(P, Q, O, S, R);
         if (u.date2Hide) {
             t();
         } else {
@@ -3842,22 +3964,22 @@ function DateLayer(s, u) {
         }
         f();
     };
-    this.fuzzyRenderPanel = function(P, R, N, U, S) {
-        var O = QunarDate.getFuzzyDate(P),
-            Q, T;
+    this.fuzzyRenderPanel = function(Q, S, O, V, T) {
+        var P = QunarDate.getFuzzyDate(Q),
+            R, U;
         o();
         j();
-        if (!O) {
-            B(P, R, N, U, S);
+        if (!P) {
+            C(Q, S, O, V, T);
         } else {
-            k = P;
-            d = O.start;
-            i = O.end;
-            Q = QunarDate.getDatesOffset(d, i);
+            k = Q;
+            d = P.start;
+            i = P.end;
+            R = QunarDate.getDatesOffset(d, i);
             u.setDate1(d);
             u.setDate2(i);
-            T = K ? 0 : QunarDate.parse(d);
-            B(QunarDate.today(), T, 0, 0, Q);
+            U = L ? 0 : QunarDate.parse(d);
+            C(QunarDate.today(), U, 0, 0, R);
             y(QunarDate.parse(i));
         }
         w();
@@ -4046,7 +4168,8 @@ var InfoManager = function() {
             if (!a[c][skey]) {
                 a[c][j] = g;
             }
-        } if (i == true) {
+        }
+        if (i == true) {
             $jex.event.trigger(b, "add", c, j, g);
         }
     };
@@ -4480,7 +4603,8 @@ FlightEntity.prototype.quasipointRateHTML = function() {
                 a = '<p class="a_pty_rate">低于60%</p>';
             } else {
                 a = '<p class="a_pty_mint">' + c.correctness + "</p>";
-            } if (parseInt(c.delay, 10) <= 5) {
+            }
+            if (parseInt(c.delay, 10) <= 5) {
                 a += '<p class="a_pty_mint">小于5分钟</p>';
             } else {
                 if (parseInt(c.delay) <= 120) {
@@ -4510,7 +4634,8 @@ FlightEntity.prototype._ajaxLoadList = function(g, a) {
     } else {
         this.ajaxStat[f] = 1;
         a && g.loading();
-    } if (h) {
+    }
+    if (h) {
         this.syncPriceData(g.isMainFlight, function() {
             c.ajaxStat[f] = b ? 3 : 2;
             var j = c.getWrapperListType();
@@ -4670,6 +4795,9 @@ WrapperEntity.prototype.isLCabin = function() {
 WrapperEntity.prototype.isOta = function() {
     return this.dataSource().type == "s";
 };
+WrapperEntity.prototype.isFreeMan = function() {
+    return this.dataSource().wrid == "ttsgnd01204";
+};
 WrapperEntity.prototype.isApplyPrice = function() {
     if (typeof this.dataSource().type != "undefined") {
         return this.dataSource().type == "a";
@@ -4741,9 +4869,9 @@ WrapperEntity.prototype.vClass = function() {
     switch (a) {
         case 1:
         case 2:
-            return "ico_zyx_quan";
+            return "ico_quan";
         case 4:
-            return "ico_zyx_scar";
+            return "ico_scar";
         default:
             return "";
     }
@@ -4948,8 +5076,14 @@ WrapperEntity.prototype.coupon = function() {
 WrapperEntity.prototype.fanxian = function() {
     return Number(this.dataSource().fx) || 0;
 };
+WrapperEntity.prototype.lijian = function() {
+    return Number(this.dataSource().rd) || 0;
+};
 WrapperEntity.prototype.cat = function() {
     return this.dataSource().cat || 1;
+};
+WrapperEntity.prototype.isAuthorizedVendor = function() {
+    return this.dataSource().rz === 1;
 };
 WrapperEntity.prototype.couponAdwords = function() {
     return this.dataSource().caw;
@@ -5995,7 +6129,8 @@ WrapperUI.prototype.insert_UPDATETIME = function(d) {
         a = QunarDate.parseTimeToNL(b) + "前更新";
     } else {
         a = "10分钟前更新";
-    } if (c.isApplyPrice() || this.specWR) {
+    }
+    if (c.isApplyPrice() || this.specWR) {
         return a;
     } else {
         return this.bookingScreenUI.getStatusMsg(a);
@@ -6070,7 +6205,8 @@ var StatProvider = function() {
             this.lowestStat(g.ownerFlight().lowestWrapperIds ? g.ownerFlight().lowestWrapperIds().length : 1);
         } else {
             this.lowestStat(0);
-        } if (g.advalue() > 100) {
+        }
+        if (g.advalue() > 100) {
             this.isAD(true);
         } else {
             this.isAD(false);
@@ -6348,7 +6484,8 @@ FilterListUI.prototype.addFilter = function(b) {
         var a = "___defaultvalue";
     } else {
         var a = b.catalog + "-" + b.value;
-    } if (this._cacheItem[a]) {
+    }
+    if (this._cacheItem[a]) {
         return;
     }
     this._cacheItem[a] = true;
@@ -6639,7 +6776,8 @@ DomesticOnewayFilterListUI.prototype.addFilter = function(b) {
         var a = "___defaultvalue";
     } else {
         var a = b.value;
-    } if (this._cacheItem[a]) {
+    }
+    if (this._cacheItem[a]) {
         return;
     }
     this._cacheItem[a] = true;
@@ -6773,7 +6911,8 @@ var HotSale = (function() {
             d = ConfigManager.getConfig("late");
         },
         hotSaleInfo: function(g) {
-            var f = g.extInfo() || {}, h = {};
+            var f = g.extInfo() || {},
+                h = {};
             $jex.foreach(["hot", "ps", "late", "lcc"], function(j, i) {
                 if (i == 2) {
                     c(g, f);
@@ -6827,7 +6966,8 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
                 attrs.push("transfer");
             }
         }
-    } if (attrs.length > 0) {
+    }
+    if (attrs.length > 0) {
         this.showDialog(attrs.join("+"));
     } else {
         f();
@@ -7727,9 +7867,10 @@ OnewayFlightWrapperListUI.prototype.insert_footer = function(a) {
     var b = a.getLowpr(d),
         c = a.getHipr(d);
     var f = a.getWrlen(d);
+    var g = a.wrappers().size();
     if (f > 1) {
         this.text('<div class="qvt_col_more qvt_col_more_hover">');
-        if (f >= 11) {
+        if (f >= 11 || g < f) {
             this.append("<a ", "gotoDetail", 'data-evtdataid="' + this.newid("") + '" data-gotype= nowType  hidefocus="true" class="lnk_more" href="##">所有报价<i class="ico_arr_more"></i></a>');
         }
         this.text("共有", f, "个代理商报价");
@@ -7775,10 +7916,10 @@ OnewayFlightWrapperListUI.prototype.getWrapperFormEntity = function(c) {
             }
             c.lowestPrice(c.priceInfo().lowpr);
             if (c.type === "oneway") {
-                DomesticOnewayDataAnalyzer.lowestOneway(c);
+                window.DomesticOnewayDataAnalyzer && DomesticOnewayDataAnalyzer.lowestOneway(c);
             } else {
                 if (c.type === "compose") {
-                    DomesticOnewayDataAnalyzer.lowestCompose(c);
+                    window.DomesticOnewayDataAnalyzer && DomesticOnewayDataAnalyzer.lowestCompose(c);
                 }
             }
             b.ownerVendorListUI().owner().updateLowestPrice();
@@ -7892,6 +8033,7 @@ function OnewayFlightWrapperUI(a) {
     this.starUI = new OnewayStarRankUI();
     this.starUI.ownerWrapperUI(this);
     this._itemClass = "qvt_column";
+    this._isFrist = false;
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(OnewayFlightWrapperUI, WrapperUI);
@@ -7909,9 +8051,10 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     var f = "";
     if (c == d) {
         f += " qvt_column_first";
+        this._isFrist = true;
     }
-    if (a.fanxian() || a.isTCabin()) {
-        f += " qvt_column_fan";
+    if (a.isFreeMan()) {
+        f += " freeman";
     }
     this.append("<div", "flightbar", "");
     this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, f, '">');
@@ -7923,10 +8066,14 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     if (a.isOta()) {
         this.insertOta(a);
     } else {
-        if (b) {
-            this.insertAirlineDirectSelling();
+        if (a.isFreeMan()) {
+            this.insertFreeMan(a);
         } else {
-            this.insert_Services(a);
+            if (b) {
+                this.insertAirlineDirectSelling();
+            } else {
+                this.insert_Services(a);
+            }
         }
     }
     this.text("</div>");
@@ -7953,7 +8100,8 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
             this.insertAgeLimit(a);
             this.text("</div>");
         }
-    } if (i && !a.isApplyPrice()) {
+    }
+    if (i && !a.isApplyPrice()) {
         h = 1;
         this.text('<div class="t_st">');
         if ($jex.ie == 6) {
@@ -7972,7 +8120,8 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
             h = 1;
             this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
         }
-    } if (h === 0) {
+    }
+    if (h === 0) {
         this.text("&nbsp");
     }
     this.insert_AirchinaCoupon(a);
@@ -8105,7 +8254,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
                     for (var s = 0; s < p.length; s++) {
                         t.push("<li>", s + 1, ".", p[s], "</li>");
                     }
-                    t.push('<p class="addtip"> 附加说明：<br>', n, " </p>");
+                    t.push('</ul><p class="addtip"> 附加说明：<br>', n, " </p>");
                 } else {
                     w.adultTgq = {};
                     for (; s < x; s++) {
@@ -8233,11 +8382,9 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
     var d = b.srv_ICON();
     this.text('<div class="v0">');
     if (f.fanxian() || f.isTCabin()) {
-        var c = f.fanxian() ? "ico_fan" : "ico_lj";
+        var c = f.fanxian() ? "ico_fan" : "ico_lijian";
         var a = f.fanxian() ? "返现" : "立减";
-        this.text('<div class="t_flag">&nbsp;');
-        this.text('<div class="m_flg"> <i class="', c, '"></i>', a, "</div>");
-        this.text("</div>");
+        this.text('<i class="', c, '">', a, "</i>");
     } else {
         if (d) {
             this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
@@ -8252,7 +8399,11 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
         if (g.isOta()) {
             this._insterOtaName(g);
         } else {
-            this._insertH3Normal(g);
+            if (g.isFreeMan()) {
+                this._insterFreeManName(g);
+            } else {
+                this._insertH3Normal(g);
+            }
         }
     }
 };
@@ -8266,7 +8417,7 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
     this.text("</dl>");
     if (b.isDirect()) {
         this.text('<div class="t_cmt t_yxfan">');
-        this.text("登录购票支付成功后有机会领100元红包");
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="t_cmt">');
@@ -8284,10 +8435,26 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendor().name(), "</div>");
-    this.text('<div class="t_cmt t_yxfan">');
-    this.text("登录购票支付成功后有机会领100元红包");
+    this.text('<div class="t_name">', d.vendor().name());
+    if (d.isAuthorizedVendor()) {
+        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
+        this.append("<span", "authVendorHandler", 'class="ico"></span>');
+        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
+        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', d.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+    }
     this.text("</div>");
+    this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
+    this.text("</div>");
+    this.onInit(this._authorizeVendorHover);
+};
+OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
+    var d = f;
+    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
+    var a = c.getAcf();
+    var b = c.getFot();
+    this.text('<div class="v_ofc">');
+    this.text('<div class="t_name">', d.vendor().name(), "</div>");
+    this.text('<div class="t_cmt t_yxfan">改签手续费仅5%、退票费仅10%、闪电出退票</div>');
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
@@ -8296,13 +8463,17 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
     if (a.isDirect()) {
         this.text('<div class="v_ofc">');
         this.text('<div class="t_name">', b.vendor().name(), "</div>");
-        this.text('<div class="t_cmt t_yxfan">');
-        this.text("登录购票支付成功后有机会领100元红包");
-        this.text("</div>");
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="v1">');
         this.text('<div class="t_name">', b.vendor().name());
+        if (b.isAuthorizedVendor()) {
+            this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
+            this.append("<span", "authVendorHandler", 'class="ico"></span>');
+            this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
+            this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', b.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+        }
         this.text("</div>");
         this.text('<div class="t_cmt">');
         this.starUI.displayPanel(b);
@@ -8312,6 +8483,23 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
         this.starUI.insert_btn(b);
         this.text("</div></div>");
     }
+    this.onInit(this._authorizeVendorHover);
+};
+OnewayFlightWrapperUI.prototype._authorizeVendorHover = function() {
+    var b = this.find("authVendorHandler");
+    var a = this.find("authVendorTip");
+    if (!b && !a) {
+        return;
+    }
+    $jex.hover({
+        act: b,
+        onmouseover: function() {
+            a.style.display = "block";
+        },
+        onmouseout: function() {
+            a.style.display = "none";
+        }
+    });
 };
 OnewayFlightWrapperUI.prototype.insertAirlineDirectSelling = function() {
     this.text('<div class="ico_gwzx">实时出票</div>');
@@ -8324,6 +8512,30 @@ OnewayFlightWrapperUI.prototype.insertOta = function(d) {
     this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_youxuan">极速出票</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
     this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后极速出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单</p>', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
+    if ($jex.ie == 6) {
+        this.onInit(function() {
+            var g = this.find("superOtaBtn");
+            var f = this.find("superOtaTip");
+            $jex.hover({
+                act: g,
+                onmouseover: function() {
+                    f.style.display = "block";
+                },
+                onmouseout: function() {
+                    f.style.display = "none";
+                }
+            });
+        });
+    }
+};
+OnewayFlightWrapperUI.prototype.insertFreeMan = function(d) {
+    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
+    var a = c.getAcf();
+    var b = c.getFot();
+    this.text('<div class="t_sv">');
+    this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_freeman">退改无忧</i></span>');
+    this.append("<div", "superOtaTip", ' class="p_tips_cont">');
+    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">退改无忧：</span>改签手续费仅5%，退票手续费仅10%</p>', '<p><span class="fb">在线改签：</span>自助在线改签，方便快捷</p>', '<p><span class="fb">出退票快：</span>支付后极速出票、申请退票后极速退款</p>', '<p><span class="fb">报销足额：</span>起飞后邮寄足额报销凭证</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
             var g = this.find("superOtaBtn");
@@ -8398,74 +8610,16 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
         }
     }
 };
-OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(c) {
-    var a = c.fanxian();
-    var d = c.afeePrice();
-    var b = d - a;
-    d = parseInt(d, 10);
+OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(d) {
+    var a = d.fanxian();
+    var f = d.afeePrice();
+    var b = f - a;
+    f = parseInt(f, 10);
     b = parseInt(b, 10);
     this.text('<div class="v5">');
-    if (d) {
-        this.priceHTML(a ? b : d, c.isLowestPr() ? "t_prc_lp" : "");
-        this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
-    }
-    this.text("</div>");
-    this.text('<div class="v6">');
-    if (d) {
-        this.text('<div class="t_fan">');
-        this.insert_returnMoney(c);
-        this.text("</div>");
-        this.text('<div class="t_ins">');
-        this.text("+", c.afee(), "保险");
-        if (c.showInsTip() && c.afeeInsSum()) {
-            this.text('<div class="p_tips_cont"><div class="p_tips_wrap"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险仅售5元，保额<span class="fb hl">', c.afeeInsSum(), "万</span></p></div></div></div>");
-        }
-        this.text("</div>");
-    } else {
-        this.text("&nbsp;");
-    }
-    this.text("</div>");
-};
-OnewayFlightWrapperUI.prototype.insert_returnMoney = function(d) {
-    var h = d;
-    var g = h.fanxian();
-    var i = h.afeePrice(),
-        f = h.bprPrice();
-    var c;
-    i = parseInt(i);
-    f = parseInt(f);
-    var b = h.parValue() - (f - i);
-    var a = b - i;
-    this.text('<div style="display: block;" class="p_tips_cont">', '<div class="p_tips_wrap">', '<div class="p_tips_arr p_tips_arr_t">', '<p class="arr_o">◆</p>', '<p class="arr_i">◆</p>', "</div>");
-    if (g) {
-        this.text('<div class="p_tips_content"> 需支付<span class="hl"><i class="rmb">&yen;', i, '</i></span>，返现<span class="hl fb"><i class="rmb">&yen;', g, "</i></span> </div>");
-    } else {
-        this.text('<div class="p_tips_content"> 原价<span class="hl"><i class="rmb">&yen;', b, '</i></span>，立减<span class="hl fb"><i class="rmb">&yen;', a, "</i></span> </div>");
-    }
-    this.text("</div></div>");
-};
-OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
-    var d = a;
-    var f = d.afeePrice(),
-        b = d.bprPrice();
-    f = parseInt(f);
-    b = parseInt(b);
-    this.text('<div class="v5">');
     if (f) {
-        this.priceHTML(f, d.isLowestPr() ? "t_prc_lp" : "");
-    }
-    if (b) {
-        this.priceHTML(b, d.isLowestBpr() ? "t_prc_lp" : "");
-    }
-    if (!f || !b) {
-        this.text("<div>");
-        var c = this._getCuXiao(d);
-        if (c) {
-            this.text(c);
-        } else {
-            this._disHTML(d);
-        }
-        this.text("</div>");
+        this.priceHTML(a ? b : f, d.isLowestPr() ? "t_prc_lp" : "");
+        this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
     }
     this.text("</div>");
     this.text('<div class="v6">');
@@ -8473,7 +8627,79 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
         this.text('<div class="t_ins">');
         this.text("+", d.afee(), "保险");
         if (d.showInsTip() && d.afeeInsSum()) {
-            this.text('<div class="p_tips_cont"><div class="p_tips_wrap"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险仅售5元，保额<span class="fb hl">', d.afeeInsSum(), "万</span></p></div></div></div>");
+            var c = "p_tips_wrap";
+            if (this._isFrist) {
+                c += " p_tips_wrap_first";
+            }
+            this.text('<div class="p_tips_cont"><div class="', c, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', d.afeeInsSum(), "万</p></div></div></div>");
+        }
+        if (d.fanxian() || d.isTCabin()) {
+            this.insert_returnMoney(d);
+        }
+        this.text("</div>");
+    } else {
+        this.text("&nbsp;");
+    }
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c) {
+    var g = c;
+    var f = g.fanxian();
+    var h = parseInt(g.afeePrice());
+    var a = g.lijian();
+    var b = a + h;
+    if (!a) {
+        var d = parseInt(g.bprPrice());
+        b = g.parValue() - (d - h);
+        a = b - h;
+    }
+    if (!f && !a) {
+        return;
+    }
+    this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
+    if (f > 0) {
+        this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', h, '</i>&nbsp;返现<i class="rmb">&yen;', f, "</i></div>");
+    } else {
+        if (a > 0) {
+            this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', b, '</i>&nbsp;立减<i class="rmb">&yen;', a, "</i></div>");
+        }
+    }
+    this.text("</div>", "</div>", "</div>");
+};
+OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
+    var f = a;
+    var g = f.afeePrice(),
+        b = f.bprPrice();
+    g = parseInt(g);
+    b = parseInt(b);
+    this.text('<div class="v5">');
+    if (g) {
+        this.priceHTML(g, f.isLowestPr() ? "t_prc_lp" : "");
+    }
+    if (b && !f.isFreeMan()) {
+        this.priceHTML(b, f.isLowestBpr() ? "t_prc_lp" : "");
+    }
+    if (!g || !b) {
+        this.text("<div>");
+        var c = this._getCuXiao(f);
+        if (c) {
+            this.text(c);
+        } else {
+            this._disHTML(f);
+        }
+        this.text("</div>");
+    }
+    this.text("</div>");
+    this.text('<div class="v6">');
+    if (g) {
+        this.text('<div class="t_ins">');
+        this.text("+", f.afee(), "保险");
+        if (f.showInsTip() && f.afeeInsSum()) {
+            var d = "p_tips_wrap";
+            if (this._isFrist) {
+                d += " p_tips_wrap_first";
+            }
+            this.text('<div class="p_tips_cont"><div class="', d, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', f.afeeInsSum(), "万</p></div></div></div>");
         }
         this.text("</div>");
     } else {
@@ -8545,14 +8771,16 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
     a = parseInt(a);
     if (b.fanxian() || b.isTCabin()) {
         this._buttonHTML("pr", b, "btnBook");
+        this.text('<div class="t_bk_fix"></div>');
     } else {
         if (c) {
             this._buttonHTML("pr", b, "btnBook");
         }
-        if (a) {
+        if (a && !b.isFreeMan()) {
             this._buttonHTML("bpr", b, "lbtnBook");
         }
-    } if (!c || !a) {
+    }
+    if (!c || !a) {
         this.text('<div class="ut">', this.insert_UPDATETIME(b), "</div>");
     }
 };
@@ -8575,7 +8803,9 @@ $jex.register("OnewayFlightWrapperUI", OnewayFlightWrapperUI);
 function ZiyouxingOnewayFlightWrapperUI(a) {
     ZiyouxingOnewayFlightWrapperUI.superclass.constructor.call(this, a);
     this._type = "ZiyouxingOnewayFlightWrapperUI";
-    this._itemClass = "qvt_column qvt_column_zyx";
+    this._itemClass = "qvt_column";
+    this.starUI = new OnewayStarRankUI();
+    this.starUI.ownerWrapperUI(this);
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(ZiyouxingOnewayFlightWrapperUI, OnewayFlightWrapperUI);
@@ -8591,14 +8821,11 @@ ZiyouxingOnewayFlightWrapperUI.prototype.update = function(d) {
     this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, a == c ? " qvt_column_first" : "", '">');
     this.zIndex = this.ownerListUI().zIndex;
     this.ownerListUI().zIndex--;
-    this.text('<div class="v_zyx">');
-    this.text('<div class="t_ban"><span class="i_ban">自由行</span><em class="i_arr"></em></div>');
-    this.text('<div class="t_name">', b.vTitle(), "</div>");
+    this.text('<div class="v0">');
+    this.text('<i title="自由行" class="ico_zyx">自由行</i>');
+    this.text("</div>");
+    this.insert_VENDORNAME(b);
     this.insert_zyxPackage(b);
-    this.text("</div>");
-    this.text('<div class="v3">');
-    this.text(b.vendor().name(), "代售");
-    this.text("</div>");
     this.text('<div class="v4">');
     this.append("<div", "js-stopClick", ' class="t_st">');
     this.append('<span class="dot_gy"', "zyx", ">使用说明</span>");
@@ -8617,7 +8844,26 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(d) {
     var c = d.vClass();
     var b = d.vAmount() > 1 ? "*" + d.vAmount() : "";
     var a = d.vPrd();
-    this.text('<div class="t_cmt">产品包含：<i class="ico_zyx_jp"></i>机票 + <i class="', c, '"></i>', a, b, "</div>");
+    this.text('<div class="v3"><i class="', c, '"></i>机票+', a, b, "</div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(a) {
+    this.text('<div class="v1">');
+    this.text('<div class="t_name">', a.vendor().name());
+    if (a.isAuthorizedVendor()) {
+        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
+        this.append("<span", "authVendorHandler", 'class="ico"></span>');
+        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
+        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', a.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+    }
+    this.text("</div>");
+    this.text('<div class="t_cmt">');
+    this.starUI.displayPanel(a);
+    this.text("</div>");
+    this.text("</div>");
+    this.text('<div class="v2"><div class="e_btn_cmt">');
+    this.starUI.insert_btn(a);
+    this.text("</div></div>");
+    this.onInit(this._authorizeVendorHover);
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(a) {
     if (a.isNotWork()) {
@@ -8630,9 +8876,15 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
     var b = a.afeePrice();
     b = parseInt(b);
     this.text('<div class="v5">');
-    this.priceHTML(b);
+    this.text('<div class="vlc_mid_wp">');
+    this.text('<i class="vlc_ref"></i>');
+    this.text('<div class="vlc_cont">');
+    this.text('<div class="t_prc "> ');
+    this.text(Price_html.getHTML(b));
+    this.text('   <i class="rmb">&yen;</i>');
     this.text("</div>");
-    this.text('<div class="v6"><div class="t_ins">');
+    this.text("</div></div></div>");
+    this.text('<div class="v6"><div class="t_ins t_ins_zyx">');
     this.text("+", a.afee(), "保险");
     this.text("</div></div>");
 };
@@ -8645,9 +8897,13 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_ZYX = function(a) {
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_notWorking_BUTTON = function(b) {
     var a = this.bookingScreenUI.getButtonMsg("预 订");
+    this.text('<div class="vlc_mid_wp">');
+    this.text('<i class="vlc_ref"></i>');
+    this.text('<div class="vlc_cont">');
     this.text('<div class="t_bk">');
     this.text('<a class="btn_book" href="#"><span><b>' + a + "</b></span></a>");
     this.text("</div>");
+    this.text("</div></div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(a) {
     var b = a.afeePrice();
@@ -8664,9 +8920,13 @@ ZiyouxingOnewayFlightWrapperUI.prototype._buttonHTML = function(b, d, f) {
     } else {
         a = c.getButtonMsg("预 订");
     }
+    this.text('<div class="vlc_mid_wp">');
+    this.text('<i class="vlc_ref"></i>');
+    this.text('<div class="vlc_cont">');
     this.text('<div class="t_bk">');
     this.append("<a", f, ' data-evtDataId="' + this.newid("") + '" class="btn_book" href="#"><span><b>' + a + "</b></span></a>");
     this.text("</div>");
+    this.text("</div></div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype._bindOnInitEvent = function(b) {
     var a = b;
@@ -9041,7 +9301,8 @@ BookingScreenUI.prototype.getButtonTips = function(b) {
                 a = d + "请稍候再来预订";
             } else {
                 a = d + "请在" + this.getTimeDesc(c) + "后再来预订";
-            } if (f.allBusy === true && f.isTimeRange()) {
+            }
+            if (f.allBusy === true && f.isTimeRange()) {
                 a = f.allBusyTips() || a;
             }
             break;
@@ -9244,7 +9505,8 @@ BookingScreenUI.prototype.getPosition = function() {
                 b = document.body.scrollLeft;
             }
         }
-    } if (window.pageYOffset) {
+    }
+    if (window.pageYOffset) {
         d = window.pageYOffset;
     } else {
         if (document.documentElement && document.documentElement.scrollTop) {
@@ -9266,7 +9528,8 @@ BookingScreenUI.prototype.getPosition = function() {
                 c = document.body.clientWidth;
             }
         }
-    } if (window.innerHeight) {
+    }
+    if (window.innerHeight) {
         a = window.innerHeight;
     } else {
         if (document.documentElement && document.documentElement.clientHeight) {
@@ -9723,7 +9986,8 @@ var checkTimeOfStopSale = {
             a = (new Date().getTime() - CLIENT_TIME.getTime()) + SERVER_TIME.getTime();
         } else {
             a = new Date().getTime();
-        } if (((c.getTime() - a) / (1000 * 60)) <= b) {
+        }
+        if (((c.getTime() - a) / (1000 * 60)) <= b) {
             this.showDialog();
             return true;
         } else {
@@ -11002,7 +11266,8 @@ var TrimPath;
             funcText.push(stmt.prefixFunc(parts, state, tmplName, etc));
         } else {
             funcText.push(stmt.prefix);
-        } if (stmt.suffix != null) {
+        }
+        if (stmt.suffix != null) {
             if (parts.length <= 1) {
                 if (stmt.paramDefault != null) {
                     funcText.push(stmt.paramDefault);
@@ -11580,7 +11845,8 @@ recommendedHotels.query = function(f, c, i, h, d) {
             ap = {};
 
         function ao(av) {
-            var au = {}, ar;
+            var au = {},
+                ar;
             if (!av) {
                 return {};
             }
@@ -11601,7 +11867,8 @@ recommendedHotels.query = function(f, c, i, h, d) {
             } else {
                 at = aq.id;
                 ar = aq;
-            } if (!ap[at]) {
+            }
+            if (!ap[at]) {
                 ap[at] = ao(ar || I(at));
             }
             return ap[at];
@@ -11741,7 +12008,8 @@ recommendedHotels.query = function(f, c, i, h, d) {
     function s(aq, ao) {
         aq = aq || [];
         ao = ao || {};
-        var au = {}, ax, av, ar, an = /chan=([a-z_]+)/,
+        var au = {},
+            ax, av, ar, an = /chan=([a-z_]+)/,
             aw;
         for (var at = 0, ap = aq.length; at < ap; at++) {
             ax = aq[at];
@@ -12000,7 +12268,8 @@ recommendedHotels.query = function(f, c, i, h, d) {
                     I("j-pagecontainer") && (I("j-pagecontainer").style.background = "none");
                 }
             }
-        } if (al === 1) {
+        }
+        if (al === 1) {
             if (ao != 1) {
                 aw = aw || "";
                 aw = "call_show = 1;" + aw;
@@ -12508,7 +12777,7 @@ var QadAdUnits = (function() {
 })();
 (function() {
     function b(c) {
-        return~ location.search.indexOf(c);
+        return ~location.search.indexOf(c);
     }
 
     function a(f) {
@@ -12774,185 +13043,185 @@ var LazyScrollShow = (function() {
     };
 })();
 var QunarHistory = new function() {
-        document.domain = "qunar.com";
-        var l = this;
-        var h = [];
-        var d = null;
-        var k = null;
-        var j = null;
-        this.ChinaFlightList = [];
-        this.InterFlightList = [];
-        var c = null;
-        this.SFList = null;
-        this.DFList = null;
-        this.HLList = null;
-        this.firstDSF = null;
-        this.firstISF = null;
-        this.firstDDF = null;
-        this.firstIDF = null;
-        this.firstChina = null;
-        this.firstInter = null;
-        this.firstFlight = null;
-        this.firstHL = null;
-        var b = this.cache = function(m, n) {
-            if ((typeof this["_" + m] == "undefined" || this["_" + m] === null) && n) {
-                this["_" + m] = n;
-            }
-            return this["_" + m];
-        };
-        var f = {
-            SF: {
-                Type: function() {
-                    return "SF";
-                },
-                FromCity: function() {
-                    return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
-                },
-                ToCity: function() {
-                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
-                },
-                FromDate: function() {
-                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
-                },
-                FromCountry: function() {
-                    return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
-                },
-                ToCountry: function() {
-                    return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
-                },
-                isInter: function() {
-                    return this.FromCountry() != "中国" || this.ToCountry() != "中国";
-                },
-                validate: function() {
-                    return true;
-                },
-                Timestamp: function() {
-                    return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
-                }
-            },
-            DF: {
-                Type: function() {
-                    return "DF";
-                },
-                FromCity: function() {
-                    return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
-                },
-                ToCity: function() {
-                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
-                },
-                FromDate: function() {
-                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
-                },
-                ToDate: function() {
-                    return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
-                },
-                FromCountry: function() {
-                    return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
-                },
-                ToCountry: function() {
-                    return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
-                },
-                isInter: function() {
-                    return this.FromCountry() != "中国" || this.ToCountry() != "中国";
-                },
-                validate: function() {
-                    return true;
-                },
-                Timestamp: function() {
-                    return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
-                }
-            },
-            HL: {
-                ToCity: function() {
-                    return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
-                },
-                FromDate: function() {
-                    return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
-                },
-                ToDate: function() {
-                    return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
-                },
-                validate: function() {
-                    return true;
-                }
-            }
-        };
-        var g = function(o, m) {
-            var n = l[o];
-            if (!n || n.Timestamp() < m.Timestamp()) {
-                l[o] = m;
-            }
-        };
-        var a = function(p, m, q) {
-            if (!m) {
-                return;
-            }
-            for (var o = 0; o < m.length; o++) {
-                for (var n in q) {
-                    m[o][n] = q[n];
-                }
-                switch (p) {
-                    case "SF":
-                        if (m[o].isInter()) {
-                            g("firstISF", m[o]);
-                            g("firstInter", m[o]);
-                            l.InterFlightList.push(m[o]);
-                        } else {
-                            g("firstDSF", m[o]);
-                            g("firstChina", m[o]);
-                            l.ChinaFlightList.push(m[o]);
-                        }
-                        g("firstFlight", m[o]);
-                        break;
-                    case "DL":
-                        if (m[o].isInter()) {
-                            g("firstIDF", m[o]);
-                            g("firstInter", m[o]);
-                            l.InterFlightList.push(m[o]);
-                        } else {
-                            g("firstDDF", m[o]);
-                            g("firstChina", m[o]);
-                            l.ChinaFlightList.push(m[o]);
-                        }
-                        g("firstFlight", m[o]);
-                        break;
-                    case "HL":
-                        if (!l.firstHL) {
-                            l.firstHL = m[o];
-                        }
-                        break;
-                }
-            }
-            return m;
-        };
-        var i = function(m, n) {
-            return -(parseInt(m.timestamp, 10) - parseInt(n.timestamp, 10));
-        };
-        this.load = function() {
-            var m = $jex.$("ifrmHistory");
-            if (m) {
-                $jex.event.bindDom(m, "load", this, function() {
-                    window.jx05CFEventFC.call(this, m);
-                });
-                m.src = "http://history.qunar.com/history/newhistory.html";
-            }
-        };
-        this.parseQunarHistory = function() {
-            this.SFList = a("SF", d.findEntries("SF"), f.SF);
-            this.DFList = a("DL", d.findEntries("DL").concat(d.findEntries("IF")), f.DF);
-            this.HLList = a("HL", d.findEntries("HL"), f.HL);
-            try {
-                $jex.event.trigger(QunarHistory, "onload");
-            } catch (m) {}
-        };
-        window.jx05CFEventFC = function(m) {
-            l.SFlight = k = m.contentWindow.SFlight;
-            l.DFlight = j = m.contentWindow.DFlight;
-            c = m.contentWindow.HotelDetail;
-            l.service = d = m.contentWindow.QunarHistory;
-            this.parseQunarHistory();
-        };
+    document.domain = "qunar.com";
+    var l = this;
+    var h = [];
+    var d = null;
+    var k = null;
+    var j = null;
+    this.ChinaFlightList = [];
+    this.InterFlightList = [];
+    var c = null;
+    this.SFList = null;
+    this.DFList = null;
+    this.HLList = null;
+    this.firstDSF = null;
+    this.firstISF = null;
+    this.firstDDF = null;
+    this.firstIDF = null;
+    this.firstChina = null;
+    this.firstInter = null;
+    this.firstFlight = null;
+    this.firstHL = null;
+    var b = this.cache = function(m, n) {
+        if ((typeof this["_" + m] == "undefined" || this["_" + m] === null) && n) {
+            this["_" + m] = n;
+        }
+        return this["_" + m];
     };
+    var f = {
+        SF: {
+            Type: function() {
+                return "SF";
+            },
+            FromCity: function() {
+                return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
+            },
+            ToCity: function() {
+                return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+            },
+            FromDate: function() {
+                return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+            },
+            FromCountry: function() {
+                return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
+            },
+            ToCountry: function() {
+                return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
+            },
+            isInter: function() {
+                return this.FromCountry() != "中国" || this.ToCountry() != "中国";
+            },
+            validate: function() {
+                return true;
+            },
+            Timestamp: function() {
+                return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
+            }
+        },
+        DF: {
+            Type: function() {
+                return "DF";
+            },
+            FromCity: function() {
+                return l.cache.call(this, "fromCity") || l.cache.call(this, "formCity", decodeURIComponent(this.fromCity));
+            },
+            ToCity: function() {
+                return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+            },
+            FromDate: function() {
+                return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+            },
+            ToDate: function() {
+                return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
+            },
+            FromCountry: function() {
+                return l.cache.call(this, "fromCountry") || l.cache.call(this, "fromCountry", decodeURIComponent(this.fromCountry).split("-")[0]);
+            },
+            ToCountry: function() {
+                return l.cache.call(this, "toCountry") || l.cache.call(this, "toCountry", decodeURIComponent(this.fromCountry).split("-")[1]);
+            },
+            isInter: function() {
+                return this.FromCountry() != "中国" || this.ToCountry() != "中国";
+            },
+            validate: function() {
+                return true;
+            },
+            Timestamp: function() {
+                return l.cache.call(this, "timestamp") || l.cache.call(this, "timestamp", parseInt(this.timestamp, 10));
+            }
+        },
+        HL: {
+            ToCity: function() {
+                return l.cache.call(this, "toCity") || l.cache.call(this, "toCity", decodeURIComponent(this.toCity));
+            },
+            FromDate: function() {
+                return l.cache.call(this, "fromDate") || l.cache.call(this, "fromDate", QunarDate.format(this.fromDate));
+            },
+            ToDate: function() {
+                return l.cache.call(this, "toDate") || l.cache.call(this, "toDate", QunarDate.format(this.toDate));
+            },
+            validate: function() {
+                return true;
+            }
+        }
+    };
+    var g = function(o, m) {
+        var n = l[o];
+        if (!n || n.Timestamp() < m.Timestamp()) {
+            l[o] = m;
+        }
+    };
+    var a = function(p, m, q) {
+        if (!m) {
+            return;
+        }
+        for (var o = 0; o < m.length; o++) {
+            for (var n in q) {
+                m[o][n] = q[n];
+            }
+            switch (p) {
+                case "SF":
+                    if (m[o].isInter()) {
+                        g("firstISF", m[o]);
+                        g("firstInter", m[o]);
+                        l.InterFlightList.push(m[o]);
+                    } else {
+                        g("firstDSF", m[o]);
+                        g("firstChina", m[o]);
+                        l.ChinaFlightList.push(m[o]);
+                    }
+                    g("firstFlight", m[o]);
+                    break;
+                case "DL":
+                    if (m[o].isInter()) {
+                        g("firstIDF", m[o]);
+                        g("firstInter", m[o]);
+                        l.InterFlightList.push(m[o]);
+                    } else {
+                        g("firstDDF", m[o]);
+                        g("firstChina", m[o]);
+                        l.ChinaFlightList.push(m[o]);
+                    }
+                    g("firstFlight", m[o]);
+                    break;
+                case "HL":
+                    if (!l.firstHL) {
+                        l.firstHL = m[o];
+                    }
+                    break;
+            }
+        }
+        return m;
+    };
+    var i = function(m, n) {
+        return -(parseInt(m.timestamp, 10) - parseInt(n.timestamp, 10));
+    };
+    this.load = function() {
+        var m = $jex.$("ifrmHistory");
+        if (m) {
+            $jex.event.bindDom(m, "load", this, function() {
+                window.jx05CFEventFC.call(this, m);
+            });
+            m.src = "http://history.qunar.com/history/newhistory.html";
+        }
+    };
+    this.parseQunarHistory = function() {
+        this.SFList = a("SF", d.findEntries("SF"), f.SF);
+        this.DFList = a("DL", d.findEntries("DL").concat(d.findEntries("IF")), f.DF);
+        this.HLList = a("HL", d.findEntries("HL"), f.HL);
+        try {
+            $jex.event.trigger(QunarHistory, "onload");
+        } catch (m) {}
+    };
+    window.jx05CFEventFC = function(m) {
+        l.SFlight = k = m.contentWindow.SFlight;
+        l.DFlight = j = m.contentWindow.DFlight;
+        c = m.contentWindow.HotelDetail;
+        l.service = d = m.contentWindow.QunarHistory;
+        this.parseQunarHistory();
+    };
+};
 
 function QunarHistoryToolbar(a) {
     QunarHistoryToolbar.superclass.constructor.call(this, a);
@@ -12988,48 +13257,50 @@ QunarHistoryToolbar.prototype._init = function() {
         QunarHistory.load();
     }
 };
-QunarHistoryToolbar.prototype._initList = function(k, m, b, j) {
-    var s = this;
-    var c = [];
-    var f = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
-    try {
-        f.sort(function(i, p) {
-            return p.timestamp - i.timestamp;
-        });
-    } catch (h) {}
+QunarHistoryToolbar.prototype._initList = function(a, d, g, f) {
+    var c = this;
+    var b = [];
+    setTimeout(function() {
+        var j = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
+        try {
+            j.sort(function(i, p) {
+                return p.timestamp - i.timestamp;
+            });
+        } catch (m) {}
 
-    function q(i) {
-        return String(i).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;").replace(/ /g, "&nbsp;");
-    }
-    c.push('<div  id="', k, '_close" class="close"></div>');
-    c.push('<ul id="hulHistroyList">');
-    for (var d = 0, g = f.length; d < g; d++) {
-        var o = f[d];
-        if (!o.ToCity() || !o.FromCity()) {
-            continue;
+        function q(i) {
+            return String(i).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;").replace(/ /g, "&nbsp;");
         }
-        var a = ["fromCity=" + o.FromCity(), "toCity=" + o.ToCity(), "fromDate=" + o.FromDate()];
-        if (o.Type() == "SF") {
-            var l = "单程 " + o.FromCity() + "-" + o.ToCity() + " " + o.FromDate().replace(/^\d{4}-/, "");
-            a.push("searchType=OnewayFlight");
-        } else {
-            var l = "双程 " + o.FromCity() + "-" + o.ToCity() + " " + o.FromDate().replace(/^\d{4}-/, "") + "~" + o.ToDate().replace(/^\d{4}-/, "");
-            a.push("toDate=" + o.ToDate(), "searchType=RoundTripFlight");
+        b.push('<div  id="', a, '_close" class="close"></div>');
+        b.push('<ul id="hulHistroyList">');
+        for (var k = 0, l = j.length; k < l; k++) {
+            var s = j[k];
+            if (!s.ToCity() || !s.FromCity()) {
+                continue;
+            }
+            var h = ["fromCity=" + s.FromCity(), "toCity=" + s.ToCity(), "fromDate=" + s.FromDate()];
+            if (s.Type() == "SF") {
+                var n = "单程 " + s.FromCity() + "-" + s.ToCity() + " " + s.FromDate().replace(/^\d{4}-/, "");
+                h.push("searchType=OnewayFlight");
+            } else {
+                var n = "双程 " + s.FromCity() + "-" + s.ToCity() + " " + s.FromDate().replace(/^\d{4}-/, "") + "~" + s.ToDate().replace(/^\d{4}-/, "");
+                h.push("toDate=" + s.ToDate(), "searchType=RoundTripFlight");
+            }
+            h.push("from=history_bar");
+            var o = encodeURI("/twell/flight/Search.jsp?" + h.join("&"));
+            n = q(n);
+            b.push('<li title="', n, '"><a href="', o, '" key="', k + "", '" target="_blank">', n, "</a></li>");
         }
-        a.push("from=history_bar");
-        var n = encodeURI("/twell/flight/Search.jsp?" + a.join("&"));
-        l = q(l);
-        c.push('<li title="', l, '"><a href="', n, '" key="', d + "", '" target="_blank">', l, "</a></li>");
-    }
-    c.push("</ul>");
-    j.innerHTML = c.join("");
-    $jex.event.binding($jex.$(k + "_close"), "click", function(i) {
-        $jex.element.toggle(m, b, j);
-        s.opened = false;
-        trackAction("FI|HIS|CLOSE");
-        $jex.stopEvent(i);
-    });
-    this.initial = true;
+        b.push("</ul>");
+        f.innerHTML = b.join("");
+        $jex.event.binding($jex.$(a + "_close"), "click", function(i) {
+            $jex.element.toggle(d, g, f);
+            c.opened = false;
+            trackAction("FI|HIS|CLOSE");
+            $jex.stopEvent(i);
+        });
+        c.initial = true;
+    }, 10);
 };
 
 function FocusChecker(f, g) {
@@ -13415,45 +13686,71 @@ function FlightCityXCombox(c, d, b) {
                     var s = "__flightcitybox_" + $jex.globalID();
                     var p = function(i) {
                         return function(u) {
-                            var E = [];
+                            var I = [];
                             if (!n[i]) {
                                 return false;
                             }
-                            var C = n[i].cityList;
-                            if (!C) {
+                            var F = n[i].cityList;
+                            if (!F) {
                                 return false;
                             }
-                            var w = n[i].charSort;
-                            if (!w) {
-                                E.push("<ul>");
-                                for (var z = 0; z < C.length; z++) {
-                                    var x = C[z];
-                                    E.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
+                            var x = n[i].charSort;
+                            if (!x) {
+                                I.push("<ul>");
+                                for (var C = 0; C < F.length; C++) {
+                                    var A = F[C];
+                                    I.push('<li country="' + A.country + '" key="' + A.name + '"><a href="#nogo#">' + A.name + "</a></li>");
                                 }
-                                E.push("</ul>");
+                                I.push("</ul>");
                             } else {
-                                for (var z = 0; z < C.length; z++) {
-                                    var x = C[z];
-                                    var A = x.list;
-                                    E.push('<dl class="e_hct_lst"><dt>' + x["char"] + " </dt><dd><ul>");
-                                    for (var y = 0; y < A.length; y++) {
-                                        var B = A[y];
-                                        E.push('<li country="' + B.country + '" key="' + B.name + '"><a href="#nogo#">' + B.name + "</a></li>");
+                                for (var C = 0; C < F.length; C++) {
+                                    var A = F[C];
+                                    var D = A.list;
+                                    I.push('<dl class="e-hct-lst"><dt>' + A["char"] + " </dt><dd><ul>");
+                                    for (var B = 0; B < D.length; B++) {
+                                        var E = D[B];
+                                        if (E.name.length > 6) {
+                                            var z = E.name.indexOf("(");
+                                            if (z === -1) {
+                                                z = E.name.indexOf("（");
+                                            }
+                                            I.push('<li country="' + E.country + '" key="' + E.name + '"><a title="' + E.name + '" href="#nogo#">' + E.name.slice(0, z) + "</a></li>");
+                                        } else {
+                                            I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                                        }
                                     }
-                                    E.push("</ul></dd></dl>");
+                                    I.push("</ul></dd></dl>");
                                 }
                             }
-                            var D = n[i].countryList;
-                            if (D) {
-                                E.push('<span class="fuzzy_area_line"></span>');
-                                E.push("<ul>");
-                                for (var z = 0; z < D.length; z++) {
-                                    var x = D[z];
-                                    E.push('<li country="' + x.country + '" key="' + x.name + '"><a href="#nogo#">' + x.name + "</a></li>");
+                            var H = n[i].countryList;
+                            if (H) {
+                                for (var C = 0; C < H.length; C++) {
+                                    var w = H[C];
+                                    var D = w.list;
+                                    I.push('<div class="e-fuzzy-line"></div>');
+                                    I.push('<dl class="e-hct-lst"><dt>' + w["char"] + " </dt><dd><ul>");
+                                    for (var C = 0; C < D.length; C++) {
+                                        var E = D[C];
+                                        I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                                    }
+                                    I.push("</ul></dd></dl>");
                                 }
-                                E.push("</ul>");
                             }
-                            u.innerHTML = E.join("");
+                            var y = n[i].hotList;
+                            if (y) {
+                                for (var C = 0; C < y.length; C++) {
+                                    var G = y[C];
+                                    var D = G.list;
+                                    I.push('<div class="e-fuzzy-line"></div>');
+                                    I.push('<dl class="e-hct-lst"><dt>' + G["char"] + " </dt><dd><ul>");
+                                    for (var C = 0; C < D.length; C++) {
+                                        var E = D[C];
+                                        I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                                    }
+                                    I.push("</ul></dd></dl>");
+                                }
+                            }
+                            u.innerHTML = I.join("");
                             if (n[i].cls) {
                                 $jex.$(s).className = n[i].cls;
                             } else {
@@ -13461,7 +13758,7 @@ function FlightCityXCombox(c, d, b) {
                             }
                         };
                     };
-                    l.text('<div class="cityinput" hotcitytype="1"><div class="hint">').append("<img", "close", ' class="closeImg" src="http://simg1.qunarzz.com/site/images/new_main/Button_Hotcity_Close.gif"/>').append('<div class="b_hct_tit"><span ', "title", ">热门城市</span>").append("<span>(<span ", "desc").text(' class="CIunderline ">可直接输入城市或城市拼音</span>)</span></div>', '<div class="b_hct_nav">');
+                    l.text('<div class="ui-city-sug" hotcitytype="1">').append("<i", "close", ' class="ico-close"></i>').append('<div class="m-hct-nav">');
                     for (var o = 0; o < q.length; o++) {
                         var k = "tab_" + o + $jex.globalID();
                         j.push({
@@ -13483,8 +13780,6 @@ function FlightCityXCombox(c, d, b) {
                     });
                     $jex.event.bind(m, "onselected", function(u) {
                         var i = n[u.tabname];
-                        l.getDomNode("title").innerHTML = i.title;
-                        l.getDomNode("desc").innerHTML = i.desc;
                         if (i.cls) {
                             $jex.$(s).className = i.cls;
                         } else {
@@ -13497,7 +13792,7 @@ function FlightCityXCombox(c, d, b) {
                     var t = this.own;
                     $jex.event.bindDom($jex.$(s), "mousedown", this, function(i, u) {
                         if (i.target.tagName == "A") {
-                            var w = $jex.trim(i.target.innerHTML);
+                            var w = $jex.trim(i.target.title || i.target.innerHTML);
                             t.setCountry(i.target.parentNode.getAttribute("country"));
                             t.setValue(w);
                             t.setInfo("");
@@ -13672,104 +13967,109 @@ FlightSuggestItemListLayer.prototype.error = function() {
     a.text('<tr class="illrow error">', "<td>", this.popup.own.setting.errorSuggestTip || "输入错误", "</td>", "</tr>");
     a.write(this.popup.panel);
 };
-FlightSuggestItemListLayer.prototype.refresh = function(x, m, g) {
-    this.cacheData = x.result;
+FlightSuggestItemListLayer.prototype.refresh = function(y, n, h) {
+    this.cacheData = y.result;
+    var g = y.result.length;
     this.cursor = -1;
     if (this.nodes.length > 0) {
-        for (var t = 0; t < this.nodes.length; t++) {
-            var n = this.nodes[t];
-            n.item = null;
-            n.layer = null;
-            $jex.event.clear(n);
+        for (var u = 0; u < this.nodes.length; u++) {
+            var o = this.nodes[u];
+            o.item = null;
+            o.layer = null;
+            $jex.event.clear(o);
         }
     }
-    for (var t = 0, q = this.cacheData.length; t < q; t++) {
-        var k = this.cacheData;
-        k[t].ftype = k[t].type;
-        if (k[t].type === 4 || k[t].type === 9) {
-            var f = k[t].type;
-            var c = t - 1;
-            var s = false;
-            for (var o = t;
-                (o < q && !s); o++) {
-                if (k[o].type === f) {
-                    k[o].ftype = k[c].ftype;
+    for (var u = 0, s = this.cacheData.length; u < s; u++) {
+        var l = this.cacheData;
+        if (l[u].type === 8 && this.isFuzzy) {
+            g = u + 1;
+        }
+        l[u].ftype = l[u].type;
+        if (l[u].type === 4 || l[u].type === 9) {
+            var f = l[u].type;
+            var c = u - 1;
+            var t = false;
+            for (var q = u;
+                (q < s && !t); q++) {
+                if (l[q].type === f) {
+                    l[q].ftype = l[c].ftype;
                 } else {
-                    t = o - 1;
-                    o = 100;
-                    s = true;
+                    u = q - 1;
+                    q = 100;
+                    t = true;
                 }
             }
         }
-        if (k[t].ftype === 3) {
-            k[t].ftypename = "city";
+        if (l[u].ftype === 3) {
+            l[u].ftypename = "city";
         }
-        if (k[t].ftype === 1) {
-            k[t].ftypename = "city";
+        if (l[u].ftype === 1) {
+            l[u].ftypename = "city";
         }
-        if (k[t].display.indexOf("机场") !== -1 || k[t].display.indexOf("Airport") !== -1) {
-            k[t].ftypename = "airport";
+        if (l[u].display.indexOf("机场") !== -1 || l[u].display.indexOf("Airport") !== -1) {
+            l[u].ftypename = "airport";
         }
-        if (k[t].ftype === 6) {
-            k[t].ftypename = "attraction";
+        if (l[u].ftype === 6) {
+            l[u].ftypename = "attraction";
         }
-        if (k[t].ftype === 8) {
-            k[t].ftypename = "country";
+        if (l[u].ftype === 8) {
+            l[u].ftypename = "country";
         }
-        if (k[t].ftype === 7) {
-            k[t].ftypename = "state";
+        if (l[u].ftype === 7) {
+            l[u].ftypename = "state";
         }
     }
     this.nodes.length = 0;
-    var d = x.q;
-    var k = x.result;
-    var h = x.userInput.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-    var a = new RegExp("(" + h + ")", "i");
+    var d = y.q;
+    var l = y.result;
+    var k = y.userInput.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+    var a = new RegExp("(" + k + ")", "i");
+    l = l.slice(0, g);
     var b = new UIObject();
-    if ( !! x.c) {
-        b.text('<div class="qcity_guess">你要找的是不是<span class="hl">', h, "</span></div>");
+    if (!!y.c) {
+        b.text('<div class="qcity_guess">你要找的是不是<span class="hl">', k, "</span></div>");
     }
-    if (m) {
-        b.text('<div class="qcity_guess">找不到<span class="hl">', g, "</span></div>");
-    } else {
-        if (this.isFuzzy && k[k.length - 1].display != this.allPlace) {
-            k.push({
-                country: "中国",
-                display: this.allPlace,
-                key: this.allPlace,
-                type: 0
-            });
-        }
-    } if (!m) {
-        $jex.event.trigger(this, "getResultData", x.result.length);
+    if (n) {
+        b.text('<div class="qcity_guess">找不到<span class="hl">', h, "</span></div>");
+    }
+    if (this.isFuzzy && l[l.length - 1].display != this.allPlace) {
+        l.push({
+            country: "中国",
+            display: this.allPlace,
+            key: this.allPlace,
+            type: 0
+        });
+    }
+    if (!n) {
+        $jex.event.trigger(this, "getResultData", y.result.length);
     }
     b.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
-    var u = k.length - 1;
-    for (var t = 0; t < k.length; t++) {
-        $jex.event.trigger(this, "haveData", u);
-        var p = k[t];
-        var w = (p.type == 4) ? "nearbyAirport" : "";
-        if (p.display.indexOf(g) != -1) {
-            g = g.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-            a = new RegExp("(" + g + ")", "i");
+    var w = l.length - 1;
+    for (var u = 0; u < l.length; u++) {
+        $jex.event.trigger(this, "haveData", w);
+        var p = l[u];
+        var x = (p.type == 4) ? "nearbyAirport" : "";
+        if (p.display.indexOf(h) != -1) {
+            h = h.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+            a = new RegExp("(" + h + ")", "i");
         }
-        b.text('<tr class="illrow ', w, '"', ">");
-        b.append("<td ", t).text(' class="illn" hashkey="', p.key, '"', ((p.type == 1) ? 'noAirport="true"' : ""), ">", ((p.type == 4) ? "·邻近机场:" : ""), ((p.type == 9) ? "·相关城市:" : ""), p.display.replace(a, '<span class="keystring">$1</span>'), ((p.type == 9) ? "<span>(" + p.enname + ")</span>" : ""), ((p.length) ? "<span>-" + p.length + "公里</span>" : ""), ((p.type == 1) ? "-该城市没有机场" : ""), ((p.type == 2) ? "-该地区的机场有" : ""), ((p.type == 6) ? "-该景点没有机场" : ""), ((p.type == 7) ? "-该目的地为省份" : ""), ((p.type == 8) ? "-该目的地为国家" : ""), "</td>");
+        b.text('<tr class="illrow ', x, '"', ">");
+        b.append("<td ", u).text(' class="illn" hashkey="', p.key, '"', ((p.type == 1) ? 'noAirport="true"' : ""), ">", ((p.type == 4) ? "·邻近机场:" : ""), ((p.type == 9) ? "·相关城市:" : ""), p.display.replace(a, '<span class="keystring">$1</span>'), ((p.type == 9) ? "<span>(" + p.enname + ")</span>" : ""), ((p.length) ? "<span>-" + p.length + "公里</span>" : ""), ((p.type == 1) ? "-该城市没有机场" : ""), ((p.type == 2) ? "-该地区的机场有" : ""), ((p.type == 6) ? "-该景点没有机场" : ""), ((p.type == 7) ? "-该目的地为省份" : ""), ((p.type == 8) ? "-该目的地为国家" : ""), "</td>");
         b.text("</tr>");
     }
     b.text("</table>");
     b.write(this.popup.panel);
-    var l = this.nodes;
-    for (var t = 0; t < k.length; t++) {
-        var n = b.getDomNode(t);
-        n.item = k[t];
-        n.layer = this;
-        n.idx = t;
-        l[t] = n;
-        $jex.event.bind(n, "mouseover", this.mouseover);
-        $jex.event.bind(n, "click", this.click);
+    var m = this.nodes;
+    for (var u = 0; u < l.length; u++) {
+        var o = b.getDomNode(u);
+        o.item = l[u];
+        o.layer = this;
+        o.idx = u;
+        m[u] = o;
+        $jex.event.bind(o, "mouseover", this.mouseover);
+        $jex.event.bind(o, "click", this.click);
     }
-    if (m) {
+    if (n) {
         $jex.event.trigger(this, "suggest-nofind");
     }
 };
@@ -14041,7 +14341,8 @@ function DatePickerXCombox(d, a, j) {
                     var k = k || f.checkDate2(this.getValue(), c.getValue(), QunarDate.format(QunarDate.plus(f.getMax(), 0)));
                 } else {
                     var k = k || f.checkDate1(this.getValue());
-                } if (k.error) {
+                }
+                if (k.error) {
                     this.setInfo(k.value, "errtext", k.tip);
                 } else {
                     this.setInfo(QunarDate.getDateTip(k.recommend), "", "");
@@ -14083,7 +14384,7 @@ TabGroup.prototype._initPanels = function() {
         if (d.render && !d.panelID) {
             var f = document.createElement("DIV");
             f.id = "TG_PANEL_" + $jex.globalID();
-            f.className = "b_hct_lst";
+            f.className = "m-hct-lst";
             g.appendChild(f);
             $jex.element.hide(f);
             d.panelID = f.id;
@@ -14309,6 +14610,28 @@ var __hotCityListTo__ = [{
     country: "中国"
 }, {
     name: "台北",
+    country: "中国"
+}];
+var __hotAreaListTo__ = [{
+    name: "华北",
+    country: "中国"
+}, {
+    name: "华南",
+    country: "中国"
+}, {
+    name: "东北",
+    country: "中国"
+}, {
+    name: "华东",
+    country: "中国"
+}, {
+    name: "华中",
+    country: "中国"
+}, {
+    name: "西南",
+    country: "中国"
+}, {
+    name: "西北",
     country: "中国"
 }];
 var __hotCityListInterFrom__ = [{
@@ -14615,19 +14938,203 @@ var __interCountry__ = [{
     name: "马来西亚",
     country: "马来西亚"
 }];
+var __interAsia_Country__ = [{
+    name: "新加坡",
+    country: "新加坡"
+}, {
+    name: "韩国",
+    country: "韩国"
+}, {
+    name: "泰国",
+    country: "泰国"
+}, {
+    name: "马来西亚",
+    country: "马来西亚"
+}, {
+    name: "日本",
+    country: "日本"
+}, {
+    name: "澳大利亚",
+    country: "澳大利亚"
+}, {
+    name: "越南",
+    country: "越南"
+}, {
+    name: "印度尼西亚",
+    country: "印度尼西亚"
+}, {
+    name: "菲律宾",
+    country: "菲律宾"
+}, {
+    name: "尼泊尔",
+    country: "尼泊尔"
+}];
+var __interAmric_Country__ = [{
+    name: "美国",
+    country: "美国"
+}, {
+    name: "加拿大",
+    country: "加拿大"
+}, {
+    name: "巴西",
+    country: "巴西"
+}, {
+    name: "墨西哥",
+    country: "墨西哥"
+}, {
+    name: "阿根廷",
+    country: "阿根廷"
+}];
+var __interEur_Country__ = [{
+    name: "英国",
+    country: "英国"
+}, {
+    name: "法国",
+    country: "法国"
+}, {
+    name: "俄罗斯",
+    country: "俄罗斯"
+}, {
+    name: "荷兰",
+    country: "荷兰"
+}, {
+    name: "意大利",
+    country: "意大利"
+}, {
+    name: "西班牙",
+    country: "西班牙"
+}, {
+    name: "德国",
+    country: "德国"
+}, {
+    name: "瑞典",
+    country: "瑞典"
+}, {
+    name: "土耳其",
+    country: "土耳其"
+}, {
+    name: "希腊",
+    country: "希腊"
+}];
+var __interFei_Country__ = [{
+    name: "埃及",
+    country: "埃及"
+}, {
+    name: "南非",
+    country: "南非"
+}, {
+    name: "肯尼亚",
+    country: "肯尼亚"
+}, {
+    name: "尼日利亚",
+    country: "尼日利亚"
+}, {
+    name: "埃塞俄比亚",
+    country: "埃塞俄比亚"
+}];
+var __interhotAreaListTo__ = [{
+    name: "港澳台",
+    country: "港澳台"
+}, {
+    name: "日韩",
+    country: "日韩"
+}, {
+    name: "新马泰",
+    country: "新马泰"
+}, {
+    name: "美国西部",
+    country: "美国西部"
+}, {
+    name: "所有地点",
+    country: "所有地点"
+}];
+var __interAsia_hotAreaListTo__ = [{
+    name: "港澳台",
+    country: "港澳台"
+}, {
+    name: "日韩",
+    country: "日韩"
+}, {
+    name: "新马泰",
+    country: "新马泰"
+}, {
+    name: "澳新",
+    country: "澳新"
+}, {
+    name: "所有地点",
+    country: "所有地点"
+}];
+var __interAmric_hotAreaListTo__ = [{
+    name: "美国东海岸",
+    country: "美国东海岸"
+}, {
+    name: "美国西部",
+    country: "美国西部"
+}, {
+    name: "北美五大湖",
+    country: "北美五大湖"
+}, {
+    name: "所有地点",
+    country: "所有地点"
+}];
+var __interEur_hotAreaListTo__ = [{
+    name: "西欧",
+    country: "西欧"
+}, {
+    name: "北欧",
+    country: "北欧"
+}, {
+    name: "中东欧",
+    country: "中东欧"
+}, {
+    name: "南欧",
+    country: "南欧"
+}, {
+    name: "所有地点",
+    country: "所有地点"
+}];
+var __interFei_hotAreaListTo__ = [{
+    name: "非洲南部",
+    country: "非洲南部"
+}, {
+    name: "北非",
+    country: "北非"
+}, {
+    name: "东非",
+    country: "东非"
+}, {
+    name: "所有地点",
+    country: "所有地点"
+}];
 var _tabConfig = {
     "热门-from": {
-        cityList: __hotCityListFrom__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListFrom__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "热门-to": {
-        cityList: __hotCityListTo__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListTo__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __hotAreaListTo__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "热门-inter-from": {
-        cityList: __hotCityListInterFrom__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListInterFrom__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
@@ -15310,373 +15817,859 @@ var _tabConfig = {
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "国际·港澳台_fuzzy": {
-        cityList: __inter__,
-        countryList: __interCountry__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __inter__
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interCountry__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interhotAreaListTo__
+        }],
         title: "国际·港澳台城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "国际·港澳台": {
-        cityList: __inter__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __inter__
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interCountry__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interCountry__
+        }],
         title: "国际·港澳台城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     },
     "热门城市_fuzzy": {
-        cityList: __hotCityListInterTo__,
-        countryList: __interCountry__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListInterTo__
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interCountry__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interhotAreaListTo__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: ""
     },
     "热门城市": {
-        cityList: __hotCityListInterTo__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListInterTo__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: ""
     },
     "亚洲/大洋洲": {
+        charSort: true,
         cityList: [{
-            name: "香港",
-            country: "中国香港"
-        }, {
-            name: "新加坡",
-            country: "新加坡"
-        }, {
-            name: "首尔",
-            country: "韩国"
-        }, {
-            name: "曼谷",
-            country: "泰国"
-        }, {
-            name: "吉隆坡",
-            country: "马来西亚"
-        }, {
-            name: "东京",
-            country: "日本"
-        }, {
-            name: "台北",
-            country: "中国台湾"
-        }, {
-            name: "悉尼",
-            country: "澳大利亚"
-        }, {
-            name: "澳门",
-            country: "中国澳门"
-        }, {
-            name: "普吉",
-            country: "泰国"
-        }, {
-            name: "墨尔本",
-            country: "澳大利亚"
-        }, {
-            name: "胡志明市",
-            country: "越南"
-        }, {
-            name: "大阪",
-            country: "日本"
-        }, {
-            name: "巴厘岛",
-            country: "印度尼西亚"
-        }, {
-            name: "马尼拉",
-            country: "菲律宾"
-        }, {
-            name: "河内",
-            country: "越南"
-        }, {
-            name: "加德满都",
-            country: "尼泊尔"
-        }, {
-            name: "金边",
-            country: "柬埔寨"
-        }, {
-            name: "雅加达",
-            country: "印度尼西亚"
-        }, {
-            name: "马累",
-            country: "马尔代夫"
-        }, {
-            name: "暹粒",
-            country: "柬埔寨"
-        }, {
-            name: "迪拜",
-            country: "阿拉伯联合酋长国"
-        }, {
-            name: "釜山",
-            country: "韩国"
-        }, {
-            name: "名古屋",
-            country: "日本"
-        }, {
-            name: "奥克兰",
-            country: "新西兰"
-        }, {
-            name: "布里斯班",
-            country: "澳大利亚"
-        }, {
-            name: "槟城",
-            country: "马来西亚"
-        }, {
-            name: "高雄",
-            country: "中国台湾"
-        }, {
-            name: "新德里",
-            country: "印度"
-        }, {
-            name: "济州岛",
-            country: "韩国"
+            "char": "城市",
+            list: [{
+                name: "香港",
+                country: "中国香港"
+            }, {
+                name: "新加坡",
+                country: "新加坡"
+            }, {
+                name: "首尔",
+                country: "韩国"
+            }, {
+                name: "曼谷",
+                country: "泰国"
+            }, {
+                name: "吉隆坡",
+                country: "马来西亚"
+            }, {
+                name: "东京",
+                country: "日本"
+            }, {
+                name: "台北",
+                country: "中国台湾"
+            }, {
+                name: "悉尼",
+                country: "澳大利亚"
+            }, {
+                name: "澳门",
+                country: "中国澳门"
+            }, {
+                name: "普吉",
+                country: "泰国"
+            }, {
+                name: "墨尔本",
+                country: "澳大利亚"
+            }, {
+                name: "胡志明市",
+                country: "越南"
+            }, {
+                name: "大阪",
+                country: "日本"
+            }, {
+                name: "巴厘岛",
+                country: "印度尼西亚"
+            }, {
+                name: "马尼拉",
+                country: "菲律宾"
+            }, {
+                name: "河内",
+                country: "越南"
+            }, {
+                name: "加德满都",
+                country: "尼泊尔"
+            }, {
+                name: "金边",
+                country: "柬埔寨"
+            }, {
+                name: "雅加达",
+                country: "印度尼西亚"
+            }, {
+                name: "马累",
+                country: "马尔代夫"
+            }, {
+                name: "暹粒",
+                country: "柬埔寨"
+            }, {
+                name: "迪拜",
+                country: "阿拉伯联合酋长国"
+            }, {
+                name: "釜山",
+                country: "韩国"
+            }, {
+                name: "名古屋",
+                country: "日本"
+            }, {
+                name: "奥克兰",
+                country: "新西兰"
+            }, {
+                name: "布里斯班",
+                country: "澳大利亚"
+            }, {
+                name: "槟城",
+                country: "马来西亚"
+            }, {
+                name: "高雄",
+                country: "中国台湾"
+            }, {
+                name: "新德里",
+                country: "印度"
+            }, {
+                name: "济州岛",
+                country: "韩国"
+            }]
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interAsia_Country__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interAsia_hotAreaListTo__
         }],
         title: "亚洲/大洋洲热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: "inter"
     },
     "美洲": {
+        charSort: true,
         cityList: [{
-            name: "纽约",
-            country: "美国"
-        }, {
-            name: "洛杉矶",
-            country: "美国"
-        }, {
-            name: "多伦多",
-            country: "加拿大"
-        }, {
-            name: "温哥华",
-            country: "加拿大"
-        }, {
-            name: "旧金山",
-            country: "美国"
-        }, {
-            name: "芝加哥",
-            country: "美国"
-        }, {
-            name: "华盛顿",
-            country: "美国"
-        }, {
-            name: "西雅图",
-            country: "美国"
-        }, {
-            name: "波士顿",
-            country: "美国"
-        }, {
-            name: "底特律",
-            country: "美国"
-        }, {
-            name: "亚特兰大",
-            country: "美国"
-        }, {
-            name: "蒙特利尔",
-            country: "加拿大"
-        }, {
-            name: "休斯敦",
-            country: "美国"
-        }, {
-            name: "火奴鲁鲁",
-            country: "美国"
-        }, {
-            name: "达拉斯",
-            country: "美国"
-        }, {
-            name: "拉斯维加斯",
-            country: "美国"
-        }, {
-            name: "费城",
-            country: "美国"
-        }, {
-            name: "圣保罗（巴西）",
-            country: "巴西"
-        }, {
-            name: "明尼阿波利斯",
-            country: "美国"
-        }, {
-            name: "渥太华",
-            country: "加拿大"
-        }, {
-            name: "凤凰城",
-            country: "美国"
-        }, {
-            name: "墨西哥",
-            country: "墨西哥"
-        }, {
-            name: "迈阿密",
-            country: "美国"
-        }, {
-            name: "丹佛",
-            country: "美国"
-        }, {
-            name: "奥兰多",
-            country: "美国"
-        }, {
-            name: "卡尔加里",
-            country: "加拿大"
-        }, {
-            name: "埃德蒙顿",
-            country: "加拿大"
-        }, {
-            name: "布宜诺斯艾利斯",
-            country: "阿根廷"
-        }, {
-            name: "里约热内卢",
-            country: "巴西"
-        }, {
-            name: "匹兹堡",
-            country: "美国"
+            "char": "城市",
+            list: [{
+                name: "纽约",
+                country: "美国"
+            }, {
+                name: "洛杉矶",
+                country: "美国"
+            }, {
+                name: "多伦多",
+                country: "加拿大"
+            }, {
+                name: "温哥华",
+                country: "加拿大"
+            }, {
+                name: "旧金山",
+                country: "美国"
+            }, {
+                name: "芝加哥",
+                country: "美国"
+            }, {
+                name: "华盛顿",
+                country: "美国"
+            }, {
+                name: "西雅图",
+                country: "美国"
+            }, {
+                name: "波士顿",
+                country: "美国"
+            }, {
+                name: "底特律",
+                country: "美国"
+            }, {
+                name: "亚特兰大",
+                country: "美国"
+            }, {
+                name: "蒙特利尔",
+                country: "加拿大"
+            }, {
+                name: "休斯敦",
+                country: "美国"
+            }, {
+                name: "火奴鲁鲁",
+                country: "美国"
+            }, {
+                name: "达拉斯",
+                country: "美国"
+            }, {
+                name: "拉斯维加斯",
+                country: "美国"
+            }, {
+                name: "费城",
+                country: "美国"
+            }, {
+                titles: "圣保罗（巴西）",
+                names: "圣保罗",
+                name: "圣保罗（巴西）",
+                country: "巴西"
+            }, {
+                name: "明尼阿波利斯",
+                country: "美国"
+            }, {
+                name: "渥太华",
+                country: "加拿大"
+            }, {
+                name: "凤凰城",
+                country: "美国"
+            }, {
+                name: "墨西哥城",
+                country: "墨西哥"
+            }, {
+                name: "迈阿密",
+                country: "美国"
+            }, {
+                name: "丹佛",
+                country: "美国"
+            }, {
+                name: "奥兰多",
+                country: "美国"
+            }, {
+                name: "卡尔加里",
+                country: "加拿大"
+            }, {
+                name: "埃德蒙顿",
+                country: "加拿大"
+            }, {
+                name: "布宜诺斯艾利斯",
+                country: "阿根廷"
+            }, {
+                name: "里约热内卢",
+                country: "巴西"
+            }, {
+                name: "匹兹堡",
+                country: "美国"
+            }]
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interAmric_Country__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interAmric_hotAreaListTo__
         }],
         title: "美洲热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: "inter"
     },
     "欧洲": {
+        charSort: true,
         cityList: [{
-            name: "伦敦",
-            country: "英国"
-        }, {
-            name: "巴黎",
-            country: "法国"
-        }, {
-            name: "法兰克福",
-            country: "德国"
-        }, {
-            name: "莫斯科",
-            country: "俄罗斯"
-        }, {
-            name: "阿姆斯特丹",
-            country: "荷兰"
-        }, {
-            name: "罗马（意大利）",
-            country: "意大利"
-        }, {
-            name: "米兰",
-            country: "意大利"
-        }, {
-            name: "马德里",
-            country: "西班牙"
-        }, {
-            name: "慕尼黑",
-            country: "德国"
-        }, {
-            name: "柏林",
-            country: "德国"
-        }, {
-            name: "斯德哥尔摩",
-            country: "瑞典"
-        }, {
-            name: "伊斯坦布尔",
-            country: "土耳其"
-        }, {
-            name: "伯明翰（英国）",
-            country: "英国"
-        }, {
-            name: "巴塞罗那(西班牙)",
-            country: "西班牙"
-        }, {
-            name: "雅典",
-            country: "希腊"
-        }, {
-            name: "哥本哈根",
-            country: "丹麦"
-        }, {
-            name: "苏黎世",
-            country: "瑞士"
-        }, {
-            name: "布鲁塞尔",
-            country: "比利时"
-        }, {
-            name: "赫尔辛基",
-            country: "芬兰"
-        }, {
-            name: "爱丁堡",
-            country: "英国"
-        }, {
-            name: "维也纳",
-            country: "奥地利"
-        }, {
-            name: "格拉斯哥（英国）",
-            country: "英国"
-        }, {
-            name: "日内瓦",
-            country: "瑞士"
-        }, {
-            name: "圣彼得堡",
-            country: "俄罗斯"
-        }, {
-            name: "都柏林(爱尔兰)",
-            country: "爱尔兰"
-        }, {
-            name: "汉堡",
-            country: "德国"
-        }, {
-            name: "杜塞尔多夫",
-            country: "德国"
-        }, {
-            name: "布拉格",
-            country: "捷克"
-        }, {
-            name: "布达佩斯",
-            country: "匈牙利"
-        }, {
-            name: "基辅",
-            country: "乌克兰"
+            "char": "城市",
+            list: [{
+                name: "伦敦",
+                country: "英国"
+            }, {
+                name: "巴黎",
+                country: "法国"
+            }, {
+                name: "法兰克福",
+                country: "德国"
+            }, {
+                name: "莫斯科",
+                country: "俄罗斯"
+            }, {
+                name: "阿姆斯特丹",
+                country: "荷兰"
+            }, {
+                titles: "罗马（意大利）",
+                names: "罗马",
+                name: "罗马（意大利）",
+                country: "意大利"
+            }, {
+                name: "米兰",
+                country: "意大利"
+            }, {
+                name: "马德里",
+                country: "西班牙"
+            }, {
+                name: "慕尼黑",
+                country: "德国"
+            }, {
+                name: "柏林",
+                country: "德国"
+            }, {
+                name: "斯德哥尔摩",
+                country: "瑞典"
+            }, {
+                name: "伊斯坦布尔",
+                country: "土耳其"
+            }, {
+                titles: "伯明翰（英国）",
+                names: "伯明翰",
+                name: "伯明翰（英国）",
+                country: "英国"
+            }, {
+                title: "巴塞罗那(西班牙)",
+                titles: "巴塞罗那(西班牙)",
+                names: "巴塞罗那",
+                name: "巴塞罗那(西班牙)",
+                country: "西班牙"
+            }, {
+                name: "雅典",
+                country: "希腊"
+            }, {
+                name: "哥本哈根",
+                country: "丹麦"
+            }, {
+                name: "苏黎世",
+                country: "瑞士"
+            }, {
+                name: "布鲁塞尔",
+                country: "比利时"
+            }, {
+                name: "赫尔辛基",
+                country: "芬兰"
+            }, {
+                name: "爱丁堡",
+                country: "英国"
+            }, {
+                name: "维也纳",
+                country: "奥地利"
+            }, {
+                titles: "格拉斯哥（英国）",
+                names: "格拉斯哥",
+                name: "格拉斯哥（英国）",
+                country: "英国"
+            }, {
+                name: "日内瓦",
+                country: "瑞士"
+            }, {
+                name: "圣彼得堡",
+                country: "俄罗斯"
+            }, {
+                titles: "都柏林(爱尔兰)",
+                names: "都柏林",
+                name: "都柏林(爱尔兰)",
+                country: "爱尔兰"
+            }, {
+                name: "汉堡",
+                country: "德国"
+            }, {
+                name: "杜塞尔多夫",
+                country: "德国"
+            }, {
+                name: "布拉格",
+                country: "捷克"
+            }, {
+                name: "布达佩斯",
+                country: "匈牙利"
+            }, {
+                name: "基辅",
+                country: "乌克兰"
+            }]
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interEur_Country__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interEur_hotAreaListTo__
         }],
         title: "欧洲热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: "inter"
     },
     "非洲": {
+        charSort: true,
         cityList: [{
-            name: "开罗",
-            country: "埃及"
-        }, {
-            name: "约翰内斯堡",
-            country: "南非"
-        }, {
-            name: "内罗毕",
-            country: "肯尼亚"
-        }, {
-            name: "开普敦",
-            country: "南非"
-        }, {
-            name: "毛里求斯",
-            country: "毛里求斯"
-        }, {
-            name: "拉各斯",
-            country: "尼日利亚"
-        }, {
-            name: "喀土穆",
-            country: "苏丹"
-        }, {
-            name: "亚的斯亚贝巴",
-            country: "埃塞俄比亚"
-        }, {
-            name: "阿克拉",
-            country: "加纳"
-        }, {
-            name: "达累斯萨拉姆",
-            country: "坦桑尼亚"
-        }, {
-            name: "塞舌尔",
-            country: "塞舌尔共和国"
-        }, {
-            name: "阿尔及尔",
-            country: "阿尔及利亚"
-        }, {
-            name: "的黎波里",
-            country: "利比亚"
-        }, {
-            name: "阿布贾",
-            country: "尼日利亚"
-        }, {
-            name: "卡萨布兰卡",
-            country: "摩洛哥"
-        }, {
-            name: "突尼斯",
-            country: "突尼斯"
+            "char": "城市",
+            list: [{
+                name: "开罗",
+                country: "埃及"
+            }, {
+                name: "约翰内斯堡",
+                country: "南非"
+            }, {
+                name: "内罗毕",
+                country: "肯尼亚"
+            }, {
+                name: "开普敦",
+                country: "南非"
+            }, {
+                name: "毛里求斯",
+                country: "毛里求斯"
+            }, {
+                name: "拉各斯",
+                country: "尼日利亚"
+            }, {
+                name: "喀土穆",
+                country: "苏丹"
+            }, {
+                name: "亚的斯亚贝巴",
+                country: "埃塞俄比亚"
+            }, {
+                name: "阿克拉",
+                country: "加纳"
+            }, {
+                name: "达累斯萨拉姆",
+                country: "坦桑尼亚"
+            }, {
+                name: "塞舌尔",
+                country: "塞舌尔共和国"
+            }, {
+                name: "阿尔及尔",
+                country: "阿尔及利亚"
+            }, {
+                name: "的黎波里",
+                country: "利比亚"
+            }, {
+                name: "阿布贾",
+                country: "尼日利亚"
+            }, {
+                name: "卡萨布兰卡",
+                country: "摩洛哥"
+            }, {
+                name: "突尼斯",
+                country: "突尼斯"
+            }]
+        }],
+        countryList: [{
+            "char": "国家",
+            list: __interFei_Country__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __interFei_hotAreaListTo__
         }],
         title: "非洲热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码",
         cls: "inter"
     },
     "国内": {
-        cityList: __hotCityListFrom__,
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListFrom__
+        }],
+        hotList: [{
+            "char": "热词",
+            list: __hotAreaListTo__
+        }],
+        title: "热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码"
+    },
+    "m亚洲/大洋洲": {
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: [{
+                name: "香港",
+                country: "中国香港"
+            }, {
+                name: "新加坡",
+                country: "新加坡"
+            }, {
+                name: "首尔",
+                country: "韩国"
+            }, {
+                name: "曼谷",
+                country: "泰国"
+            }, {
+                name: "吉隆坡",
+                country: "马来西亚"
+            }, {
+                name: "东京",
+                country: "日本"
+            }, {
+                name: "台北",
+                country: "中国台湾"
+            }, {
+                name: "悉尼",
+                country: "澳大利亚"
+            }, {
+                name: "澳门",
+                country: "中国澳门"
+            }, {
+                name: "普吉",
+                country: "泰国"
+            }, {
+                name: "墨尔本",
+                country: "澳大利亚"
+            }, {
+                name: "胡志明市",
+                country: "越南"
+            }, {
+                name: "大阪",
+                country: "日本"
+            }, {
+                name: "巴厘岛",
+                country: "印度尼西亚"
+            }, {
+                name: "马尼拉",
+                country: "菲律宾"
+            }, {
+                name: "河内",
+                country: "越南"
+            }, {
+                name: "加德满都",
+                country: "尼泊尔"
+            }, {
+                name: "金边",
+                country: "柬埔寨"
+            }, {
+                name: "雅加达",
+                country: "印度尼西亚"
+            }, {
+                name: "马累",
+                country: "马尔代夫"
+            }, {
+                name: "暹粒",
+                country: "柬埔寨"
+            }, {
+                name: "迪拜",
+                country: "阿拉伯联合酋长国"
+            }, {
+                name: "釜山",
+                country: "韩国"
+            }, {
+                name: "名古屋",
+                country: "日本"
+            }, {
+                name: "奥克兰",
+                country: "新西兰"
+            }, {
+                name: "布里斯班",
+                country: "澳大利亚"
+            }, {
+                name: "槟城",
+                country: "马来西亚"
+            }, {
+                name: "高雄",
+                country: "中国台湾"
+            }, {
+                name: "新德里",
+                country: "印度"
+            }, {
+                name: "济州岛",
+                country: "韩国"
+            }]
+        }],
+        title: "亚洲/大洋洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "m美洲": {
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: [{
+                name: "纽约",
+                country: "美国"
+            }, {
+                name: "洛杉矶",
+                country: "美国"
+            }, {
+                name: "多伦多",
+                country: "加拿大"
+            }, {
+                name: "温哥华",
+                country: "加拿大"
+            }, {
+                name: "旧金山",
+                country: "美国"
+            }, {
+                name: "芝加哥",
+                country: "美国"
+            }, {
+                name: "华盛顿",
+                country: "美国"
+            }, {
+                name: "西雅图",
+                country: "美国"
+            }, {
+                name: "波士顿",
+                country: "美国"
+            }, {
+                name: "底特律",
+                country: "美国"
+            }, {
+                name: "亚特兰大",
+                country: "美国"
+            }, {
+                name: "蒙特利尔",
+                country: "加拿大"
+            }, {
+                name: "休斯敦",
+                country: "美国"
+            }, {
+                name: "火奴鲁鲁",
+                country: "美国"
+            }, {
+                name: "达拉斯",
+                country: "美国"
+            }, {
+                name: "拉斯维加斯",
+                country: "美国"
+            }, {
+                name: "费城",
+                country: "美国"
+            }, {
+                titles: "圣保罗（巴西）",
+                names: "圣保罗",
+                name: "圣保罗（巴西）",
+                country: "巴西"
+            }, {
+                name: "明尼阿波利斯",
+                country: "美国"
+            }, {
+                name: "渥太华",
+                country: "加拿大"
+            }, {
+                name: "凤凰城",
+                country: "美国"
+            }, {
+                name: "墨西哥城",
+                country: "墨西哥"
+            }, {
+                name: "迈阿密",
+                country: "美国"
+            }, {
+                name: "丹佛",
+                country: "美国"
+            }, {
+                name: "奥兰多",
+                country: "美国"
+            }, {
+                name: "卡尔加里",
+                country: "加拿大"
+            }, {
+                name: "埃德蒙顿",
+                country: "加拿大"
+            }, {
+                name: "布宜诺斯艾利斯",
+                country: "阿根廷"
+            }, {
+                name: "里约热内卢",
+                country: "巴西"
+            }, {
+                name: "匹兹堡",
+                country: "美国"
+            }]
+        }],
+        title: "美洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "m欧洲": {
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: [{
+                name: "伦敦",
+                country: "英国"
+            }, {
+                name: "巴黎",
+                country: "法国"
+            }, {
+                name: "法兰克福",
+                country: "德国"
+            }, {
+                name: "莫斯科",
+                country: "俄罗斯"
+            }, {
+                name: "阿姆斯特丹",
+                country: "荷兰"
+            }, {
+                titles: "罗马（意大利）",
+                names: "罗马",
+                name: "罗马（意大利）",
+                country: "意大利"
+            }, {
+                name: "米兰",
+                country: "意大利"
+            }, {
+                name: "马德里",
+                country: "西班牙"
+            }, {
+                name: "慕尼黑",
+                country: "德国"
+            }, {
+                name: "柏林",
+                country: "德国"
+            }, {
+                name: "斯德哥尔摩",
+                country: "瑞典"
+            }, {
+                name: "伊斯坦布尔",
+                country: "土耳其"
+            }, {
+                titles: "伯明翰（英国）",
+                names: "伯明翰",
+                name: "伯明翰（英国）",
+                country: "英国"
+            }, {
+                titles: "巴塞罗那(西班牙)",
+                names: "巴塞罗那",
+                name: "巴塞罗那(西班牙)",
+                country: "西班牙"
+            }, {
+                name: "雅典",
+                country: "希腊"
+            }, {
+                name: "哥本哈根",
+                country: "丹麦"
+            }, {
+                name: "苏黎世",
+                country: "瑞士"
+            }, {
+                name: "布鲁塞尔",
+                country: "比利时"
+            }, {
+                name: "赫尔辛基",
+                country: "芬兰"
+            }, {
+                name: "爱丁堡",
+                country: "英国"
+            }, {
+                name: "维也纳",
+                country: "奥地利"
+            }, {
+                titles: "格拉斯哥（英国）",
+                names: "格拉斯哥",
+                name: "格拉斯哥（英国）",
+                country: "英国"
+            }, {
+                name: "日内瓦",
+                country: "瑞士"
+            }, {
+                name: "圣彼得堡",
+                country: "俄罗斯"
+            }, {
+                titles: "都柏林(爱尔兰)",
+                names: "都柏林",
+                name: "都柏林(爱尔兰)",
+                country: "爱尔兰"
+            }, {
+                name: "汉堡",
+                country: "德国"
+            }, {
+                name: "杜塞尔多夫",
+                country: "德国"
+            }, {
+                name: "布拉格",
+                country: "捷克"
+            }, {
+                name: "布达佩斯",
+                country: "匈牙利"
+            }, {
+                name: "基辅",
+                country: "乌克兰"
+            }]
+        }],
+        title: "欧洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "m非洲": {
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: [{
+                name: "开罗",
+                country: "埃及"
+            }, {
+                name: "约翰内斯堡",
+                country: "南非"
+            }, {
+                name: "内罗毕",
+                country: "肯尼亚"
+            }, {
+                name: "开普敦",
+                country: "南非"
+            }, {
+                name: "毛里求斯",
+                country: "毛里求斯"
+            }, {
+                name: "拉各斯",
+                country: "尼日利亚"
+            }, {
+                name: "喀土穆",
+                country: "苏丹"
+            }, {
+                name: "亚的斯亚贝巴",
+                country: "埃塞俄比亚"
+            }, {
+                name: "阿克拉",
+                country: "加纳"
+            }, {
+                name: "达累斯萨拉姆",
+                country: "坦桑尼亚"
+            }, {
+                name: "塞舌尔",
+                country: "塞舌尔共和国"
+            }, {
+                name: "阿尔及尔",
+                country: "阿尔及利亚"
+            }, {
+                name: "的黎波里",
+                country: "利比亚"
+            }, {
+                name: "阿布贾",
+                country: "尼日利亚"
+            }, {
+                name: "卡萨布兰卡",
+                country: "摩洛哥"
+            }, {
+                name: "突尼斯",
+                country: "突尼斯"
+            }]
+        }],
+        title: "非洲热门城市",
+        desc: "可直接输入中文名/拼音/英文名/三字码",
+        cls: "inter"
+    },
+    "m国内": {
+        charSort: true,
+        cityList: [{
+            "char": "城市",
+            list: __hotCityListFrom__
+        }],
         title: "热门城市",
         desc: "可直接输入中文名/拼音/英文名/三字码"
     }
@@ -15684,31 +16677,80 @@ var _tabConfig = {
 var FlightLang = {
     hotCityConfig: {
         "domestic-from": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-from"],
+                "国内热门": _tabConfig["热门-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
-                XYZ: _tabConfig.XYZ
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台_fuzzy"]
+            }
+        },
+        "domestic-from-tj": {
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "国内热门": _tabConfig["热门-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["热门城市"]
             }
         },
         "domestic-to": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-to"],
+                "国内热门": _tabConfig["热门-to"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
-                XYZ: _tabConfig.XYZ
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["国际·港澳台_fuzzy"]
+            }
+        },
+        "multitrip-from-tj-inter": {
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "国内热门": _tabConfig["热门-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["热门城市"]
+            }
+        },
+        "multitrip-to-tj-inter": {
+            tabs: ["国际·港澳台", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内热门"],
+            contents: {
+                "国际·港澳台": _tabConfig["热门城市"],
+                "亚洲/大洋洲": _tabConfig["m亚洲/大洋洲"],
+                "美洲": _tabConfig["m美洲"],
+                "欧洲": _tabConfig["m欧洲"],
+                "非洲": _tabConfig["m非洲"],
+                "国内热门": _tabConfig["m国内"]
+            }
+        },
+        "domestic-to-tj": {
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            contents: {
+                "国内热门": _tabConfig["热门-from"],
+                ABCDE: _tabConfig.ABCDE,
+                FGHJ: _tabConfig.FGHJ,
+                KLMNP: _tabConfig.KLMNP,
+                QRSTW: _tabConfig.QRSTW,
+                XYZ: _tabConfig.XYZ,
+                "国际·港澳台": _tabConfig["热门城市"]
             }
         },
         "international-from": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-inter-from"],
+                "国内热门": _tabConfig["热门-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
@@ -15718,43 +16760,43 @@ var FlightLang = {
             }
         },
         "international-to": {
-            tabs: ["热门城市和国家", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
+            tabs: ["国际/港澳台", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内热门"],
             contents: {
-                "热门城市和国家": _tabConfig["热门城市_fuzzy"],
+                "国际/港澳台": _tabConfig["热门城市_fuzzy"],
                 "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
                 "美洲": _tabConfig["美洲"],
                 "欧洲": _tabConfig["欧洲"],
                 "非洲": _tabConfig["非洲"],
-                "国内": _tabConfig["国内"]
+                "国内热门": _tabConfig["国内"]
             }
         },
         "multitrip-from": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-inter-from"],
+                "国内热门": _tabConfig["热门-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
                 QRSTW: _tabConfig.QRSTW,
                 XYZ: _tabConfig.XYZ,
-                "国际·港澳台": _tabConfig["国际·港澳台"]
+                "国际·港澳台": _tabConfig["热门城市"]
             }
         },
         "multitrip-to": {
-            tabs: ["热门城市", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内"],
+            tabs: ["国际·港澳台", "亚洲/大洋洲", "美洲", "欧洲", "非洲", "国内热门"],
             contents: {
-                "热门城市": _tabConfig["热门城市"],
-                "亚洲/大洋洲": _tabConfig["亚洲/大洋洲"],
-                "美洲": _tabConfig["美洲"],
-                "欧洲": _tabConfig["欧洲"],
-                "非洲": _tabConfig["非洲"],
-                "国内": _tabConfig["国内"]
+                "国际·港澳台": _tabConfig["热门城市"],
+                "亚洲/大洋洲": _tabConfig["m亚洲/大洋洲"],
+                "美洲": _tabConfig["m美洲"],
+                "欧洲": _tabConfig["m欧洲"],
+                "非洲": _tabConfig["m非洲"],
+                "国内热门": _tabConfig["m国内"]
             }
         },
         "domestic-list-from": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-from"],
+                "国内热门": _tabConfig["热门-from"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
@@ -15764,9 +16806,9 @@ var FlightLang = {
             }
         },
         "domestic-list-to": {
-            tabs: ["热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
+            tabs: ["国内热门", "ABCDE", "FGHJ", "KLMNP", "QRSTW", "XYZ", "国际·港澳台"],
             contents: {
-                "热门": _tabConfig["热门-to"],
+                "国内热门": _tabConfig["热门-to"],
                 ABCDE: _tabConfig.ABCDE,
                 FGHJ: _tabConfig.FGHJ,
                 KLMNP: _tabConfig.KLMNP,
@@ -15943,7 +16985,7 @@ function SearchBox(a, c) {
         }
         b();
         q();
-        searchTrack.triggerHomeClickBtn(d);
+        window.searchTrack && searchTrack.triggerHomeClickBtn(d);
         if (!y()) {
             $jex.stopEvent(A);
             return false;
@@ -16173,10 +17215,10 @@ var SearchBoxCreate = (function() {
             fromHotCity: "domestic-list-from",
             toHotCity: "domestic-list-to",
             isFuzzy: true,
-            info: "输入国家/城市",
+            info: "输入国家/城市/机场(可不填)",
             suggestType: null
         });
-        searchTrack.init("DMT", h);
+        window.searchTrack && searchTrack.init("DMT", h);
         b(h);
         return h;
     }
@@ -16250,7 +17292,7 @@ window.searchTrack = (function(d) {
         _bindErrorInfo: function() {
             var m = this;
             var j = function() {
-                var i = ["ErrorSuggestInfo", m.inputElem.value, m.inputType, m._type];
+                var i = ["ErrorSuggestInfo", encodeURIComponent(m.inputElem.value), m.inputType, m._type];
                 a(i.join("|"));
             };
             $jex.each(this.ControlFlt, function(w, i) {
@@ -16277,7 +17319,7 @@ window.searchTrack = (function(d) {
             var l = this;
             var m = function(w, i) {
                 i--;
-                var u = ["getResultData", l.inputElem.value, i, l.inputType, l._type];
+                var u = ["getResultData", encodeURIComponent(l.inputElem.value), i, l.inputType, l._type];
                 l.noflag = false;
                 if (l.inputElem.value !== h && !l.onlyOne) {
                     a("addItem_flag|" + l.inputType + "|" + l._type);
@@ -16319,13 +17361,13 @@ window.searchTrack = (function(d) {
             var n = this;
             var l = function(i, w) {
                 if (!n.noflag && !n.notfind) {
-                    var u = "suggest-nofind-noData|" + n.inputElem.value + "|" + n.inputType + "|" + n._type;
+                    var u = "suggest-nofind-noData|" + encodeURIComponent(n.inputElem.value) + "|" + n.inputType + "|" + n._type;
                     a(u);
                     n.noflag = true;
                     n.notfind = false;
                 }
                 if (!n.noflag && n.notfind) {
-                    var u = "suggest-nofind|" + n.inputElem.value + "|" + b + "|" + n.inputType + "|" + n._type;
+                    var u = "suggest-nofind|" + encodeURIComponent(n.inputElem.value) + "|" + b + "|" + n.inputType + "|" + n._type;
                     a(u);
                     n.noflag = true;
                 }
@@ -16368,7 +17410,7 @@ window.searchTrack = (function(d) {
                     if (!t) {
                         t = "city";
                     }
-                    var w = "suggest-selected|" + t + "|" + x + "|" + i + "|" + m.inputType + "|" + m._type;
+                    var w = "suggest-selected|" + t + "|" + encodeURIComponent(x) + "|" + i + "|" + m.inputType + "|" + m._type;
                     a(w);
                     m.sflag = true;
                 }
@@ -16428,7 +17470,7 @@ window.searchTrack = (function(d) {
             };
             var o = function(i) {
                 if (!m.outflag && m.noflag && !m.sflag) {
-                    var u = "suggest-nofind|" + this.value + "|" + b + "|" + i + "|" + this.name;
+                    var u = "suggest-nofind|" + encodeURIComponent(this.value) + "|" + b + "|" + this.name + "|" + i;
                     a(u);
                     m.outflag = true;
                 }
@@ -16461,8 +17503,8 @@ window.searchTrack = (function(d) {
             var k = this;
             var m = i.type;
             var o = i.searchType;
-            var q = i.fromCity.collateValue;
-            var n = i.toCity.collateValue;
+            var q = encodeURIComponent(i.fromCity.collateValue);
+            var n = encodeURIComponent(i.toCity.collateValue);
             var j = i.toDate.collateValue;
             var p = i.fromDate.collateValue;
             if (o === "oneway" || o === "multitrip") {
