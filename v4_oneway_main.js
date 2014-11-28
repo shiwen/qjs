@@ -5686,6 +5686,9 @@ OnewayFlightWrapperEntity.prototype.rankline = function() {
 OnewayFlightWrapperEntity.prototype.isApplyPrice = function() {
     return this.dataSource().type == "a" && !this.isFakeNormalPrice();
 };
+OnewayFlightWrapperEntity.prototype.isSpecialApp = function() {
+    return this.dataSource().specialApp;
+};
 OnewayFlightWrapperEntity.prototype.packagePrice = function() {
     return this.dataSource().pg;
 };
@@ -6952,7 +6955,7 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
     price = (b === 1 && d.afeePrice()) ? d.afeePrice() : d.bprPrice(), priceInfo = typeof d.ownerFlight().priceInfo == "function" ? d.ownerFlight().priceInfo() : null;
     oprice = priceInfo ? priceInfo.op : Number.MAX_VALUE, attrs = [], carrierCode = d.ownerFlight().carrierCode();
     var c = d.typeOfCabin().indexOf("经济舱") > -1;
-    if (d.isApplyPrice()) {
+    if (d.isApplyPrice() && (!d.isSpecialApp || !d.isSpecialApp())) {
         if (a) {
             attrs.push("zyxapp");
         } else {
