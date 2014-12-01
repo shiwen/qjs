@@ -5457,7 +5457,7 @@ var dflightTool = new function() {
     };
     this.makeurl = function(item) {
         var param = window.location.param();
-        var _url = "oneway_list.htm?searchDepartureAirport=" + encodeURIComponent(item.dc) + "&searchArrivalAirport=" + encodeURIComponent(item.ac) + "&searchDepartureTime=" + item.dt + "&arrivalTime=" + param.searchDepartureTime + "&nextNDays=0&searchType=OneWayFlight&startSearch=true&from=near_airport";
+        var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(item.dc) + "&toCity=" + encodeURIComponent(item.ac) + "&fromDate=" + item.dt + "&toDate=" + param.searchDepartureTime + "&searchType=OnewayFlight&from=near_airport";
         return this.addEx_track(_url);
     };
     this.addEx_track = function(url) {
@@ -6376,23 +6376,27 @@ SortHandler.prototype._init = function() {
         }, 0);
         o = true;
     };
-    var d = function(y) {
+    var d = function(A) {
         if (typeof QunarHistory == "undefined" || !QunarHistory || !QunarHistory.SFlight) {
             setTimeout(function() {
-                d(y);
+                d(A);
             }, 500);
             return;
         }
-        var t = y;
-        var e = encodeURIComponent(t.dept.input);
-        var z = encodeURIComponent(t.dept.country);
-        var s = encodeURIComponent(t.arri.input);
-        var u = encodeURIComponent(t.arri.country);
-        var x = new Date(f.searchDepartureTime.replace(/-/g, "/"));
-        var w = new QunarHistory.SFlight(e, s, new Date().getTime());
-        w.addDate(x);
-        w.addCountry(z + "-" + u);
-        QunarHistory.service.addNode(w);
+        var z = A;
+        var B = encodeURIComponent(z.dept.input);
+        var t = encodeURIComponent(z.dept.country);
+        var s = encodeURIComponent(z.arri.input);
+        var x = encodeURIComponent(z.arri.country);
+        var w = new Date(f.searchDepartureTime.replace(/-/g, "/"));
+        var u = f.fromCode,
+            y = f.toCode;
+        B = u ? B + "(" + u + ")" : B;
+        s = y ? s + "(" + y + ")" : s;
+        var e = new QunarHistory.SFlight(B, s, new Date().getTime());
+        e.addDate(w);
+        e.addCountry(t + "-" + x);
+        QunarHistory.service.addNode(e);
     };
 
     function q() {

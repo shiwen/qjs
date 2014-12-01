@@ -13230,77 +13230,106 @@ function QunarHistoryToolbar(a) {
 }
 $jex.extendClass(QunarHistoryToolbar, XControl);
 QunarHistoryToolbar.prototype._init = function() {
-    var b = this;
+    var c = this;
     var a = this._setting.elemId;
-    var d = $jex.$(a + "_handler");
-    var c = $jex.$(a + "_arrow_up");
-    var g = $jex.$(a + "_arrow_down");
-    var f = $jex.$(a + "_list");
+    var f = this.handler = $jex.$(a + "_handler");
+    var d = $jex.$(a + "_arrow_up");
+    var h = $jex.$(a + "_arrow_down");
+    var g = $jex.$(a + "_list");
     this.loadedHistory = false;
     this.initial = false;
-    $jex.event.binding(d, "click", function(h) {
-        if (!b.initial) {
-            b._initList(a, c, g, f);
+    this.opened = false;
+    var b = window.newTrackAction || window.trackAction;
+    $jex.event.binding(f, "click", function(i) {
+        if (!c.initial) {
+            c._initList(a, d, h, g);
         }
-        $jex.element.toggle(c, g, f);
-        b.opened = !b.opened;
-        b.opened ? trackAction("FI|HIS|OPEN") : trackAction("FI|HIS|CLOSE");
-        $jex.stopEvent(h);
+        $jex.element.toggle(g);
+        if (!c.opened) {
+            c.handler.className = "hisCol";
+            c.opened = true;
+            b("HIS|OPEN");
+        } else {
+            c.handler.className = "hisExp";
+            c.opened = false;
+            b("HIS|CLOSE");
+        }
+        $jex.stopEvent(i);
     });
     if (QunarHistory) {
         $jex.event.binding(QunarHistory, "onload", function() {
-            b.loadedHistory = true;
+            c.loadedHistory = true;
             if (!QunarHistory.DFList && !QunarHistory.SFList) {
-                $jex.element.hide(d);
+                $jex.element.hide(c.handler);
             }
         });
         QunarHistory.load();
     }
 };
-QunarHistoryToolbar.prototype._initList = function(a, d, g, f) {
-    var c = this;
-    var b = [];
-    setTimeout(function() {
-        var j = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
-        try {
-            j.sort(function(i, p) {
-                return p.timestamp - i.timestamp;
-            });
-        } catch (m) {}
-
-        function q(i) {
-            return String(i).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;").replace(/ /g, "&nbsp;");
-        }
-        b.push('<div  id="', a, '_close" class="close"></div>');
-        b.push('<ul id="hulHistroyList">');
-        for (var k = 0, l = j.length; k < l; k++) {
-            var s = j[k];
-            if (!s.ToCity() || !s.FromCity()) {
-                continue;
-            }
-            var h = ["fromCity=" + s.FromCity(), "toCity=" + s.ToCity(), "fromDate=" + s.FromDate()];
-            if (s.Type() == "SF") {
-                var n = "单程 " + s.FromCity() + "-" + s.ToCity() + " " + s.FromDate().replace(/^\d{4}-/, "");
-                h.push("searchType=OnewayFlight");
-            } else {
-                var n = "双程 " + s.FromCity() + "-" + s.ToCity() + " " + s.FromDate().replace(/^\d{4}-/, "") + "~" + s.ToDate().replace(/^\d{4}-/, "");
-                h.push("toDate=" + s.ToDate(), "searchType=RoundTripFlight");
-            }
-            h.push("from=history_bar");
-            var o = encodeURI("/twell/flight/Search.jsp?" + h.join("&"));
-            n = q(n);
-            b.push('<li title="', n, '"><a href="', o, '" key="', k + "", '" target="_blank">', n, "</a></li>");
-        }
-        b.push("</ul>");
-        f.innerHTML = b.join("");
-        $jex.event.binding($jex.$(a + "_close"), "click", function(i) {
-            $jex.element.toggle(d, g, f);
-            c.opened = false;
-            trackAction("FI|HIS|CLOSE");
-            $jex.stopEvent(i);
+QunarHistoryToolbar.prototype._initList = function(d, q, A, t) {
+    var h = this;
+    var n = [];
+    var z = (QunarHistory.DFList || []).concat(QunarHistory.SFList || []);
+    try {
+        z.sort(function(i, p) {
+            return p.timestamp - i.timestamp;
         });
-        c.initial = true;
-    }, 10);
+    } catch (w) {}
+
+    function k(i) {
+        return String(i).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;").replace(/ /g, "&nbsp;");
+    }
+    n.push('<div  id="', d, '_close" class="btnClose"></div>');
+    n.push('<ul id="hulHistroyList">');
+    var b = /\(([A-Z]{3})\)/;
+    for (var o = 0, s = z.length; o < s; o++) {
+        var x = z[o],
+            c = x.FromCity(),
+            m = x.ToCity(),
+            g = x.FromDate(),
+            y = x.ToDate ? x.ToDate() : "";
+        var l = "",
+            a = "";
+        if (!m || !c) {
+            continue;
+        }
+        if (b.test(c)) {
+            l = c.match(b)[1];
+            c = c.replace(b, "");
+        }
+        if (b.test(m)) {
+            a = m.match(b)[1];
+            m = m.replace(b, "");
+        }
+        var j = ["fromCity=" + c, "toCity=" + m, "fromDate=" + g];
+        if (l) {
+            j.push("fromCode=" + l);
+        }
+        if (a) {
+            j.push("toCode=" + a);
+        }
+        if (x.Type() == "SF") {
+            var B = "单程 " + c + "-" + m + " " + g.replace(/^\d{4}-/, "");
+            j.push("searchType=OnewayFlight");
+        } else {
+            var B = "双程 " + c + "-" + m + " " + g.replace(/^\d{4}-/, "") + "~" + y.replace(/^\d{4}-/, "");
+            j.push("toDate=" + y, "searchType=RoundTripFlight");
+        }
+        j.push("from=history_bar");
+        var f = encodeURI("/twell/flight/Search.jsp?" + j.join("&"));
+        B = k(B);
+        n.push('<li title="', B, '"><a href="', f, '" key="', o + "", '" target="_blank">', B, "</a></li>");
+    }
+    n.push("</ul>");
+    t.innerHTML = n.join("");
+    $jex.event.binding($jex.$(d + "_close"), "click", function(i) {
+        $jex.element.toggle(t);
+        h.handler.className = "hisExp";
+        h.opened = false;
+        (window.newTrackAction || window.trackAction)("HIS|CLOSE");
+        $jex.stopEvent(i);
+    });
+    this.initial = true;
 };
 
 function FocusChecker(f, g) {
@@ -13608,52 +13637,53 @@ XPopupManager.prototype.get = function(a) {
     return this.popups[a];
 };
 
-function FlightCityXCombox(c, d, b) {
-    var h = new Date();
-    var a = this;
-    this.setting = b || {};
-    var g;
-    var f = new ScriptRequest({
-        oncomplete: function(i) {
-            a.suggLoaded(i);
+function FlightCityXCombox(d, f, c) {
+    var i = new Date();
+    var b = this;
+    this.setting = c || {};
+    var a = "http://www.qunar.com/suggest/livesearch2.jsp?lang=zh&sa=true&ver=1&q=";
+    var h;
+    var g = new ScriptRequest({
+        oncomplete: function(j) {
+            b.suggLoaded(j);
         },
         callbackName: "callback"
     });
-    FlightCityXCombox.superclass.constructor.call(this, c, {
+    FlightCityXCombox.superclass.constructor.call(this, d, {
         button: {
-            mousedown: function(i) {
+            mousedown: function(j) {
                 this.openMainMenu();
-                i && $jex.stopEvent(i);
+                j && $jex.stopEvent(j);
             }
         },
         input: {
-            change: function(l, j, k) {
-                g = l.replace(/\s+/g, " ");
-                g = g.replace(/^\s+/, "");
-                g = g.replace(/\s+$/, "");
-                l = l.replace(/\s/g, "");
-                if (!k) {
+            change: function(m, k, l) {
+                h = m.replace(/\s+/g, " ");
+                h = h.replace(/^\s+/, "");
+                h = h.replace(/\s+$/, "");
+                m = m.replace(/\s/g, "");
+                if (!l) {
                     this.vidx = -1;
-                    this.inputold = l;
-                    l = l.replace(/[~!@#\$%\^&\*\(\)_\+<>\?:\\\\"\|\{\}`,\.\/;'\\\{\}]+/ig, "");
-                    if (l) {
-                        var i = this.popups.get("suggest");
-                        i && i.layer && (i.layer.cursor = -1);
-                        f.cancel();
-                        if (this.cache[l]) {
-                            a.suggLoaded(this.cache[l]);
+                    this.inputold = m;
+                    m = m.replace(/([~!@#\$%\^&\*\(\)_\+<>\?:\\\\"\|\{\}`,\.\/;'\\\{\}]+)/ig, "\\$1");
+                    if (m) {
+                        var j = this.popups.get("suggest");
+                        j && j.layer && (j.layer.cursor = -1);
+                        g.cancel();
+                        if (this.cache[m]) {
+                            b.suggLoaded(this.cache[m]);
                         } else {
-                            f.send("http://www.qunar.com/suggest/livesearch2.jsp?lang=zh&q=" + encodeURIComponent(l) + "&sa=true&ver=1");
+                            g.send(a + encodeURIComponent(m));
                         }
                     } else {
                         this.popups.close();
                     }
                 } else {
-                    $jex.event.trigger(d, "cityfinished", this.getValue());
+                    $jex.event.trigger(f, "cityfinished", this.getValue());
                 }
             },
-            keypress: function(i) {
-                this.keypress(i, i.keyCode);
+            keypress: function(j) {
+                this.keypress(j, j.keyCode);
             }
         },
         focus: function() {
@@ -13662,13 +13692,13 @@ function FlightCityXCombox(c, d, b) {
         },
         blur: function() {
             if (this.vidx == -1) {
-                var i = this.popups.get("suggest");
-                if (i && i.layer && (i.layer.cursor > -1)) {
-                    var j = i.layer.nodes[i.layer.cursor].item;
-                    this.setCountry(j.country);
-                    this.setValue(j.key);
+                var j = this.popups.get("suggest");
+                if (j && j.layer && (j.layer.cursor > -1)) {
+                    var k = j.layer.nodes[j.layer.cursor].item;
+                    this.setCountry(k.country);
+                    this.setValue(k.key + (k.code ? "(" + k.code + ")" : ""));
                     this.vidx = 0;
-                    $jex.event.trigger(a, "select", j.key);
+                    $jex.event.trigger(b, "select", k.key);
                 }
             }
             this.setTip();
@@ -13676,87 +13706,88 @@ function FlightCityXCombox(c, d, b) {
         popups: {
             main: {
                 initialize: function() {
-                    var q = a.getHotCityConfig("tabs");
-                    var n = a.getHotCityConfig("contents");
+                    var q = b.getHotCityConfig("tabs");
+                    var n = b.getHotCityConfig("contents");
                     if (!q || !n) {
                         return false;
                     }
                     var j = [];
                     var l = new UIObject();
                     var s = "__flightcitybox_" + $jex.globalID();
-                    var p = function(i) {
-                        return function(u) {
-                            var I = [];
-                            if (!n[i]) {
+                    var p = function(w) {
+                        return function(x) {
+                            var K = [];
+                            if (!n[w]) {
                                 return false;
                             }
-                            var F = n[i].cityList;
-                            if (!F) {
+                            var H = n[w].cityList;
+                            if (!H) {
                                 return false;
                             }
-                            var x = n[i].charSort;
-                            if (!x) {
-                                I.push("<ul>");
-                                for (var C = 0; C < F.length; C++) {
-                                    var A = F[C];
-                                    I.push('<li country="' + A.country + '" key="' + A.name + '"><a href="#nogo#">' + A.name + "</a></li>");
+                            var z = n[w].charSort;
+                            if (!z) {
+                                K.push("<ul>");
+                                for (var E = 0; E < H.length; E++) {
+                                    K.push(u(H[E]));
                                 }
-                                I.push("</ul>");
+                                K.push("</ul>");
                             } else {
-                                for (var C = 0; C < F.length; C++) {
-                                    var A = F[C];
-                                    var D = A.list;
-                                    I.push('<dl class="e-hct-lst"><dt>' + A["char"] + " </dt><dd><ul>");
-                                    for (var B = 0; B < D.length; B++) {
-                                        var E = D[B];
-                                        if (E.name.length > 6) {
-                                            var z = E.name.indexOf("(");
-                                            if (z === -1) {
-                                                z = E.name.indexOf("（");
+                                for (var E = 0; E < H.length; E++) {
+                                    var C = H[E];
+                                    var F = C.list;
+                                    K.push('<dl class="e-hct-lst"><dt>' + C["char"] + " </dt><dd><ul>");
+                                    for (var D = 0; D < F.length; D++) {
+                                        var G = F[D];
+                                        if (G.name.length > 6) {
+                                            var B = G.name.indexOf("(");
+                                            if (B === -1) {
+                                                B = G.name.indexOf("（");
                                             }
-                                            I.push('<li country="' + E.country + '" key="' + E.name + '"><a title="' + E.name + '" href="#nogo#">' + E.name.slice(0, z) + "</a></li>");
+                                            K.push('<li country="' + G.country + '" key="' + G.name + '" code="', G.code, '"><a title="' + G.name + '" href="#nogo#">' + G.name.slice(0, B) + "</a></li>");
                                         } else {
-                                            I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                                            K.push(u(G));
                                         }
                                     }
-                                    I.push("</ul></dd></dl>");
+                                    K.push("</ul></dd></dl>");
                                 }
                             }
-                            var H = n[i].countryList;
-                            if (H) {
-                                for (var C = 0; C < H.length; C++) {
-                                    var w = H[C];
-                                    var D = w.list;
-                                    I.push('<div class="e-fuzzy-line"></div>');
-                                    I.push('<dl class="e-hct-lst"><dt>' + w["char"] + " </dt><dd><ul>");
-                                    for (var C = 0; C < D.length; C++) {
-                                        var E = D[C];
-                                        I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                            var J = n[w].countryList;
+                            if (J) {
+                                for (var E = 0; E < J.length; E++) {
+                                    var y = J[E];
+                                    var F = y.list;
+                                    K.push('<div class="e-fuzzy-line"></div>');
+                                    K.push('<dl class="e-hct-lst"><dt>' + y["char"] + " </dt><dd><ul>");
+                                    for (var E = 0; E < F.length; E++) {
+                                        K.push(u(F[E]));
                                     }
-                                    I.push("</ul></dd></dl>");
+                                    K.push("</ul></dd></dl>");
                                 }
                             }
-                            var y = n[i].hotList;
-                            if (y) {
-                                for (var C = 0; C < y.length; C++) {
-                                    var G = y[C];
-                                    var D = G.list;
-                                    I.push('<div class="e-fuzzy-line"></div>');
-                                    I.push('<dl class="e-hct-lst"><dt>' + G["char"] + " </dt><dd><ul>");
-                                    for (var C = 0; C < D.length; C++) {
-                                        var E = D[C];
-                                        I.push('<li country="' + E.country + '" key="' + E.name + '"><a href="#nogo#">' + E.name + "</a></li>");
+                            var A = n[w].hotList;
+                            if (A) {
+                                for (var E = 0; E < A.length; E++) {
+                                    var I = A[E];
+                                    var F = I.list;
+                                    K.push('<div class="e-fuzzy-line"></div>');
+                                    K.push('<dl class="e-hct-lst"><dt>' + I["char"] + " </dt><dd><ul>");
+                                    for (var E = 0; E < F.length; E++) {
+                                        K.push(u(F[E]));
                                     }
-                                    I.push("</ul></dd></dl>");
+                                    K.push("</ul></dd></dl>");
                                 }
                             }
-                            u.innerHTML = I.join("");
-                            if (n[i].cls) {
-                                $jex.$(s).className = n[i].cls;
+                            x.innerHTML = K.join("");
+                            if (n[w].cls) {
+                                $jex.$(s).className = n[w].cls;
                             } else {
                                 $jex.$(s).className = "";
                             }
                         };
+
+                        function u(x) {
+                            return ['<li country="', x.country, '" key="', x.name, '" code="', x.code, '">', '<a href="#nogo#">', x.name, "</a></li>"].join("");
+                        }
                     };
                     l.text('<div class="ui-city-sug" hotcitytype="1">').append("<i", "close", ' class="ico-close"></i>').append('<div class="m-hct-nav">');
                     for (var o = 0; o < q.length; o++) {
@@ -13778,28 +13809,36 @@ function FlightCityXCombox(c, d, b) {
                         panelContainerID: s,
                         items: j
                     });
-                    $jex.event.bind(m, "onselected", function(u) {
-                        var i = n[u.tabname];
-                        if (i.cls) {
-                            $jex.$(s).className = i.cls;
+                    $jex.event.bind(m, "onselected", function(w) {
+                        var u = n[w.tabname];
+                        if (u.cls) {
+                            $jex.$(s).className = u.cls;
                         } else {
                             $jex.$(s).className = "";
                         }
                     });
                     $jex.event.add(this, "open", function() {
-                        $jex.event.trigger(a, "openHotCity");
+                        $jex.event.trigger(b, "openHotCity");
                     });
                     var t = this.own;
-                    $jex.event.bindDom($jex.$(s), "mousedown", this, function(i, u) {
-                        if (i.target.tagName == "A") {
-                            var w = $jex.trim(i.target.title || i.target.innerHTML);
-                            t.setCountry(i.target.parentNode.getAttribute("country"));
-                            t.setValue(w);
+                    $jex.event.bindDom($jex.$(s), "mousedown", this, function(w, y) {
+                        var x = w.target,
+                            u = x.tagName.toLowerCase();
+                        if (u == "a") {
+                            x = x.parentNode;
+                            u = x.tagName.toLowerCase();
+                        }
+                        if (u == "li") {
+                            var A = x.getAttribute("key"),
+                                z = x.getAttribute("code"),
+                                B = x.getAttribute("country");
+                            t.setCountry(B);
+                            t.setValue(A + (z ? "(" + z + ")" : ""));
                             t.setInfo("");
                             t.popups.close();
-                            $jex.event.trigger(a, "selectHotCity", w);
-                            $jex.event.trigger(a, "select", w);
-                            a._invalid = false;
+                            $jex.event.trigger(b, "selectHotCity", A);
+                            $jex.event.trigger(b, "select", A);
+                            b._invalid = false;
                         }
                     });
                     $jex.event.bind(l.getDomNode("close"), "click", function() {
@@ -13812,46 +13851,46 @@ function FlightCityXCombox(c, d, b) {
             },
             suggest: {
                 initialize: function() {
-                    var i = this;
-                    this.layer = new FlightSuggestItemListLayer(this, a.setting.suggestType);
-                    $jex.event.bind(this.layer, "haveData", function(j) {
-                        $jex.event.trigger(i, "haveData", j);
+                    var j = this;
+                    this.layer = new FlightSuggestItemListLayer(this, b.setting.suggestType);
+                    $jex.event.bind(this.layer, "haveData", function(k) {
+                        $jex.event.trigger(j, "haveData", k);
                     });
                     $jex.event.bind(this.layer, "suggest-nofind", function() {
-                        $jex.event.trigger(i, "suggest-nofind");
+                        $jex.event.trigger(j, "suggest-nofind");
                     });
-                    $jex.event.bind(this.layer, "getResultData", function(j) {
-                        $jex.event.trigger(i, "getResultData", null, j);
+                    $jex.event.bind(this.layer, "getResultData", function(k) {
+                        $jex.event.trigger(j, "getResultData", null, k);
                     });
                     $jex.event.bind(this.layer, "errorInfo", function() {
-                        $jex.event.trigger(i, "errorInfo");
+                        $jex.event.trigger(j, "errorInfo");
                     });
-                    $jex.event.bind(this.layer, "select", function(j, n) {
-                        var m = this.popup.own,
-                            l = this.nodes;
-                        if (j > -1) {
-                            m.setCountry(l[j].item.country);
-                        }
-                        if (j > -1) {
-                            n ? m.setValue(l[j].item.key) : m.volateValue(l[j].item.key);
+                    $jex.event.bind(this.layer, "select", function(p, o) {
+                        var t = this.popup.own,
+                            k = this.nodes,
+                            s = k[p] ? k[p].item : null;
+                        if (p > -1) {
+                            t.setCountry(s.country);
+                            var l = s.code ? ("(" + s.code + ")") : "";
+                            o ? t.setValue(s.key + l) : t.volateValue(s.key);
                         } else {
-                            n ? m.initValue(m.inputold) : m.volateValue(m.inputold);
+                            o ? t.initValue(t.inputold) : t.volateValue(t.inputold);
                         }
-                        m.vidx = j;
-                        if (n) {
-                            var p = l[j].item.key;
-                            var o;
-                            if (p === "所有地点") {
-                                o = "allPlace";
+                        t.vidx = p;
+                        if (o) {
+                            var n = s.key;
+                            var m;
+                            if (n === "所有地点") {
+                                m = "allPlace";
                             } else {
-                                o = this.cacheData[j].ftypename;
+                                m = this.cacheData[p].ftypename;
                             }
-                            $jex.event.trigger(i, "suggest-selected", null, p, j, o);
-                            $jex.event.trigger(a, "select", p);
+                            $jex.event.trigger(j, "suggest-selected", null, n, p, m);
+                            $jex.event.trigger(b, "select", n);
                             this.popup.close();
-                            var k = window.newTrackAction || window.trackAction;
-                            if (k) {
-                                k("QH|HCT|suggest|" + encodeURIComponent(p), null, false);
+                            var q = window.newTrackAction || window.trackAction;
+                            if (q) {
+                                q("QH|HCT|suggest|" + encodeURIComponent(n), null, false);
                             }
                         }
                     });
@@ -13867,73 +13906,73 @@ function FlightCityXCombox(c, d, b) {
                 }
             },
             clear: function() {
-                var i = this.popups.get("suggest");
-                i && i.layer && (i.layer.cursor = -1);
+                var j = this.popups.get("suggest");
+                j && j.layer && (j.layer.cursor = -1);
                 this.setValue("");
                 this.setTip();
             },
-            getHotCityConfig: function(j) {
-                var i = this.setting.hotCityConfig;
-                if (i && i[j]) {
-                    return i[j];
+            getHotCityConfig: function(k) {
+                var j = this.setting.hotCityConfig;
+                if (j && j[k]) {
+                    return j[k];
                 }
             },
-            setHotCityConfig: function(i) {
-                this.setting.hotCityConfig = i;
+            setHotCityConfig: function(j) {
+                this.setting.hotCityConfig = j;
             },
             invalid: function() {
                 return this._invalid;
             },
             cache: {},
-            suggLoaded: function(j) {
-                var l = this.popups.open("suggest"),
-                    i = j ? j.result : null,
-                    k = i ? i[0] : null;
-                if (j) {
-                    this.cache[j.userInput] = j;
+            suggLoaded: function(k) {
+                var m = this.popups.open("suggest"),
+                    j = k ? k.result : null,
+                    l = j ? j[0] : null;
+                if (k) {
+                    this.cache[k.userInput] = k;
                 }
-                if (!j || !i || i.length == 0 || !k.key || !k.type || !k.display) {
+                if (!k || !j || j.length == 0 || !l.key || !l.type || !l.display) {
                     this.setInfo("");
-                    j.q = j.userInput;
+                    k.q = k.userInput;
                     if (this.lastCache) {
-                        this.lastCache.userInput = j.q;
-                        l.layer.refresh(this.lastCache, true, g);
-                        l.layer.enter(0);
+                        this.lastCache.userInput = k.q;
+                        m.layer.refresh(this.lastCache, true, h);
+                        m.layer.enter(0);
                     } else {
-                        l.layer.error();
+                        m.layer.error();
                         this._invalid = true;
                     }
                     return;
                 }
                 this._invalid = false;
                 this.setInfo("");
-                j.q = j.userInput;
-                l.layer.refresh(j, false, g);
-                this.lastCache = $jex.extend({}, j);
-                if (!this.lastCache && !j) {
-                    $jex.event.trigger(l, "noDatalook", null, j);
+                k.q = k.userInput;
+                m.layer.refresh(k, false, h);
+                this.lastCache = $jex.extend({}, k);
+                if (!this.lastCache && !k) {
+                    $jex.event.trigger(m, "noDatalook", null, k);
                 }
-                l.layer.enter(0);
+                m.layer.enter(0);
             },
-            keypress: function(j, k) {
+            keypress: function(k, l) {
                 if (this._invalid) {
                     return;
                 }
-                var i = this.popups.get("suggest");
-                if (!i || !i.isOpend()) {
+                var j = this.popups.get("suggest");
+                if (!j || !j.isOpend()) {
                     return;
                 }
-                switch (k) {
+                switch (l) {
                     case 40:
-                        i.layer.moveCursor(1, true);
+                        j.layer.moveCursor(1, true);
                         break;
                     case 38:
-                        i.layer.moveCursor(-1, true);
+                        j.layer.moveCursor(-1, true);
                         break;
                     case 13:
-                        $jex.stopEvent(j);
-                        i.layer.select(i.layer.cursor, true);
-                        i.close();
+                        $jex.stopEvent(k);
+                        j.layer.select(j.layer.cursor, true);
+                        j.close();
                         break;
                     default:
                 }
@@ -14432,185 +14471,245 @@ TabGroup.prototype._bindEvent = function() {
 };
 var __hotCityListFrom__ = [{
     name: "上海",
-    country: "中国"
+    country: "中国",
+    code: "SHA"
 }, {
     name: "北京",
-    country: "中国"
+    country: "中国",
+    code: "BJS"
 }, {
     name: "广州",
-    country: "中国"
+    country: "中国",
+    code: "CAN"
 }, {
     name: "昆明",
-    country: "中国"
+    country: "中国",
+    code: "KMG"
 }, {
     name: "西安",
-    country: "中国"
+    country: "中国",
+    code: "SIA"
 }, {
     name: "成都",
-    country: "中国"
+    country: "中国",
+    code: "CTU"
 }, {
     name: "深圳",
-    country: "中国"
+    country: "中国",
+    code: "SZX"
 }, {
     name: "厦门",
-    country: "中国"
+    country: "中国",
+    code: "XMN"
 }, {
     name: "乌鲁木齐",
-    country: "中国"
+    country: "中国",
+    code: "URC"
 }, {
     name: "南京",
-    country: "中国"
+    country: "中国",
+    code: "NKG"
 }, {
     name: "重庆",
-    country: "中国"
+    country: "中国",
+    code: "CKG"
 }, {
     name: "杭州",
-    country: "中国"
+    country: "中国",
+    code: "HGH"
 }, {
     name: "大连",
-    country: "中国"
+    country: "中国",
+    code: "DLC"
 }, {
     name: "长沙",
-    country: "中国"
+    country: "中国",
+    code: "CSX"
 }, {
     name: "海口",
-    country: "中国"
+    country: "中国",
+    code: "HAK"
 }, {
     name: "哈尔滨",
-    country: "中国"
+    country: "中国",
+    code: "HRB"
 }, {
     name: "青岛",
-    country: "中国"
+    country: "中国",
+    code: "TAO"
 }, {
     name: "沈阳",
-    country: "中国"
+    country: "中国",
+    code: "SHE"
 }, {
     name: "三亚",
-    country: "中国"
+    country: "中国",
+    code: "SYX"
 }, {
     name: "济南",
-    country: "中国"
+    country: "中国",
+    code: "TNA"
 }, {
     name: "武汉",
-    country: "中国"
+    country: "中国",
+    code: "WUH"
 }, {
-    name: "郑州  ",
-    country: "中国"
+    name: "郑州",
+    country: "中国",
+    code: "CGO"
 }, {
     name: "贵阳",
-    country: "中国"
+    country: "中国",
+    code: "KWE"
 }, {
     name: "南宁",
-    country: "中国"
+    country: "中国",
+    code: "NNG"
 }, {
     name: "福州",
-    country: "中国"
+    country: "中国",
+    code: "FOC"
 }, {
     name: "天津",
-    country: "中国"
+    country: "中国",
+    code: "TSN"
 }, {
     name: "长春",
-    country: "中国"
+    country: "中国",
+    code: "CGQ"
 }, {
     name: "太原",
-    country: "中国"
+    country: "中国",
+    code: "TYN"
 }, {
     name: "南昌",
-    country: "中国"
+    country: "中国",
+    code: "KHN"
 }, {
     name: "丽江",
-    country: "中国"
+    country: "中国",
+    code: "LJG"
 }];
 var __hotCityListTo__ = [{
     name: "上海",
-    country: "中国"
+    country: "中国",
+    code: "SHA"
 }, {
     name: "北京",
-    country: "中国"
+    country: "中国",
+    code: "BJS"
 }, {
     name: "广州",
-    country: "中国"
+    country: "中国",
+    code: "CAN"
 }, {
     name: "昆明",
-    country: "中国"
+    country: "中国",
+    code: "KMG"
 }, {
     name: "西安",
-    country: "中国"
+    country: "中国",
+    code: "SIA"
 }, {
     name: "成都",
-    country: "中国"
+    country: "中国",
+    code: "CTU"
 }, {
     name: "深圳",
-    country: "中国"
+    country: "中国",
+    code: "CZX"
 }, {
     name: "厦门",
-    country: "中国"
+    country: "中国",
+    code: "XMN"
 }, {
     name: "乌鲁木齐",
-    country: "中国"
+    country: "中国",
+    code: "URC"
 }, {
     name: "南京",
-    country: "中国"
+    country: "中国",
+    code: "NKG"
 }, {
     name: "重庆",
-    country: "中国"
+    country: "中国",
+    code: "CKG"
 }, {
     name: "杭州",
-    country: "中国"
+    country: "中国",
+    code: "HGH"
 }, {
     name: "大连",
-    country: "中国"
+    country: "中国",
+    code: "DLC"
 }, {
     name: "长沙",
-    country: "中国"
+    country: "中国",
+    code: "CSX"
 }, {
     name: "海口",
-    country: "中国"
+    country: "中国",
+    code: "HAK"
 }, {
     name: "哈尔滨",
-    country: "中国"
+    country: "中国",
+    code: "HRB"
 }, {
     name: "青岛",
-    country: "中国"
+    country: "中国",
+    code: "TAO"
 }, {
     name: "沈阳",
-    country: "中国"
+    country: "中国",
+    code: "SHE"
 }, {
     name: "三亚",
-    country: "中国"
+    country: "中国",
+    code: "SYX"
 }, {
     name: "济南",
-    country: "中国"
+    country: "中国",
+    code: "TNA"
 }, {
     name: "武汉",
-    country: "中国"
+    country: "中国",
+    code: "WUH"
 }, {
-    name: "郑州  ",
-    country: "中国"
+    name: "郑州",
+    country: "中国",
+    code: "CGO"
 }, {
     name: "贵阳",
-    country: "中国"
+    country: "中国",
+    code: "KWE"
 }, {
     name: "南宁",
-    country: "中国"
+    country: "中国",
+    code: "NNG"
 }, {
     name: "福州",
-    country: "中国"
+    country: "中国",
+    code: "FOC"
 }, {
     name: "天津",
-    country: "中国"
+    country: "中国",
+    code: "TSN"
 }, {
     name: "南昌",
-    country: "中国"
+    country: "中国",
+    code: "KHN"
 }, {
     name: "丽江",
-    country: "中国"
+    country: "中国",
+    code: "LJG"
 }, {
     name: "香港",
-    country: "中国"
+    country: "中国",
+    code: "HKG"
 }, {
     name: "台北",
-    country: "中国"
+    country: "中国",
+    code: "TPE"
 }];
 var __hotAreaListTo__ = [{
     name: "华北",
@@ -14636,401 +14735,531 @@ var __hotAreaListTo__ = [{
 }];
 var __hotCityListInterFrom__ = [{
     name: "上海",
-    country: "中国"
+    country: "中国",
+    code: "SHA"
 }, {
     name: "北京",
-    country: "中国"
+    country: "中国",
+    code: "BJS"
 }, {
     name: "香港",
-    country: "中国"
+    country: "中国",
+    code: "HKG"
 }, {
     name: "厦门",
-    country: "中国"
+    country: "中国",
+    code: "XMN"
 }, {
     name: "重庆",
-    country: "中国"
+    country: "中国",
+    code: "CKG"
 }, {
     name: "广州",
-    country: "中国"
+    country: "中国",
+    code: "CAN"
 }, {
     name: "成都",
-    country: "中国"
+    country: "中国",
+    code: "CTU"
 }, {
     name: "昆明",
-    country: "中国"
+    country: "中国",
+    code: "KMG"
 }, {
     name: "曼谷",
-    country: "泰国"
+    country: "泰国",
+    code: "BKK"
 }, {
     name: "南京",
-    country: "中国"
+    country: "中国",
+    code: "NKG"
 }, {
     name: "杭州",
-    country: "中国"
+    country: "中国",
+    code: "HGH"
 }, {
     name: "深圳",
-    country: "中国"
+    country: "中国",
+    code: "SZX"
 }, {
     name: "首尔",
-    country: "韩国"
+    country: "韩国",
+    code: "SEL"
 }, {
     name: "沈阳",
-    country: "中国"
+    country: "中国",
+    code: "SHE"
 }, {
     name: "澳门",
-    country: "中国澳门"
+    country: "中国澳门",
+    code: "MFM"
 }, {
     name: "新加坡",
-    country: "新加坡"
+    country: "新加坡",
+    code: "SIN"
 }, {
     name: "武汉",
-    country: "中国"
+    country: "中国",
+    code: "WUH"
 }, {
     name: "天津",
-    country: "中国"
+    country: "中国",
+    code: "TSN"
 }, {
     name: "青岛",
-    country: "中国"
+    country: "中国",
+    code: "TAO"
 }, {
     name: "西安",
-    country: "中国"
+    country: "中国",
+    code: "SIA"
 }, {
     name: "大连",
-    country: "中国"
+    country: "中国",
+    code: "DLC"
 }, {
     name: "台北",
-    country: "中国"
+    country: "中国",
+    code: "TPE"
 }, {
     name: "东京",
-    country: "日本"
+    country: "日本",
+    code: "TYO"
 }, {
     name: "吉隆坡",
-    country: "马来西亚"
+    country: "马来西亚",
+    code: "KUL"
 }, {
     name: "南宁",
-    country: "中国"
+    country: "中国",
+    code: "NNG"
 }, {
     name: "福州",
-    country: "中国"
+    country: "中国",
+    code: "FOC"
 }, {
     name: "普吉",
-    country: "泰国"
+    country: "泰国",
+    code: "HKT"
 }, {
     name: "长沙",
-    country: "中国"
+    country: "中国",
+    code: "CSX"
 }, {
     name: "哈尔滨",
-    country: "中国"
+    country: "中国",
+    code: "HRB"
 }, {
     name: "悉尼",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "SYD"
 }];
 var __hotCityListInterTo__ = [{
     name: "香港",
-    country: "中国香港"
+    country: "中国香港",
+    code: "HKG"
 }, {
     name: "曼谷",
-    country: "泰国"
+    country: "泰国",
+    code: "BKK"
 }, {
     name: "新加坡",
-    country: "新加坡"
+    country: "新加坡",
+    code: "SIN"
 }, {
     name: "马尼拉",
-    country: "菲律宾"
+    country: "菲律宾",
+    code: "MNL"
 }, {
     name: "墨尔本",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "MEL"
 }, {
     name: "首尔",
-    country: "韩国"
+    country: "韩国",
+    code: "SEL"
 }, {
     name: "澳门",
-    country: "中国澳门"
+    country: "中国澳门",
+    code: "MFM"
 }, {
     name: "吉隆坡",
-    country: "马来西亚"
+    country: "马来西亚",
+    code: "KUL"
 }, {
     name: "旧金山",
-    country: "美国"
+    country: "美国",
+    code: "SFO"
 }, {
     name: "暹粒",
-    country: "柬埔寨"
+    country: "柬埔寨",
+    code: "REP"
 }, {
     name: "台北",
-    country: "中国台湾"
+    country: "中国台湾",
+    code: "TPE"
 }, {
     name: "普吉",
-    country: "泰国"
+    country: "泰国",
+    code: "HKT"
 }, {
     name: "大阪",
-    country: "日本"
+    country: "日本",
+    code: "OSA"
 }, {
     name: "巴厘岛",
-    country: "印度尼西亚"
+    country: "印度尼西亚",
+    code: "DPS"
 }, {
     name: "伦敦",
-    country: "英国"
+    country: "英国",
+    code: "LON"
 }, {
     name: "东京",
-    country: "日本"
+    country: "日本",
+    code: "TYO"
 }, {
     name: "胡志明市",
-    country: "越南"
+    country: "越南",
+    code: "SGN"
 }, {
     name: "纽约",
-    country: "美国"
+    country: "美国",
+    code: "NYC"
 }, {
     name: "高雄",
-    country: "中国台湾"
+    country: "中国台湾",
+    code: "KHH"
 }, {
     name: "釜山",
-    country: "韩国"
+    country: "韩国",
+    code: "PUS"
 }, {
     name: "洛杉矶",
-    country: "美国"
+    country: "美国",
+    code: "LAX"
 }, {
     name: "悉尼",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "SYD"
 }, {
     name: "苏梅岛",
-    country: "泰国"
+    country: "泰国",
+    code: "USM"
 }, {
     name: "济州岛",
-    country: "韩国"
+    country: "韩国",
+    code: "CJU"
 }, {
     name: "温哥华",
-    country: "加拿大"
+    country: "加拿大",
+    code: "YVR"
 }, {
     name: "清迈",
-    country: "泰国"
+    country: "泰国",
+    code: "CNX"
 }, {
     name: "加德满都",
-    country: "尼泊尔"
+    country: "尼泊尔",
+    code: "KTM"
 }, {
     name: "雅加达",
-    country: "印度尼西亚"
+    country: "印度尼西亚",
+    code: "JKT"
 }, {
     name: "金边",
-    country: "柬埔寨"
+    country: "柬埔寨",
+    code: "PNH"
 }, {
     name: "迪拜",
-    country: "阿拉伯联合酋长国"
+    country: "阿拉伯联合酋长国",
+    code: "DXB"
 }];
 var __inter__ = [{
     name: "香港",
-    country: "中国香港"
+    country: "中国香港",
+    code: "HKG"
 }, {
     name: "曼谷",
-    country: "泰国"
+    country: "泰国",
+    code: "BKK"
 }, {
     name: "新加坡",
-    country: "新加坡"
+    country: "新加坡",
+    code: "SIN"
 }, {
     name: "马尼拉",
-    country: "菲律宾"
+    country: "菲律宾",
+    code: "MNL"
 }, {
     name: "墨尔本",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "MEL"
 }, {
     name: "首尔",
-    country: "韩国"
+    country: "韩国",
+    code: "SEL"
 }, {
     name: "澳门",
-    country: "中国澳门"
+    country: "中国澳门",
+    code: "MFM"
 }, {
     name: "吉隆坡",
-    country: "马来西亚"
+    country: "马来西亚",
+    code: "KUL"
 }, {
     name: "旧金山",
-    country: "美国"
+    country: "美国",
+    code: "SFO"
 }, {
     name: "暹粒",
-    country: "柬埔寨"
+    country: "柬埔寨",
+    code: "REP"
 }, {
     name: "台北",
-    country: "中国台湾"
+    country: "中国台湾",
+    code: "TPE"
 }, {
     name: "普吉",
-    country: "泰国"
+    country: "泰国",
+    code: "HKT"
 }, {
     name: "大阪",
-    country: "日本"
+    country: "日本",
+    code: "OSA"
 }, {
     name: "巴厘岛",
-    country: "印度尼西亚"
+    country: "印度尼西亚",
+    code: "DPS"
 }, {
     name: "伦敦",
-    country: "英国"
+    country: "英国",
+    code: "LON"
 }, {
     name: "东京",
-    country: "日本"
+    country: "日本",
+    code: "TYO"
 }, {
     name: "胡志明市",
-    country: "越南"
+    country: "越南",
+    code: "SGN"
 }, {
     name: "纽约",
-    country: "美国"
+    country: "美国",
+    code: "NYC"
 }, {
     name: "高雄",
-    country: "中国台湾"
+    country: "中国台湾",
+    code: "KHH"
 }, {
     name: "釜山",
-    country: "韩国"
+    country: "韩国",
+    code: "PUS"
 }, {
     name: "洛杉矶",
-    country: "美国"
+    country: "美国",
+    code: "LAX"
 }, {
     name: "悉尼",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "SYD"
 }, {
     name: "苏梅岛",
-    country: "泰国"
+    country: "泰国",
+    code: "USM"
 }, {
     name: "济州岛",
-    country: "韩国"
+    country: "韩国",
+    code: "CJU"
 }, {
     name: "温哥华",
-    country: "加拿大"
+    country: "加拿大",
+    code: "YVR"
 }, {
     name: "清迈",
-    country: "泰国"
+    country: "泰国",
+    code: "CNX"
 }, {
     name: "加德满都",
-    country: "尼泊尔"
+    country: "尼泊尔",
+    code: "KTM"
 }, {
     name: "雅加达",
-    country: "印度尼西亚"
+    country: "印度尼西亚",
+    code: "JKT"
 }, {
     name: "金边",
-    country: "柬埔寨"
+    country: "柬埔寨",
+    code: "PNH"
 }, {
     name: "迪拜",
-    country: "阿拉伯联合酋长国"
+    country: "阿拉伯联合酋长国",
+    code: "DXB"
 }];
 var __interCountry__ = [{
     name: "中国",
-    country: "中国"
+    country: "中国",
+    code: "CN"
 }, {
     name: "韩国",
-    country: "韩国"
+    country: "韩国",
+    code: "KR"
 }, {
     name: "泰国",
-    country: "泰国"
+    country: "泰国",
+    code: "TH"
 }, {
     name: "美国",
-    country: "美国"
+    country: "美国",
+    code: "US"
 }, {
     name: "加拿大",
-    country: "加拿大"
+    country: "加拿大",
+    code: "CA"
 }, {
     name: "日本",
-    country: "日本"
+    country: "日本",
+    code: "JP"
 }, {
     name: "澳大利亚",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "AU"
 }, {
     name: "英国",
-    country: "英国"
+    country: "英国",
+    code: "GB"
 }, {
     name: "法国",
-    country: "法国"
+    country: "法国",
+    code: "FR"
 }, {
     name: "马来西亚",
-    country: "马来西亚"
+    country: "马来西亚",
+    code: "MY"
 }];
 var __interAsia_Country__ = [{
     name: "新加坡",
-    country: "新加坡"
+    country: "新加坡",
+    code: "SG"
 }, {
     name: "韩国",
-    country: "韩国"
+    country: "韩国",
+    code: "KR"
 }, {
     name: "泰国",
-    country: "泰国"
+    country: "泰国",
+    code: "TH"
 }, {
     name: "马来西亚",
-    country: "马来西亚"
+    country: "马来西亚",
+    code: "MY"
 }, {
     name: "日本",
-    country: "日本"
+    country: "日本",
+    code: "JP"
 }, {
     name: "澳大利亚",
-    country: "澳大利亚"
+    country: "澳大利亚",
+    code: "AU"
 }, {
     name: "越南",
-    country: "越南"
+    country: "越南",
+    code: "VN"
 }, {
     name: "印度尼西亚",
-    country: "印度尼西亚"
+    country: "印度尼西亚",
+    code: "ID"
 }, {
     name: "菲律宾",
-    country: "菲律宾"
+    country: "菲律宾",
+    code: "PH"
 }, {
     name: "尼泊尔",
-    country: "尼泊尔"
+    country: "尼泊尔",
+    code: "NP"
 }];
 var __interAmric_Country__ = [{
     name: "美国",
-    country: "美国"
+    country: "美国",
+    code: "US"
 }, {
     name: "加拿大",
-    country: "加拿大"
+    country: "加拿大",
+    code: "CA"
 }, {
     name: "巴西",
-    country: "巴西"
+    country: "巴西",
+    code: "BR"
 }, {
     name: "墨西哥",
-    country: "墨西哥"
+    country: "墨西哥",
+    code: "MX"
 }, {
     name: "阿根廷",
-    country: "阿根廷"
+    country: "阿根廷",
+    code: "AR"
 }];
 var __interEur_Country__ = [{
     name: "英国",
-    country: "英国"
+    country: "英国",
+    code: "GB"
 }, {
     name: "法国",
-    country: "法国"
+    country: "法国",
+    code: "FR"
 }, {
     name: "俄罗斯",
-    country: "俄罗斯"
+    country: "俄罗斯",
+    code: "RU"
 }, {
     name: "荷兰",
-    country: "荷兰"
+    country: "荷兰",
+    code: "NL"
 }, {
     name: "意大利",
-    country: "意大利"
+    country: "意大利",
+    code: "IT"
 }, {
     name: "西班牙",
-    country: "西班牙"
+    country: "西班牙",
+    code: "ES"
 }, {
     name: "德国",
-    country: "德国"
+    country: "德国",
+    code: "DE"
 }, {
     name: "瑞典",
-    country: "瑞典"
+    country: "瑞典",
+    code: "SE"
 }, {
     name: "土耳其",
-    country: "土耳其"
+    country: "土耳其",
+    code: "TR"
 }, {
     name: "希腊",
-    country: "希腊"
+    country: "希腊",
+    code: "GR"
 }];
 var __interFei_Country__ = [{
     name: "埃及",
-    country: "埃及"
+    country: "埃及",
+    code: "EG"
 }, {
     name: "南非",
-    country: "南非"
+    country: "南非",
+    code: "ZA"
 }, {
     name: "肯尼亚",
-    country: "肯尼亚"
+    country: "肯尼亚",
+    code: "KE"
 }, {
     name: "尼日利亚",
-    country: "尼日利亚"
+    country: "尼日利亚",
+    code: "NG"
 }, {
     name: "埃塞俄比亚",
-    country: "埃塞俄比亚"
+    country: "埃塞俄比亚",
+    code: "ET"
 }];
 var __interhotAreaListTo__ = [{
     name: "港澳台",
@@ -15150,145 +15379,188 @@ var _tabConfig = {
             "char": "A",
             list: [{
                 name: "阿里",
-                country: "中国"
+                country: "中国",
+                code: "NGQ"
             }, {
                 name: "阿尔山",
-                country: "中国"
+                country: "中国",
+                code: "YIE"
             }, {
                 name: "安庆",
-                country: "中国"
+                country: "中国",
+                code: "AQG"
             }, {
                 name: "阿勒泰",
-                country: "中国"
+                country: "中国",
+                code: "AAT"
             }, {
                 name: "安康",
-                country: "中国"
+                country: "中国",
+                code: "AKA"
             }, {
                 name: "鞍山",
-                country: "中国"
+                country: "中国",
+                code: "AOG"
             }, {
                 name: "安顺",
-                country: "中国"
+                country: "中国",
+                code: "AVA"
             }, {
                 name: "阿克苏",
-                country: "中国"
+                country: "中国",
+                code: "AKU"
             }, {
                 name: "阿拉善左旗",
-                country: "中国"
+                country: "中国",
+                code: "AXF"
             }, {
                 name: "阿拉善右旗",
-                country: "中国"
+                country: "中国",
+                code: "RHT"
             }]
         }, {
             "char": "B",
             list: [{
                 name: "包头",
-                country: "中国"
+                country: "中国",
+                code: "BAV"
             }, {
                 name: "北海",
-                country: "中国"
+                country: "中国",
+                code: "BHY"
             }, {
                 name: "北京",
-                country: "中国"
+                country: "中国",
+                code: "BJS"
             }, {
                 name: "百色",
-                country: "中国"
+                country: "中国",
+                code: "AEB"
             }, {
                 name: "保山",
-                country: "中国"
+                country: "中国",
+                code: "BSD"
             }, {
                 name: "博乐",
-                country: "中国"
+                country: "中国",
+                code: "BPL"
             }, {
                 name: "毕节",
-                country: "中国"
+                country: "中国",
+                code: "BFJ"
             }, {
                 name: "巴彦淖尔",
-                country: "中国"
+                country: "中国",
+                code: "RLK"
             }]
         }, {
             "char": "C",
             list: [{
                 name: "长治",
-                country: "中国"
+                country: "中国",
+                code: "CSX"
             }, {
                 name: "池州",
-                country: "中国"
+                country: "中国",
+                code: "JUH"
             }, {
                 name: "长春",
-                country: "中国"
+                country: "中国",
+                code: "CGQ"
             }, {
                 name: "常州",
-                country: "中国"
+                country: "中国",
+                code: "CZX"
             }, {
                 name: "昌都",
-                country: "中国"
+                country: "中国",
+                code: "BPX"
             }, {
                 name: "朝阳",
-                country: "中国"
+                country: "中国",
+                code: "CHG"
             }, {
                 name: "常德",
-                country: "中国"
+                country: "中国",
+                code: "CGD"
             }, {
                 name: "长白山",
-                country: "中国"
+                country: "中国",
+                code: "NBS"
             }, {
                 name: "成都",
-                country: "中国"
+                country: "中国",
+                code: "CTU"
             }, {
                 name: "重庆",
-                country: "中国"
+                country: "中国",
+                code: "CKG"
             }, {
                 name: "长沙",
-                country: "中国"
+                country: "中国",
+                code: "CSX"
             }, {
                 name: "赤峰",
-                country: "中国"
+                country: "中国",
+                code: "CIF"
             }]
         }, {
             "char": "D",
             list: [{
                 name: "大同",
-                country: "中国"
+                country: "中国",
+                code: "DAT"
             }, {
                 name: "大连",
-                country: "中国"
+                country: "中国",
+                code: "DLC"
             }, {
                 name: "东营",
-                country: "中国"
+                country: "中国",
+                code: "DOY"
             }, {
                 name: "大庆",
-                country: "中国"
+                country: "中国",
+                code: "DQA"
             }, {
                 name: "丹东",
-                country: "中国"
+                country: "中国",
+                code: "DDG"
             }, {
                 name: "大理",
-                country: "中国"
+                country: "中国",
+                code: "DLU"
             }, {
                 name: "敦煌",
-                country: "中国"
+                country: "中国",
+                code: "DNH"
             }, {
                 name: "达州",
-                country: "中国"
+                country: "中国",
+                code: "DAX"
             }, {
                 name: "稻城",
-                country: "中国"
+                country: "中国",
+                code: "DCY"
             }]
         }, {
             "char": "E",
             list: [{
                 name: "恩施",
-                country: "中国"
+                country: "中国",
+                code: "ENH"
             }, {
                 name: "鄂尔多斯",
-                country: "中国"
+                country: "中国",
+                code: "DSN"
             }, {
                 name: "二连浩特",
-                country: "中国"
+                country: "中国",
+                code: "ERL"
             }, {
                 name: "额济纳旗",
-                country: "中国"
+                country: "中国",
+                code: "EJN"
             }]
         }],
         title: "拼音A-E城市",
@@ -15300,127 +15572,165 @@ var _tabConfig = {
             "char": "F",
             list: [{
                 name: "佛山",
-                country: "中国"
+                country: "中国",
+                code: "FUO"
             }, {
                 name: "福州",
-                country: "中国"
+                country: "中国",
+                code: "FOC"
             }, {
                 name: "阜阳",
-                country: "中国"
+                country: "中国",
+                code: "FUG"
             }, {
                 name: "抚远",
-                country: "中国"
+                country: "中国",
+                code: "FYJ"
             }]
         }, {
             "char": "G",
             list: [{
                 name: "贵阳",
-                country: "中国"
+                country: "中国",
+                code: "KWE"
             }, {
                 name: "桂林",
-                country: "中国"
+                country: "中国",
+                code: "KWL"
             }, {
                 name: "广州",
-                country: "中国"
+                country: "中国",
+                code: "CAN"
             }, {
                 name: "广元",
-                country: "中国"
+                country: "中国",
+                code: "GYS"
             }, {
                 name: "格尔木",
-                country: "中国"
+                country: "中国",
+                code: "GOQ"
             }, {
                 name: "赣州",
-                country: "中国"
+                country: "中国",
+                code: "KOW"
             }, {
                 name: "固原",
-                country: "中国"
+                country: "中国",
+                code: "GYU"
             }]
         }, {
             "char": "H",
             list: [{
                 name: "哈密",
-                country: "中国"
+                country: "中国",
+                code: "HMI"
             }, {
                 name: "呼和浩特",
-                country: "中国"
+                country: "中国",
+                code: "HET"
             }, {
                 name: "黑河",
-                country: "中国"
+                country: "中国",
+                code: "HEK"
             }, {
                 name: "海拉尔",
-                country: "中国"
+                country: "中国",
+                code: "HLD"
             }, {
                 name: "哈尔滨",
-                country: "中国"
+                country: "中国",
+                code: "HRB"
             }, {
                 name: "海口",
-                country: "中国"
+                country: "中国",
+                code: "HAK"
             }, {
                 name: "黄山",
-                country: "中国"
+                country: "中国",
+                code: "TXN"
             }, {
                 name: "杭州",
-                country: "中国"
+                country: "中国",
+                code: "HGH"
             }, {
                 name: "邯郸",
-                country: "中国"
+                country: "中国",
+                code: "HDG"
             }, {
                 name: "合肥",
-                country: "中国"
+                country: "中国",
+                code: "HFE"
             }, {
                 name: "黄龙",
-                country: "中国"
+                country: "中国",
+                code: "JZH"
             }, {
                 name: "汉中",
-                country: "中国"
+                country: "中国",
+                code: "HZG"
             }, {
                 name: "和田",
-                country: "中国"
+                country: "中国",
+                code: "HTN"
             }, {
                 name: "淮安",
-                country: "中国"
+                country: "中国",
+                code: "HIA"
             }]
         }, {
             "char": "J",
             list: [{
                 name: "鸡西",
-                country: "中国"
+                country: "中国",
+                code: "JXA"
             }, {
                 name: "晋江",
-                country: "中国"
+                country: "中国",
+                code: "JJN"
             }, {
                 name: "锦州",
-                country: "中国"
+                country: "中国",
+                code: "JNZ"
             }, {
                 name: "景德镇",
-                country: "中国"
+                country: "中国",
+                code: "JDZ"
             }, {
                 name: "嘉峪关",
-                country: "中国"
+                country: "中国",
+                code: "JGN"
             }, {
                 name: "井冈山",
-                country: "中国"
+                country: "中国",
+                code: "JGS"
             }, {
                 name: "济宁",
-                country: "中国"
+                country: "中国",
+                code: "JNG"
             }, {
                 name: "九江",
-                country: "中国"
+                country: "中国",
+                code: "JIU"
             }, {
                 name: "佳木斯",
-                country: "中国"
+                country: "中国",
+                code: "JMU"
             }, {
                 name: "济南",
-                country: "中国"
+                country: "中国",
+                code: "TNA"
             }, {
                 name: "加格达奇",
-                country: "中国"
+                country: "中国",
+                code: "JGD"
             }, {
                 name: "金昌",
-                country: "中国"
+                country: "中国",
+                code: "JIC"
             }, {
                 name: "揭阳",
-                country: "中国"
+                country: "中国",
+                code: "SWA"
             }]
         }],
         title: "拼音F-J城市",
@@ -15432,130 +15742,168 @@ var _tabConfig = {
             "char": "K",
             list: [{
                 name: "喀什",
-                country: "中国"
+                country: "中国",
+                code: "KHG"
             }, {
                 name: "昆明",
-                country: "中国"
+                country: "中国",
+                code: "KMG"
             }, {
                 name: "康定",
-                country: "中国"
+                country: "中国",
+                code: "KGT"
             }, {
                 name: "克拉玛依",
-                country: "中国"
+                country: "中国",
+                code: "KRY"
             }, {
                 name: "库尔勒",
-                country: "中国"
+                country: "中国",
+                code: "KRL"
             }, {
                 name: "库车",
-                country: "中国"
+                country: "中国",
+                code: "KCA"
             }, {
                 name: "喀纳斯",
-                country: "中国"
+                country: "中国",
+                code: "KJI"
             }, {
                 name: "凯里",
-                country: "中国"
+                country: "中国",
+                code: "KJH"
             }]
         }, {
             "char": "L",
             list: [{
                 name: "兰州",
-                country: "中国"
+                country: "中国",
+                code: "LHW"
             }, {
                 name: "洛阳",
-                country: "中国"
+                country: "中国",
+                code: "LYA"
             }, {
                 name: "丽江",
-                country: "中国"
+                country: "中国",
+                code: "LJG"
             }, {
                 name: "荔波",
-                country: "中国"
+                country: "中国",
+                code: "LLB"
             }, {
                 name: "林芝",
-                country: "中国"
+                country: "中国",
+                code: "LZY"
             }, {
                 name: "柳州",
-                country: "中国"
+                country: "中国",
+                code: "LZH"
             }, {
                 name: "泸州",
-                country: "中国"
+                country: "中国",
+                code: "LZO"
             }, {
                 name: "连云港",
-                country: "中国"
+                country: "中国",
+                code: "LYG"
             }, {
                 name: "黎平",
-                country: "中国"
+                country: "中国",
+                code: "HZH"
             }, {
                 name: "连城",
-                country: "中国"
+                country: "中国",
+                code: "LCX"
             }, {
                 name: "拉萨",
-                country: "中国"
+                country: "中国",
+                code: "LXA"
             }, {
                 name: "临沧",
-                country: "中国"
+                country: "中国",
+                code: "LNJ"
             }, {
                 name: "临沂",
-                country: "中国"
+                country: "中国",
+                code: "LYI"
             }, {
                 name: "吕梁",
-                country: "中国"
+                country: "中国",
+                code: "LLV"
             }]
         }, {
             "char": "M",
             list: [{
                 name: "芒市",
-                country: "中国"
+                country: "中国",
+                code: "LUM"
             }, {
                 name: "牡丹江",
-                country: "中国"
+                country: "中国",
+                code: "MDG"
             }, {
                 name: "满洲里",
-                country: "中国"
+                country: "中国",
+                code: "NZH"
             }, {
                 name: "绵阳",
-                country: "中国"
+                country: "中国",
+                code: "MIG"
             }, {
                 name: "梅县",
-                country: "中国"
+                country: "中国",
+                code: "MXZ"
             }, {
                 name: "漠河",
-                country: "中国"
+                country: "中国",
+                code: "OHE"
             }]
         }, {
             "char": "N",
             list: [{
                 name: "南京",
-                country: "中国"
+                country: "中国",
+                code: "NKG"
             }, {
                 name: "南充",
-                country: "中国"
+                country: "中国",
+                code: "NAO"
             }, {
                 name: "南宁",
-                country: "中国"
+                country: "中国",
+                code: "NNG"
             }, {
                 name: "南阳",
-                country: "中国"
+                country: "中国",
+                code: "NNY"
             }, {
                 name: "南通",
-                country: "中国"
+                country: "中国",
+                code: "NTG"
             }, {
                 name: "南昌",
-                country: "中国"
+                country: "中国",
+                code: "KHN"
             }, {
                 name: "那拉提",
-                country: "中国"
+                country: "中国",
+                code: "NLT"
             }, {
                 name: "宁波",
-                country: "中国"
+                country: "中国",
+                code: "NGB"
             }]
         }, {
             "char": "P",
             list: [{
                 name: "攀枝花",
-                country: "中国"
+                country: "中国",
+                code: "PZI"
             }, {
                 name: "普洱",
-                country: "中国"
+                country: "中国",
+                code: "SYM"
             }]
         }],
         title: "拼音K-P城市",
@@ -15567,124 +15915,160 @@ var _tabConfig = {
             "char": "Q",
             list: [{
                 name: "衢州",
-                country: "中国"
+                country: "中国",
+                code: "JUZ"
             }, {
                 name: "黔江",
-                country: "中国"
+                country: "中国",
+                code: "JIQ"
             }, {
                 name: "秦皇岛",
-                country: "中国"
+                country: "中国",
+                code: "SHP"
             }, {
                 name: "庆阳",
-                country: "中国"
+                country: "中国",
+                code: "IQN"
             }, {
                 name: "且末",
-                country: "中国"
+                country: "中国",
+                code: "IQM"
             }, {
                 name: "齐齐哈尔",
-                country: "中国"
+                country: "中国",
+                code: "NDG"
             }, {
                 name: "青岛",
-                country: "中国"
+                country: "中国",
+                code: "TAO"
             }]
         }, {
             "char": "R",
             list: [{
                 name: "日喀则",
-                country: "中国"
+                country: "中国",
+                code: "RKZ"
             }]
         }, {
             "char": "S",
             list: [{
                 name: "深圳",
-                country: "中国"
+                country: "中国",
+                code: "SZX"
             }, {
                 name: "石家庄",
-                country: "中国"
+                country: "中国",
+                code: "SJW"
             }, {
                 name: "三亚",
-                country: "中国"
+                country: "中国",
+                code: "SYX"
             }, {
                 name: "沈阳",
-                country: "中国"
+                country: "中国",
+                code: "SHE"
             }, {
                 name: "上海",
-                country: "中国"
+                country: "中国",
+                code: "SHA"
             }, {
                 name: "神农架",
-                country: "中国"
+                country: "中国",
+                code: "HPG"
             }]
         }, {
             "char": "T",
             list: [{
                 name: "唐山",
-                country: "中国"
+                country: "中国",
+                code: "TVS"
             }, {
                 name: "铜仁",
-                country: "中国"
+                country: "中国",
+                code: "TEN"
             }, {
                 name: "塔城",
-                country: "中国"
+                country: "中国",
+                code: "TCG"
             }, {
                 name: "腾冲",
-                country: "中国"
+                country: "中国",
+                code: "TCZ"
             }, {
                 name: "台州",
-                country: "中国"
+                country: "中国",
+                code: "HYN"
             }, {
                 name: "天水",
-                country: "中国"
+                country: "中国",
+                code: "THQ"
             }, {
                 name: "天津",
-                country: "中国"
+                country: "中国",
+                code: "TSN"
             }, {
                 name: "通辽",
-                country: "中国"
+                country: "中国",
+                code: "TGO"
             }, {
                 name: "吐鲁番",
-                country: "中国"
+                country: "中国",
+                code: "TLQ"
             }, {
                 name: "太原",
-                country: "中国"
+                country: "中国",
+                code: "TYN"
             }]
         }, {
             "char": "W",
             list: [{
                 name: "威海",
-                country: "中国"
+                country: "中国",
+                code: "WEH"
             }, {
                 name: "武汉",
-                country: "中国"
+                country: "中国",
+                code: "WUH"
             }, {
                 name: "梧州",
-                country: "中国"
+                country: "中国",
+                code: "WUZ"
             }, {
                 name: "文山",
-                country: "中国"
+                country: "中国",
+                code: "WNH"
             }, {
                 name: "无锡",
-                country: "中国"
+                country: "中国",
+                code: "WUX"
             }, {
                 name: "潍坊",
-                country: "中国"
+                country: "中国",
+                code: "WEF"
             }, {
                 name: "武夷山",
-                country: "中国"
+                country: "中国",
+                code: "WUS"
             }, {
                 name: "乌兰浩特",
-                country: "中国"
+                country: "中国",
+                code: "HLH"
             }, {
                 name: "温州",
-                country: "中国"
+                country: "中国",
+                code: "WNZ"
             }, {
                 name: "乌鲁木齐",
-                country: "中国"
+                country: "中国",
+                code: "URC"
             }, {
                 name: "万州",
-                country: "中国"
+                country: "中国",
+                code: "WXN"
             }, {
                 name: "乌海",
-                country: "中国"
+                country: "中国",
+                code: "WUA"
             }]
         }],
         title: "拼音Q-W城市",
@@ -15696,121 +16080,158 @@ var _tabConfig = {
             "char": "X",
             list: [{
                 name: "兴义",
-                country: "中国"
+                country: "中国",
+                code: "ACX"
             }, {
                 name: "西昌",
-                country: "中国"
+                country: "中国",
+                code: "XIC"
             }, {
                 name: "厦门",
-                country: "中国"
+                country: "中国",
+                code: "XMN"
             }, {
                 name: "香格里拉",
-                country: "中国"
+                country: "中国",
+                code: "DIG"
             }, {
                 name: "西安",
-                country: "中国"
+                country: "中国",
+                code: "SIA"
             }, {
                 name: "西宁",
-                country: "中国"
+                country: "中国",
+                code: "XNN"
             }, {
                 name: "襄阳(中国)",
-                country: "中国"
+                country: "中国",
+                code: "XFN"
             }, {
                 name: "锡林浩特",
-                country: "中国"
+                country: "中国",
+                code: "XIL"
             }, {
                 name: "西双版纳",
-                country: "中国"
+                country: "中国",
+                code: "JHG"
             }, {
                 name: "徐州",
-                country: "中国"
+                country: "中国",
+                code: "XUZ"
             }]
         }, {
             "char": "Y",
             list: [{
                 name: "义乌",
-                country: "中国"
+                country: "中国",
+                code: "YIW"
             }, {
                 name: "永州",
-                country: "中国"
+                country: "中国",
+                code: "LLF"
             }, {
                 name: "榆林",
-                country: "中国"
+                country: "中国",
+                code: "UYN"
             }, {
                 name: "扬州",
-                country: "中国"
+                country: "中国",
+                code: "YTY"
             }, {
                 name: "延安",
-                country: "中国"
+                country: "中国",
+                code: "ENY"
             }, {
                 name: "运城",
-                country: "中国"
+                country: "中国",
+                code: "YCU"
             }, {
                 name: "烟台",
-                country: "中国"
+                country: "中国",
+                code: "YNT"
             }, {
                 name: "银川",
-                country: "中国"
+                country: "中国",
+                code: "INC"
             }, {
                 name: "宜昌",
-                country: "中国"
+                country: "中国",
+                code: "YIH"
             }, {
                 name: "宜宾",
-                country: "中国"
+                country: "中国",
+                code: "YBP"
             }, {
                 name: "宜春",
-                country: "中国"
+                country: "中国",
+                code: "YIC"
             }, {
                 name: "盐城",
-                country: "中国"
+                country: "中国",
+                code: "YNZ"
             }, {
                 name: "延吉",
-                country: "中国"
+                country: "中国",
+                code: "YNJ"
             }, {
                 name: "玉树",
-                country: "中国"
+                country: "中国",
+                code: "YUS"
             }, {
                 name: "伊宁",
-                country: "中国"
+                country: "中国",
+                code: "YIN"
             }, {
                 name: "伊春",
-                country: "中国"
+                country: "中国",
+                code: "LDS"
             }]
         }, {
             "char": "Z",
             list: [{
                 name: "珠海",
-                country: "中国"
+                country: "中国",
+                code: "ZUH"
             }, {
                 name: "昭通",
-                country: "中国"
+                country: "中国",
+                code: "ZAT"
             }, {
                 name: "张家界",
-                country: "中国"
+                country: "中国",
+                code: "DYG"
             }, {
                 name: "舟山",
-                country: "中国"
+                country: "中国",
+                code: "HSN"
             }, {
                 name: "郑州",
-                country: "中国"
+                country: "中国",
+                code: "CGO"
             }, {
                 name: "中卫",
-                country: "中国"
+                country: "中国",
+                code: "ZHY"
             }, {
                 name: "芷江",
-                country: "中国"
+                country: "中国",
+                code: "HJJ"
             }, {
                 name: "湛江",
-                country: "中国"
+                country: "中国",
+                code: "ZHA"
             }, {
                 name: "遵义",
-                country: "中国"
+                country: "中国",
+                code: "ZYI"
             }, {
                 name: "张掖",
-                country: "中国"
+                country: "中国",
+                code: "YZY"
             }, {
                 name: "张家口",
-                country: "中国"
+                country: "中国",
+                code: "ZQZ"
             }]
         }],
         title: "拼音X-Z城市",
@@ -15884,94 +16305,124 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "香港",
-                country: "中国香港"
+                country: "中国香港",
+                code: "HKG"
             }, {
                 name: "新加坡",
-                country: "新加坡"
+                country: "新加坡",
+                code: "SIN"
             }, {
                 name: "首尔",
-                country: "韩国"
+                country: "韩国",
+                code: "SEL"
             }, {
                 name: "曼谷",
-                country: "泰国"
+                country: "泰国",
+                code: "BKK"
             }, {
                 name: "吉隆坡",
-                country: "马来西亚"
+                country: "马来西亚",
+                code: "KUL"
             }, {
                 name: "东京",
-                country: "日本"
+                country: "日本",
+                code: "TYO"
             }, {
                 name: "台北",
-                country: "中国台湾"
+                country: "中国台湾",
+                code: "TPE"
             }, {
                 name: "悉尼",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "SYD"
             }, {
                 name: "澳门",
-                country: "中国澳门"
+                country: "中国澳门",
+                code: "MFM"
             }, {
                 name: "普吉",
-                country: "泰国"
+                country: "泰国",
+                code: "HKT"
             }, {
                 name: "墨尔本",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "MEL"
             }, {
                 name: "胡志明市",
-                country: "越南"
+                country: "越南",
+                code: "SGN"
             }, {
                 name: "大阪",
-                country: "日本"
+                country: "日本",
+                code: "OSA"
             }, {
                 name: "巴厘岛",
-                country: "印度尼西亚"
+                country: "印度尼西亚",
+                code: "DPS"
             }, {
                 name: "马尼拉",
-                country: "菲律宾"
+                country: "菲律宾",
+                code: "MNL"
             }, {
                 name: "河内",
-                country: "越南"
+                country: "越南",
+                code: "HAN"
             }, {
                 name: "加德满都",
-                country: "尼泊尔"
+                country: "尼泊尔",
+                code: "KTM"
             }, {
                 name: "金边",
-                country: "柬埔寨"
+                country: "柬埔寨",
+                code: "PNH"
             }, {
                 name: "雅加达",
-                country: "印度尼西亚"
+                country: "印度尼西亚",
+                code: "JKT"
             }, {
                 name: "马累",
-                country: "马尔代夫"
+                country: "马尔代夫",
+                code: "MLE"
             }, {
                 name: "暹粒",
-                country: "柬埔寨"
+                country: "柬埔寨",
+                code: "REP"
             }, {
                 name: "迪拜",
-                country: "阿拉伯联合酋长国"
+                country: "阿拉伯联合酋长国",
+                code: "DXB"
             }, {
                 name: "釜山",
-                country: "韩国"
+                country: "韩国",
+                code: "PUS"
             }, {
                 name: "名古屋",
-                country: "日本"
+                country: "日本",
+                code: "NGO"
             }, {
                 name: "奥克兰",
-                country: "新西兰"
+                country: "新西兰",
+                code: "AKL"
             }, {
                 name: "布里斯班",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "BNE"
             }, {
                 name: "槟城",
-                country: "马来西亚"
+                country: "马来西亚",
+                code: "PEN"
             }, {
                 name: "高雄",
-                country: "中国台湾"
+                country: "中国台湾",
+                code: "KHH"
             }, {
                 name: "新德里",
-                country: "印度"
+                country: "印度",
+                code: "DEL"
             }, {
                 name: "济州岛",
-                country: "韩国"
+                country: "韩国",
+                code: "CJU"
             }]
         }],
         countryList: [{
@@ -15992,96 +16443,126 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "纽约",
-                country: "美国"
+                country: "美国",
+                code: "NYC"
             }, {
                 name: "洛杉矶",
-                country: "美国"
+                country: "美国",
+                code: "LAX"
             }, {
                 name: "多伦多",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YTO"
             }, {
                 name: "温哥华",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YVR"
             }, {
                 name: "旧金山",
-                country: "美国"
+                country: "美国",
+                code: "SFO"
             }, {
                 name: "芝加哥",
-                country: "美国"
+                country: "美国",
+                code: "CHI"
             }, {
                 name: "华盛顿",
-                country: "美国"
+                country: "美国",
+                code: "WAS"
             }, {
                 name: "西雅图",
-                country: "美国"
+                country: "美国",
+                code: "SEA"
             }, {
                 name: "波士顿",
-                country: "美国"
+                country: "美国",
+                code: "BOS"
             }, {
                 name: "底特律",
-                country: "美国"
+                country: "美国",
+                code: "DTT"
             }, {
                 name: "亚特兰大",
-                country: "美国"
+                country: "美国",
+                code: "ATL"
             }, {
                 name: "蒙特利尔",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YMQ"
             }, {
                 name: "休斯敦",
-                country: "美国"
+                country: "美国",
+                code: "HOU"
             }, {
                 name: "火奴鲁鲁",
-                country: "美国"
+                country: "美国",
+                code: "HNL"
             }, {
                 name: "达拉斯",
-                country: "美国"
+                country: "美国",
+                code: "DFW"
             }, {
                 name: "拉斯维加斯",
-                country: "美国"
+                country: "美国",
+                code: "LAS"
             }, {
                 name: "费城",
-                country: "美国"
+                country: "美国",
+                code: "PHI"
             }, {
                 titles: "圣保罗（巴西）",
                 names: "圣保罗",
                 name: "圣保罗（巴西）",
-                country: "巴西"
+                country: "巴西",
+                code: "SAO"
             }, {
                 name: "明尼阿波利斯",
-                country: "美国"
+                country: "美国",
+                code: "MSP"
             }, {
                 name: "渥太华",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YOW"
             }, {
                 name: "凤凰城",
-                country: "美国"
+                country: "美国",
+                code: "PHX"
             }, {
                 name: "墨西哥城",
-                country: "墨西哥"
+                country: "墨西哥",
+                code: "MEX"
             }, {
                 name: "迈阿密",
-                country: "美国"
+                country: "美国",
+                code: "MIA"
             }, {
                 name: "丹佛",
-                country: "美国"
+                country: "美国",
+                code: "DEN"
             }, {
                 name: "奥兰多",
-                country: "美国"
+                country: "美国",
+                code: "ORL"
             }, {
                 name: "卡尔加里",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YYC"
             }, {
                 name: "埃德蒙顿",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YEA"
             }, {
                 name: "布宜诺斯艾利斯",
-                country: "阿根廷"
+                country: "阿根廷",
+                code: "BUE"
             }, {
                 name: "里约热内卢",
-                country: "巴西"
+                country: "巴西",
+                code: "RIO"
             }, {
                 name: "匹兹堡",
-                country: "美国"
+                country: "美国",
+                code: "PIT"
             }]
         }],
         countryList: [{
@@ -16102,105 +16583,135 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "伦敦",
-                country: "英国"
+                country: "英国",
+                code: "LON"
             }, {
                 name: "巴黎",
-                country: "法国"
+                country: "法国",
+                code: "PAR"
             }, {
                 name: "法兰克福",
-                country: "德国"
+                country: "德国",
+                code: "FRA"
             }, {
                 name: "莫斯科",
-                country: "俄罗斯"
+                country: "俄罗斯",
+                code: "MOS"
             }, {
                 name: "阿姆斯特丹",
-                country: "荷兰"
+                country: "荷兰",
+                code: "AMS"
             }, {
                 titles: "罗马（意大利）",
                 names: "罗马",
                 name: "罗马（意大利）",
-                country: "意大利"
+                country: "意大利",
+                code: "ROM"
             }, {
                 name: "米兰",
-                country: "意大利"
+                country: "意大利",
+                code: "MIL"
             }, {
                 name: "马德里",
-                country: "西班牙"
+                country: "西班牙",
+                code: "MAD"
             }, {
                 name: "慕尼黑",
-                country: "德国"
+                country: "德国",
+                code: "MUC"
             }, {
                 name: "柏林",
-                country: "德国"
+                country: "德国",
+                code: "BER"
             }, {
                 name: "斯德哥尔摩",
-                country: "瑞典"
+                country: "瑞典",
+                code: "STO"
             }, {
                 name: "伊斯坦布尔",
-                country: "土耳其"
+                country: "土耳其",
+                code: "IST"
             }, {
                 titles: "伯明翰（英国）",
                 names: "伯明翰",
                 name: "伯明翰（英国）",
-                country: "英国"
+                country: "英国",
+                code: "BHX"
             }, {
                 title: "巴塞罗那(西班牙)",
                 titles: "巴塞罗那(西班牙)",
                 names: "巴塞罗那",
                 name: "巴塞罗那(西班牙)",
-                country: "西班牙"
+                country: "西班牙",
+                code: "BCN"
             }, {
                 name: "雅典",
-                country: "希腊"
+                country: "希腊",
+                code: "ATH"
             }, {
                 name: "哥本哈根",
-                country: "丹麦"
+                country: "丹麦",
+                code: "CPH"
             }, {
                 name: "苏黎世",
-                country: "瑞士"
+                country: "瑞士",
+                code: "ZRH"
             }, {
                 name: "布鲁塞尔",
-                country: "比利时"
+                country: "比利时",
+                code: "BRU"
             }, {
                 name: "赫尔辛基",
-                country: "芬兰"
+                country: "芬兰",
+                code: "HEL"
             }, {
                 name: "爱丁堡",
-                country: "英国"
+                country: "英国",
+                code: "EDI"
             }, {
                 name: "维也纳",
-                country: "奥地利"
+                country: "奥地利",
+                code: "VIE"
             }, {
                 titles: "格拉斯哥（英国）",
                 names: "格拉斯哥",
                 name: "格拉斯哥（英国）",
-                country: "英国"
+                country: "英国",
+                code: "GLA"
             }, {
                 name: "日内瓦",
-                country: "瑞士"
+                country: "瑞士",
+                code: "GVA"
             }, {
                 name: "圣彼得堡",
-                country: "俄罗斯"
+                country: "俄罗斯",
+                code: "LED"
             }, {
                 titles: "都柏林(爱尔兰)",
                 names: "都柏林",
                 name: "都柏林(爱尔兰)",
-                country: "爱尔兰"
+                country: "爱尔兰",
+                code: "DUB"
             }, {
                 name: "汉堡",
-                country: "德国"
+                country: "德国",
+                code: "HAM"
             }, {
                 name: "杜塞尔多夫",
-                country: "德国"
+                country: "德国",
+                code: "DUS"
             }, {
                 name: "布拉格",
-                country: "捷克"
+                country: "捷克",
+                code: "PRG"
             }, {
                 name: "布达佩斯",
-                country: "匈牙利"
+                country: "匈牙利",
+                code: "BUD"
             }, {
                 name: "基辅",
-                country: "乌克兰"
+                country: "乌克兰",
+                code: "IEV"
             }]
         }],
         countryList: [{
@@ -16221,52 +16732,68 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "开罗",
-                country: "埃及"
+                country: "埃及",
+                code: "CAI"
             }, {
                 name: "约翰内斯堡",
-                country: "南非"
+                country: "南非",
+                code: "JNB"
             }, {
                 name: "内罗毕",
-                country: "肯尼亚"
+                country: "肯尼亚",
+                code: "NBO"
             }, {
                 name: "开普敦",
-                country: "南非"
+                country: "南非",
+                code: "CPT"
             }, {
                 name: "毛里求斯",
-                country: "毛里求斯"
+                country: "毛里求斯",
+                code: "MRU"
             }, {
                 name: "拉各斯",
-                country: "尼日利亚"
+                country: "尼日利亚",
+                code: "LOS"
             }, {
                 name: "喀土穆",
-                country: "苏丹"
+                country: "苏丹",
+                code: "KRT"
             }, {
                 name: "亚的斯亚贝巴",
-                country: "埃塞俄比亚"
+                country: "埃塞俄比亚",
+                code: "ADD"
             }, {
                 name: "阿克拉",
-                country: "加纳"
+                country: "加纳",
+                code: "ACC"
             }, {
                 name: "达累斯萨拉姆",
-                country: "坦桑尼亚"
+                country: "坦桑尼亚",
+                code: "DAR"
             }, {
                 name: "塞舌尔",
-                country: "塞舌尔共和国"
+                country: "塞舌尔共和国",
+                code: "SEZ"
             }, {
                 name: "阿尔及尔",
-                country: "阿尔及利亚"
+                country: "阿尔及利亚",
+                code: "ALG"
             }, {
                 name: "的黎波里",
-                country: "利比亚"
+                country: "利比亚",
+                code: "TIP"
             }, {
                 name: "阿布贾",
-                country: "尼日利亚"
+                country: "尼日利亚",
+                code: "ABV"
             }, {
                 name: "卡萨布兰卡",
-                country: "摩洛哥"
+                country: "摩洛哥",
+                code: "CAS"
             }, {
                 name: "突尼斯",
-                country: "突尼斯"
+                country: "突尼斯",
+                code: "TUN"
             }]
         }],
         countryList: [{
@@ -16300,94 +16827,124 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "香港",
-                country: "中国香港"
+                country: "中国香港",
+                code: "HKG"
             }, {
                 name: "新加坡",
-                country: "新加坡"
+                country: "新加坡",
+                code: "SIN"
             }, {
                 name: "首尔",
-                country: "韩国"
+                country: "韩国",
+                code: "SEL"
             }, {
                 name: "曼谷",
-                country: "泰国"
+                country: "泰国",
+                code: "BKK"
             }, {
                 name: "吉隆坡",
-                country: "马来西亚"
+                country: "马来西亚",
+                code: "KUL"
             }, {
                 name: "东京",
-                country: "日本"
+                country: "日本",
+                code: "TYO"
             }, {
                 name: "台北",
-                country: "中国台湾"
+                country: "中国台湾",
+                code: "TPE"
             }, {
                 name: "悉尼",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "SYD"
             }, {
                 name: "澳门",
-                country: "中国澳门"
+                country: "中国澳门",
+                code: "MFM"
             }, {
                 name: "普吉",
-                country: "泰国"
+                country: "泰国",
+                code: "HKT"
             }, {
                 name: "墨尔本",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "MEL"
             }, {
                 name: "胡志明市",
-                country: "越南"
+                country: "越南",
+                code: "SGN"
             }, {
                 name: "大阪",
-                country: "日本"
+                country: "日本",
+                code: "OSA"
             }, {
                 name: "巴厘岛",
-                country: "印度尼西亚"
+                country: "印度尼西亚",
+                code: "DPS"
             }, {
                 name: "马尼拉",
-                country: "菲律宾"
+                country: "菲律宾",
+                code: "MNL"
             }, {
                 name: "河内",
-                country: "越南"
+                country: "越南",
+                code: "HAN"
             }, {
                 name: "加德满都",
-                country: "尼泊尔"
+                country: "尼泊尔",
+                code: "KTM"
             }, {
                 name: "金边",
-                country: "柬埔寨"
+                country: "柬埔寨",
+                code: "PNH"
             }, {
                 name: "雅加达",
-                country: "印度尼西亚"
+                country: "印度尼西亚",
+                code: "JKT"
             }, {
                 name: "马累",
-                country: "马尔代夫"
+                country: "马尔代夫",
+                code: "MLE"
             }, {
                 name: "暹粒",
-                country: "柬埔寨"
+                country: "柬埔寨",
+                code: "REP"
             }, {
                 name: "迪拜",
-                country: "阿拉伯联合酋长国"
+                country: "阿拉伯联合酋长国",
+                code: "DXB"
             }, {
                 name: "釜山",
-                country: "韩国"
+                country: "韩国",
+                code: "PUS"
             }, {
                 name: "名古屋",
-                country: "日本"
+                country: "日本",
+                code: "NGO"
             }, {
                 name: "奥克兰",
-                country: "新西兰"
+                country: "新西兰",
+                code: "AKL"
             }, {
                 name: "布里斯班",
-                country: "澳大利亚"
+                country: "澳大利亚",
+                code: "BNE"
             }, {
                 name: "槟城",
-                country: "马来西亚"
+                country: "马来西亚",
+                code: "PEN"
             }, {
                 name: "高雄",
-                country: "中国台湾"
+                country: "中国台湾",
+                code: "KHH"
             }, {
                 name: "新德里",
-                country: "印度"
+                country: "印度",
+                code: "DEL"
             }, {
                 name: "济州岛",
-                country: "韩国"
+                country: "韩国",
+                code: "CJU"
             }]
         }],
         title: "亚洲/大洋洲热门城市",
@@ -16400,96 +16957,126 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "纽约",
-                country: "美国"
+                country: "美国",
+                code: "NYC"
             }, {
                 name: "洛杉矶",
-                country: "美国"
+                country: "美国",
+                code: "LAX"
             }, {
                 name: "多伦多",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YTO"
             }, {
                 name: "温哥华",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YVR"
             }, {
                 name: "旧金山",
-                country: "美国"
+                country: "美国",
+                code: "SFO"
             }, {
                 name: "芝加哥",
-                country: "美国"
+                country: "美国",
+                code: "CHI"
             }, {
                 name: "华盛顿",
-                country: "美国"
+                country: "美国",
+                code: "WAS"
             }, {
                 name: "西雅图",
-                country: "美国"
+                country: "美国",
+                code: "SEA"
             }, {
                 name: "波士顿",
-                country: "美国"
+                country: "美国",
+                code: "BOS"
             }, {
                 name: "底特律",
-                country: "美国"
+                country: "美国",
+                code: "DTT"
             }, {
                 name: "亚特兰大",
-                country: "美国"
+                country: "美国",
+                code: "ATL"
             }, {
                 name: "蒙特利尔",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YMQ"
             }, {
                 name: "休斯敦",
-                country: "美国"
+                country: "美国",
+                code: "HOU"
             }, {
                 name: "火奴鲁鲁",
-                country: "美国"
+                country: "美国",
+                code: "HNL"
             }, {
                 name: "达拉斯",
-                country: "美国"
+                country: "美国",
+                code: "DFW"
             }, {
                 name: "拉斯维加斯",
-                country: "美国"
+                country: "美国",
+                code: "LAS"
             }, {
                 name: "费城",
-                country: "美国"
+                country: "美国",
+                code: "PHL"
             }, {
                 titles: "圣保罗（巴西）",
                 names: "圣保罗",
                 name: "圣保罗（巴西）",
-                country: "巴西"
+                country: "巴西",
+                code: "SAO"
             }, {
                 name: "明尼阿波利斯",
-                country: "美国"
+                country: "美国",
+                code: "MSP"
             }, {
                 name: "渥太华",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YOW"
             }, {
                 name: "凤凰城",
-                country: "美国"
+                country: "美国",
+                code: "PHX"
             }, {
                 name: "墨西哥城",
-                country: "墨西哥"
+                country: "墨西哥",
+                code: "MEX"
             }, {
                 name: "迈阿密",
-                country: "美国"
+                country: "美国",
+                code: "MIA"
             }, {
                 name: "丹佛",
-                country: "美国"
+                country: "美国",
+                code: "DEN"
             }, {
                 name: "奥兰多",
-                country: "美国"
+                country: "美国",
+                code: "ORL"
             }, {
                 name: "卡尔加里",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YYC"
             }, {
                 name: "埃德蒙顿",
-                country: "加拿大"
+                country: "加拿大",
+                code: "YEA"
             }, {
                 name: "布宜诺斯艾利斯",
-                country: "阿根廷"
+                country: "阿根廷",
+                code: "BUE"
             }, {
                 name: "里约热内卢",
-                country: "巴西"
+                country: "巴西",
+                code: "RIO"
             }, {
                 name: "匹兹堡",
-                country: "美国"
+                country: "美国",
+                code: "PIT"
             }]
         }],
         title: "美洲热门城市",
@@ -16502,104 +17089,134 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "伦敦",
-                country: "英国"
+                country: "英国",
+                code: "LON"
             }, {
                 name: "巴黎",
-                country: "法国"
+                country: "法国",
+                code: "PAR"
             }, {
                 name: "法兰克福",
-                country: "德国"
+                country: "德国",
+                code: "FRA"
             }, {
                 name: "莫斯科",
-                country: "俄罗斯"
+                country: "俄罗斯",
+                code: "MOS"
             }, {
                 name: "阿姆斯特丹",
-                country: "荷兰"
+                country: "荷兰",
+                code: "AMS"
             }, {
                 titles: "罗马（意大利）",
                 names: "罗马",
                 name: "罗马（意大利）",
-                country: "意大利"
+                country: "意大利",
+                code: "ROM"
             }, {
                 name: "米兰",
-                country: "意大利"
+                country: "意大利",
+                code: "MIL"
             }, {
                 name: "马德里",
-                country: "西班牙"
+                country: "西班牙",
+                code: "MAD"
             }, {
                 name: "慕尼黑",
-                country: "德国"
+                country: "德国",
+                code: "MUC"
             }, {
                 name: "柏林",
-                country: "德国"
+                country: "德国",
+                code: "BER"
             }, {
                 name: "斯德哥尔摩",
-                country: "瑞典"
+                country: "瑞典",
+                code: "STO"
             }, {
                 name: "伊斯坦布尔",
-                country: "土耳其"
+                country: "土耳其",
+                code: "IST"
             }, {
                 titles: "伯明翰（英国）",
                 names: "伯明翰",
                 name: "伯明翰（英国）",
-                country: "英国"
+                country: "英国",
+                code: "BHX"
             }, {
                 titles: "巴塞罗那(西班牙)",
                 names: "巴塞罗那",
                 name: "巴塞罗那(西班牙)",
-                country: "西班牙"
+                country: "西班牙",
+                code: "BCN"
             }, {
                 name: "雅典",
-                country: "希腊"
+                country: "希腊",
+                code: "ATH"
             }, {
                 name: "哥本哈根",
-                country: "丹麦"
+                country: "丹麦",
+                code: "CPH"
             }, {
                 name: "苏黎世",
-                country: "瑞士"
+                country: "瑞士",
+                code: "ZRH"
             }, {
                 name: "布鲁塞尔",
-                country: "比利时"
+                country: "比利时",
+                code: "BRU"
             }, {
                 name: "赫尔辛基",
-                country: "芬兰"
+                country: "芬兰",
+                code: "HEL"
             }, {
                 name: "爱丁堡",
-                country: "英国"
+                country: "英国",
+                code: "EDI"
             }, {
                 name: "维也纳",
-                country: "奥地利"
+                country: "奥地利",
+                code: "VIE"
             }, {
                 titles: "格拉斯哥（英国）",
                 names: "格拉斯哥",
                 name: "格拉斯哥（英国）",
-                country: "英国"
+                country: "英国",
+                code: "GLA"
             }, {
                 name: "日内瓦",
-                country: "瑞士"
+                country: "瑞士",
+                code: "GVA"
             }, {
                 name: "圣彼得堡",
-                country: "俄罗斯"
+                country: "俄罗斯",
+                code: "LED"
             }, {
                 titles: "都柏林(爱尔兰)",
                 names: "都柏林",
                 name: "都柏林(爱尔兰)",
-                country: "爱尔兰"
+                country: "爱尔兰",
+                code: "DUB"
             }, {
                 name: "汉堡",
-                country: "德国"
+                country: "德国",
+                code: "HAM"
             }, {
                 name: "杜塞尔多夫",
-                country: "德国"
+                country: "德国",
+                code: "DUS"
             }, {
                 name: "布拉格",
-                country: "捷克"
+                country: "捷克",
+                code: "PRG"
             }, {
                 name: "布达佩斯",
-                country: "匈牙利"
+                country: "匈牙利",
+                code: "BUD"
             }, {
                 name: "基辅",
-                country: "乌克兰"
+                country: "乌克兰",
+                code: "IEV"
             }]
         }],
         title: "欧洲热门城市",
@@ -16612,52 +17229,68 @@ var _tabConfig = {
             "char": "城市",
             list: [{
                 name: "开罗",
-                country: "埃及"
+                country: "埃及",
+                code: "CAI"
             }, {
                 name: "约翰内斯堡",
-                country: "南非"
+                country: "南非",
+                code: "JNB"
             }, {
                 name: "内罗毕",
-                country: "肯尼亚"
+                country: "肯尼亚",
+                code: "NBO"
             }, {
                 name: "开普敦",
-                country: "南非"
+                country: "南非",
+                code: "CPT"
             }, {
                 name: "毛里求斯",
-                country: "毛里求斯"
+                country: "毛里求斯",
+                code: "MRU"
             }, {
                 name: "拉各斯",
-                country: "尼日利亚"
+                country: "尼日利亚",
+                code: "LOS"
             }, {
                 name: "喀土穆",
-                country: "苏丹"
+                country: "苏丹",
+                code: "KRT"
             }, {
                 name: "亚的斯亚贝巴",
-                country: "埃塞俄比亚"
+                country: "埃塞俄比亚",
+                code: "ADD"
             }, {
                 name: "阿克拉",
-                country: "加纳"
+                country: "加纳",
+                code: "ACC"
             }, {
                 name: "达累斯萨拉姆",
-                country: "坦桑尼亚"
+                country: "坦桑尼亚",
+                code: "DAR"
             }, {
                 name: "塞舌尔",
-                country: "塞舌尔共和国"
+                country: "塞舌尔共和国",
+                code: "SEZ"
             }, {
                 name: "阿尔及尔",
-                country: "阿尔及利亚"
+                country: "阿尔及利亚",
+                code: "ALG"
             }, {
                 name: "的黎波里",
-                country: "利比亚"
+                country: "利比亚",
+                code: "TIP"
             }, {
                 name: "阿布贾",
-                country: "尼日利亚"
+                country: "尼日利亚",
+                code: "ABV"
             }, {
                 name: "卡萨布兰卡",
-                country: "摩洛哥"
+                country: "摩洛哥",
+                code: "CAS"
             }, {
                 name: "突尼斯",
-                country: "突尼斯"
+                country: "突尼斯",
+                code: "TUN"
             }]
         }],
         title: "非洲热门城市",
@@ -16852,7 +17485,9 @@ function SearchBox(a, c) {
     });
     t.isInter = c.isFuzzy;
     this.setValue = function(D) {
-        var C = [g, D.searchDepartureAirport || D.fromCity, p, D.searchArrivalAirport || D.toCity, k, D.searchDepartureTime || D.fromDate];
+        var G = D.searchDepartureAirport || D.fromCity,
+            F = D.searchArrivalAirport || D.toCity;
+        var C = [g, D.fromCode ? G + "(" + D.fromCode + ")" : G, p, D.toCode ? F + "(" + D.toCode + ")" : F, k, D.searchDepartureTime || D.fromDate];
         var E = D.searchArrivalTime || D.toDate;
         if (E) {
             C.push(w, E);
