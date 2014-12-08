@@ -17815,22 +17815,31 @@ function SearchBox(a, c) {
 var SearchBoxCreate = (function() {
     var d, f;
 
-    function b(i) {
+    function b(j) {
         var g = $jex.$("js-sbtn_list");
         if (g) {
-            var h = g.getElementsByTagName("button");
-            if (h.length > 0) {
-                $jex.foreach([h[0], h[1]], function(k, j) {
-                    k.removeAttribute("disabled");
+            var i = g.getElementsByTagName("button");
+            if (i.length > 0) {
+                $jex.foreach([i[0], i[1]], function(l, k) {
+                    l.removeAttribute("disabled");
                 });
             }
         }
-        i.setValue(d);
-        i.setSearchType(f || "oneway");
+        j.setValue(d);
+        j.setSearchType(f || "oneway");
         if ($jex.$("forecast")) {
             $jex.element.show($jex.$("forecast").parentNode);
+            var h = /\([A-Z]{3}\)$/;
             $jex.event.click("forecast", function() {
-                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(i.fromCity.getValue()) + "&departureDate=" + i.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(i.toCity.getValue()));
+                var l = j.fromCity.getValue(),
+                    k = j.toCity.getValue();
+                if (h.test(l)) {
+                    l = l.replace(h, "");
+                }
+                if (h.test(k)) {
+                    k = k.replace(h, "");
+                }
+                window.open("http://flight.qunar.com/t-cast/flight_cast.html?departureCity=" + encodeURIComponent(l) + "&departureDate=" + j.fromDate.getValue() + "&arrivalCity=" + encodeURIComponent(k));
             });
         }
         $jex.console.end("第一屏,快速搜索返程等功能");
