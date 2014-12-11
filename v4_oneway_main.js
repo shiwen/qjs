@@ -5070,6 +5070,9 @@ WrapperEntity.prototype.setVpr = function(a) {
 WrapperEntity.prototype.getVpr = function() {
     return this._vpr || 0;
 };
+WrapperEntity.prototype.isAnonymityVendor = function() {
+    return this.dataSource().type == "anon";
+};
 WrapperEntity.prototype.coupon = function() {
     return Number(this.dataSource().cd) || 0;
 };
@@ -8084,7 +8087,7 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     var h = 0;
     if (a.getTGQInfo()) {
         var j = "退改签";
-        if (a.fanxian() || a.isTCabin()) {
+        if (a.fanxian() || a.isTCabin() || a.isAnonymityVendor()) {
             j = "促销说明";
         }
         h = 1;
@@ -8190,6 +8193,9 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
         if (b.isTCabin()) {
             h = '<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>' + b.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>';
         }
+        if (b.isAnonymityVendor()) {
+            h = '<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>' + b.getTGQInfo();
+        }
 
         function i() {
             var k = "/twell/flight/getTGQ.jsp";
@@ -8245,19 +8251,26 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
             var t = [];
             m && (x = m.length);
             if (w.viewType == 1 && x > 0) {
-                if (b.fanxian() || b.isTCabin()) {
+                if (b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) {
                     var p = q.msg.split("|");
                     var n = b.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
                     if (b.fanxian()) {
                         t.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
                     } else {
-                        t.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
+                        if (b.isTCabin()) {
+                            t.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
+                        } else {
+                            t.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
+                        }
                     }
                     t.push('<ul class="ul_cx">');
                     for (var s = 0; s < p.length; s++) {
                         t.push("<li>", s + 1, ".", p[s], "</li>");
                     }
-                    t.push('</ul><p class="addtip"> 附加说明：<br>', n, " </p>");
+                    t.push("</ul>");
+                    if (!b.isAnonymityVendor()) {
+                        t.push('<p class="addtip"> 附加说明：<br>', n, " </p>");
+                    }
                 } else {
                     w.adultTgq = {};
                     for (; s < x; s++) {
@@ -8389,10 +8402,16 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
         var a = f.fanxian() ? "返现" : "立减";
         this.text('<i class="', c, '">', a, "</i>");
     } else {
-        if (d) {
-            this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
+        if (f.isAnonymityVendor()) {
+            var c = "ico_anonymity";
+            var a = "度假";
+            this.text('<i class="', c, '">', a, "</i>");
         } else {
-            this.text('<i class="ico_nocertify" title=""></i>');
+            if (d) {
+                this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
+            } else {
+                this.text('<i class="ico_nocertify" title=""></i>');
+            }
         }
     }
     this.text("</div>");
@@ -8424,9 +8443,15 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
         this.text("</div>");
     } else {
         this.text('<div class="t_cmt">');
-        this.starUI.displayPanel(c);
+        if (c.isAnonymityVendor()) {
+            this.text('<div class="t_cmt">超值特惠单程机票</div>');
+        } else {
+            this.starUI.displayPanel(c);
+        }
         this.text('<div class="e_btn_cmt">');
-        this.starUI.insert_btn(c);
+        if (!c.isAnonymityVendor()) {
+            this.starUI.insert_btn(c);
+        }
         this.text("</div>");
         this.text("</div>");
     }
@@ -8478,12 +8503,18 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
             this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', b.ownerFlight().carrier().zh, "授权代理</div></div></span>");
         }
         this.text("</div>");
-        this.text('<div class="t_cmt">');
-        this.starUI.displayPanel(b);
-        this.text("</div>");
+        if (b.isAnonymityVendor()) {
+            this.text('<div class="t_cmt">超值特惠单程机票</div>');
+        } else {
+            this.text('<div class="t_cmt">');
+            this.starUI.displayPanel(b);
+            this.text("</div>");
+        }
         this.text("</div>");
         this.text('<div class="v2"><div class="e_btn_cmt">');
-        this.starUI.insert_btn(b);
+        if (!b.isAnonymityVendor()) {
+            this.starUI.insert_btn(b);
+        }
         this.text("</div></div>");
     }
     this.onInit(this._authorizeVendorHover);
@@ -8577,12 +8608,18 @@ OnewayFlightWrapperUI.prototype.insertAgeLimit = function() {
     this.text('<img class="p_tips_tgq_img" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" />');
     this.text("</div></div></div>");
 };
-OnewayFlightWrapperUI.prototype.insert_TGQ = function(b) {
-    var a = b.getTGQInfo();
+OnewayFlightWrapperUI.prototype.insert_TGQ = function(c) {
+    var a = c.getTGQInfo();
+    var b = [];
+    if (c.isAnonymityVendor()) {
+        b.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
+        b.push(a);
+        a = b.join("");
+    }
     this.append('<div class="p_tips_cont" ', "tgq_notice_panel", ">");
     this.text('<div class="p_tips_wrap" style="left:-160px"><div class="p_tips_arr p_tips_arr_t" style="left:170px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content" ', "tgq_notice", " >");
-    if (b.pid() == null) {
+    if (c.pid() == null) {
         this.text(a);
     } else {
         this.text('<img class="p_tips_tgq_img" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" />');
