@@ -58,9 +58,9 @@ var TsinghuaOneWayTracker = (function() {
             var q = [0, 0];
             if (!o) {
                 var u = r.sinfoCache,
-                    n = ["hot", "ps", "late", "lcc"];
+                    n = ["lqf", "hot", "ps", "late", "lcc"];
                 if (u) {
-                    for (var l = 0; l < 4; l++) {
+                    for (var l = 0; l < 5; l++) {
                         if (u[n[l]]) {
                             q[0] = l + 1;
                             break;

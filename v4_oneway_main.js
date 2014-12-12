@@ -6904,7 +6904,8 @@ var HotSale = (function() {
     var b = {
         ps: "航班票量较少",
         hot: "一周内热门预订",
-        lcc: "除商务经济座外，其他机票不提供免费餐饮，免<br/>费行李额度低，详情请咨询春秋航空：95524"
+        lcc: "除商务经济座外，其他机票不提供免费餐饮，免<br/>费行李额度低，详情请咨询春秋航空：95524",
+        lqf: "此航班为临起飞航班，将在1-2小时内起飞，可紧急购票。"
     };
     var d = -1,
         a = 100;
@@ -6919,16 +6920,16 @@ var HotSale = (function() {
         hotSaleInfo: function(g) {
             var f = g.extInfo() || {},
                 h = {};
-            $jex.foreach(["hot", "ps", "late", "lcc"], function(j, i) {
-                if (i == 2) {
+            $jex.foreach(["lqf", "hot", "ps", "late", "lcc"], function(j, i) {
+                if (i == 3) {
                     c(g, f);
                 }
-                if (i == 3 && (typeof f[j] == "undefined")) {
+                if (i == 4 && (typeof f[j] == "undefined")) {
                     f[j] = g.carrierCode() == "9C";
                 }
                 if (f[j]) {
                     h[j] = b[j];
-                    if (i == 2) {
+                    if (i == 3) {
                         h[j] = "航班易晚点，近三个月该航班准点率" + f.rate + "%";
                     }
                     return $jex.$break;
@@ -7259,16 +7260,16 @@ OnewayFlightUI.prototype.getPriceInfoHTML = function(c) {
     return this._lastPriceHTML;
 };
 OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
-    var c = ["hot", "ps", "late", "lcc"],
-        a = ["i_org_hot", "i_org_hot", "dot_gy", "dot_gy"],
-        b = ["热门", "票少", "易晚点", "廉航!"];
+    var c = ["lqf", "hot", "ps", "late", "lcc"],
+        a = ["i_org_lqf", "i_org_hot", "i_org_hot", "dot_gy", "dot_gy"],
+        b = ["临起飞", "热门", "票少", "易晚点", "廉航!"];
     return function(j) {
         var k = !this._sinfoHTML;
         if (!this.sinfoCache) {
             var h = HotSale.hotSaleInfo(j),
                 f = [];
             this.sinfoCache = h;
-            for (var d = 0; d < 4; d++) {
+            for (var d = 0; d < 5; d++) {
                 if (h[c[d]]) {
                     f.push('<div class="a_pct">');
                     if ($jex.ie == 6) {
