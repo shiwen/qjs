@@ -5088,6 +5088,9 @@ WrapperEntity.prototype.cat = function() {
 WrapperEntity.prototype.isAuthorizedVendor = function() {
     return this.dataSource().rz === 1;
 };
+WrapperEntity.prototype.isZzb = function() {
+    return this.dataSource().zzb === 1;
+};
 WrapperEntity.prototype.couponAdwords = function() {
     return this.dataSource().caw;
 };
@@ -6972,6 +6975,10 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
             } else {
                 attrs.push("transfer");
             }
+        } else {
+            if (d.ownerFlight().type == "compose" && d.isZzb()) {
+                attrs.push("composeFlight");
+            }
         }
     }
     if (attrs.length > 0) {
@@ -6985,8 +6992,8 @@ BookingLockScreenUI.prototype.getMsgInfo = function(g) {
     var a = f.vPrice();
     var i = f.vAmount();
     var c = f.vName();
-    var k = this._vpr || 0;
-    var l = {
+    var l = this._vpr || 0;
+    var m = {
         app: {
             txt: "您所选购的是特殊机票产品，机票需要申请，申请成功后将短信通知您。"
         },
@@ -6998,35 +7005,39 @@ BookingLockScreenUI.prototype.getMsgInfo = function(g) {
         },
         zyxtransfer: {
             txt: ["您所选购的是中转联程的自由行产品，包括机票和价值", a * i, "元（", a, "元*", i, "张）", c, '，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
+        },
+        composeFlight: {
+            txt: "您预订的是中转特价产品，需要在中转地停留并换机，将在出票后告知中转地停留时间。请确认后再付款。"
         }
     };
-    var m = l[g],
+    var n = m[g],
         b = /app/.test(g),
-        j = /transfer/.test(g),
+        k = /transfer/.test(g),
         d = /zyxapp/.test(g),
-        h = /zyxtransfer/.test(g);
-    m.className = "icon_apply";
+        h = /zyxtransfer/.test(g),
+        j = /composeFlight/.test(g);
+    n.className = "icon_apply";
     if (b) {
-        m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+        n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
     } else {
-        if (j) {
-            m.className = "icon_transfer";
-            m.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
+        if (k) {
+            n.className = "icon_transfer";
+            n.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
         } else {
             if (d) {
                 magInfo.className = "icon_zyxapply";
-                m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+                n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
             } else {
                 if (h) {
-                    m.className = "icon_zyxtransfer";
-                    m.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+                    n.className = "icon_zyxtransfer";
+                    n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
                 } else {
-                    m.note = "";
+                    n.note = "";
                 }
             }
         }
     }
-    return m;
+    return n;
 };
 BookingLockScreenUI.prototype.showDialog = function(d) {
     $jex.event.trigger(this, "open");
