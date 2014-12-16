@@ -2503,6 +2503,9 @@ var DomesticOnewaySearchService = new(function() {
         }
     };
     this._invoke_flightPriceData = function(K, L, H) {
+        if (!H.priceInfo()) {
+            return;
+        }
         $jex.console.info("[invoke_flightPriceData]开始调用直飞航班价格数据: flightCode:", K);
         var M;
         if (w.lowestOneway()) {

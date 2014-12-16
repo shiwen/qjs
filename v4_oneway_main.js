@@ -7029,11 +7029,17 @@ BookingLockScreenUI.prototype.getMsgInfo = function(h) {
         },
         composeFlight: {
             txt: "您预订的是中转特价产品，需要在中转地停留并换机，将在出票后告知中转地停留时间。请确认后再付款。"
-        },
-        transfinoneway: {
-            txt: ['<div class="d1"><span class="tl">拜年团</span>&nbsp;即将跳转到订单填写页，请确认再付款！</div>', '<div class="d2">', '<p class="p1"><span class="city">', k.getCityNameByCode(o.firsttrip.da).zh, " - ", k.getCityNameByCode(o.firsttrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.firsttrip.dd + "&nbsp;" + o.firsttrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.firsttrip.co, "</p>", '<p class="p2"><span class="city">', k.getCityNameByCode(o.secondtrip.da).zh, " - ", k.getCityNameByCode(o.secondtrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.secondtrip.dd + "&nbsp;" + o.secondtrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.secondtrip.co, "</p></div>"].join("")
         }
     };
+    if (g.isRoundFlight()) {
+        q.transfinoneway = {
+            txt: ['<div class="d1"><span class="tl">拜年团</span>&nbsp;即将跳转到订单填写页，请确认再付款！</div>', '<div class="d2">', '<p class="p1"><span class="city">', k.getCityNameByCode(o.firsttrip.da).zh, " - ", k.getCityNameByCode(o.firsttrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.firsttrip.dd + "&nbsp;" + o.firsttrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.firsttrip.co, "</p>", '<p class="p2"><span class="city">', k.getCityNameByCode(o.secondtrip.da).zh, " - ", k.getCityNameByCode(o.secondtrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.secondtrip.dd + "&nbsp;" + o.secondtrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.secondtrip.co, "</p></div>"].join("")
+        };
+    } else {
+        q.transfinoneway = {
+            txt: ""
+        };
+    }
     var p = q[h],
         b = /app/.test(h),
         m = /transfer/.test(h),
