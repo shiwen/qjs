@@ -4993,6 +4993,11 @@ WrapperEntity.prototype._booking_url = function(b, d) {
             a.isRt = 1;
             break;
     }
+    if (this.isRoundFlight()) {
+        a.isRt = 1;
+        a.returnDepartureTime = this.dataSource().flightInfo.secondtrip.dt;
+        a.returnArrivalTime = this.dataSource().flightInfo.secondtrip.at;
+    }
     var f = window.location.param().from;
     if (f) {
         a.from = f;
@@ -5093,6 +5098,9 @@ WrapperEntity.prototype.isZzb = function() {
 };
 WrapperEntity.prototype.couponAdwords = function() {
     return this.dataSource().caw;
+};
+WrapperEntity.prototype.isRoundFlight = function() {
+    return false;
 };
 var StatProvider = function() {};
 StatProvider.prototype.value = function() {};
@@ -5698,6 +5706,9 @@ OnewayFlightWrapperEntity.prototype.isSpecialApp = function() {
 OnewayFlightWrapperEntity.prototype.packagePrice = function() {
     return this.dataSource().pg;
 };
+OnewayFlightWrapperEntity.prototype.isRoundFlight = function() {
+    return this.dataSource().roundflight == true;
+};
 OnewayFlightWrapperEntity.prototype.bpackagePrice = function() {
     return this.dataSource().bpg;
 };
@@ -5751,8 +5762,12 @@ OnewayFlightWrapperEntity.prototype._openBookingUrl = function(b, c) {
 OnewayFlightWrapperEntity.prototype._booking = function(a, c) {
     c = c || {};
     if (!c.BookingLocation) {
-        var b = this.ownerFlight().getWrapperListType() || "all";
-        c.BookingLocation = "list_" + b;
+        if (this.isRoundFlight()) {
+            c.BookingLocation = "oneWayList";
+        } else {
+            var b = this.ownerFlight().getWrapperListType() || "all";
+            c.BookingLocation = "list_" + b;
+        }
     }
     this._openBookingUrl(a, c);
     setTimeout(function() {
@@ -6978,6 +6993,10 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
         } else {
             if (d.ownerFlight().type == "compose" && d.isZzb()) {
                 attrs.push("composeFlight");
+            } else {
+                if (d.isRoundFlight()) {
+                    attrs.push("transfinoneway");
+                }
             }
         }
     }
@@ -6987,57 +7006,68 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
         f();
     }
 };
-BookingLockScreenUI.prototype.getMsgInfo = function(g) {
-    var f = this.entity;
-    var a = f.vPrice();
-    var i = f.vAmount();
-    var c = f.vName();
-    var l = this._vpr || 0;
-    var m = {
+BookingLockScreenUI.prototype.getMsgInfo = function(h) {
+    var g = this.entity;
+    var a = g.vPrice();
+    var j = g.vAmount();
+    var c = g.vName();
+    var n = this._vpr || 0;
+    var o = (h == "transfinoneway" ? g.dataSource().flightInfo : g.ownerFlight().flightInfo());
+    var k = g.ownerFlight().commInfoMgr();
+    var q = {
         app: {
             txt: "您所选购的是特殊机票产品，机票需要申请，申请成功后将短信通知您。"
         },
         zyxapp: {
-            txt: ["您购买的是自由行产品，包括机票和价值", a * i, "元（", a, "元*", i, "张）", c, "。机票需要申请，代理商将在申请成功后与您取得联系。"].join("")
+            txt: ["您购买的是自由行产品，包括机票和价值", a * j, "元（", a, "元*", j, "张）", c, "。机票需要申请，代理商将在申请成功后与您取得联系。"].join("")
         },
         transfer: {
             txt: ['您预订的是中转联程票，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
         },
         zyxtransfer: {
-            txt: ["您所选购的是中转联程的自由行产品，包括机票和价值", a * i, "元（", a, "元*", i, "张）", c, '，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
+            txt: ["您所选购的是中转联程的自由行产品，包括机票和价值", a * j, "元（", a, "元*", j, "张）", c, '，请确定各段价格都有效再付款。为了保证您的权益请阅读<a href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '" target="_blank">《中转联程票购买须知》</a>。'].join("")
         },
         composeFlight: {
             txt: "您预订的是中转特价产品，需要在中转地停留并换机，将在出票后告知中转地停留时间。请确认后再付款。"
+        },
+        transfinoneway: {
+            txt: ['<div class="d1"><span class="tl">拜年团</span>&nbsp;即将跳转到订单填写页，请确认再付款！</div>', '<div class="d2">', '<p class="p1"><span class="city">', k.getCityNameByCode(o.firsttrip.da).zh, " - ", k.getCityNameByCode(o.firsttrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.firsttrip.dd + "&nbsp;" + o.firsttrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.firsttrip.co, "</p>", '<p class="p2"><span class="city">', k.getCityNameByCode(o.secondtrip.da).zh, " - ", k.getCityNameByCode(o.secondtrip.aa).zh, '</span>&nbsp;&nbsp;<span class="time">', o.secondtrip.dd + "&nbsp;" + o.secondtrip.dt, '</span>&nbsp;&nbsp;<span class="code">航班号:&nbsp;', o.secondtrip.co, "</p></div>"].join("")
         }
     };
-    var n = m[g],
-        b = /app/.test(g),
-        k = /transfer/.test(g),
-        d = /zyxapp/.test(g),
-        h = /zyxtransfer/.test(g),
-        j = /composeFlight/.test(g);
-    n.className = "icon_apply";
+    var p = q[h],
+        b = /app/.test(h),
+        m = /transfer/.test(h),
+        f = /zyxapp/.test(h),
+        i = /zyxtransfer/.test(h),
+        l = /composeFlight/.test(h),
+        d = /transfinoneway/.test(h);
+    p.className = "icon_apply";
     if (b) {
-        n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+        p.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
     } else {
-        if (k) {
-            n.className = "icon_transfer";
-            n.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
+        if (m) {
+            p.className = "icon_transfer";
+            p.note = '<div class="note">说明：先确认各段机票价格均有效才能付款，避免某一航班无法预定带来的已购买航班处理的麻烦；每段行程都需要单独缴纳机场建设费和燃油税。</div>';
         } else {
-            if (d) {
+            if (f) {
                 magInfo.className = "icon_zyxapply";
-                n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+                p.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
             } else {
-                if (h) {
-                    n.className = "icon_zyxtransfer";
-                    n.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
+                if (i) {
+                    p.className = "icon_zyxtransfer";
+                    p.note = '<div class="note">说明：申请机票是指需要代理商向航空公司申请的机票，由于数量有限，代理商对是否申请成功不做承诺。</div>';
                 } else {
-                    n.note = "";
+                    if (d) {
+                        p.className = "icon_transferinoneway";
+                        p.note = "<div>说明：春节特别产品，含两段行程（未含税），组合价更优惠。您可选乘其中一程或两程，未使用的航程不可单独退票。</div>";
+                    } else {
+                        p.note = "";
+                    }
                 }
             }
         }
     }
-    return n;
+    return p;
 };
 BookingLockScreenUI.prototype.showDialog = function(d) {
     $jex.event.trigger(this, "open");
@@ -7051,7 +7081,7 @@ BookingLockScreenUI.prototype.showDialog = function(d) {
     f.innerHTML = "";
     var b = [];
     var c = this.getMsgInfo(d);
-    b.push('<div class="p_layer_cont">');
+    b.push('<div class="p_layer_cont ' + d + '">');
     b.push('    <div style="width:440px;" class="layer_inner"> <a id="', g, '_close" href="javascript:void(0);" title="关闭" class="btn_close"></a> ');
     b.push('        <div class="e_tit_pop"></div>');
     b.push('        <div class="layer_cont">');
@@ -7727,8 +7757,31 @@ WrapperListUI.prototype.getHolder = function() {
 WrapperListUI.prototype.update = function(a) {
     this.updateSourceEntity(a);
 };
-WrapperListUI.prototype.filterWrappers = function(b, a) {
-    return b;
+WrapperListUI.prototype.filterWrappers = function(f, d) {
+    var a = [];
+    for (var b = 0; b < f.length; b++) {
+        var c = d._map[f[b]];
+        if (!(c && c.isRoundFlight && c.isRoundFlight())) {
+            a.push(f[b]);
+        }
+    }
+    return a;
+};
+WrapperListUI.prototype.splitWrappers = function(g, f) {
+    var a = [];
+    var d = [];
+    for (var b = 0; b < g.length; b++) {
+        var c = f._map[g[b]];
+        if (c && c.isRoundFlight && c.isRoundFlight()) {
+            a.push(g[b]);
+        } else {
+            d.push(g[b]);
+        }
+    }
+    return {
+        roundList: a,
+        singleList: d
+    };
 };
 WrapperListUI.prototype.getSortKey = function() {
     return this._sortType;
@@ -7739,77 +7792,87 @@ WrapperListUI.prototype.setSortKey = function(a) {
 WrapperListUI.prototype.flushRendor = function() {
     this.render(this.getHolder());
 };
-WrapperListUI.prototype.updateSourceEntity = function(g, a) {
+WrapperListUI.prototype.updateSourceEntity = function(k, a) {
     this.clear();
     clearTimeout(this._drawTimer);
-    var q = this;
-    var n = g.wrappers();
-    n.update();
-    var m = n.sort(this.getSortKey());
-    m = q.filterWrappers(m, n, g);
-    var o = 9;
-    var l = Math.ceil(m.length / o);
-    var f = 0,
-        d = m.length,
-        c = 0;
-    var p = m.length + 100;
-    this.firstIndex = p;
-    this.zIndex = p;
-    var b = false;
-    g.hasShownInsTip = false;
-    if (g.transShownInsTip) {
-        g.hasShownInsTip = true;
-    }
-    var k = function(i) {
-        if (!i) {
-            q.clear();
+    var t = this;
+    var p = k.wrappers();
+    p.update();
+    var d = a;
+    var o = p.sort(this.getSortKey());
+    var c = t.splitWrappers(o, p, k);
+    o = t.filterWrappers(c.singleList, p, k);
+    if (d && "all" == k.getWrapperListType()) {
+        roundList = c.roundList;
+        for (var l = 0; l < roundList.length; l++) {
+            if (p._map[roundList[l]].price() && p._map[roundList[l]].price() <= p._map[roundList[l]].ownerFlight().lowestPrice()) {
+                o.push(roundList[l]);
+            }
         }
-        var s = (c + 1) * o;
-        for (; f < s && f < d; f++) {
-            var j = n.get(m[f]);
+    }
+    var q = 9;
+    var n = Math.ceil(o.length / q);
+    var h = 0,
+        g = o.length,
+        f = 0;
+    var s = o.length + 100;
+    this.firstIndex = s;
+    this.zIndex = s;
+    var b = false;
+    k.hasShownInsTip = false;
+    if (k.transShownInsTip) {
+        k.hasShownInsTip = true;
+    }
+    var m = function(i) {
+        if (!i) {
+            t.clear();
+        }
+        var u = (f + 1) * q;
+        for (; h < u && h < g; h++) {
+            var j = p.get(o[h]);
             if (!j) {
-                $jex.console.error("[WrapperListUI update] 找不到指定的wrapperEntity, key:", m[f], q);
+                $jex.console.error("[WrapperListUI update] 找不到指定的wrapperEntity, key:", o[h], t);
                 return $jex.$continue;
             }
-            if (!g.hasShownInsTip && j.afeeInsSum() && j.afeePrice() && !j.isNotWork() && !(j.coupon() > 0 && j.bprPrice())) {
-                g.hasShownInsTip = true;
+            if (!k.hasShownInsTip && j.afeeInsSum() && j.afeePrice() && !j.isNotWork() && !(j.coupon() > 0 && j.bprPrice())) {
+                k.hasShownInsTip = true;
                 j.showInsTip(true);
             }
-            q._addWrapperUI(g, j, f);
+            t._addWrapperUI(k, j, h);
         }
         if (!i) {
-            q.render(q.find("js-wlist_" + c));
+            t.render(t.find("js-wlist_" + f));
         }
-        c++;
-        b = c < l;
+        f++;
+        b = f < n;
         if (!i && b) {
-            q._drawTimer = setTimeout(function() {
-                k();
+            t._drawTimer = setTimeout(function() {
+                m();
             }, 10);
         }
     };
     clearTimeout(this._drawTimer);
-    k(true);
+    m(true);
     this._drawMoreWrapper = function() {
         if (b) {
-            q._drawTimer = setTimeout(function() {
-                k();
+            t._drawTimer = setTimeout(function() {
+                m();
             }, 10);
         }
         this._drawMoreWrapper = null;
     };
-    for (var h = 0; h < l; h++) {
-        this.append('<div class="e_qvt_bd" ', "js-wlist_" + h, "></div>");
+    for (var l = 0; l < n; l++) {
+        this.append('<div class="e_qvt_bd" ', "js-wlist_" + l, "></div>");
     }
     $jex.console.end("[WrapperListUI update] addwrappers");
-    $jex.console.trace("[WrapperListUI update] addwrappers 个数：" + n.size());
-    $jex.console.trace("[WrapperListUI update] addwrappers 传送个数：" + n._size);
+    $jex.console.trace("[WrapperListUI update] addwrappers 个数：" + p.size());
+    $jex.console.trace("[WrapperListUI update] addwrappers 传送个数：" + p._size);
     if (a) {
         this.onInit(function() {
-            this.ownerVendorListUI().updateLowerPriceShow(g, true);
+            this.ownerVendorListUI().updateLowerPriceShow(k, true);
         });
     }
-    this._traceWrappers(g);
+    this._traceWrappers(k);
 };
 WrapperListUI.prototype._traceWrappers = function(a) {
     TsinghuaOneWayTracker.trackWrappers(a);
@@ -8074,6 +8137,9 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     if (a.isFreeMan()) {
         f += " freeman";
     }
+    if (a.isRoundFlight && a.isRoundFlight()) {
+        f += " bainiantuan";
+    }
     this.append("<div", "flightbar", "");
     this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, f, '">');
     this.zIndex = this.ownerListUI().zIndex;
@@ -8084,13 +8150,17 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     if (a.isOta()) {
         this.insertOta(a);
     } else {
-        if (a.isFreeMan()) {
-            this.insertFreeMan(a);
+        if (a.isRoundFlight()) {
+            this.insertBainiantuanDetail(a);
         } else {
-            if (b) {
-                this.insertAirlineDirectSelling();
+            if (a.isFreeMan()) {
+                this.insertFreeMan(a);
             } else {
-                this.insert_Services(a);
+                if (b) {
+                    this.insertAirlineDirectSelling();
+                } else {
+                    this.insert_Services(a);
+                }
             }
         }
     }
@@ -8419,10 +8489,14 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
             var a = "度假";
             this.text('<i class="', c, '">', a, "</i>");
         } else {
-            if (d) {
-                this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
+            if (f.isRoundFlight()) {
+                this.text('<i class="ico_bainian" title="春节特别产品，含两段行程，组合价更优惠!">拜年团</i>');
             } else {
-                this.text('<i class="ico_nocertify" title=""></i>');
+                if (d) {
+                    this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
+                } else {
+                    this.text('<i class="ico_nocertify" title=""></i>');
+                }
             }
         }
     }
@@ -8436,7 +8510,11 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
             if (g.isFreeMan()) {
                 this._insterFreeManName(g);
             } else {
-                this._insertH3Normal(g);
+                if (g.isRoundFlight()) {
+                    this._insterRoundFlightName(g);
+                } else {
+                    this._insertH3Normal(g);
+                }
             }
         }
     }
@@ -8495,6 +8573,29 @@ OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', d.vendor().name(), "</div>");
     this.text('<div class="t_cmt t_yxfan">跨航空公司改签、手续费低、在线自助操作</div>');
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype._insterRoundFlightName = function(f) {
+    var d = f;
+    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
+    var a = c.getAcf();
+    var b = c.getFot();
+    this.text('<div class="v_ofc">');
+    this.text('<div class="t_name">', d.vendor().name(), "</div>");
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
+    var d = f;
+    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
+    var a = d.dataSource().flightInfo;
+    var b = d.ownerFlight().commInfoMgr();
+    this.text('<div class="round-detail">');
+    this.text('<p class="dept">');
+    this.text(b.getCityNameByCode(a.firsttrip.da).zh + " - " + b.getCityNameByCode(a.firsttrip.aa).zh + "&nbsp;&nbsp;<span>" + a.firsttrip.dd + "&nbsp;" + a.firsttrip.dt + "</span>");
+    this.text("</p>");
+    this.text('<p class="back">');
+    this.text(b.getCityNameByCode(a.secondtrip.da).zh + " - " + b.getCityNameByCode(a.secondtrip.aa).zh + "&nbsp;&nbsp;<span>" + a.secondtrip.dd + "&nbsp;" + a.secondtrip.dt + "</span>");
+    this.text("</p>");
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
@@ -8725,13 +8826,16 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
     g = parseInt(g);
     b = parseInt(b);
     this.text('<div class="v5">');
+    if (f.isRoundFlight()) {
+        this.text('<div class="ico_qianggou">抢购价<em></em></div>');
+    }
     if (g) {
         this.priceHTML(g, f.isLowestPr() ? "t_prc_lp" : "");
     }
-    if (b && !f.isFreeMan()) {
+    if (b && !f.isFreeMan() && !f.isRoundFlight()) {
         this.priceHTML(b, f.isLowestBpr() ? "t_prc_lp" : "");
     }
-    if (!g || !b) {
+    if (!f.isRoundFlight() && (!g || !b)) {
         this.text("<div>");
         var c = this._getCuXiao(f);
         if (c) {
@@ -8746,7 +8850,7 @@ OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
     if (g) {
         this.text('<div class="t_ins">');
         this.text("+", f.afee(), "保险");
-        if (f.showInsTip() && f.afeeInsSum()) {
+        if (f.showInsTip() && f.afeeInsSum() && !f.isRoundFlight()) {
             var d = "p_tips_wrap";
             if (this._isFrist) {
                 d += " p_tips_wrap_first";
@@ -8798,13 +8902,17 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     if (f.isApplyPrice() && b > 0) {
         a = "申请套餐";
     } else {
-        if (f.isApplyPrice()) {
-            a = "申 请";
+        if (f.isRoundFlight()) {
+            a = "抢购";
         } else {
-            if (b > 0) {
-                a = "预订套餐";
+            if (f.isApplyPrice()) {
+                a = "申 请";
             } else {
-                a = f.bigLogoUrl() ? "预 订" : c.getButtonMsg("预 订");
+                if (b > 0) {
+                    a = "预订套餐";
+                } else {
+                    a = f.bigLogoUrl() ? "预 订" : c.getButtonMsg("预 订");
+                }
             }
         }
     }
@@ -8828,7 +8936,7 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
         if (c) {
             this._buttonHTML("pr", b, "btnBook");
         }
-        if (a && !b.isFreeMan()) {
+        if (a && !b.isFreeMan() && !b.isRoundFlight()) {
             this._buttonHTML("bpr", b, "lbtnBook");
         }
     }
