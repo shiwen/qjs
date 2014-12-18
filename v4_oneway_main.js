@@ -8553,18 +8553,23 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
     }
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insterOtaName = function(f) {
-    var d = f;
-    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
-    var a = c.getAcf();
-    var b = c.getFot();
+OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
+    var f = g;
+    var d = this.ownerListUI().ownerVendorListUI().owner().entity;
+    var b = d.getAcf();
+    var c = d.getFot();
+    var a = f.ownerFlight();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendor().name());
-    if (d.isAuthorizedVendor()) {
+    this.text('<div class="t_name">', f.vendor().name());
+    if (f.isAuthorizedVendor()) {
         this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-        this.append("<span", "authVendorHandler", 'class="ico"></span>');
+        this.append("<span", "authVendorHandler", 'class="ico');
+        if (a.carrier() && a.carrier().key) {
+            this.append(" ico_" + a.carrier().key.toLowerCase());
+        }
+        this.append('"></span>');
         this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', d.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', f.ownerFlight().carrier().zh, "授权代理</div></div></span>");
     }
     this.text("</div>");
     this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
@@ -8604,35 +8609,40 @@ OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
     this.text("</p>");
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insertH3Normal = function(c) {
-    var b = c;
-    var a = b.vendor();
+OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
+    var c = d;
+    var a = c.vendor();
+    var b = c.ownerFlight();
     if (a.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', b.vendor().name(), "</div>");
+        this.text('<div class="t_name">', c.vendor().name(), "</div>");
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="v1">');
-        this.text('<div class="t_name">', b.vendor().name());
-        if (b.isAuthorizedVendor()) {
+        this.text('<div class="t_name">', c.vendor().name());
+        if (c.isAuthorizedVendor()) {
             this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-            this.append("<span", "authVendorHandler", 'class="ico"></span>');
+            this.append("<span", "authVendorHandler", 'class="ico');
+            if (b.carrier() && b.carrier().key) {
+                this.append(" ico_" + b.carrier().key.toLowerCase());
+            }
+            this.append('"></span>');
             this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-            this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', b.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+            this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', c.ownerFlight().carrier().zh, "授权代理</div></div></span>");
         }
         this.text("</div>");
-        if (b.isAnonymityVendor()) {
+        if (c.isAnonymityVendor()) {
             this.text('<div class="t_cmt">超值特惠单程机票</div>');
         } else {
             this.text('<div class="t_cmt">');
-            this.starUI.displayPanel(b);
+            this.starUI.displayPanel(c);
             this.text("</div>");
         }
         this.text("</div>");
         this.text('<div class="v2"><div class="e_btn_cmt">');
-        if (!b.isAnonymityVendor()) {
-            this.starUI.insert_btn(b);
+        if (!c.isAnonymityVendor()) {
+            this.starUI.insert_btn(c);
         }
         this.text("</div></div>");
     }
@@ -9012,22 +9022,27 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(d) {
     var a = d.vPrd();
     this.text('<div class="v3"><i class="', c, '"></i>机票+', a, b, "</div>");
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(a) {
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
+    var a = b.ownerFlight();
     this.text('<div class="v1">');
-    this.text('<div class="t_name">', a.vendor().name());
-    if (a.isAuthorizedVendor()) {
+    this.text('<div class="t_name">', b.vendor().name());
+    if (b.isAuthorizedVendor()) {
         this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-        this.append("<span", "authVendorHandler", 'class="ico"></span>');
+        this.append("<span", "authVendorHandler", 'class="ico');
+        if (a.carrier() && a.carrier().key) {
+            this.append(" ico_" + a.carrier().key.toLowerCase());
+        }
+        this.append('"></span>');
         this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', a.ownerFlight().carrier().zh, "授权代理</div></div></span>");
+        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', b.ownerFlight().carrier().zh, "授权代理</div></div></span>");
     }
     this.text("</div>");
     this.text('<div class="t_cmt">');
-    this.starUI.displayPanel(a);
+    this.starUI.displayPanel(b);
     this.text("</div>");
     this.text("</div>");
     this.text('<div class="v2"><div class="e_btn_cmt">');
-    this.starUI.insert_btn(a);
+    this.starUI.insert_btn(b);
     this.text("</div></div>");
     this.onInit(this._authorizeVendorHover);
 };
