@@ -5087,6 +5087,9 @@ WrapperEntity.prototype.fanxian = function() {
 WrapperEntity.prototype.lijian = function() {
     return Number(this.dataSource().rd) || 0;
 };
+WrapperEntity.prototype.isPlus = function() {
+    return this.dataSource().plus || false;
+};
 WrapperEntity.prototype.cat = function() {
     return this.dataSource().cat || 1;
 };
@@ -8175,7 +8178,7 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     var h = 0;
     if (a.getTGQInfo()) {
         var j = "退改签";
-        if (a.fanxian() || a.isTCabin() || a.isAnonymityVendor()) {
+        if ((a.fanxian() || a.isTCabin() || a.isAnonymityVendor()) && !a.isPlus()) {
             j = "促销说明";
         }
         h = 1;
@@ -8274,11 +8277,12 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
         a.loadedTgq = false;
         var f = this.find("tgq"),
             d = false;
+        isPlus = b.isPlus();
         var h = b.getTGQInfo();
-        if (b.fanxian()) {
+        if (b.fanxian() && !isPlus) {
             h = '<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>' + b.getTGQInfo() + '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>';
         }
-        if (b.isTCabin()) {
+        if (b.isTCabin() && !isPlus) {
             h = '<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>' + b.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>';
         }
         if (b.isAnonymityVendor()) {
@@ -8286,113 +8290,126 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
         }
 
         function i() {
-            var k = "/twell/flight/getTGQ.jsp";
-            var n = b.ownerFlight();
-            var m = a.find("tgq_notice");
-            var l = "";
-            $jex.jsonp(k, {
-                flightNum: n.flightInfo().co,
-                deptAirport: n.deptAirport().code,
-                arrAirport: n.arriAirport().code,
-                deptDate: n.deptDate().replace(/-/g, ""),
+            var l = "/twell/flight/getTGQ.jsp";
+            var q = b.ownerFlight();
+            var t = a.find("tgq_notice");
+            var o = "";
+            var s = b.lijian();
+            var p = b.fanxian();
+            var m = b.isPlus();
+            var k = true;
+            var n = Math.max(b.afeePrice(), b.bprPrice());
+            var u = Math.min(b.afeePrice() || Number.MAX_VALUE, b.bprPrice() || Number.MAX_VALUE);
+            if ((s || p) && m) {
+                n = s ? (n + s) : n;
+                u = s ? (u + s) : u;
+                k = false;
+            }
+            $jex.jsonp(l, {
+                flightNum: q.flightInfo().co,
+                deptAirport: q.deptAirport().code,
+                arrAirport: q.arriAirport().code,
+                deptDate: q.deptDate().replace(/-/g, ""),
                 printPrice: b.parValue(),
                 wrapperId: b.wrapperId(),
                 cabin: b.cabin(),
                 policyId: b.pid(),
-                maxSellPrice: Math.max(b.afeePrice(), b.bprPrice()),
-                minSellPrice: Math.min(b.afeePrice() || Number.MAX_VALUE, b.bprPrice() || Number.MAX_VALUE),
+                maxSellPrice: n,
+                minSellPrice: u,
                 tag: b.tag(),
-                b2bpf: b.b2bpf()
-            }, function(p) {
+                b2bpf: b.b2bpf(),
+                isTHFXLow: k
+            }, function(x) {
                 a.loadedTgq = true;
-                if (!p || (p && !p.tgqAdult)) {
-                    m.innerHTML = h;
+                if (!x || (x && !x.tgqAdult)) {
+                    t.innerHTML = h;
                     return;
                 }
-                l = p.tgqAdult;
-                var o = g(p);
-                m.innerHTML = o;
+                o = x.tgqAdult;
+                var w = g(x);
+                t.innerHTML = w;
             }, {
                 timeout: {
                     time: 2000,
                     func: function() {
-                        if (!l) {
-                            m.innerHTML = h;
+                        if (!o) {
+                            t.innerHTML = h;
                         }
                     }
                 }
             });
         }
 
-        function g(q) {
-            var s = 0,
-                x, w = q.tgqAdult,
-                m = w.timePointCharges,
-                u = [],
+        function g(s) {
+            var t = 0,
+                y, x = s.tgqAdult,
+                n = x.timePointCharges,
+                w = [],
                 k = [],
-                z = [],
-                o = null;
-            var y = "",
-                A = "",
-                l = '<span class="f_thm"><i class="rmb">¥</i>',
-                B = "/人</span>";
-            var t = [];
-            m && (x = m.length);
-            if (w.viewType == 1 && x > 0) {
-                if (b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) {
-                    var p = q.msg.split("|");
-                    var n = b.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
+                A = [],
+                p = null;
+            var z = "",
+                B = "",
+                m = '<span class="f_thm"><i class="rmb">¥</i>',
+                C = "/人</span>";
+            var u = [];
+            var l = b.isPlus();
+            n && (y = n.length);
+            if (x.viewType == 1 && y > 0) {
+                if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !l) {
+                    var q = s.msg.split("|");
+                    var o = b.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
                     if (b.fanxian()) {
-                        t.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
+                        u.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
                     } else {
                         if (b.isTCabin()) {
-                            t.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
+                            u.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
                         } else {
-                            t.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
+                            u.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
                         }
                     }
-                    t.push('<ul class="ul_cx">');
-                    for (var s = 0; s < p.length; s++) {
-                        t.push("<li>", s + 1, ".", p[s], "</li>");
+                    u.push('<ul class="ul_cx">');
+                    for (var t = 0; t < q.length; t++) {
+                        u.push("<li>", t + 1, ".", q[t], "</li>");
                     }
-                    t.push("</ul>");
+                    u.push("</ul>");
                     if (!b.isAnonymityVendor()) {
-                        t.push('<p class="addtip"> 附加说明：<br>', n, " </p>");
+                        u.push('<p class="addtip"> 附加说明：<br>', o, " </p>");
                     }
                 } else {
-                    w.adultTgq = {};
-                    for (; s < x; s++) {
-                        o = m[s];
-                        y = o.changeFee == -1 ? "不可改期" : l + o.changeFee + B;
-                        A = o.returnFee == -1 ? "只退机建和燃油" : l + o.returnFee + B;
-                        u.push("<p>", o.timeText, "</p>");
-                        k.push("<p>", A, "</p>");
-                        z.push("<p>", y, "</p>");
+                    x.adultTgq = {};
+                    for (; t < y; t++) {
+                        p = n[t];
+                        z = p.changeFee == -1 ? "不可改期" : m + p.changeFee + C;
+                        B = p.returnFee == -1 ? "只退机建和燃油" : m + p.returnFee + C;
+                        w.push("<p>", p.timeText, "</p>");
+                        k.push("<p>", B, "</p>");
+                        A.push("<p>", z, "</p>");
                     }
-                    t.push('<table class="tbl_tgq_tip">', '<tr class="nw">', w.hasTime ? "<th>退改签时间点</th>" : "", "<th>退票扣费</th><th>改期加收手续费</th><th>签转</th></tr>", '<tr class="nw">');
-                    w.hasTime && t.push('     <td class="c1 nw">', u.join(""), "</td>");
-                    t.push('     <td class="c2 nw">', k.join(""), "</td>");
-                    t.push('     <td class="c3 nw">', z.join(""), "</td>");
-                    t.push('     <td class="c4 nw">', w.signText, "</td>");
-                    t.push("<tr>");
-                    t.push("</table>");
-                    t.push("<div>以上为成人退改签费用标准</div>");
+                    u.push('<table class="tbl_tgq_tip">', '<tr class="nw">', x.hasTime ? "<th>退改签时间点</th>" : "", "<th>退票扣费</th><th>改期加收手续费</th><th>签转</th></tr>", '<tr class="nw">');
+                    x.hasTime && u.push('     <td class="c1 nw">', w.join(""), "</td>");
+                    u.push('     <td class="c2 nw">', k.join(""), "</td>");
+                    u.push('     <td class="c3 nw">', A.join(""), "</td>");
+                    u.push('     <td class="c4 nw">', x.signText, "</td>");
+                    u.push("<tr>");
+                    u.push("</table>");
+                    u.push("<div>以上为成人退改签费用标准</div>");
                 }
             } else {
-                if (w.tgqText) {
-                    if (b.fanxian()) {
-                        t.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>', w.tgqText, '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>');
+                if (x.tgqText) {
+                    if (b.fanxian() && !l) {
+                        u.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>', x.tgqText, '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>');
                     } else {
-                        if (b.isTCabin()) {
-                            t.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>', w.tgqText, '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>');
+                        if (b.isTCabin() && !l) {
+                            u.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>', x.tgqText, '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>');
                         } else {
-                            t.push(w.tgqText);
-                            t.push("<br/><i>*</i>仅供参考,以订单标注的退改签规定为准。");
+                            u.push(x.tgqText);
+                            u.push("<br/><i>*</i>仅供参考,以订单标注的退改签规定为准。");
                         }
                     }
                 }
             }
-            return t.join("");
+            return u.join("");
         }
         if (f) {
             var j = this.find("tgq_notice_panel");
@@ -8779,31 +8796,37 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
         }
     }
 };
-OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(d) {
-    var a = d.fanxian();
-    var f = d.afeePrice();
-    var b = f - a;
-    f = parseInt(f, 10);
-    b = parseInt(b, 10);
+OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(g) {
+    var d = g.fanxian();
+    var b = g.lijian();
+    var a = g.isPlus();
+    var h = g.afeePrice();
+    h = parseInt(h, 10);
+    var c;
+    if (a) {
+        c = d ? h : (b + h);
+    } else {
+        c = d ? h - d : h;
+    }
     this.text('<div class="v5">');
-    if (f) {
-        this.priceHTML(a ? b : f, d.isLowestPr() ? "t_prc_lp" : "");
+    if (h) {
+        this.priceHTML(c, g.isLowestPr() ? "t_prc_lp" : "");
         this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
     }
     this.text("</div>");
     this.text('<div class="v6">');
-    if (f) {
+    if (h) {
         this.text('<div class="t_ins">');
-        this.text("+", d.afee(), "保险");
-        if (d.showInsTip() && d.afeeInsSum()) {
-            var c = "p_tips_wrap";
+        this.text("+", g.afee(), "保险");
+        if (g.showInsTip() && g.afeeInsSum()) {
+            var f = "p_tips_wrap";
             if (this._isFrist) {
-                c += " p_tips_wrap_first";
+                f += " p_tips_wrap_first";
             }
-            this.text('<div class="p_tips_cont"><div class="', c, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', d.afeeInsSum(), "万</p></div></div></div>");
+            this.text('<div class="p_tips_cont"><div class="', f, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', g.afeeInsSum(), "万</p></div></div></div>");
         }
-        if (d.fanxian() || d.isTCabin()) {
-            this.insert_returnMoney(d);
+        if (g.fanxian() || g.isTCabin()) {
+            this.insert_returnMoney(g);
         }
         this.text("</div>");
     } else {
@@ -8811,26 +8834,35 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(d) {
     }
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype.insert_returnMoney = function(c) {
-    var g = c;
-    var f = g.fanxian();
-    var h = parseInt(g.afeePrice());
-    var a = g.lijian();
-    var b = a + h;
-    if (!a) {
-        var d = parseInt(g.bprPrice());
-        b = g.parValue() - (d - h);
-        a = b - h;
+OnewayFlightWrapperUI.prototype.insert_returnMoney = function(d) {
+    var h = d;
+    var g = h.fanxian();
+    var i = parseInt(h.afeePrice());
+    var b = h.lijian();
+    var c = b + i;
+    var a = h.isPlus();
+    if (!b) {
+        var f = parseInt(h.bprPrice());
+        c = h.parValue() - (f - i);
+        b = c - i;
     }
-    if (!f && !a) {
+    if (!g && !b) {
         return;
     }
     this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
-    if (f > 0) {
-        this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', h, '</i>&nbsp;返现<i class="rmb">&yen;', f, "</i></div>");
+    if (g > 0) {
+        if (a) {
+            this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', g, "</i></div>");
+        } else {
+            this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', i, '</i>&nbsp;返现<i class="rmb">&yen;', g, "</i></div>");
+        }
     } else {
-        if (a > 0) {
-            this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', b, '</i>&nbsp;立减<i class="rmb">&yen;', a, "</i></div>");
+        if (b > 0) {
+            if (a) {
+                this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', b, "</i></div>");
+            } else {
+                this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', c, '</i>&nbsp;立减<i class="rmb">&yen;', b, "</i></div>");
+            }
         }
     }
     this.text("</div>", "</div>", "</div>");
