@@ -3584,279 +3584,285 @@ function DateChecker(a, g, f) {
     this.isInter = false;
 }
 
-function DateLayer(s, u) {
+function DateLayer(s, w) {
     this.panel = s;
     var m = this;
-    var G = [];
-    var L = true;
+    var H = [];
+    var M = true;
     if (s.parentNode.parentNode.className.indexOf("toD") > -1) {
-        L = false;
+        M = false;
     }
     var a;
     var h = {};
     var c = [];
-    var F = [];
-    var N, x, z, B;
+    var G = [];
+    var O, y, A, D;
     var b = {};
-    var d, i, k, K;
+    var d, i, k, L;
 
     function j() {
         h = {};
         b = {};
         c.length = 0;
-        F.length = 0;
-        N = x = z = B = null;
+        G.length = 0;
+        O = y = A = D = null;
     }
 
-    function D() {
-        var O = this.getAttribute("value");
-        var Q = this.getAttribute("data-pos");
-        var P = QunarDate.parse(O);
-        if (P && (P.getTime() >= N.getTime()) && (P.getTime() <= x.getTime())) {
-            $jex.event.trigger(m, "selected", [P, Q]);
+    function u(P) {
+        var Q = "/site/track.htm?action=fuzzyDatesFlag|" + P + "|&t=" + Date.parse(new Date());
+        new Image().src = Q;
+    }
+
+    function E() {
+        var P = this.getAttribute("value");
+        u(encodeURIComponent(P));
+        var R = this.getAttribute("data-pos");
+        var Q = QunarDate.parse(P);
+        if (Q && (Q.getTime() >= O.getTime()) && (Q.getTime() <= y.getTime())) {
+            $jex.event.trigger(m, "selected", [Q, R]);
         } else {
-            $jex.event.trigger(m, "fuzzySelected", [O]);
+            $jex.event.trigger(m, "fuzzySelected", [P]);
             d = this.getAttribute("start");
             i = this.getAttribute("end");
         }
     }
 
-    function H() {
+    function I() {
         if (!k) {
-            m.render(QunarDate.parse(this.getAttribute("ym")), N, x, null, B);
+            m.render(QunarDate.parse(this.getAttribute("ym")), O, y, null, D);
         } else {
-            m.fuzzyRenderPanel(QunarDate.parse(this.getAttribute("ym")), N, x, null, B);
+            m.fuzzyRenderPanel(QunarDate.parse(this.getAttribute("ym")), O, y, null, D);
         }
         if (k) {
-            var O = p(i);
-            $jex.addClassName(O, "curr");
+            var P = p(i);
+            $jex.addClassName(P, "curr");
         }
     }
 
-    function p(O) {
-        if (!b[O]) {
-            var P = h[O];
-            b[O] = a.getDomNode(P);
+    function p(P) {
+        if (!b[P]) {
+            var Q = h[P];
+            b[P] = a.getDomNode(Q);
         }
-        return b[O];
+        return b[P];
     }
 
-    function M(R) {
-        var S, Q, R = R || {};
-        for (var P = 0, O = c.length; P < O; P++) {
-            Q = c[P];
-            if (R[Q]) {
-                R[Q] = 0;
+    function N(S) {
+        var T, R, S = S || {};
+        for (var Q = 0, P = c.length; Q < P; Q++) {
+            R = c[Q];
+            if (S[R]) {
+                S[R] = 0;
             } else {
-                S = p(Q);
-                $jex.removeClassName(S, "day_sel_area");
+                T = p(R);
+                $jex.removeClassName(T, "day_sel_area");
             }
         }
     }
 
-    function l(O) {
+    function l(P) {
         c.length = 0;
-        $jex.each(O, function(P, R) {
-            c[c.length] = P;
-            if (O[P]) {
-                var Q = p(P);
-                $jex.addClassName(Q, "day_sel_area");
+        $jex.each(P, function(Q, S) {
+            c[c.length] = Q;
+            if (P[Q]) {
+                var R = p(Q);
+                $jex.addClassName(R, "day_sel_area");
             }
         });
     }
 
-    function y(P) {
-        var O = p(QunarDate.format(P));
-        $jex.addClassName(O, "curr");
+    function z(Q) {
+        var P = p(QunarDate.format(Q));
+        $jex.addClassName(P, "curr");
     }
 
-    function n(P) {
-        var O = p(QunarDate.format(P));
-        $jex.removeClassName(O, "curr");
+    function n(Q) {
+        var P = p(QunarDate.format(Q));
+        $jex.removeClassName(P, "curr");
     }
-    var q = function(U, P) {
-        var T = $jex.ie ? "mouseenter" : "mouseover";
-        var S = $jex.ie ? "mouseleave" : "mouseout";
-        var R;
-        for (var Q = 0, O = F.length; Q < O; Q++) {
-            R = p(F[Q]);
-            $jex.event.bind(R, T, function() {
-                U(this);
-                E(this);
+    var q = function(V, Q) {
+        var U = $jex.ie ? "mouseenter" : "mouseover";
+        var T = $jex.ie ? "mouseleave" : "mouseout";
+        var S;
+        for (var R = 0, P = G.length; R < P; R++) {
+            S = p(G[R]);
+            $jex.event.bind(S, U, function() {
+                V(this);
+                F(this);
                 $jex.addClassName(this, "hover");
             });
-            $jex.event.bind(R, S, function() {
-                P(this);
-                I(this);
+            $jex.event.bind(S, T, function() {
+                Q(this);
+                J(this);
                 $jex.removeClassName(this, "hover");
             });
-            $jex.event.bind(R, "click", D);
-            G.push(R);
+            $jex.event.bind(S, "click", E);
+            H.push(S);
         }
-        if (K) {
-            R = p(K);
-            $jex.event.bind(R, "click", D);
+        if (L) {
+            S = p(L);
+            $jex.event.bind(S, "click", E);
         }
     };
     var f = function() {
-        for (var O = 0; O < 2; O++) {
-            var P = a.getDomNode("a" + O);
-            $jex.event.bind(P, "mousedown", H);
-            G.push(P);
+        for (var P = 0; P < 2; P++) {
+            var Q = a.getDomNode("a" + P);
+            $jex.event.bind(Q, "mousedown", I);
+            H.push(Q);
         }
     };
     var t = function() {
-        var R = null;
-        var Q = function(S) {
-            clearTimeout(R);
+        var S = null;
+        var R = function(T) {
+            clearTimeout(S);
         };
-        var O = function(S) {
-            M();
+        var P = function(T) {
+            N();
             c.length = 0;
-            y(u.date1);
+            z(w.date1);
         };
-        var P = function(S) {
-            clearTimeout(R);
-            R = setTimeout(function() {
-                O(S);
+        var Q = function(T) {
+            clearTimeout(S);
+            S = setTimeout(function() {
+                P(T);
             }, 150);
         };
-        q(Q, P);
+        q(R, Q);
     };
     var g = function() {
-        var R = null;
-        var Q = function(U) {
-            clearTimeout(R);
-            var V = U.getAttribute("value");
-            var W = QunarDate.parse(V);
-            var X = u.date1;
-            var S = u.date2;
-            var T = {};
-            if (L) {
-                if (QunarDate.compareDate(X, W) > 0) {
-                    T = QunarDate.getDatesOffset(V, QunarDate.format(S));
+        var S = null;
+        var R = function(V) {
+            clearTimeout(S);
+            var W = V.getAttribute("value");
+            var X = QunarDate.parse(W);
+            var Y = w.date1;
+            var T = w.date2;
+            var U = {};
+            if (M) {
+                if (QunarDate.compareDate(Y, X) > 0) {
+                    U = QunarDate.getDatesOffset(W, QunarDate.format(T));
                 } else {
-                    if (QunarDate.compareDate(W, S) > 0) {
-                        T = {};
+                    if (QunarDate.compareDate(X, T) > 0) {
+                        U = {};
                     } else {
-                        T = QunarDate.getDatesOffset(V, QunarDate.format(S));
+                        U = QunarDate.getDatesOffset(W, QunarDate.format(T));
                     }
                 }
-                n(X);
-                y(S);
+                n(Y);
+                z(T);
             } else {
-                T = QunarDate.getDatesOffset(QunarDate.format(X), V);
-                n(S);
-                y(X);
+                U = QunarDate.getDatesOffset(QunarDate.format(Y), W);
+                n(T);
+                z(Y);
             }
-            M(T);
-            l(T);
-        };
-        var O = function() {
-            var U = u.date1;
-            var S = u.date2;
-            var T = QunarDate.getDatesOffset(QunarDate.format(U), QunarDate.format(S));
-            y(U);
-            y(S);
-            M(T);
-            l(T);
+            N(U);
+            l(U);
         };
         var P = function() {
-            clearTimeout(R);
-            R = setTimeout(function() {
-                O();
+            var V = w.date1;
+            var T = w.date2;
+            var U = QunarDate.getDatesOffset(QunarDate.format(V), QunarDate.format(T));
+            z(V);
+            z(T);
+            N(U);
+            l(U);
+        };
+        var Q = function() {
+            clearTimeout(S);
+            S = setTimeout(function() {
+                P();
             }, 150);
         };
-        q(Q, P);
+        q(R, Q);
     };
-    var E = function(Q) {
-        var R = Q.getAttribute("start"),
-            O = Q.getAttribute("end"),
-            P = {};
-        if (!R || !O) {
+    var F = function(R) {
+        var S = R.getAttribute("start"),
+            P = R.getAttribute("end"),
+            Q = {};
+        if (!S || !P) {
             return;
         }
-        n(u.date1);
-        n(u.date2);
-        y(QunarDate.parse(R));
-        y(QunarDate.parse(O));
-        P = QunarDate.getDatesOffset(R, O);
-        M(P);
-        l(P);
+        n(w.date1);
+        n(w.date2);
+        z(QunarDate.parse(S));
+        z(QunarDate.parse(P));
+        Q = QunarDate.getDatesOffset(S, P);
+        N(Q);
+        l(Q);
     };
-    var I = function(Q) {
-        var R = Q.getAttribute("start"),
-            O = Q.getAttribute("end"),
-            P = {};
-        if (!R || !O) {
+    var J = function(R) {
+        var S = R.getAttribute("start"),
+            P = R.getAttribute("end"),
+            Q = {};
+        if (!S || !P) {
             return;
         }
-        n(QunarDate.parse(R));
-        n(QunarDate.parse(O));
+        n(QunarDate.parse(S));
+        n(QunarDate.parse(P));
     };
-    var w = function() {
-        var R = null;
-        var Q = function(S) {
-            clearTimeout(R);
-            if (QunarDate.getFuzzyDate(S.getAttribute("value"))) {
+    var x = function() {
+        var S = null;
+        var R = function(T) {
+            clearTimeout(S);
+            if (QunarDate.getFuzzyDate(T.getAttribute("value"))) {
                 n(QunarDate.parse(i));
             }
         };
-        var O = function() {
-            var S = QunarDate.getDatesOffset(d, i);
-            M(S);
-            l(S);
-            y(QunarDate.parse(d));
-            y(QunarDate.parse(i));
-        };
         var P = function() {
-            clearTimeout(R);
-            R = setTimeout(function() {
-                O();
+            var T = QunarDate.getDatesOffset(d, i);
+            N(T);
+            l(T);
+            z(QunarDate.parse(d));
+            z(QunarDate.parse(i));
+        };
+        var Q = function() {
+            clearTimeout(S);
+            S = setTimeout(function() {
+                P();
             }, 150);
         };
-        q(Q, P);
+        q(R, Q);
     };
     var o = function() {
-        for (var O = 0, P = G.length; O < P; O++) {
-            $jex.event.clear(G[O]);
+        for (var P = 0, Q = H.length; P < Q; P++) {
+            $jex.event.clear(H[P]);
         }
-        G.length = 0;
+        H.length = 0;
     };
-    var C = function(P, S, U, T, V) {
-        z = T || 0;
-        N = S || u.getMin();
-        x = U || u.getMax();
-        B = V || {};
-        if (k && T !== null) {
-            $jex.foreach(B, function(Y, W, X) {
-                if (W === 0) {
-                    P = Y;
+    var C = function(Q, T, V, U, W) {
+        A = U || 0;
+        O = T || w.getMin();
+        y = V || w.getMax();
+        D = W || {};
+        if (k && U !== null) {
+            $jex.foreach(D, function(Z, X, Y) {
+                if (X === 0) {
+                    Q = Z;
                     return;
                 }
             });
         }
-        var O = 0;
-        var R = 0;
+        var P = 0;
+        var S = 0;
         a = new UIObject();
         a.text('<div class="ui-calendar">');
-        $jex.array.each([0, 1], function(ab, ac) {
-            var ao = new Date(P.getFullYear(), P.getMonth() + ab - z, 1);
-            var ai = ao.getMonth() + 1;
-            var ak = QunarDate.convert2digit(ai);
-            var af = ao.getFullYear();
-            var ap = new Date(af, ao.getMonth(), 0);
-            var Z = new Date(af, ao.getMonth(), 1);
-            var W = new Date(af, ao.getMonth() + 1, 1);
-            var ad = new Date(af, ai - 1, 1).getDay() - 1;
-            if (ad < 0) {
-                ad = 6;
+        $jex.array.each([0, 1], function(ac, ad) {
+            var ap = new Date(Q.getFullYear(), Q.getMonth() + ac - A, 1);
+            var aj = ap.getMonth() + 1;
+            var al = QunarDate.convert2digit(aj);
+            var ag = ap.getFullYear();
+            var aq = new Date(ag, ap.getMonth(), 0);
+            var aa = new Date(ag, ap.getMonth(), 1);
+            var X = new Date(ag, ap.getMonth() + 1, 1);
+            var ae = new Date(ag, aj - 1, 1).getDay() - 1;
+            if (ae < 0) {
+                ae = 6;
             }
-            var ah = new Date(af, ai, 0).getDate();
-            var aa = ac == 0 ? N.getTime() <= ap.getTime() : W.getTime() <= x.getTime();
+            var ai = new Date(ag, aj, 0).getDate();
+            var ab = ad == 0 ? O.getTime() <= aq.getTime() : X.getTime() <= y.getTime();
             a.text('<div class="m-part">');
             a.text("<h3>");
-            a.append("<a ", "a" + (R++)).text(' class="', (ac ? "downTd" : "upTd"), '" ym="', (QunarDate.format(ac ? Z : ap)), '" style="', (aa ? "display:block" : "display:none"), '" href="javascript:;"></a>', af, "年", ai, "月</h3>");
+            a.append("<a ", "a" + (S++)).text(' class="', (ad ? "downTd" : "upTd"), '" ym="', (QunarDate.format(ad ? aa : aq)), '" style="', (ab ? "display:block" : "display:none"), '" href="javascript:;"></a>', ag, "年", aj, "月</h3>");
             a.text('<div class="thwrap">');
             a.text('<table cellspacing="0" cellpadding="0" border="0">');
             a.text('<tr class="thead"><td>一</td><td>二</td><td>三</td><td>四</td><td>五</td><td class="holi">六</td><td class="holi">日</td></tr>');
@@ -3864,125 +3870,125 @@ function DateLayer(s, u) {
             a.text("</div>");
             a.text('<div class="tdwrap">');
             a.text('<table cellspacing="0" cellpadding="0" border="0">');
-            var am = 0;
-            var ag = /out$/;
-            var X = "";
-            for (var aj = 0; aj < 42; aj++) {
-                if (aj % 7 == 0) {
+            var an = 0;
+            var ah = /out$/;
+            var Y = "";
+            for (var ak = 0; ak < 42; ak++) {
+                if (ak % 7 == 0) {
                     a.text('<tr class="tdate">');
                 }
-                if (aj < ad) {
+                if (ak < ae) {
                     a.text('<td class="cnone">&nbsp;</td>');
                 } else {
-                    if (am < ah) {
-                        am++;
-                        var aq = am;
-                        var an = QunarDate.convert2digit(am);
-                        var ae = af + "-" + ak + "-" + an;
-                        var Y = new Date(af, ai - 1, am);
-                        var al = QunarDate.today();
-                        if (QunarDate.compareDate(Y, al) === 0) {
-                            aq = "今天";
+                    if (an < ai) {
+                        an++;
+                        var ar = an;
+                        var ao = QunarDate.convert2digit(an);
+                        var af = ag + "-" + al + "-" + ao;
+                        var Z = new Date(ag, aj - 1, an);
+                        var am = QunarDate.today();
+                        if (QunarDate.compareDate(Z, am) === 0) {
+                            ar = "今天";
                         }
-                        if (QunarDate.isHoliday(ae) && QunarDate.showIcon && QunarDate.showIcon(ae)) {
-                            aq = QunarDate.getHolidayName(ae);
+                        if (QunarDate.isHoliday(af) && QunarDate.showIcon && QunarDate.showIcon(af)) {
+                            ar = QunarDate.getHolidayName(af);
                         }
-                        h[ae] = O;
-                        X = u.getTdStyle(Y, N, x);
-                        if (!ag.test(X)) {
-                            F[F.length] = ae;
+                        h[af] = P;
+                        Y = w.getTdStyle(Z, O, y);
+                        if (!ah.test(Y)) {
+                            G[G.length] = af;
                         }
-                        if (!!B[ae]) {
-                            c[c.length] = ae;
-                            a.append("<td ", O++).text(' value="', ae, '" data-pos="', ab, '" class=" day_sel_area  ', X, '" >', aq, "</td>");
+                        if (!!D[af]) {
+                            c[c.length] = af;
+                            a.append("<td ", P++).text(' value="', af, '" data-pos="', ac, '" class=" day_sel_area  ', Y, '" >', ar, "</td>");
                         } else {
-                            a.append("<td ", O++).text(' value="', ae, '" data-pos="', ab, '" class="', X, '" >', aq, "</td>");
+                            a.append("<td ", P++).text(' value="', af, '" data-pos="', ac, '" class="', Y, '" >', ar, "</td>");
                         }
                     } else {
                         a.text('<td class="cnone">&nbsp;</td>');
                     }
                 }
-                if (aj % 7 == 6) {
+                if (ak % 7 == 6) {
                     a.text("</tr>");
                 }
             }
             a.text("</table></div></div>");
         });
-        if (u.isInter) {
+        if (w.isInter) {
             a.text('<div class="m-fuzzy-box">');
             a.text(' <ul class="m-fuzzy-lst clrfix">');
-            var Q = k == "1周之内" && !L ? QunarDate.getFuzzyDateText1() : QunarDate.getFuzzyDateText0();
-            $jex.array.each(Q, function(X, W) {
-                var Y = QunarDate.getFuzzyDate(X);
-                if (k == X) {
+            var R = k == "1周之内" && !M ? QunarDate.getFuzzyDateText1() : QunarDate.getFuzzyDateText0();
+            $jex.array.each(R, function(Y, X) {
+                var Z = QunarDate.getFuzzyDate(Y);
+                if (k == Y) {
                     _class = "hover";
-                    K = X;
-                    h[X] = O;
+                    L = Y;
+                    h[Y] = P;
                 } else {
-                    F[F.length] = X;
-                    h[X] = O;
+                    G[G.length] = Y;
+                    h[Y] = P;
                     _class = "";
                 }
-                a.append("<li ", O++).text(' value="', Y.value, '" start="', Y.start, '" end="', Y.end, '" class="', _class, '">', X, "</li>");
+                a.append("<li ", P++).text(' value="', Z.value, '" start="', Z.start, '" end="', Z.end, '" class="', _class, '">', Y, "</li>");
             });
             a.text(" </ul>");
             a.text("</div>");
         }
         a.text("</div>");
         a.write(s);
-        A();
+        B();
     };
-    var A = function() {
-        var O = QunarDate.getFuzzyDateText0().slice(5);
-        var P = 0;
-        $jex.array.each(O, function(S, Q) {
-            var U = QunarDate.getFuzzyDate(S);
-            var R = QunarDate.parse(U.start);
-            if (QunarDate.today() < R && P < 5) {
-                P++;
+    var B = function() {
+        var P = QunarDate.getFuzzyDateText0().slice(5);
+        var Q = 0;
+        $jex.array.each(P, function(T, R) {
+            var V = QunarDate.getFuzzyDate(T);
+            var S = QunarDate.parse(V.start);
+            if (QunarDate.today() < S && Q < 5) {
+                Q++;
             } else {
-                var T = p(S);
-                if (T) {
-                    T.style.display = "none";
+                var U = p(T);
+                if (U) {
+                    U.style.display = "none";
                 }
             }
         });
     };
-    var J = function() {
-        var O = function() {};
-        q(O, O);
+    var K = function() {
+        var P = function() {};
+        q(P, P);
     };
-    this.render = function(P, Q, O, S, R) {
+    this.render = function(Q, R, P, T, S) {
         k = "";
         o();
         j();
-        C(P, Q, O, S, R);
-        if (u.date2Hide) {
+        C(Q, R, P, T, S);
+        if (w.date2Hide) {
             t();
         } else {
             g();
         }
         f();
     };
-    this.fuzzyRenderPanel = function(Q, S, O, V, T) {
-        var P = QunarDate.getFuzzyDate(Q),
-            R, U;
+    this.fuzzyRenderPanel = function(R, T, P, W, U) {
+        var Q = QunarDate.getFuzzyDate(R),
+            S, V;
         o();
         j();
-        if (!P) {
-            C(Q, S, O, V, T);
+        if (!Q) {
+            C(R, T, P, W, U);
         } else {
-            k = Q;
-            d = P.start;
-            i = P.end;
-            R = QunarDate.getDatesOffset(d, i);
-            u.setDate1(d);
-            u.setDate2(i);
-            U = L ? 0 : QunarDate.parse(d);
-            C(QunarDate.today(), U, 0, 0, R);
-            y(QunarDate.parse(i));
+            k = R;
+            d = Q.start;
+            i = Q.end;
+            S = QunarDate.getDatesOffset(d, i);
+            w.setDate1(d);
+            w.setDate2(i);
+            V = M ? 0 : QunarDate.parse(d);
+            C(QunarDate.today(), V, 0, 0, S);
+            z(QunarDate.parse(i));
         }
-        w();
+        x();
         f();
     };
 }
@@ -17829,7 +17835,6 @@ function SearchBox(a, c) {
             return false;
         }
         b();
-        q();
         window.searchTrack && searchTrack.triggerHomeClickBtn(d);
         if (!y()) {
             $jex.stopEvent(A);
@@ -17846,7 +17851,6 @@ function SearchBox(a, c) {
                 setTimeout(function() {
                     if (!x()) {
                         b();
-                        q();
                         if (y()) {
                             a.submit();
                         }
