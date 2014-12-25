@@ -2185,6 +2185,11 @@ DataSet.prototype.addFilter = function(b) {
     }
     return c;
 };
+DataSet.prototype.clearAllFilter = function() {
+    this._filtersMap = {};
+    this._filters = [];
+    this._filterMatrix = {};
+};
 DataSet.prototype.clearFilter = function(a) {
     if (!this._filtersMap[a]) {
         return;
@@ -6507,6 +6512,7 @@ function FilterListUI(a) {
     this._filterConf = (a && a.filterConf) ? a.filterConf : {};
     this._list = new $jex.List();
     this._cacheItem = {};
+    this._filterPanel = [];
 }
 $jex.extendClass(FilterListUI, XControl);
 FilterListUI.prototype.addFilter = function(b) {
@@ -6533,13 +6539,49 @@ FilterListUI.prototype.addFilter = function(b) {
 };
 FilterListUI.prototype.bindEvent = function(b) {
     var a = this;
-    $jex.event.binding(b, "changeFilter", function(c, d, h, i, g) {
+    $jex.event.binding(b, "changeFilter", function(k, p, h, n, o) {
         var f = {
-            name: c,
-            type: (a._filterConf[c] && a._filterConf[c].type) ? a._filterConf[c].type : 4,
-            value: d
+            name: k,
+            type: (a._filterConf[k] && a._filterConf[k].type) ? a._filterConf[k].type : 4,
+            value: p
         };
-        $jex.event.trigger(a, "changeFilter", f, c, d, h, i, g);
+        var j = h.dataSource().name;
+        if (h.dataSource().catalog == "起飞时间") {
+            j = h.dataSource().key;
+        }
+        var d = {
+            value: n,
+            cname: j,
+            checked: o
+        };
+        var g = a._filterPanel.length;
+        var l;
+        for (l = 0; l < g; l++) {
+            var i = a._filterPanel[l];
+            if (i.catalog() == k) {
+                i.update(d);
+                i.render(i.owner().find(k + "filterItem"));
+                break;
+            }
+        }
+        if (l === g) {
+            if (!a._filterPanelListUI) {
+                a._filterPanelListUI = new FilterItemListUI();
+                a._filterPanelListUI.owner(a);
+            }
+            var c = a._filterPanelListUI;
+            var m = new FilterItemUI();
+            m.owner(c);
+            m.ownerFilter(this);
+            m.catalog(k);
+            m.update(d);
+            a._filterPanel.push(m);
+            c.update();
+            if (a._filterPanel.length) {
+                c.renderPanel();
+            }
+        }
+        $jex.event.trigger(a, "changeFilter", f, k, p, h, n, o);
     });
 };
 FilterListUI.prototype.getFilterUI = function(a) {
@@ -6569,7 +6611,6 @@ FilterListUI.prototype.refresh = function() {
             $jex.element.hide(a.find(b));
         }
     });
-    this.layout();
 };
 
 function FilterUI(a) {
@@ -6615,11 +6656,18 @@ FilterUI.prototype.allName = function() {
     return a;
 };
 FilterUI.prototype.clearFilter = function() {
-    var a = this;
-    $jex.foreach(this._displayboxes, function(b) {
-        b.clearValue(a.defaultCheck());
+    var b = this;
+    $jex.foreach(this._displayboxes, function(d) {
+        d.clearValue(b.defaultCheck());
     });
-    $jex.event.trigger(a, "changeFilter", a.catalog(), a.getValue());
+    var a = this.dataSource().catalog;
+    var c = {
+        filter: this.dataSource().filter,
+        name: a,
+        type: (this.ownerList()._filterConf[a] && this.ownerList()._filterConf[a].type) ? this.ownerList()._filterConf[a].type : 4,
+        value: []
+    };
+    $jex.event.trigger(this.ownerList(), "changeFilter", c);
 };
 FilterUI.prototype.addItem = function(f) {
     var g = f;
@@ -6668,29 +6716,65 @@ FilterUI.prototype.update = function() {
     this.clear();
     this._displayboxes = [];
     var a = this;
-    this.text('<span class="flt_lab">', this.catalog(), "</span>");
-    this.text('<span class="flt_sel">');
+    if (this.catalog() == "方式") {
+        this.text('<div class="item-direct">');
+    } else {
+        this.text('<span class="item-name">', this.catalog(), '<i class="arrow-down"></i></span>');
+        this.text('<div class="detail-fix">');
+        this.text('<div class="item-detail ">');
+    }
     $jex.foreach(this._groups, function(d, b, c) {
         if (d.length <= 1) {
             return $jex.$continue;
         }
         a.updateGroup(d);
     });
-    this.text("</span>");
+    this.text("</div>");
+    this.text("</div>");
+    if (this.ownerList().find("newFilter").style.display == "none") {
+        this.ownerList().find("newFilter").style.display = "block";
+    }
 };
-FilterUI.prototype.updateGroup = function(b) {
-    var a = this;
+FilterUI.prototype.updateGroup = function(h) {
+    var c = this;
+    var a = 5;
+    var g = h.length;
     if (this._setting.sort) {
-        var c = this._setting.sort;
-        b.sort(function(f, d) {
-            return c[f.dataSource().name] - c[d.dataSource().name];
+        var j = this._setting.sort;
+        h.sort(function(k, i) {
+            if (k.dataSource().catalog == "起飞时间") {
+                return j[k.dataSource().key] - j[i.dataSource().key];
+            }
+            return j[k.dataSource().name] - j[i.dataSource().name];
         });
     }
-    $jex.foreach(b, function(d) {
-        a._displayboxes.push(d);
-        d.update();
-        a.append("", d);
-    });
+    if (this.catalog() == "航空公司") {
+        var d = Math.floor(g / a);
+        var b = [];
+        for (var f = 0; f <= d; f++) {
+            if (f == d) {
+                b = h.slice(f * a);
+            } else {
+                b = h.slice(f * a, f * a + 5);
+            }
+            if (b.length) {
+                c.text('<div class="item-wrap">');
+                $jex.foreach(b, function(i) {
+                    c._displayboxes.push(i);
+                    i.update();
+                    c.append("", i);
+                });
+                c.text("</div>");
+            }
+        }
+    } else {
+        $jex.foreach(h, function(l, k) {
+            l._idx = k;
+            c._displayboxes.push(l);
+            l.update();
+            c.append("", l);
+        });
+    }
 };
 
 function FilterCheckBoxUI(c) {
@@ -6729,10 +6813,16 @@ FilterCheckBoxUI.prototype.clearValue = function(b) {
         a.checked = b;
     }
 };
+FilterCheckBoxUI.prototype.isShown = function(a) {
+    if (typeof a === "undefined") {
+        return this._isShown;
+    }
+    this._isShown = a;
+};
 FilterCheckBoxUI.prototype.update = function(c) {
     var b = c || this.dataSource();
     this.clear();
-    this.text(" <span>");
+    this.text(' <div class="item-lab" style="display: ' + (this.isShown() ? "" : "none") + ';">');
     this.append("<input ", "chk");
     this.text(' type="checkbox" value="', b.value, '"');
     if (this.checked()) {
@@ -6741,6 +6831,7 @@ FilterCheckBoxUI.prototype.update = function(c) {
     this.text(" />");
     this.tpls('<label for="{#chk}"><span>' + b.name + "</span></label>");
     this.text("</span>");
+    this.text("</div>");
     var a = this;
     this.onInit(function() {
         var d = this.find("chk");
@@ -6751,6 +6842,150 @@ FilterCheckBoxUI.prototype.update = function(c) {
     });
 };
 
+function FilterItemListUI(b) {
+    FilterItemListUI.superclass.constructor.call(this, b);
+    this._type = "FilterItemListUI";
+    var a = null;
+    this.owner = function(c) {
+        if (c == null) {
+            return a;
+        } else {
+            a = c;
+        }
+    };
+    this._isNull = false;
+}
+$jex.extendClass(FilterItemListUI, XControl);
+FilterItemListUI.prototype.update = function() {
+    var d = this.owner()._filterPanel;
+    var c = d.length;
+    var a = this;
+    this.clear();
+    if (!d) {
+        return;
+    }
+    for (var b = 0; b < d.length; b++) {
+        if (!d[b]._text.length) {
+            d.splice(b, 1);
+            b--;
+            continue;
+        }
+        this.append("<li ", d[b].catalog() + "filterItem", 'class="result-item">');
+        this.text(d[b]);
+        this.text("</li>");
+    }
+    if (!d.length) {
+        this._isNull = true;
+        return;
+    }
+    c = d.length;
+    this._isNull = false;
+    this.append("<li ", "removeAll", 'class="remove-all">清空所有</li>');
+    this.onInit(function() {
+        var f = a.find("removeAll");
+        var g = a.owner()._filterPanel;
+        $jex.event.binding(f, "click", function() {
+            a.owner()._filterPanel = [];
+            a.update();
+            a.renderPanel();
+            a.owner().clearAllFilter();
+        });
+        $jex.foreach(g, function(i) {
+            var h = i.catalog() + "filterItem";
+            $jex.event.binding(a.find(h), "click", function() {
+                i._text = [];
+                i.owner().update();
+                i.owner().renderPanel();
+                i.ownerFilter().clearFilter();
+            });
+        });
+    });
+};
+FilterItemListUI.prototype.renderPanel = function() {
+    var b = this.owner();
+    var a = b.find("filterPanel");
+    this.render(a);
+    if (b.find("filterResult").style.display == "none" && !this._isNull) {
+        b.find("filterResult").style.display = "block";
+    }
+    if (this._isNull && b.find("filterResult").style.display == "block") {
+        b.find("filterResult").style.display = "none";
+    }
+};
+
+function FilterItemUI(c) {
+    FilterItemUI.superclass.constructor.call(this, c);
+    this._type = "FilterItemUI";
+    var b = null;
+    this.owner = function(f) {
+        if (f == null) {
+            return b;
+        } else {
+            b = f;
+        }
+    };
+    var d = null;
+    this.catalog = function(f) {
+        if (f == null) {
+            return d;
+        } else {
+            d = f;
+        }
+    };
+    var a = null;
+    this.ownerFilter = function(f) {
+        if (f == null) {
+            return a;
+        } else {
+            a = f;
+        }
+    };
+    this._text = [];
+}
+$jex.extendClass(FilterItemUI, XControl);
+FilterItemUI.prototype.update = function(f) {
+    var b, c, a, d;
+    this.clear();
+    a = this;
+    c = this._text.length;
+    for (b = 0; b < c; b++) {
+        if (this._text[b] == f.cname && !f.checked) {
+            this._text.splice(b, 1);
+            break;
+        }
+    }
+    if (b === c) {
+        this._text.push(f.cname);
+    }
+    if (!this._text.length) {
+        this.owner().update();
+        this.owner().renderPanel();
+        return;
+    }
+    if (this.catalog() == "起飞时间") {
+        this.resort();
+    }
+    d = this._text;
+    this.text(' <span class="result-text">', this.catalog(), "：");
+    if (d.length > 11) {
+        d = d.slice(0, 11);
+        this.text(d.join("&nbsp;"));
+        this.text("...");
+    } else {
+        this.text(d.join("&nbsp;"));
+    }
+    this.text(" </span>");
+    this.text('<span class="remove-item"></span>');
+};
+FilterItemUI.prototype.resort = function() {
+    this._text = this._text.sort(function(d, c) {
+        var f = ["上午", "中午", "下午", "晚上"];
+        var h = $jex.array.indexOf(f, d);
+        var g = $jex.array.indexOf(f, c);
+        return h - g;
+    });
+};
+
 function DomesticOnewayFilterListUI(a) {
     DomesticOnewayFilterListUI.superclass.constructor.call(this, a);
     this._type = "DomesticOnewayFilterListUI";
@@ -6758,44 +6993,64 @@ function DomesticOnewayFilterListUI(a) {
 $jex.extendClass(DomesticOnewayFilterListUI, FilterListUI);
 DomesticOnewayFilterListUI.prototype.update = function() {
     this.clear();
-    this.append("<div ", "moreFilter", ' class="m_flt_more" style="display:none;">');
-    this.append("<a", "filterMoreTitle", ' onfocus="this.blur();" href="#">更多筛选条件<i class="ico_up"></i></a>');
+    this.append("<div ", "newFilter", 'class="m-new-filter " style="display:none;">');
+    this.text('<div class="filter-case clrfix">');
+    this.text(' <h3 class="filter-type">筛选条件:</h3>');
+    this.text('<ul class="case-wrapper clrfix">');
+    this.appendFilter("起飞时间");
+    this.appendFilter("起飞机场");
+    this.appendFilter("降落机场");
+    this.appendFilter("航空公司", {
+        moreClass: "airline"
+    });
+    this.appendFilter("机型");
+    this.appendFilter("方式");
+    this.text("</ul>");
     this.text("</div>");
-    this.append("<div", "filter_panel", ' class="clrfix"></div>');
-    this.append("<div", "filterMore", ' class="hide">');
-    this.appendFilter("起飞时间", "m_sep2_1");
-    this.appendFilter("方式", "m_sep2_1");
-    this.appendFilter("起飞机场", "m_sep2_1");
-    this.appendFilter("降落机场", "m_sep2_1");
-    this.appendFilter("机型", "m_sep2_1");
-    this.appendFilter("航空公司", "m_sep_full");
+    this.append("<div ", "filterResult", 'class="filter-result clrfix" style="display:none">');
+    this.text('<h3 class="filter-type">已选条件:</h3>');
+    this.append("<ul ", "filterPanel", 'class="result-wrapper clrfix J-filterWrap">');
+    this.text("</ul>");
+    this.text("</div>");
     this.text("</div>");
     this.onInit(function() {
         var a = this;
+        var b = ["起飞时间", "起飞机场", "降落机场", "航空公司", "机型", "方式"];
+        if ($jex.ie == 6) {
+            $jex.foreach(b, function(d) {
+                var c = a.find(d);
+                $jex.event.binding(c, "mouseover", function() {
+                    $jex.addClassName(c, "cur");
+                });
+                $jex.event.binding(c, "mouseout", function() {
+                    $jex.removeClassName(c, "cur");
+                });
+            });
+        }
         a.isMoreOpen = 0;
-        $jex.event.binding(this.find("filterMoreTitle"), this, "click", function(b) {
-            var c = this.find("filterMore");
-            var d = this.find("filterMoreTitle");
-            $jex.toggleClassName(c, "hide", function() {
-                d.innerHTML = '更多筛选条件<i class="ico_up"></i>';
+        $jex.event.binding(this.find("filterMoreTitle"), this, "click", function(c) {
+            var d = this.find("filterMore");
+            var f = this.find("filterMoreTitle");
+            $jex.toggleClassName(d, "hide", function() {
+                f.innerHTML = '更多筛选条件<i class="ico_up"></i>';
                 a.isMoreOpen = 0;
                 trackAction("FL|F|Mo|close");
             }, function() {
-                d.innerHTML = '收起<i class="ico_down"></i>';
+                f.innerHTML = '收起<i class="ico_down"></i>';
                 a.isMoreOpen = 1;
                 trackAction("FL|F|Mo|open");
             });
-            $jex.stopEvent(b);
+            $jex.stopEvent(c);
             $jex.event.trigger(a, "openMore");
         });
-        $jex.event.binding($jex.$(this._setting.elemId), this, "click", function(d) {
-            var f = typeof event != "undefined" ? event.srcElement : d.target;
-            if (/input|label/i.test(f.tagName)) {
-                var c = this.getCurCheckbox(f.id);
-                if (c) {
-                    var b = c.find("chk");
-                    c.checked(b.checked);
-                    $jex.event.trigger(c, "changeCheckbox", c, c.dataSource().value, b.checked);
+        $jex.event.binding($jex.$(this._setting.elemId), this, "click", function(f) {
+            var g = typeof event != "undefined" ? event.srcElement : f.target;
+            if (/input|label/i.test(g.tagName)) {
+                var d = this.getCurCheckbox(g.id);
+                if (d) {
+                    var c = d.find("chk");
+                    d.checked(c.checked);
+                    $jex.event.trigger(d, "changeCheckbox", d, d.dataSource().value, c.checked);
                 }
             }
         });
@@ -6818,10 +7073,34 @@ DomesticOnewayFilterListUI.prototype.addFilter = function(b) {
     if (!c) {
         c = new OnewayFilterUI(this._filterConf[b.catalog]);
         c.ownerList(this);
+        c.dataSource(b);
         this.bindEvent(c);
         this._list.put(b.catalog, c);
     } else {}
     c.addItem(b);
+};
+DomesticOnewayFilterListUI.prototype.clearAllFilter = function() {
+    var a = this;
+    var b = a.getAllFilterUIs();
+    $jex.foreach(b, function(c) {
+        $jex.foreach(c._displayboxes, function(d) {
+            d.clearValue(c.defaultCheck());
+        });
+    });
+    $jex.event.trigger(a, "changeFilter", {
+        isNull: true
+    });
+};
+DomesticOnewayFilterListUI.prototype.getAllFilterUIs = function() {
+    var d = this._list.keys();
+    var b = [];
+    for (var a = 0; a < d.length; a++) {
+        var c = this._list.get(d[a]);
+        if (c && c.visible()) {
+            b.push(c);
+        }
+    }
+    return b;
 };
 DomesticOnewayFilterListUI.prototype.setCheckBoxCache = function(a, b) {
     if (!this._chkBox) {
@@ -6832,8 +7111,12 @@ DomesticOnewayFilterListUI.prototype.setCheckBoxCache = function(a, b) {
 DomesticOnewayFilterListUI.prototype.getCurCheckbox = function(a) {
     return this._chkBox && this._chkBox[a];
 };
-DomesticOnewayFilterListUI.prototype.appendFilter = function(b, a) {
-    this.append("<div ", b, ' class="' + a + '"></div>');
+DomesticOnewayFilterListUI.prototype.appendFilter = function(c, d) {
+    var g = d || {};
+    var b = g.attr || "";
+    var f = g.moreClass || "";
+    var a = g.cName || "filter-item";
+    this.append("<li ", c, ' class="' + a + (f ? (" " + f) : "") + '" ' + b + " ></li>");
 };
 DomesticOnewayFilterListUI.prototype.setTransformLoad = function() {
     this._isTransformLoad = true;
@@ -6885,17 +7168,29 @@ function OnewayFilterCheckBoxUI(a) {
 }
 $jex.extendClass(OnewayFilterCheckBoxUI, FilterCheckBoxUI);
 OnewayFilterCheckBoxUI.prototype.update = function(c) {
-    var b = c || this.dataSource();
     this.clear();
+    var b = c || this.dataSource();
     var a = this.newid("chk");
     this.ownui().ownerList().setCheckBoxCache(a, this);
-    this.text('<label for="' + a + '">');
+    this.text(' <div class="item-lab" style="display: ' + (this.isShown(b.name) ? "" : "none") + ';">');
     this.append("<input ", "chk");
-    this.text(' type="checkbox" class="inp_chk" value="', b.value, '"');
+    this.text(' type="checkbox" value="', b.value, '"');
     if (this.checked()) {
         this.text(' checked="checked" ');
     }
-    this.text(" />" + b.name + "</label>");
+    this.text(" />");
+    this.tpls('<label for="{#chk}"><span>' + b.name + "</span></label>");
+    this.text("</span>");
+    this.text("</div>");
+};
+OnewayFilterCheckBoxUI.prototype.isShown = function(b) {
+    var a = true;
+    $jex.foreach(this._setting.hiddenLabs || [], function(c) {
+        if (c == b) {
+            a = false;
+        }
+    });
+    return a;
 };
 
 function OnewayFilterUI(a) {
@@ -6914,7 +7209,9 @@ OnewayFilterUI.prototype.addItem = function(f) {
     }
     var d = this._checkboxes[a];
     if (!d) {
-        d = new OnewayFilterCheckBoxUI();
+        d = new OnewayFilterCheckBoxUI({
+            hiddenLabs: ["中转联程"]
+        });
         d.ownui(this);
         d.checked(this.defaultCheck());
         d.dataSource(g);
@@ -8769,7 +9066,7 @@ OnewayFlightWrapperUI.prototype.insert_TGQ = function(c) {
         a = b.join("");
     }
     this.append('<div class="p_tips_cont" ', "tgq_notice_panel", ">");
-    this.text('<div class="p_tips_wrap" style="left:-160px"><div class="p_tips_arr p_tips_arr_t" style="left:170px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content" ', "tgq_notice", " >");
     if (c.pid() == null) {
         this.text(a);
@@ -9109,7 +9406,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_ZYX = function(a) {
     this.append('<div class="p_tips_cont" ', "zyx_notice_panel", ">");
-    this.text('<div class="p_tips_wrap" style="left:-160px"><div class="p_tips_arr p_tips_arr_t" style="left:170px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content" ', "zyx_notice", " >");
     this.text(a.vDes());
     this.text("</div></div></div>");
@@ -18378,3 +18675,115 @@ window.searchTrack = (function(d) {
     };
     return new c();
 })($jex);
+(function() {
+    var i = document.getElementsByTagName("body")[0];
+    var s = null,
+        h = null;
+    var f = /MSIE 6\.0/.test(navigator.userAgent);
+    var a = 10,
+        c = a,
+        l = 10,
+        k = 0,
+        p = 990,
+        d = 700;
+    var g = false;
+    var o = document.documentElement;
+    var b = document.body;
+
+    function m() {
+        this._init();
+    }
+    m.fn = m.prototype;
+    m.fn._init = function() {
+        this._createButton();
+    };
+    m.fn._createButton = function() {
+        this.element = document.createElement("div");
+        this.element.className = "q-w-pageup";
+        i.appendChild(this.element);
+        this._setStyle();
+        this._initEvent();
+    };
+    m.fn._initEvent = function() {
+        var t = this;
+        var u = this.element;
+        $jex.event.bind(window, "resize", function() {
+            t._refresh();
+        });
+        $jex.event.bind(window, "scroll", function() {
+            t._refresh();
+        });
+        $jex.event.bind(this.element, "click", function() {
+            var w = j();
+            if (f) {
+                window.scrollTo(w, 0);
+            } else {
+                t._gotoTop(w);
+            }
+            trackAction("F|UP");
+        });
+    };
+    m.fn._refresh = function() {
+        this._updateStyle();
+    };
+    m.fn._setStyle = function() {
+        if (f) {
+            this.element.style.position = "absolute";
+        }
+        this._updateStyle();
+    };
+    m.fn._updateStyle = function() {
+        if (n() < d && !g) {
+            this.element.style.display = "none";
+            return;
+        }
+        var t = (document.body.offsetWidth - p) / 2 + j() + 20;
+        this.element.style.right = t + "px";
+        if (this.element.style.display != "block") {
+            this.element.style.display = "block";
+        }
+        if (f) {
+            this.element.style.top = (n() + q() - 140) + "px";
+        }
+    };
+    m.fn._gotoTop = function(y) {
+        var w = this;
+        var x = k = n();
+        var u = q();
+        if (x > 0) {
+            g = true;
+            window.scrollTo(y, Math.max(x - c, 0));
+            var t = Math.max(x - c, 0) / k;
+            this.element.style.top = u * t - this.element.offsetHeight - 60 + "px";
+            s = setTimeout(function() {
+                c += l;
+                w._gotoTop(y);
+            }, 10);
+        } else {
+            s = setTimeout(function() {
+                w._reset();
+            }, 200);
+        }
+    };
+    m.fn._reset = function() {
+        s && clearTimeout(s);
+        g = false;
+        c = a;
+        this.element.style.top = "auto";
+        this.element.style.bottom = "60px";
+        this.element.style.display = "none";
+    };
+
+    function n() {
+        return o.scrollTop || b.scrollTop;
+    }
+
+    function j() {
+        return o.scrollLeft || b.scrollLeft;
+    }
+
+    function q() {
+        return o.clientHeight || b.clientHeight;
+    }
+    new m();
+})();

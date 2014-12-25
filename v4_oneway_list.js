@@ -1585,6 +1585,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
         $jex.event.trigger(j, "updateFilter", {
             catalog: "起飞时间",
             name: N.zh,
+            key: N.key,
             value: N.value
         });
         var O = this.plane();
@@ -1623,6 +1624,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
         $jex.event.trigger(j, "updateFilter", {
             catalog: "起飞时间",
             name: L.zh,
+            key: L.key,
             value: L.value
         });
         var M = N.plane();
@@ -1687,9 +1689,14 @@ var DomesticOnewayDataAnalyzer = new(function() {
         $jex.event.trigger(j, "dataComplete");
     };
     this.setFilter = function(L) {
-        D.addFilter(L);
-        D.setPageIndex(0);
-        D.refresh();
+        if (L.isNull) {
+            D.clearAllFilter();
+            D.refresh();
+        } else {
+            D.addFilter(L);
+            D.setPageIndex(0);
+            D.refresh();
+        }
         $jex.event.trigger(j, "dataComplete");
     };
     this.reload = function() {
@@ -1756,7 +1763,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
             if (P) {
                 $jex.event.trigger(j, "updateFilter", {
                     catalog: "方式",
-                    name: "直达",
+                    name: "直飞",
                     value: "oneway"
                 });
             }
@@ -4304,587 +4311,841 @@ var RoundTripFlightRecommend = (new function(a) {
     };
     this.init();
 }(document.getElementById("js-mod-recommendRoundtrip")));
-var SpringHotRoundtrip = (new function() {
-    var service = DomesticOnewaySearchService;
-    var analyzer = DomesticOnewayDataAnalyzer;
-    this.initialize = function(args) {
-        this.args = args;
-        this._DATACACHE = {};
-        this.config = args.config;
-        this.searchDate = args.searchDate;
-        this.isToday = ($jex.date.format(this.searchDate) == $jex.date.format(SERVER_TIME));
-        this.offsetToday = Math.floor((this.searchDate - $jex.date.parse($jex.date.format(SERVER_TIME))) / 24 / 3600000);
-        this.dc = args.dc;
-        this.ac = args.ac;
-        var _cityStr = this.dc + "-" + this.ac;
-        var _queryStr = [$jex.date.format(this.searchDate), "|", _cityStr].join("");
-        this._queryStr = _queryStr;
-        this.isInter = args.isInter;
-        this.startShowDate = this.config.startShowDate;
-    };
-    this.template_sevenday = function(context, __onerror) {
-        if (context == null) {
-            context = {};
+(function() {
+    function findChildByClass(parent_dom, tag_name, class_name) {
+        if (!parent_dom) {
+            return;
         }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
+        var childrens = parent_dom.getElementsByTagName(tag_name);
+        if (!class_name) {
+            return childrens;
         }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
+        var childrens_length = childrens.length;
+        var rightDom = [];
+        for (var i = 0; i < childrens_length; i++) {
+            var item = childrens[i];
+            if ($jex.hasClassName(item, class_name)) {
+                rightDom.push(item);
+            }
         }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
+        return rightDom;
+    }
+
+    function removeClassInAll(domObjArr, clsName) {
+        var domObjArr_length = domObjArr.length;
+        for (var i = 0; i < domObjArr_length; i++) {
+            var domObj = domObjArr[i];
+            $jex.removeClassName(domObj, clsName);
+        }
+    }
+
+    function fliterDomByAttr(doms, attr, val) {
+        var doms_length = doms.length;
+        for (var i = 0; i < doms_length; i++) {
+            var item = doms[i];
+            if (item.getAttribute(attr) == val) {
+                return item;
+            }
+        }
+    }
+
+    function getStyleAttrVal(oDiv, attr) {
+        if (oDiv.currentStyle) {
+            var w = oDiv.currentStyle[attr];
+        } else {
+            var w = getComputedStyle(oDiv, false)[attr];
+        }
+        return w;
+    }
+    var Scroller = (function() {
+        var parseDate = QunarDate.parse,
+            isIE6 = ($jex.ie == 6);
+
+        function slowMove(dom, attr, target_val, callbackFn) {
+            var val = parseInt(getStyleAttrVal(dom, attr)) || 0;
+            var dis = target_val - val;
+            var minStep = 5;
+            var bd = dis / 5;
+            if (target_val > val) {
+                var snip = function() {
+                    val = val + bd;
+                    dom.style[attr] = val + "px";
+                    dis = target_val - val;
+                    if (Math.abs(dis) < minStep) {
+                        bd = target_val - val;
+                    } else {
+                        bd = (target_val - val) / 5;
+                    }
+                    if (target_val > val) {
+                        setTimeout(snip, 20);
+                    } else {
+                        callbackFn && callbackFn();
+                    }
+                };
+                snip();
+            } else {
+                var snip = function() {
+                    val = val + bd;
+                    dom.style[attr] = val + "px";
+                    dis = target_val - val;
+                    if (Math.abs(dis) < 5) {
+                        bd = target_val - val;
+                    } else {
+                        bd = (target_val - val) / 5;
+                    }
+                    if (target_val < val) {
+                        setTimeout(snip, 10);
+                    } else {
+                        callbackFn && callbackFn();
+                    }
+                };
+                snip();
+            }
+        }
+
+        function CScroll() {}
+        CScroll.prototype.init = function(opt) {
+            var me = this;
+            this.isHorizontal = opt.isHorizontal;
+            this.step = opt.step;
+            this.wrap = opt.wrap;
+            this.container = opt.container;
+            this.compareMaxDate = opt.compareMaxDate;
+            this.compareMinDate = opt.compareMinDate;
+            this.next = findChildByClass(me.wrap, "a", "next-btn")[0];
+            this.prev = findChildByClass(me.wrap, "a", "prev-btn")[0];
+            this.cont = findChildByClass(this.container, "ul", "j-date-nuit")[0];
+            this.readyScrollCont();
+            this.fixNextStatus();
+            this.fixPrevStatus();
+        };
+        CScroll.prototype.readyScrollCont = function(cont) {
+            if (isIE6) {
+                return;
+            }
+            if (!this.cloneNodePrev) {
+                this.cloneNodePrev = this.cont.cloneNode(true);
+                this.cloneNodeNext = this.cont.cloneNode(true);
+                this.container.insertBefore(this.cloneNodePrev, this.cont);
+                this.container.appendChild(this.cloneNodeNext);
+                this.move(-1, false);
+                return false;
+            }
+            this.cloneNodePrev.innerHTML = cont;
+            this.cloneNodeNext.innerHTML = cont;
+        };
+        CScroll.prototype.getPrevBtn = function() {
+            return this.prev;
+        };
+        CScroll.prototype.getNextBtn = function() {
+            return this.next;
+        };
+        CScroll.prototype.move = function(flag, isSlow, callbackFn) {
+            var me = this,
+                container = me.container,
+                step = me.step;
+            if (me.isMoving) {
+                return false;
+            }
+            me.isMoving = true;
+            var marginName = this.isHorizontal ? "marginLeft" : "marginTop",
+                oldMargin = parseInt(container.style[marginName] || 0, 10),
+                dis = step * flag;
+            var newMargin = oldMargin + dis;
+            this.moveToTarget(newMargin, isSlow, callBackFn);
+
+            function callBackFn() {
+                me.isMoving = false;
+                me.fixNextStatus();
+                me.fixPrevStatus();
+                me.moveToTarget("-" + step, false);
+                callbackFn && callbackFn();
             }
         };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    var day363 = 363 * 24 * 60 * 60 * 1000;
-                    var idx = 1;
-                    _OUT.write('<ul class="ul_flt_date">');
-                    var __LIST__day = days;
-                    if ((__LIST__day) != null) {
-                        var day_ct = 0;
-                        for (var day_index in __LIST__day) {
-                            day_ct++;
-                            if (typeof(__LIST__day[day_index]) == "function") {
-                                continue;
-                            }
-                            var day = __LIST__day[day_index];
-                            var deptDate = new Date(day.date.replace(/-/ig, "/"));
-                            if (idx <= 7) {
-                                _OUT.write('<li date="');
-                                _OUT.write(day.date);
-                                _OUT.write('"');
-                                if (day.date == currentDate) {
-                                    _OUT.write(' class="cur" id="js-sevenday_cur"');
+        CScroll.prototype.moveToTarget = function(target_val, isSlow, callBanckFn) {
+            var me = this,
+                container = me.container;
+            var marginName = me.isHorizontal ? "marginLeft" : "marginTop";
+            if (isIE6) {
+                callBanckFn && callBanckFn();
+                return false;
+            }
+            if (isSlow) {
+                slowMove(container, marginName, target_val, function() {
+                    callBanckFn && callBanckFn();
+                });
+            } else {
+                container.style[marginName] = target_val + "px";
+                callBanckFn && callBanckFn();
+            }
+        };
+        CScroll.prototype.fixPrevStatus = function() {
+            var me = this,
+                prevBtn = me.prev;
+            var d = this.compareMinDate();
+            if (!d) {
+                $jex.addClassName(prevBtn, "disable-btn");
+            } else {
+                $jex.removeClassName(prevBtn, "disable-btn");
+            }
+        };
+        CScroll.prototype.fixNextStatus = function() {
+            var me = this,
+                nextBtn = me.next;
+            var d = this.compareMaxDate();
+            if (!d) {
+                $jex.addClassName(nextBtn, "disable-btn");
+            } else {
+                $jex.removeClassName(nextBtn, "disable-btn");
+            }
+        };
+        CScroll.prototype.resetData = function(dateArr) {
+            this.dateArr = dateArr;
+        };
+        return CScroll;
+    })();
+    var SpringHotRoundtrip = (new function() {
+        var service = DomesticOnewaySearchService;
+        var analyzer = DomesticOnewayDataAnalyzer;
+        var baseHtml = '<a class="prev-btn" href="javascript:;"><span class="btn-inner"><i class="g-ico g-ico-arrowl" id="arrowleft"></i></span></a>                        <div class="day-tab">                            <div  id="searchDateBar-nav" class="date-group">                                <ul class="ul_flt_date clrfix j-date-nuit"></ul>                            </div>                        </div>                        <a class="next-btn" href="javascript:;"><span class="btn-inner"><i class="g-ico g-ico-arrowr" id="arrowright"></i></span></a>                        <div class="prc_cld">                            <p id="priceCd" class="m_pc" style="visibility: visible;">价格日历</p>                            <div id="priceCalendar" class="prCd"></div>                        </div>';
+        this.initialize = function(args) {
+            this.args = args;
+            this._DATACACHE = {};
+            this.config = args.config;
+            this.searchDateBar = $jex.$("searchDateBar");
+            this.searchDate = args.searchDate;
+            this.searchDateStr = QunarDate.format(this.searchDate);
+            this.isToday = (this.searchDateStr == $jex.date.format(SERVER_TIME));
+            this.minDate = QunarDate.parse($jex.date.format(SERVER_TIME));
+            this.maxDate = QunarDate.plus(this.minDate, 363);
+            this.minSearchDate = this.minDate;
+            this.maxSearchDate = QunarDate.plus(this.maxDate, -6);
+            this.offsetToday = Math.floor((this.searchDate - $jex.date.parse($jex.date.format(SERVER_TIME))) / 24 / 3600000);
+            this.dc = args.dc;
+            this.ac = args.ac;
+            var _cityStr = this.dc + "-" + this.ac;
+            var _queryStr = [this.searchDateStr, "|", _cityStr].join("");
+            this._queryStr = _queryStr;
+            this.isInter = args.isInter;
+            this.startShowDate = this.config.startShowDate;
+        };
+        this.template_sevenday = function(context, __onerror) {
+            if (context == null) {
+                context = {};
+            }
+            if (context._MODIFIERS == null) {
+                context._MODIFIERS = {};
+            }
+            if (context.defined == null) {
+                context.defined = function(str) {
+                    return (context[str] != undefined);
+                };
+            }
+            var resultArr = [];
+            var resultOut = {
+                write: function(m) {
+                    resultArr.push(m);
+                }
+            };
+            try {
+                (function(_OUT, _CONTEXT) {
+                    with(_CONTEXT) {
+                        var day363 = 363 * 24 * 60 * 60 * 1000;
+                        var idx = 1;
+                        var __LIST__day = days;
+                        if ((__LIST__day) != null) {
+                            var day_ct = 0;
+                            for (var day_index in __LIST__day) {
+                                day_ct++;
+                                if (typeof(__LIST__day[day_index]) == "function") {
+                                    continue;
                                 }
-                                _OUT.write(">");
-                                _OUT.write('<p class="date">');
-                                _OUT.write(_MODIFIERS.GetTitle(day.date));
-                                _OUT.write("</p>");
-                                if ((deptDate - (SERVER_TIME || new Date())) <= day363) {
-                                    _OUT.write('<p class="price">');
-                                    if (day.price > 0) {
-                                        _OUT.write('<i class="rmb">&yen;</i>');
-                                        _OUT.write(day.price);
-                                    } else {
-                                        _OUT.write("查看");
-                                    }
+                                var day = __LIST__day[day_index];
+                                var deptDate = new Date(day.date.replace(/-/ig, "/"));
+                                if (idx <= 7) {
+                                    _OUT.write('<li date="');
+                                    _OUT.write(day.date);
+                                    _OUT.write('"');
+                                    _OUT.write('><a href="javascript:;">');
+                                    _OUT.write('<p class="date">');
+                                    _OUT.write(_MODIFIERS.GetTitle(day.date));
                                     _OUT.write("</p>");
-                                }
-                                _OUT.write("</li>");
-                            }
-                            var idx = idx + 1;
-                        }
-                    }
-                    _OUT.write('<li class="prc_cld" ><p id="priceCd" class=\'m_pc\'>价格<br>日历</p><div style="display: none;" id="priceCalendar" class="prCd"></div></li>');
-                    _OUT.write("</ul>");
-                }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
-            }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.template_returnsuggestion = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
-            }
-        };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    _OUT.write('    <div class="hd">返程推荐</div>    <div class="ct">        <ul>');
-                    var __LIST__item = data;
-                    if ((__LIST__item) != null) {
-                        var item_ct = 0;
-                        for (var item_index in __LIST__item) {
-                            item_ct++;
-                            if (typeof(__LIST__item[item_index]) == "function") {
-                                continue;
-                            }
-                            var item = __LIST__item[item_index];
-                            _OUT.write('            <li><a href="');
-                            _OUT.write(item.url);
-                            _OUT.write('&from=springRoundtripRecommend" hidefocus="on">');
-                            _OUT.write(item.fromTime.substr(5));
-                            _OUT.write("<br />                ");
-                            _OUT.write(item.from);
-                            _OUT.write("-");
-                            _OUT.write(item.to);
-                            _OUT.write("<br />                &yen;");
-                            _OUT.write(item.price);
-                            _OUT.write(' <span class="ds">');
-                            _OUT.write(PriceUtil.getDiscount(item.discount));
-                            _OUT.write("</span></a></li>");
-                        }
-                    }
-                    _OUT.write("        </ul>    </div>");
-                }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
-            }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.template_pricecalendar = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
-            }
-        };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    _OUT.write('     <h3><span class="close" onclick="SpringHotRoundtrip.closePriceCalendar()"></span><span id="pcDown" class="prev" ');
-                    if (prevMonth) {
-                        _OUT.write("onclick=\"SpringHotRoundtrip.getPriceData('" + prevMonthDate + "')\"");
-                    } else {
-                        _OUT.write(' style="visibility:hidden;cursor:default;"');
-                    }
-                    _OUT.write('></span><span class="next" id="pcUp" ');
-                    if (nextMonth) {
-                        _OUT.write("onclick=\"SpringHotRoundtrip.getPriceData('" + nextMonthDate + "')\"");
-                    } else {
-                        _OUT.write(' style="visibility:hidden;cursor:default;"');
-                    }
-                    _OUT.write('></span><span class="ymd">');
-                    _OUT.write(date.getFullYear());
-                    _OUT.write("年 ");
-                    _OUT.write(date.getMonth() + 1);
-                    _OUT.write('月</span></h3><table cellspacing="0" cellpadding="0" border="0">     <tr>     <th>一</th>     <th>二</th>     <th>三</th>     <th>四</th>     <th>五</th>     <th class="sday">六</th>     <th class="sday">日</th>     </tr>');
-                    var __LIST__row = [1, 2, 3, 4, 5, 6];
-                    if ((__LIST__row) != null) {
-                        var row_ct = 0;
-                        for (var row_index in __LIST__row) {
-                            row_ct++;
-                            if (typeof(__LIST__row[row_index]) == "function") {
-                                continue;
-                            }
-                            var row = __LIST__row[row_index];
-                            _OUT.write("<tr>");
-                            var __LIST__col = [1, 2, 3, 4, 5, 6, 7];
-                            if ((__LIST__col) != null) {
-                                var col_ct = 0;
-                                for (var col_index in __LIST__col) {
-                                    col_ct++;
-                                    if (typeof(__LIST__col[col_index]) == "function") {
-                                        continue;
-                                    }
-                                    var col = __LIST__col[col_index];
-                                    _OUT.write(" ");
-                                    var dd = dateArr[(row - 1) * 7 + col];
-                                    _OUT.write(" ");
-                                    if (dd) {
-                                        _OUT.write(" ");
-                                        var pd = dd[1];
-                                        _OUT.write("     <td");
-                                        if ((col == 6 || col == 7) && dd[2] != false) {
-                                            _OUT.write(' class="sday"');
-                                        }
-                                        _OUT.write(" ");
-                                        if (dd[0] == currentDate) {
-                                            _OUT.write(' id="pcurrentDate"');
-                                        }
-                                        _OUT.write(' date="');
-                                        _OUT.write(dd[0]);
-                                        _OUT.write('">');
-                                        if (pd != false) {
-                                            _OUT.write('     <a href="');
-                                            _OUT.write(dd[2]);
-                                            _OUT.write('&from=tejia_rili">');
-                                            _OUT.write(dd[3]);
-                                            _OUT.write('<span><i class="rmb">&yen;</i>');
-                                            _OUT.write("<b>" + pd + "</b>");
-                                            _OUT.write("</span></a>");
+                                    if ((deptDate - (SERVER_TIME || new Date())) <= day363) {
+                                        _OUT.write('<p class="price">');
+                                        if (day.price > 0) {
+                                            _OUT.write('<i class="rmb">&yen;</i>');
+                                            _OUT.write(day.price);
                                         } else {
-                                            if (dd[2] != false) {
+                                            _OUT.write("查看");
+                                        }
+                                        _OUT.write("</p>");
+                                    }
+                                    _OUT.write("</a></li>");
+                                }
+                                var idx = idx + 1;
+                            }
+                        }
+                    }
+                })(resultOut, context);
+            } catch (e) {
+                if (__onerror && typeof __onerror == "function") {
+                    __onerror(e, resultArr.join(""));
+                }
+                throw e;
+            }
+            return resultArr.join("");
+        };
+        this.template_returnsuggestion = function(context, __onerror) {
+            if (context == null) {
+                context = {};
+            }
+            if (context._MODIFIERS == null) {
+                context._MODIFIERS = {};
+            }
+            if (context.defined == null) {
+                context.defined = function(str) {
+                    return (context[str] != undefined);
+                };
+            }
+            var resultArr = [];
+            var resultOut = {
+                write: function(m) {
+                    resultArr.push(m);
+                }
+            };
+            try {
+                (function(_OUT, _CONTEXT) {
+                    with(_CONTEXT) {
+                        _OUT.write('    <div class="hd">返程推荐</div>    <div class="ct">        <ul>');
+                        var __LIST__item = data;
+                        if ((__LIST__item) != null) {
+                            var item_ct = 0;
+                            for (var item_index in __LIST__item) {
+                                item_ct++;
+                                if (typeof(__LIST__item[item_index]) == "function") {
+                                    continue;
+                                }
+                                var item = __LIST__item[item_index];
+                                _OUT.write('            <li><a href="');
+                                _OUT.write(item.url);
+                                _OUT.write('&from=springRoundtripRecommend" hidefocus="on">');
+                                _OUT.write(item.fromTime.substr(5));
+                                _OUT.write("<br />                ");
+                                _OUT.write(item.from);
+                                _OUT.write("-");
+                                _OUT.write(item.to);
+                                _OUT.write("<br />                &yen;");
+                                _OUT.write(item.price);
+                                _OUT.write(' <span class="ds">');
+                                _OUT.write(PriceUtil.getDiscount(item.discount));
+                                _OUT.write("</span></a></li>");
+                            }
+                        }
+                        _OUT.write("        </ul>    </div>");
+                    }
+                })(resultOut, context);
+            } catch (e) {
+                if (__onerror && typeof __onerror == "function") {
+                    __onerror(e, resultArr.join(""));
+                }
+                throw e;
+            }
+            return resultArr.join("");
+        };
+        this.template_pricecalendar = function(context, __onerror) {
+            if (context == null) {
+                context = {};
+            }
+            if (context._MODIFIERS == null) {
+                context._MODIFIERS = {};
+            }
+            if (context.defined == null) {
+                context.defined = function(str) {
+                    return (context[str] != undefined);
+                };
+            }
+            var resultArr = [];
+            var resultOut = {
+                write: function(m) {
+                    resultArr.push(m);
+                }
+            };
+            try {
+                (function(_OUT, _CONTEXT) {
+                    with(_CONTEXT) {
+                        _OUT.write('<h3><span class="ymd">');
+                        _OUT.write(date.getFullYear());
+                        _OUT.write("年 ");
+                        _OUT.write(date.getMonth() + 1);
+                        _OUT.write('月</span></h3><span class="close" onclick="SpringHotRoundtrip.closePriceCalendar()"></span><div class="tab-box">');
+                        _OUT.write('<span id="pcDown" class="prev" ');
+                        if (prevMonth) {
+                            _OUT.write("onclick=\"SpringHotRoundtrip.getPriceData('" + prevMonthDate + "')\"");
+                        } else {
+                            _OUT.write(' style="visibility:hidden;cursor:default;"');
+                        }
+                        _OUT.write('><i class="g-ico g-ico-arrowl"></i></span><span class="next" id="pcUp" ');
+                        if (nextMonth) {
+                            _OUT.write("onclick=\"SpringHotRoundtrip.getPriceData('" + nextMonthDate + "')\"");
+                        } else {
+                            _OUT.write(' style="visibility:hidden;cursor:default;"');
+                        }
+                        _OUT.write('><i class="g-ico g-ico-arrowr"></i></span>');
+                        _OUT.write('<table cellspacing="0" cellpadding="0" border="0">     <tr>     <th>一</th>     <th>二</th>     <th>三</th>     <th>四</th>     <th>五</th>     <th class="sday">六</th>     <th class="sday">日</th>     </tr>');
+                        var __LIST__row = [1, 2, 3, 4, 5, 6];
+                        if ((__LIST__row) != null) {
+                            var row_ct = 0;
+                            for (var row_index in __LIST__row) {
+                                row_ct++;
+                                if (typeof(__LIST__row[row_index]) == "function") {
+                                    continue;
+                                }
+                                var row = __LIST__row[row_index];
+                                _OUT.write("<tr>");
+                                var __LIST__col = [1, 2, 3, 4, 5, 6, 7];
+                                if ((__LIST__col) != null) {
+                                    var col_ct = 0;
+                                    for (var col_index in __LIST__col) {
+                                        col_ct++;
+                                        if (typeof(__LIST__col[col_index]) == "function") {
+                                            continue;
+                                        }
+                                        var col = __LIST__col[col_index];
+                                        _OUT.write(" ");
+                                        var dd = dateArr[(row - 1) * 7 + col];
+                                        _OUT.write(" ");
+                                        if (dd) {
+                                            _OUT.write(" ");
+                                            var pd = dd[1];
+                                            _OUT.write("     <td");
+                                            if ((col == 6 || col == 7) && dd[2] != false) {
+                                                _OUT.write(' class="sday"');
+                                            }
+                                            _OUT.write(" ");
+                                            if (dd[0] == currentDate) {
+                                                _OUT.write(' id="pcurrentDate"');
+                                            }
+                                            _OUT.write(' date="');
+                                            _OUT.write(dd[0]);
+                                            _OUT.write('">');
+                                            if (pd != false) {
                                                 _OUT.write('     <a href="');
                                                 _OUT.write(dd[2]);
                                                 _OUT.write('&from=tejia_rili">');
                                                 _OUT.write(dd[3]);
-                                                _OUT.write("<span>查看</span></a>");
+                                                _OUT.write('<span><i class="rmb">&yen;</i>');
+                                                _OUT.write("<b>" + pd + "</b>");
+                                                _OUT.write("</span></a>");
                                             } else {
-                                                _OUT.write("     ");
-                                                _OUT.write(dd[3]);
-                                                _OUT.write("<br/>--");
+                                                if (dd[2] != false) {
+                                                    _OUT.write('     <a href="');
+                                                    _OUT.write(dd[2]);
+                                                    _OUT.write('&from=tejia_rili">');
+                                                    _OUT.write(dd[3]);
+                                                    _OUT.write("<span>查看</span></a>");
+                                                } else {
+                                                    _OUT.write("     ");
+                                                    _OUT.write(dd[3]);
+                                                    _OUT.write("<br/>--");
+                                                }
                                             }
+                                            _OUT.write(" ");
+                                        } else {
+                                            _OUT.write("     <td>     &nbsp;");
                                         }
-                                        _OUT.write(" ");
-                                    } else {
-                                        _OUT.write("     <td>     &nbsp;");
+                                        _OUT.write("     </td>");
                                     }
-                                    _OUT.write("     </td>");
                                 }
+                                _OUT.write("         </tr>");
                             }
-                            _OUT.write("         </tr>");
                         }
+                        _OUT.write("</table></div>");
                     }
-                    _OUT.write("</table>");
+                })(resultOut, context);
+            } catch (e) {
+                if (__onerror && typeof __onerror == "function") {
+                    __onerror(e, resultArr.join(""));
                 }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
+                throw e;
             }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.template_roundtripvendor = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
-            }
+            return resultArr.join("");
         };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    _OUT.write('<div class="qn_fcbox">                <div class="t2"></div><div class="t1"></div><div class="t0"></div><div class="t0"></div>                <div class="ct_wrapper"><div class="ct">                    <table cellspacing="0" cellpadding="0" class="tblFcbox">                        <tr>                            <td width="126"><div class="t"><span>往返推荐</span></div></td>                            <td class="wf" width="480">');
-                    var idx = 0;
-                    _OUT.write(" ");
-                    var __LIST__data = extData;
-                    if ((__LIST__data) != null) {
-                        var data_ct = 0;
-                        for (var data_index in __LIST__data) {
-                            data_ct++;
-                            if (typeof(__LIST__data[data_index]) == "function") {
-                                continue;
-                            }
-                            var data = __LIST__data[data_index];
-                            _OUT.write(" ");
-                            if (idx < 2) {
-                                _OUT.write('                                        <a target="_blank" href="');
-                                _OUT.write(data.bu);
-                                _OUT.write('"><span class="vtl">去 ');
-                                _OUT.write(data.fromDate.replace(/\d\d\d\d-/, ""));
-                                _OUT.write('</span><span class="vtl">返 ');
-                                _OUT.write(data.toDate.replace(/\d\d\d\d-/, ""));
-                                _OUT.write('</span><span class="price">&yen;<em>');
-                                _OUT.write(data.packagePrice);
-                                _OUT.write("</em></span></a>");
-                                var idx = idx + 1;
+        this.template_roundtripvendor = function(context, __onerror) {
+            if (context == null) {
+                context = {};
+            }
+            if (context._MODIFIERS == null) {
+                context._MODIFIERS = {};
+            }
+            if (context.defined == null) {
+                context.defined = function(str) {
+                    return (context[str] != undefined);
+                };
+            }
+            var resultArr = [];
+            var resultOut = {
+                write: function(m) {
+                    resultArr.push(m);
+                }
+            };
+            try {
+                (function(_OUT, _CONTEXT) {
+                    with(_CONTEXT) {
+                        _OUT.write('<div class="qn_fcbox">                <div class="t2"></div><div class="t1"></div><div class="t0"></div><div class="t0"></div>                <div class="ct_wrapper"><div class="ct">                    <table cellspacing="0" cellpadding="0" class="tblFcbox">                        <tr>                            <td width="126"><div class="t"><span>往返推荐</span></div></td>                            <td class="wf" width="480">');
+                        var idx = 0;
+                        _OUT.write(" ");
+                        var __LIST__data = extData;
+                        if ((__LIST__data) != null) {
+                            var data_ct = 0;
+                            for (var data_index in __LIST__data) {
+                                data_ct++;
+                                if (typeof(__LIST__data[data_index]) == "function") {
+                                    continue;
+                                }
+                                var data = __LIST__data[data_index];
+                                _OUT.write(" ");
+                                if (idx < 2) {
+                                    _OUT.write('                                        <a target="_blank" href="');
+                                    _OUT.write(data.bu);
+                                    _OUT.write('"><span class="vtl">去 ');
+                                    _OUT.write(data.fromDate.replace(/\d\d\d\d-/, ""));
+                                    _OUT.write('</span><span class="vtl">返 ');
+                                    _OUT.write(data.toDate.replace(/\d\d\d\d-/, ""));
+                                    _OUT.write('</span><span class="price">&yen;<em>');
+                                    _OUT.write(data.packagePrice);
+                                    _OUT.write("</em></span></a>");
+                                    var idx = idx + 1;
+                                    _OUT.write(" ");
+                                }
                                 _OUT.write(" ");
                             }
-                            _OUT.write(" ");
                         }
+                        _OUT.write('                            </td>                        </tr>                </table>            </div></div>            <div class="b0"></div><div class="b0"></div><div class="b1"></div><div class="b2"></div>        </div>');
                     }
-                    _OUT.write('                            </td>                        </tr>                </table>            </div></div>            <div class="b0"></div><div class="b0"></div><div class="b1"></div><div class="b2"></div>        </div>');
+                })(resultOut, context);
+            } catch (e) {
+                if (__onerror && typeof __onerror == "function") {
+                    __onerror(e, resultArr.join(""));
                 }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
+                throw e;
             }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.tempalte_roundtripprice = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
+            return resultArr.join("");
+        };
+        var _goDateStr = null;
+        this.goDateStr = function(val) {
+            if (val) {
+                _goDateStr = val;
+            } else {
+                return _goDateStr;
             }
         };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    _OUT.write('    <div class="Lw_TitleDiv">');
-                    _OUT.write(fromCity);
-                    _OUT.write("-");
-                    _OUT.write(toCity);
-                    _OUT.write(" ");
-                    _OUT.write(deptDate);
-                    _OUT.write('去 往返价格</div>    <table cellspacing="0" cellpadding="0" class="doubleLowPrice">    <tr>        <th class="date">回程日期</th>        <th>回程最低</th>        <th>往返最低</th>        <th>&nbsp;</th>    </tr>    <tr>');
-                    var __LIST__info = infos;
-                    if ((__LIST__info) != null) {
-                        var info_ct = 0;
-                        for (var info_index in __LIST__info) {
-                            info_ct++;
-                            if (typeof(__LIST__info[info_index]) == "function") {
-                                continue;
-                            }
-                            var info = __LIST__info[info_index];
-                            _OUT.write('    <tr onmouseover="$jex.addClassName(this,\'highLight\')" onmouseout="$jex.removeClassName(this,\'highLight\')">        <td class="date">');
-                            _OUT.write(info.returnDate);
-                            _OUT.write('</td>        <td><a href="');
-                            _OUT.write(info.returnUrl);
-                            _OUT.write('&from=oneway_search" onclick="trackAction(\'FL|O2R|O\')" target="_blank">');
-                            if (info.returnPrice == returnLowestPrice) {
-                                _OUT.write("<em>&yen;</em><strong>");
-                                _OUT.write(info.returnPrice);
-                                _OUT.write("</strong>");
-                            } else {
-                                _OUT.write("&yen;");
-                                _OUT.write(info.returnPrice);
-                            }
-                            _OUT.write('</a></td>        <td><a href="');
-                            _OUT.write(info.packageUrl);
-                            _OUT.write('&from=oneway_search" onclick="trackAction(\'FL|O2R|R\')" target="_blank"');
-                            if (info.deltaPrice > 0) {
-                                _OUT.write('class="lowAd"');
-                            }
-                            _OUT.write(">");
-                            if (info.lowestPrice == roundtripLowestPrice) {
-                                _OUT.write("<em>&yen;</em><strong>");
-                                _OUT.write(info.lowestPrice);
-                                _OUT.write("</strong>");
-                            } else {
-                                _OUT.write("&yen;");
-                                _OUT.write(info.lowestPrice);
-                            }
-                            _OUT.write("</a></td>");
-                            if (info.deltaPrice > 0) {
-                                _OUT.write('            <td delta="');
-                                _OUT.write(info.deltaPrice);
-                                _OUT.write('" class="lowAd">(再省&yen;');
-                                _OUT.write(info.deltaPrice);
-                                _OUT.write(")</td>");
-                            } else {
-                                _OUT.write('            <td delta="');
-                                _OUT.write(info.deltaPrice);
-                                _OUT.write('"></td>');
-                            }
-                            _OUT.write("    </tr >");
-                        }
-                    }
-                    _OUT.write("    </table>");
-                }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
+        this.load = function(argDateStr) {
+            var self = this;
+            if (!argDateStr) {
+                _goDateStr = QunarDate.format(QunarDate.plus(this.searchDate, -3));
+            } else {
+                _goDateStr = argDateStr;
             }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.load = function() {
-        if (!service.isValidQuery()) {
+            var goDate = QunarDate.parse(_goDateStr);
+            var d_min_search_date = QunarDate.compareDate(goDate, self.minSearchDate);
+            var d_max_search_date = QunarDate.compareDate(goDate, self.maxSearchDate);
+            if (d_min_search_date < 0) {
+                _goDateStr = QunarDate.format(self.minSearchDate);
+            }
+            if (d_max_search_date > 0) {
+                _goDateStr = QunarDate.format(self.maxSearchDate);
+            }
+            self.goDateStr(_goDateStr);
+            if (this.firstRenderSevenNav) {
+                this.searchDateBar.innerHTML = baseHtml;
+                this.priceCalendarDom = $jex.$("priceCalendar");
+                this.priceCdDom = $jex.$("priceCd");
+            }
+            if (!service.isValidQuery()) {
+                this.sevenday();
+                return;
+            }
+            var _count = 10;
+            var wyf;
+            var temStr = "loa";
+            try {
+                if (window.UA_obj) {
+                    window.UA_obj["re" + temStr + "dUA"](new Date());
+                    wyf = window.UA_obj.UADATA;
+                }
+                delete window.UA_obj.UADATA;
+            } catch (e) {
+                wyf = "";
+            }
+            var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _goDateStr, "&backDate=", _goDateStr, "&count=", _count, "&packto=", this.searchDateStr, "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=9", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
+            var sr = new ScriptRequest({
+                funcName: "SpringHotRoundtrip.parsedata",
+                callbackName: "callback"
+            });
+            sr.send(_URL);
+        };
+        this.parsedata = function(data) {
+            if (!data) {
+                return;
+            }
+            this.cacheData = this.patch(data);
             this.sevenday();
-            return;
-        }
-        var _goDate = $jex.date.format(this.searchDate);
-        if (this.offsetToday > 0) {
-            var offsetToday = this.offsetToday,
-                min = 3;
-            if (offsetToday > 360) {
-                min += (offsetToday - 360);
+            this.updateSevenDayToday();
+            if (!this.firstRenderSevenNav) {
+                this.springRoundRecommend_Load();
             }
-            var x = new Date(this.searchDate.getTime() - Math.min(min, offsetToday) * 24 * 3600000);
-            _goDate = $jex.date.format(x);
-        }
-        var _count = 90;
-        var wyf;
-        var temStr = "loa";
-        try {
-            if (window.UA_obj) {
-                window.UA_obj["re" + temStr + "dUA"](new Date());
-                wyf = window.UA_obj.UADATA;
-            }
-            delete window.UA_obj.UADATA;
-        } catch (e) {
-            wyf = "";
-        }
-        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _goDate, "&backDate=", _goDate, "&count=", _count, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=9", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
-        var sr = new ScriptRequest({
-            funcName: "SpringHotRoundtrip.parsedata",
-            callbackName: "callback"
-        });
-        sr.send(_URL);
-    };
-    this.parsedata = function(data) {
-        if (!data) {
-            return;
-        }
-        this.cacheData = this.patch(data);
-        this.sevenday();
-        this.updateSevenDayToday();
-        this.springRoundRecommend_Load();
-    };
-    this.updateSevenDayToday = function(price) {
-        price = analyzer.lowestPrice();
-        if (!price || price == Number.MAX_VALUE) {
-            return;
-        }
-        this.nowprice = price;
-        var curLi = $jex.$("js-sevenday_cur");
-        if (curLi) {
-            var p = curLi.getElementsByTagName("p");
-            if (p[1]) {
-                p[1].innerHTML = '<i class="rmb">&yen;</i>' + price;
-                $jex.$("searchDateBar").style.display = "block";
-            }
-        }
-        var c = $jex.$("pcurrentDate");
-        if (c) {
-            c.getElementsByTagName("span")[0].innerHTML = '<i class="rmb">&yen;</i><b>' + price + "</b>";
-        }
-        if (this.cacheData && this.cacheData.out && this.cacheData.out[this._queryStr]) {
-            this.cacheData.out[this._queryStr].pr = this.nowprice;
-        } else {
-            this.cacheData = {
-                out: {}
-            };
-            this.cacheData.out[this._queryStr] = {
-                pr: this.nowprice,
-                dt: $jex.date.format(this.searchDate)
-            };
-        }
-    };
-    this.sevenday = function() {
-        var hostDiv = $jex.$("searchDateBar");
-        if (!hostDiv) {
-            return;
-        }
-        var self = this;
-        var getDatePrice = function(date) {
-            var key = date + "|" + self.dc + "-" + self.ac;
-            if (self.cacheData && self.cacheData.out && self.cacheData.out[key]) {
-                return parseInt(self.cacheData.out[key].price, 10);
-            }
-            return 0;
         };
-        var _data = {};
-        var _noPriceData = [];
-        var offsetToday = this.offsetToday,
-            min = 3;
-        if (offsetToday > 360) {
-            min += (offsetToday - 360);
-        }
-        var _startDate = new Date(this.searchDate.getTime() - Math.min(min, offsetToday) * 24 * 3600000);
-        this.eachDay(function(day) {
-            var _dstr = $jex.date.format(day);
-            _data[_dstr] = {
-                date: _dstr,
-                price: getDatePrice(_dstr)
+        this.updateSevenDayToday = function(price) {
+            var self = this;
+            price = analyzer.lowestPrice();
+            if (!price || price == Number.MAX_VALUE) {
+                return;
+            }
+            this.nowprice = price;
+            if (self.firstRenderSevenNav) {
+                return false;
+            }
+            var curLi = self.currentNav;
+            if (curLi) {
+                var p = curLi.getElementsByTagName("p");
+                if (p[1]) {
+                    p[1].innerHTML = '<i class="rmb">&yen;</i>' + price;
+                    self.searchDateBar.style.display = "block";
+                }
+                self.currentNavData.price = price;
+                self.fixLowestIconInNav();
+            }
+            var c = $jex.$("pcurrentDate");
+            if (c) {
+                c.getElementsByTagName("span")[0].innerHTML = '<i class="rmb">&yen;</i><b>' + price + "</b>";
+                self.currentCdData && (self.currentCdData[1] = price);
+                self.fixLowestIconInCalendar();
+            }
+            if (this.cacheData && this.cacheData.out && this.cacheData.out[this._queryStr]) {
+                this.cacheData.out[this._queryStr].pr = this.nowprice;
+            } else {
+                this.cacheData = {
+                    out: {}
+                };
+                this.cacheData.out[this._queryStr] = {
+                    pr: this.nowprice,
+                    dt: this.searchDateStr
+                };
+            }
+        };
+        this.firstRenderSevenNav = true;
+        this.searchDateBar_nav = null;
+        this.resultUnit = null;
+        this.currentNav = null;
+        this.sevenday = function() {
+            var self = this;
+            var hostDiv = self.searchDateBar;
+            if (!hostDiv) {
+                return;
+            }
+            var self = this;
+            var getDatePrice = function(date) {
+                var key = date + "|" + self.dc + "-" + self.ac;
+                if (self.cacheData && self.cacheData.out && self.cacheData.out[key]) {
+                    return parseInt(self.cacheData.out[key].price, 10);
+                }
+                return 0;
             };
-            if (getDatePrice(_dstr) == 0) {
-                _noPriceData.push(true);
-            }
-            return true;
-        }, _startDate, 7);
-        if (_noPriceData.length < 7) {
-            $jex.element.show($jex.$("searchDateBar"));
-            $jex.element.show($jex.$("searchDateBar_bottom"));
-        }
-        $jex.$("searchDateBar").innerHTML = this.template_sevenday({
-            days: _data,
-            currentDate: $jex.date.format(this.searchDate),
-            _MODIFIERS: {
-                GetTitle: function(date) {
-                    return date.replace(/.*\d{4}-(.*)/, "$1") + " " + ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][$jex.date.parse(date).getDay()];
+            var _data = {};
+            var _noPriceData = [];
+            var _startDate = QunarDate.parse(self.goDateStr());
+            var _dataArr = [];
+            this.navDataArr = _dataArr;
+            this.eachDay(function(day) {
+                var _dstr = $jex.date.format(day);
+                _data[_dstr] = {
+                    date: _dstr,
+                    price: getDatePrice(_dstr)
+                };
+                _dataArr.push(_data[_dstr]);
+                if (getDatePrice(_dstr) == 0) {
+                    _noPriceData.push(true);
                 }
+                return true;
+            }, _startDate, 6);
+            if (_noPriceData.length <= 7) {
+                $jex.element.show(self.searchDateBar);
+                $jex.addClassName(self.searchDateBar, "show_bar");
+                $jex.element.show($jex.$("searchDateBar_bottom"));
             }
-        });
-        var ul = $jex.$("searchDateBar").getElementsByTagName("ul")[0];
-        if (ul) {
-            var lis = ul.getElementsByTagName("li");
-            $jex.array.each(lis, function(li, i) {
-                if ($jex.ie == 6) {
-                    $jex.hover({
-                        act: li,
-                        onmouseover: function() {
-                            $jex.addClassName(li, "hover");
-                        },
-                        onmouseout: function() {
-                            $jex.removeClassName(li, "hover");
-                        }
-                    });
+            var resultHtml = this.template_sevenday({
+                days: _data,
+                currentDate: this.searchDateStr,
+                _MODIFIERS: {
+                    GetTitle: function(date) {
+                        return date.replace(/.*\d{4}-(.*)/, "$1") + " " + ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][$jex.date.parse(date).getDay()];
+                    }
                 }
-                if (i >= 7) {
+            });
+            if (self.firstRenderSevenNav) {
+                self.searchDateBar_nav = $jex.$("searchDateBar-nav");
+                self.resultUnit = self.searchDateBar.getElementsByTagName("ul")[0];
+                if (!self.resultUnit) {
                     return;
                 }
-                $jex.event.bind(li, "click", function() {
-                    var deptDate = li.getAttribute("date");
-                    var url = window.location.research(null, null, deptDate, deptDate);
-                    if (/&sd_idx=/.test(url)) {
-                        url = url.replace(/&sd_idx=\d/, "&sd_idx=" + i);
-                    } else {
-                        url += ("&sd_idx=" + i);
+                self.resultUnit.innerHTML = resultHtml;
+                self.initScroller(resultHtml);
+                self.bindNavEvent();
+                self.firstRenderSevenNav = false;
+            } else {
+                self.resultUnit.innerHTML = resultHtml;
+                self.scroller.readyScrollCont(resultHtml);
+            }
+            var searchDateStr = self.searchDateStr;
+            if (_data[searchDateStr]) {
+                self.currentNavData = _data[searchDateStr];
+                var curDom = fliterDomByAttr(self.resultUnit.getElementsByTagName("li"), "date", searchDateStr);
+                self.currentNav = curDom;
+                $jex.addClassName(curDom, "cur");
+            } else {
+                self.currentNav = null;
+                self.currentNavData = null;
+            }
+            self.fixLowestIconInNav();
+            if (self.resultUnit) {
+                var lis = self.resultUnit.getElementsByTagName("li");
+                $jex.array.each(lis, function(li, i) {
+                    if (i >= 7) {
+                        return;
                     }
-                    if (/&SearchLocation=/.test(url)) {
-                        url = url.replace(/&SearchLocation=[a-z_-]+/i, "&SearchLocation=sevenday_search");
-                    } else {
-                        url += "&SearchLocation=sevenday_search";
-                    }
-                    var exTrack = QLib && QLib.getEx_track && QLib.getEx_track();
-                    if (exTrack) {
-                        url += "&" + exTrack;
-                    }
-                    window.location = url;
+                    $jex.event.bind(li, "click", function(e) {
+                        var e = e || window.event;
+                        e.preventDefault && e.preventDefault();
+                        e.returnValue = false;
+                        var deptDate = li.getAttribute("date");
+                        var url = window.location.research(null, null, deptDate, deptDate);
+                        if (/&sd_idx=/.test(url)) {
+                            url = url.replace(/&sd_idx=\d/, "&sd_idx=" + i);
+                        } else {
+                            url += ("&sd_idx=" + i);
+                        }
+                        if (/&SearchLocation=/.test(url)) {
+                            url = url.replace(/&SearchLocation=[a-z_-]+/i, "&SearchLocation=sevenday_search");
+                        } else {
+                            url += "&SearchLocation=sevenday_search";
+                        }
+                        if (/&from=/.test(url)) {
+                            url = url.replace(/&from=[a-z_-]+/i, "&from=tejia_iow_qiri");
+                        } else {
+                            url += "&from=tejia_iow_qiri";
+                        }
+                        var exTrack = QLib && QLib.getEx_track && QLib.getEx_track();
+                        if (exTrack) {
+                            url += "&" + exTrack;
+                        }
+                        window.location = url;
+                    });
                 });
+            }
+        };
+        this.fixLowestIconInNav = function() {
+            var self = this;
+            var dataArr = self.navDataArr;
+            var lis = self.resultUnit.getElementsByTagName("li");
+            dataArr.sort(compare);
+            var lowestItemData = dataArr[0];
+            if (lowestItemData.price) {
+                var lowestItemDom = fliterDomByAttr(lis, "date", lowestItemData.date);
+                removeClassInAll(lis, "lowest");
+                $jex.addClassName(lowestItemDom, "lowest");
+            }
+
+            function compare(item1, item2) {
+                var item1_price = parseInt(item1.price, 10),
+                    item2_price = parseInt(item2.price, 10);
+                if (!item1_price) {
+                    return 1;
+                }
+                if (!item2_price) {
+                    return -1;
+                }
+                var dis = item1_price - item2_price;
+                if (dis != 0) {
+                    return dis;
+                } else {
+                    addDisRange(item1);
+                    addDisRange(item2);
+                    var d_dis = item1.dis - item2.dis;
+                    if (d_dis == 0) {
+                        return item1.range - item2.range;
+                    } else {
+                        return d_dis;
+                    }
+                }
+            }
+
+            function addDisRange(item) {
+                var item_date = QunarDate.parse(item.date),
+                    searchDate = self.searchDate;
+                var dis = QunarDate.compareDate(item_date, searchDate);
+                var range;
+                if (dis == 0) {
+                    range = 0;
+                } else {
+                    if (dis > 1) {
+                        range = 1;
+                    } else {
+                        range = 2;
+                    }
+                }
+                item.dis = Math.abs(dis);
+                item.range = range;
+            }
+        };
+        this.initScroller = function() {
+            var self = this;
+            self.scroller = new Scroller();
+            self.scroller.init({
+                wrap: self.searchDateBar,
+                container: self.searchDateBar_nav,
+                isHorizontal: true,
+                step: 609,
+                compareMinDate: function() {
+                    var startDate = QunarDate.parse(self.goDateStr());
+                    return QunarDate.compareDate(startDate, self.minDate) <= 0 ? false : true;
+                },
+                compareMaxDate: function() {
+                    var endDate = QunarDate.plus(QunarDate.parse(self.goDateStr()), 7);
+                    return QunarDate.compareDate(endDate, self.maxDate) >= 0 ? false : true;
+                }
             });
-        }
-        if (true) {
+            var scroller = self.scroller;
+            $jex.event.bind(self.scroller.getNextBtn(), "click", function() {
+                if ($jex.hasClassName(this, "disable-btn")) {
+                    return false;
+                }
+                switchPage(7);
+                return false;
+            });
+            $jex.event.bind(self.scroller.getPrevBtn(), "click", function() {
+                if ($jex.hasClassName(this, "disable-btn")) {
+                    return false;
+                }
+                switchPage(-7);
+                return false;
+            });
+
+            function switchPage(nDay) {
+                self.load(QunarDate.format(QunarDate.plus(QunarDate.parse(self.goDateStr()), nDay)));
+                scroller.move((nDay > 0 ? -1 : 1), true);
+            }
+        };
+        this.bindNavEvent = function() {
+            var self = this;
             this.cpbind = true;
-            $jex.$("priceCd").style.visibility = "visible";
+            var priceCdDom = self.priceCdDom;
+            priceCdDom.style.visibility = "visible";
             this._index = -1;
-            $jex.event.bind($jex.$("priceCd"), "click", function(evt) {
+            $jex.event.bind(priceCdDom, "click", function(evt) {
                 if (self.cacheData && !self.cpshow) {
                     $jex.stopEvent(evt);
                     if (self.searchDate.getMonth() == SERVER_TIME.getMonth()) {
-                        self.getPriceData($jex.date.format(self.searchDate));
+                        self.getPriceData(self.searchDateStr);
                     } else {
                         self.getPriceData([self.searchDate.getFullYear(), "-", self.searchDate.getMonth() + 1, "-01"].join(""));
                     }
@@ -4894,321 +5155,395 @@ var SpringHotRoundtrip = (new function() {
             $jex.event.bind(document, "click", function(ev) {
                 var ev = ev || window.event;
                 var el = ev.target || ev.srcElement;
-                if ($jex.element.compareDocumentPosition($jex.$("priceCalendar"), el) & 16) {
+                if ($jex.element.compareDocumentPosition(self.priceCalendarDom, el) & 16) {
                     return;
                 } else {
                     self.closePriceCalendar();
                 }
             });
-        }
-    };
-    this._returnData = {};
-    this._packageData = {};
-    this.roundtripVendor = function(outLp, returndata, packagedata) {
-        outLp = analyzer.lowestPrice();
-        var _searchD = this.searchDate;
-        var _str_searchDay = $jex.date.format(_searchD);
-        var self = this;
-        $jex.hash.each(returndata, function(k, v) {
-            var _relistData = v;
-            var _packageKey = [_str_searchDay, _relistData.dt].join("|");
-            if (packagedata[_packageKey]) {
-                if ((outLp + parseFloat(_relistData.price)) > packagedata[_packageKey].price) {
-                    _relistData.lowestPrice = outLp + parseFloat(_relistData.price);
-                    _relistData.packagePrice = packagedata[_packageKey].price;
-                    _relistData.bu = self.createUrl(_relistData.dt, true) + "&from=tejia_recmd_pac", _relistData.fromDate = $jex.date.format(_searchD, "MM-dd");
-                    _relistData.toDate = $jex.date.format($jex.date.parse(_relistData.fromTime), "MM-dd");
-                    self._returnData[k] = _relistData;
-                }
-            }
-        });
-        this._num = 0;
-        $jex.hash.each(this._returnData, function(k, v) {
-            if (self._num < 7) {
-                self._packageData[k] = v;
-            }
-            self._num++;
-        });
-        var _keys = [];
-        for (var name in this._packageData) {
-            _keys.push(name);
-        }
-        _keys.sort(function(a, b) {
-            return self._packageData[a].packagePrice - self._packageData[b].packagePrice;
-        });
-        if (_keys.length < 1) {
-            return;
-        }
-        var _templateContext = {
-            keys: _keys,
-            extData: this._packageData
         };
-        if ($jex.$("roundtripVendor")) {
-            $jex.$("roundtripVendor").innerHTML = this.template_roundtripvendor(_templateContext);
-            this.onshow = true;
-        }
-    };
-    this.springRoundRecommend_Load = function() {
-        if (!$jex.define(this.cacheData)) {
-            return;
-        }
-        var _record = 5;
-        var _flightstr = this.ac + "-" + this.dc;
-        var _data = {};
-        var self = this;
-        this.eachDay(function(day) {
-            var _key = [$jex.date.format(day), _flightstr].join("|");
-            if (self.cacheData.re && self.cacheData.re[_key]) {
-                _data[_key] = self.cacheData.re[_key];
+        this._returnData = {};
+        this._packageData = {};
+        this.roundtripVendor = function(outLp, returndata, packagedata) {
+            outLp = analyzer.lowestPrice();
+            var _searchD = this.searchDate;
+            var _str_searchDay = $jex.date.format(_searchD);
+            var self = this;
+            $jex.hash.each(returndata, function(k, v) {
+                var _relistData = v;
+                var _packageKey = [_str_searchDay, _relistData.dt].join("|");
+                if (packagedata[_packageKey]) {
+                    if ((outLp + parseFloat(_relistData.price)) > packagedata[_packageKey].price) {
+                        _relistData.lowestPrice = outLp + parseFloat(_relistData.price);
+                        _relistData.packagePrice = packagedata[_packageKey].price;
+                        _relistData.bu = self.createUrl(_relistData.dt, true) + "&from=tejia_recmd_pac", _relistData.fromDate = $jex.date.format(_searchD, "MM-dd");
+                        _relistData.toDate = $jex.date.format($jex.date.parse(_relistData.fromTime), "MM-dd");
+                        self._returnData[k] = _relistData;
+                    }
+                }
+            });
+            this._num = 0;
+            $jex.hash.each(this._returnData, function(k, v) {
+                if (self._num < 7) {
+                    self._packageData[k] = v;
+                }
+                self._num++;
+            });
+            var _keys = [];
+            for (var name in this._packageData) {
+                _keys.push(name);
             }
+            _keys.sort(function(a, b) {
+                return self._packageData[a].packagePrice - self._packageData[b].packagePrice;
+            });
+            if (_keys.length < 1) {
+                return;
+            }
+            var _templateContext = {
+                keys: _keys,
+                extData: this._packageData
+            };
+            var roundtripVendor = $jex.$("roundtripVendor");
+            if (roundtripVendor) {
+                roundtripVendor.innerHTML = this.template_roundtripvendor(_templateContext);
+                this.onshow = true;
+            }
+        };
+        this.springRoundRecommend_Load = function() {
+            if (!$jex.define(this.cacheData)) {
+                return;
+            }
+            var _record = 5;
+            var _flightstr = this.ac + "-" + this.dc;
+            var _data = {};
+            var self = this;
+            this.eachDay(function(day) {
+                var _key = [$jex.date.format(day), _flightstr].join("|");
+                if (self.cacheData.re && self.cacheData.re[_key]) {
+                    _data[_key] = self.cacheData.re[_key];
+                }
+                var size = 0;
+                $jex.hash.each(_data, function() {
+                    size++;
+                });
+                return !(size >= _record);
+            }, new Date(self.searchDate.getTime() + 1 * 24 * 3600000));
             var size = 0;
             $jex.hash.each(_data, function() {
                 size++;
             });
-            return !(size >= _record);
-        }, new Date(self.searchDate.getTime() + 1 * 24 * 3600000));
-        var size = 0;
-        $jex.hash.each(_data, function() {
-            size++;
-        });
-        $jex.$("dSpringPanel").innerHTML = this.template_returnsuggestion({
-            data: _data,
-            inSpringtrip: false
-        });
-        if (size > 0) {
-            $jex.element.show($jex.$("dSpringPanel"));
-        } else {
-            $jex.element.hide($jex.$("dSpringPanel"));
-        }
-    };
-    this._keydownFunc = function(event) {
-        if (!this.cpshow) {
-            return;
-        }
-        var _ev = event || window.event;
-        var _targetElement = Event.element(event);
-        var _keyCode = _ev.keyCode;
-        var _isK = ($("priceCalendar").style.display != "none");
-        if (_keyCode == 37 || _keyCode == 65) {
-            if ($("pcUp").style.visibility != "hidden" && _isK) {
-                $("pcUp").onclick();
+            var dSpringPanel = $jex.$("dSpringPanel");
+            dSpringPanel.innerHTML = this.template_returnsuggestion({
+                data: _data,
+                inSpringtrip: false
+            });
+            if (size > 0) {
+                $jex.element.show(dSpringPanel);
+            } else {
+                $jex.element.hide(dSpringPanel);
             }
-        }
-        if (_keyCode == 39 || _keyCode == 68) {
-            if ($("pcDown").style.visibility != "hidden" && _isK) {
-                $("pcDown").onclick();
+        };
+        this._keydownFunc = function(event) {
+            if (!this.cpshow) {
+                return;
             }
-        }
-        var _keys = [81, 85, 78, 65, 82, 81, 85, 78, 65, 82, 13];
-        if (_keyCode == _keys[this._index + 1]) {
-            this._index++;
-            if (this._index == _keys.length - 1) {
-                createEgg();
+            var _ev = event || window.event;
+            var _targetElement = Event.element(event);
+            var _keyCode = _ev.keyCode;
+            var _isK = (this.priceCalendarDom.style.display != "none");
+            if (_keyCode == 37 || _keyCode == 65) {
+                if ($("pcUp").style.visibility != "hidden" && _isK) {
+                    $("pcUp").onclick();
+                }
+            }
+            if (_keyCode == 39 || _keyCode == 68) {
+                if ($("pcDown").style.visibility != "hidden" && _isK) {
+                    $("pcDown").onclick();
+                }
+            }
+            var _keys = [81, 85, 78, 65, 82, 81, 85, 78, 65, 82, 13];
+            if (_keyCode == _keys[this._index + 1]) {
+                this._index++;
+                if (this._index == _keys.length - 1) {
+                    createEgg();
+                    this._index = -1;
+                }
+            } else {
                 this._index = -1;
             }
-        } else {
-            this._index = -1;
-        }
-    };
-    this.cpbind = false;
-    this.cpshow = false;
-    this.nextPc = function(_dateStr) {
-        this.getPriceData(_dateStr);
-        return;
-    };
-    this.prvePc = function(_dateStr) {
-        this.getPriceData(_dateStr);
-        return;
-    };
-    this.priceCacheData = {};
-    this.getPriceData = function(_dateStr) {
-        var _qtime;
-        if (_dateStr && _dateStr.split("-")[2].length == 2) {
-            _qtime = _dateStr.replace(/\d{2}$/, "01");
-        }
-        this._dateStr = _dateStr;
-        var wyf;
-        var temStr = "loa";
-        try {
-            if (window.UA_obj) {
-                window.UA_obj["re" + temStr + "dUA"](new Date());
-                wyf = window.UA_obj.UADATA;
-            }
-            delete window.UA_obj.UADATA;
-        } catch (e) {
-            wyf = "";
-        }
-        var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
-        var sr = new ScriptRequest({
-            funcName: "SpringHotRoundtrip.parsePriceData",
-            callbackName: "callback"
-        });
-        sr.send(_URL);
-    };
-    this.parsePriceData = function(_data) {
-        this.priceCacheData = this.patch(_data);
-        this.priceCalendar();
-    };
-    this.priceCalendar = function() {
-        if (!this.priceCacheData) {
-            return;
-        }
-        var _theDate;
-        var _dateArr = [];
-        var _date = $jex.date.parse(this._dateStr);
-        if (!this._sdate) {
-            this._sdate = _date;
-        }
-        var _maxDate = new Date(363 * 24 * 3600 * 1000 + SERVER_TIME.getTime());
-        var _cdata = {};
-        var _year = _date.getFullYear();
-        var _month = _date.getMonth() + 1;
-        var _day = _date.getDate();
-        var _firstDay = new Date(_year, _month - 1, 1).getDay();
-        if (_firstDay == 0) {
-            _firstDay = 7;
-        }
-        var _allDays = new Date(_year, _month, 0).getDate();
-        for (var i = 0; i < _firstDay; i++) {
-            _dateArr.push(false);
-        }
-        var _cityStr = this.dc + "-" + this.ac;
-        var _nowDate = new Date();
-        while (_dateArr.length < 6 * 7) {
-            if (_dateArr.length >= _firstDay + _allDays) {
-                _dateArr.push(false);
-            } else {
-                var _theDate = new Date(_year, _month - 1, _dateArr.length + 1 - _firstDay);
-                var _sm = _theDate.getMonth() + 1;
-                if (_sm < 10) {
-                    _sm = "0" + _sm;
-                }
-                var _sd = _theDate.getDate();
-                if (_sd < 10) {
-                    _sd = "0" + _sd;
-                }
-                var _timeStr = [_theDate.getFullYear(), "-", _sm, "-", _sd].join("");
-                var _queryStr = [_timeStr, "|", _cityStr].join("");
-                var _priceData = this.priceCacheData.out[_queryStr];
-                if ((SERVER_TIME < _theDate || $jex.date.format(SERVER_TIME) == $jex.date.format(_theDate)) && _theDate < _maxDate) {
-                    var _toUrl = ["/twell/flight/Search.jsp?fromCity=", encodeURIComponent(this.dc), "&toCity=", encodeURIComponent(this.ac), "&fromDate=", _timeStr, "&toDate=", $jex.date.format(new Date($jex.date.parse(_timeStr).getTime() + 3 * 24 * 3600000)), "&searchType=OnewayFlight"].join("");
-                    _toUrl = this.addEx_track(_toUrl);
-                } else {
-                    var _toUrl = false;
-                }
-                if (_priceData) {
-                    _dateArr.push([_timeStr, _priceData.pr, _priceData.url, _theDate.getDate()]);
-                } else {
-                    _dateArr.push([_timeStr, false, _toUrl, _theDate.getDate()]);
-                }
-            }
-        }
-        var _nextMonth = _prevMonth = false;
-        var _lastDayOfLastMonth = new Date(_year, _month - 1, 0);
-        var _firstDayOfNextMonth = new Date(_year, _month, 1);
-        if (_lastDayOfLastMonth >= SERVER_TIME) {
-            _prevMonth = true;
-        }
-        if (_firstDayOfNextMonth <= _maxDate) {
-            _nextMonth = true;
-        }
-        var _firstDayOfLastMonthStr = $jex.date.format(new Date(_year, _month - 2, 1));
-        var _firstDayOfNextMonthStr = $jex.date.format(new Date(_year, _month, 1));
-        var _templateContext = {
-            nextMonth: _nextMonth,
-            prevMonth: _prevMonth,
-            dateArr: _dateArr,
-            prevMonthDate: _firstDayOfLastMonthStr,
-            nextMonthDate: _firstDayOfNextMonthStr,
-            date: new Date(_year, _month - 1, 1),
-            citystr: this.dc + "-" + this.ac,
-            currentDate: $jex.date.format(this.searchDate)
         };
-        var _html = this.template_pricecalendar(_templateContext);
-        $jex.$("priceCalendar").innerHTML = _html;
-        $jex.element.show($jex.$("priceCalendar"));
-        $jex.addClassName($jex.$("priceCd").parentNode, "prc_cld_on");
-        this.cpshow = true;
-        return;
-    };
-    this.closePriceCalendar = function() {
-        $jex.element.hide($jex.$("priceCalendar"));
-        $jex.removeClassName($jex.$("priceCd").parentNode, "prc_cld_on");
-        this._index = -1;
+        this.cpbind = false;
         this.cpshow = false;
-    };
-    this.patch = function(data) {
-        var self = this;
-        var one_way = function(d, out) {
-            $jex.hash.each(d, function(k, v) {
-                var c = k.replace(/[^\|]*\|/, "").split("-");
-                $jex.merge(v, {
-                    url: out ? self.createCanlederUrl(v.dt) : self.createUrl(v.dt, false),
-                    price: v.pr,
-                    discount: v.dis,
-                    fromTime: v.dt,
-                    from: c[0],
-                    to: c[1]
-                });
-            });
+        this.nextPc = function(_dateStr) {
+            this.getPriceData(_dateStr);
+            return;
         };
-        one_way(data.re, false);
-        one_way(data.out, true);
-        $jex.hash.each(data.packagelist.normal, function(k, v) {
-            v.price = v.pr;
-        });
-        if (this.nowprice && data.out[this._queryStr]) {
-            data.out[this._queryStr].pr = this.nowprice;
-        } else {
-            if (this.nowprice && !data.out[this._queryStr]) {
-                data.out[this._queryStr] = {
-                    pr: this.nowprice,
-                    dt: $jex.date.format(this.searchDate),
-                    url: this.createCanlederUrl($jex.date.format(this.searchDate))
-                };
+        this.prvePc = function(_dateStr) {
+            this.getPriceData(_dateStr);
+            return;
+        };
+        this.priceCacheData = {};
+        this.currentCdData = null;
+        this.getPriceData = function(_dateStr) {
+            var _qtime;
+            if (_dateStr && _dateStr.split("-")[2].length == 2) {
+                _qtime = _dateStr.replace(/\d{2}$/, "01");
             }
-        }
-        return data;
-    };
-    this.createUrl = function(toDate, roundtrip) {
-        var param = window.location.param();
-        if (roundtrip) {
-            var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchDepartureAirport) + "&toCity=" + encodeURIComponent(param.searchArrivalAirport) + "&fromDate=" + encodeURIComponent(param.searchDepartureTime) + "&toDate=" + toDate + "&op=1";
-        } else {
-            var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchArrivalAirport) + "&toCity=" + encodeURIComponent(param.searchDepartureAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
-        }
-        return this.addEx_track(_url);
-    };
-    this.createCanlederUrl = function(toDate) {
-        var param = window.location.param();
-        var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchDepartureAirport) + "&toCity=" + encodeURIComponent(param.searchArrivalAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
-        return this.addEx_track(_url);
-    };
-    this.addEx_track = function(url) {
-        var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
-        if (ex_track) {
-            url += "&" + ex_track;
-        }
-        return url;
-    };
-    this.eachDay = function(func, startDate, endDate) {
-        var t = startDate;
-        if (!endDate) {
-            endDate = new Date(startDate.getTime() + 50 * 24 * 3600000);
-        } else {
-            if (typeof endDate == "number") {
-                endDate = new Date(startDate.getTime() + endDate * 24 * 3600000);
+            this._dateStr = _dateStr;
+            var wyf;
+            var temStr = "loa";
+            try {
+                if (window.UA_obj) {
+                    window.UA_obj["re" + temStr + "dUA"](new Date());
+                    wyf = window.UA_obj.UADATA;
+                }
+                delete window.UA_obj.UADATA;
+            } catch (e) {
+                wyf = "";
             }
-        }
-        while (t <= endDate) {
-            if (!func(t)) {
-                break;
+            var _URL = ["http://ws.qunar.com/all_lp.jcp?", "from=", encodeURIComponent(this.dc), "&to=", encodeURIComponent(this.ac), "&goDate=", _qtime, "&backDate=", _qtime, "&count=", 35, "&packto=", $jex.date.format(this.searchDate), "&packreturn=", $jex.date.format(new Date(this.searchDate.getTime() + 2 * 24 * 3600000)), "&packcount=7", "&output=json&n=", Math.random(), "&wyf=", encodeURIComponent(wyf)].join("");
+            var sr = new ScriptRequest({
+                funcName: "SpringHotRoundtrip.parsePriceData",
+                callbackName: "callback"
+            });
+            sr.send(_URL);
+        };
+        this.parsePriceData = function(_data) {
+            this.priceCacheData = this.patch(_data);
+            this.priceCalendar();
+        };
+        this.priceCalendar = function() {
+            if (!this.priceCacheData) {
+                return;
             }
-            t = new Date(t.getTime() + 24 * 60 * 60 * 1000);
-        }
-    };
-}());
-window.SpringHotRoundtrip = SpringHotRoundtrip;
+            var self = this,
+                _theDate, _dateArr = [],
+                _date = $jex.date.parse(this._dateStr);
+            if (!this._sdate) {
+                this._sdate = _date;
+            }
+            var _maxDate = new Date(363 * 24 * 3600 * 1000 + SERVER_TIME.getTime());
+            var _cdata = {};
+            var _year = _date.getFullYear();
+            var _month = _date.getMonth() + 1;
+            var _day = _date.getDate();
+            var _firstDay = new Date(_year, _month - 1, 1).getDay();
+            if (_firstDay == 0) {
+                _firstDay = 7;
+            }
+            var _allDays = new Date(_year, _month, 0).getDate();
+            for (var i = 0; i < _firstDay; i++) {
+                _dateArr.push(false);
+            }
+            var _cityStr = this.dc + "-" + this.ac;
+            var _nowDate = new Date();
+            while (_dateArr.length < 6 * 7) {
+                if (_dateArr.length >= _firstDay + _allDays) {
+                    _dateArr.push(false);
+                } else {
+                    var _theDate = new Date(_year, _month - 1, _dateArr.length + 1 - _firstDay);
+                    var _sm = _theDate.getMonth() + 1;
+                    if (_sm < 10) {
+                        _sm = "0" + _sm;
+                    }
+                    var _sd = _theDate.getDate();
+                    if (_sd < 10) {
+                        _sd = "0" + _sd;
+                    }
+                    var _timeStr = [_theDate.getFullYear(), "-", _sm, "-", _sd].join("");
+                    var _queryStr = [_timeStr, "|", _cityStr].join("");
+                    var _priceData = this.priceCacheData.out[_queryStr];
+                    if ((SERVER_TIME < _theDate || $jex.date.format(SERVER_TIME) == $jex.date.format(_theDate)) && _theDate < _maxDate) {
+                        var _toUrl = ["/twell/flight/Search.jsp?fromCity=", encodeURIComponent(this.dc), "&toCity=", encodeURIComponent(this.ac), "&fromDate=", _timeStr, "&toDate=", $jex.date.format(new Date($jex.date.parse(_timeStr).getTime() + 3 * 24 * 3600000)), "&searchType=OnewayFlight"].join("");
+                        _toUrl = this.addEx_track(_toUrl);
+                    } else {
+                        var _toUrl = false;
+                    }
+                    var _dateItemData;
+                    if (_priceData) {
+                        _dateItemData = [_timeStr, _priceData.pr, _priceData.url, _theDate.getDate()];
+                    } else {
+                        _dateItemData = [_timeStr, false, _toUrl, _theDate.getDate()];
+                    }
+                    if (_timeStr == self.searchDateStr) {
+                        self.currentCdData = _dateItemData;
+                    }
+                    _dateArr.push(_dateItemData);
+                }
+            }
+            var _nextMonth = _prevMonth = false;
+            var _lastDayOfLastMonth = new Date(_year, _month - 1, 0);
+            var _firstDayOfNextMonth = new Date(_year, _month, 1);
+            if (_lastDayOfLastMonth >= SERVER_TIME) {
+                _prevMonth = true;
+            }
+            if (_firstDayOfNextMonth <= _maxDate) {
+                _nextMonth = true;
+            }
+            var _firstDayOfLastMonthStr = $jex.date.format(new Date(_year, _month - 2, 1));
+            var _firstDayOfNextMonthStr = $jex.date.format(new Date(_year, _month, 1));
+            var _templateContext = {
+                nextMonth: _nextMonth,
+                prevMonth: _prevMonth,
+                dateArr: _dateArr,
+                prevMonthDate: _firstDayOfLastMonthStr,
+                nextMonthDate: _firstDayOfNextMonthStr,
+                date: new Date(_year, _month - 1, 1),
+                citystr: this.dc + "-" + this.ac,
+                currentDate: this.searchDateStr
+            };
+            self.calendarDataArr = _dateArr.concat();
+            var _html = this.template_pricecalendar(_templateContext);
+            self.priceCalendarDom.innerHTML = _html;
+            $jex.element.show(self.priceCalendarDom);
+            $jex.addClassName(self.priceCdDom.parentNode, "prc_cld_on");
+            self.fixLowestIconInCalendar();
+            this.cpshow = true;
+            return;
+        };
+        this.fixLowestIconInCalendar = function() {
+            var self = this,
+                searchDate = self.searchDate;
+            self.calendarDataArr.sort(compare);
+            var lowestItemData = self.calendarDataArr[0];
+            if (lowestItemData && lowestItemData[1]) {
+                var tds = self.priceCalendarDom.getElementsByTagName("td");
+                var lowestItemDom = fliterDomByAttr(tds, "date", lowestItemData[0]);
+                removeClassInAll(tds, "lowest");
+                $jex.addClassName(lowestItemDom, "lowest");
+            }
+
+            function compare(item1, item2) {
+                if (!item1) {
+                    return 1;
+                }
+                if (!item2) {
+                    return -1;
+                }
+                var item1_price = item1[1],
+                    item2_price = item2[1];
+                if (!item1_price) {
+                    return 1;
+                }
+                if (!item2_price) {
+                    return -1;
+                }
+                var dis = item1_price - item2_price;
+                if (dis != 0) {
+                    return dis;
+                } else {
+                    var item1_date = QunarDate.parse(item1[0]);
+                    var item2_date = QunarDate.parse(item2[0]);
+                    var dis1 = QunarDate.compareDate(item1_date, searchDate);
+                    var dis2 = QunarDate.compareDate(item2_date, searchDate);
+                    var dis1_abs = Math.abs(dis1);
+                    var dis2_abs = Math.abs(dis2);
+                    var d_dis = dis1_abs - dis2_abs;
+                    if (d_dis != 0) {
+                        return dis1_abs - dis2_abs;
+                    } else {
+                        return -(dis1 - dis2);
+                    }
+                }
+            }
+
+            function addDisRange(item) {
+                var item_date = QunarDate.parse(item.date),
+                    searchDate = self.searchDate;
+                var dis = QunarDate.compareDate(item_date, searchDate);
+                var range;
+                if (dis == 0) {
+                    range = 0;
+                } else {
+                    if (dis > 1) {
+                        range = 1;
+                    } else {
+                        range = 2;
+                    }
+                }
+                item.dis = Math.abs(dis);
+                item.range = range;
+            }
+        };
+        this.closePriceCalendar = function() {
+            $jex.element.hide(this.priceCalendarDom);
+            $jex.removeClassName(this.priceCdDom.parentNode, "prc_cld_on");
+            this._index = -1;
+            this.cpshow = false;
+        };
+        this.patch = function(data) {
+            var self = this;
+            var one_way = function(d, out) {
+                $jex.hash.each(d, function(k, v) {
+                    var c = k.replace(/[^\|]*\|/, "").split("-");
+                    $jex.merge(v, {
+                        url: out ? self.createCanlederUrl(v.dt) : self.createUrl(v.dt, false),
+                        price: v.pr,
+                        discount: v.dis,
+                        fromTime: v.dt,
+                        from: c[0],
+                        to: c[1]
+                    });
+                });
+            };
+            one_way(data.re, false);
+            one_way(data.out, true);
+            $jex.hash.each(data.packagelist.normal, function(k, v) {
+                v.price = v.pr;
+            });
+            if (this.nowprice && data.out[this._queryStr]) {
+                data.out[this._queryStr].pr = this.nowprice;
+            } else {
+                if (this.nowprice && !data.out[this._queryStr]) {
+                    data.out[this._queryStr] = {
+                        pr: this.nowprice,
+                        dt: this.searchDateStr,
+                        url: this.createCanlederUrl(this.searchDateStr)
+                    };
+                }
+            }
+            return data;
+        };
+        this.createUrl = function(toDate, roundtrip) {
+            var param = window.location.param();
+            if (roundtrip) {
+                var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchDepartureAirport) + "&toCity=" + encodeURIComponent(param.searchArrivalAirport) + "&fromDate=" + encodeURIComponent(param.searchDepartureTime) + "&toDate=" + toDate + "&op=1";
+            } else {
+                var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchArrivalAirport) + "&toCity=" + encodeURIComponent(param.searchDepartureAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
+            }
+            return this.addEx_track(_url);
+        };
+        this.createCanlederUrl = function(toDate) {
+            var param = window.location.param();
+            var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(param.searchDepartureAirport) + "&toCity=" + encodeURIComponent(param.searchArrivalAirport) + "&fromDate=" + toDate + "&toDate=" + toDate + "&searchType=OnewayFlight";
+            return this.addEx_track(_url);
+        };
+        this.addEx_track = function(url) {
+            var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
+            if (ex_track) {
+                url += "&" + ex_track;
+            }
+            return url;
+        };
+        this.eachDay = function(func, startDate, endDate) {
+            var t = startDate;
+            if (!endDate) {
+                endDate = new Date(startDate.getTime() + 50 * 24 * 3600000);
+            } else {
+                if (typeof endDate == "number") {
+                    endDate = new Date(startDate.getTime() + endDate * 24 * 3600000);
+                }
+            }
+            while (t <= endDate) {
+                if (!func(t)) {
+                    break;
+                }
+                t = new Date(t.getTime() + 24 * 60 * 60 * 1000);
+            }
+        };
+    }());
+    window.SpringHotRoundtrip = SpringHotRoundtrip;
+})();
 var BookingPriceCheck = (function() {
     var a = {};
     a.init = function() {
@@ -5978,19 +6313,23 @@ ConfigManager.setConfig({
     config: {
         timerange: {
             "0": {
-                zh: "上午",
+                zh: "上午 (06:00-11:59)",
+                key: "上午",
                 value: 0
             },
             "1": {
-                zh: "中午",
+                zh: "中午 (12:00-12:59)",
+                key: "中午",
                 value: 1
             },
             "2": {
-                zh: "下午",
+                zh: "下午 (13:00-17:59)",
+                key: "下午",
                 value: 2
             },
             "3": {
-                zh: "晚上",
+                zh: "晚上 (18:00-05:59)",
+                key: "晚上",
                 value: 3
             }
         },
