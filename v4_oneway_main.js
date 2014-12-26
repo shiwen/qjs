@@ -4779,6 +4779,9 @@ WrapperEntity.prototype.isTTS = function() {
 WrapperEntity.prototype.advalue = function() {
     return parseInt(this.dataSource().advalue || this.vendor().seq(), 10);
 };
+WrapperEntity.prototype.isNoAuth = function() {
+    return this.dataSource().isNoAuth == true;
+};
 WrapperEntity.prototype.isADVendor = function() {
     return (this.vendor().seq() > 100) && this.vendor().adwords();
 };
@@ -8880,7 +8883,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     var c = d.getFot();
     var a = f.ownerFlight();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', f.vendor().name());
+    this.text('<div class="t_name">', f.isNoAuth() ? "去哪儿网度假" : f.vendor().name());
     if (f.isAuthorizedVendor()) {
         this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
         this.append("<span", "authVendorHandler", 'class="ico');
@@ -8902,7 +8905,7 @@ OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendor().name(), "</div>");
+    this.text('<div class="t_name">', d.isNoAuth() ? "去哪儿网度假" : d.vendor().name(), "</div>");
     this.text('<div class="t_cmt t_yxfan">跨航空公司改签、手续费低、在线自助操作</div>');
     this.text("</div>");
 };
@@ -8912,7 +8915,7 @@ OnewayFlightWrapperUI.prototype._insterRoundFlightName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendor().name(), "</div>");
+    this.text('<div class="t_name">', d.isNoAuth() ? "去哪儿网度假" : d.vendor().name(), "</div>");
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
@@ -8935,12 +8938,12 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
     var b = c.ownerFlight();
     if (a.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', c.vendor().name(), "</div>");
+        this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name(), "</div>");
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="v1">');
-        this.text('<div class="t_name">', c.vendor().name());
+        this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name());
         if (c.isAuthorizedVendor()) {
             this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
             this.append("<span", "authVendorHandler", 'class="ico');
