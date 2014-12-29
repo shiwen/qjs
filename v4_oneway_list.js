@@ -2317,6 +2317,7 @@ var DomesticOnewaySearchService = new(function() {
         var C = o + "/twell/longwell";
         $jex.ajax(C, F, function(L) {
             u && console.log("longwell回数", L, new Date());
+            L && L.v && LOG_SPIDER.addLog("longwell", L.v);
             $jex.console.end("调用longwell");
             if (L.isLimit) {
                 $jex.event.trigger(p, "ipBlock");
@@ -2552,6 +2553,7 @@ var DomesticOnewaySearchService = new(function() {
                 $jex.event.trigger(p, "ipBlock");
                 return;
             }
+            N && N.v && LOG_SPIDER.addLog("groupInfo", N.v);
             N.flightCode = K;
             N.labelType = J;
             $jex.event.trigger(p, "loadedGroupinfo", N);
@@ -5692,6 +5694,72 @@ Dujia_recommend._insertHTML = function() {
         }
     }
 };
+var LOG_SPIDER = (function() {
+    var a = {};
+    var b = {
+        ctrl: false,
+        alt: false,
+        Q: false
+    };
+    return {
+        init: function() {
+            if ($jex.ie == 6) {
+                return;
+            }
+            this.createHtml();
+            this.bindEvent();
+        },
+        createHtml: function() {
+            var c = '<div id="logInfoWrapper" style="display: none;" class="m_log_info"><ul id="logInfoContent" class="log_content"></ul><span id="logClose" class="log_close">X</span></div>';
+            document.body.appendChild(this.createDom(c));
+        },
+        createDom: function(d) {
+            var c = document.createElement("div");
+            c.innerHTML = d;
+            return c.children[0];
+        },
+        bindEvent: function() {
+            $jex.event.bind(document.body, "keydown", function(d) {
+                if (d.keyCode === 17) {
+                    b.ctrl = true;
+                }
+                if (d.keyCode === 18) {
+                    b.alt = true;
+                }
+                if (d.keyCode === 81) {
+                    b.Q = true;
+                }
+                if (b.ctrl && b.alt && b.Q) {
+                    var c = document.getElementById("logInfoWrapper");
+                    c.style.display = c.style.display == "none" ? "block" : "none";
+                }
+            });
+            $jex.event.bind(document.body, "keyup", function(c) {
+                if (c.keyCode === 17) {
+                    b.ctrl = false;
+                }
+                if (c.keyCode === 18) {
+                    b.alt = false;
+                }
+                if (c.keyCode === 81) {
+                    b.Q = false;
+                }
+            });
+            $jex.event.bind(document.getElementById("logClose"), "click", function(d) {
+                var c = document.getElementById("logInfoWrapper");
+                c.style.display = "none";
+            });
+        },
+        addLog: function(c, f) {
+            if ($jex.ie == 6) {
+                return;
+            }
+            var d = "<li><b>" + c + ":</b>" + f + "</li>";
+            var e = document.getElementById("logInfoContent");
+            e.appendChild(this.createDom(d));
+        }
+    };
+})();
 var dflightTool = new function() {
     this.initialize = function(args) {
         if (this.initialized) {
@@ -6880,6 +6948,7 @@ SortHandler.prototype._init = function() {
     HotSale.init();
     q();
     BookingPriceCheck.init();
+    LOG_SPIDER.init();
     c.start("t_firstData");
     i.search(f);
     setTimeout(function() {
