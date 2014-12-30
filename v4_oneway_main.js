@@ -18164,8 +18164,10 @@ function SearchBox(a, c) {
     });
     s.isInter = c.isFuzzy;
     $jex.event.binding(k, "dateSelect", function() {
-        u.inputEl.focus();
-        u.openMainMenu();
+        if ($jex.$("searchType").value == "RoundTripFlight") {
+            u.inputEl.focus();
+            u.openMainMenu();
+        }
     });
     this.setValue = function(D) {
         var G = D.searchDepartureAirport || D.fromCity,
