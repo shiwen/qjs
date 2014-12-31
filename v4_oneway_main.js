@@ -1,3 +1,33 @@
+(function(c) {
+    var b = /(\d{4})-(\d{1,2})-(\d{1,2})/g;
+    var a = c.location.href;
+    if (b.test(a)) {
+        var d = false;
+        a = a.replace(b, function(h, k, j, i) {
+            var g = k;
+            var f = false;
+            if (j.length === 1) {
+                d = f = true;
+                g += "-0" + j;
+            } else {
+                g += "-" + j;
+            }
+            if (i.length === 1) {
+                d = f = true;
+                g += "-0" + i;
+            } else {
+                g += "-" + i;
+            }
+            if (f) {
+                return g;
+            }
+            return h;
+        });
+        if (d) {
+            c.location.href = a;
+        }
+    }
+})(window);
 var OTA_AD_CONFIG = {
     white_list: "CJ,CZ,CA,8C,ZH,3U,3Q,2Z,FM,G8,HU,IV,MF,MU,SC,SZ,WH,WU,X2,XO,Z2,NX,CI,BR,GE,BK,CK,G5,WC,PO,9C,KN,JR,KA,JD,9S,8L,CG,VD,J5,9C,GS,NS,OQ,UO,HX,VY,KY",
     black_list: "",
@@ -10660,14 +10690,35 @@ var FlightEventProxy = (function() {
             var d = this["_" + (RegExp.$1 || RegExp.$2) + "Click"];
             return d && d(f);
         },
-        _btnHideClick: function(f) {
-            var g = c(f);
-            if (!g) {
+        _btnHideClick: function(h) {
+            var i = c(h);
+            if (!i) {
                 return;
             }
-            g.owner().hideVendorPanel();
-            var d = $jex.offset($jex.$("resultAnchor"));
-            window.scrollTo(d.left, d.top);
+            i.owner().hideVendorPanel();
+            var g = $jex.offset($jex.$("resultAnchor"));
+            if (!/msie 6/.test(window.navigator.userAgent.toLowerCase())) {
+                var f = 0,
+                    d = $jex.$("js_schwrap"),
+                    j;
+                if (window.getComputedStyle) {
+                    j = window.getComputedStyle(d, null).getPropertyValue("position");
+                } else {
+                    if (d.currentStyle) {
+                        j = d.currentStyle.position;
+                    }
+                }
+                if (j === "static") {
+                    f = -2;
+                }
+                if (!($jex.$("top_recommend_id") && $jex.$("top_recommend_id").childNodes.length)) {
+                    window.scrollTo(g.left, g.top - 55 - f);
+                } else {
+                    window.scrollTo(g.left, $jex.offset($jex.$("top_recommend_id")).top + 10 - f);
+                }
+            } else {
+                window.scrollTo(g.left, g.top);
+            }
             return false;
         },
         _js_ctypeClick: function(f) {

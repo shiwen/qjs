@@ -3052,13 +3052,34 @@ $jex.exec(function() {
             b = e;
         }
     };
-    FlightListUISorter.open = function(e) {
-        if (e.isAV && e.isAV()) {
+    FlightListUISorter.open = function(f) {
+        if (f.isAV && f.isAV()) {
             return;
         }
-        c = e;
-        var f = $jex.offset($jex.$("resultAnchor"));
-        window.scrollTo(f.left, f.top);
+        c = f;
+        var h = $jex.offset($jex.$("resultAnchor"));
+        if (!/msie 6/.test(window.navigator.userAgent.toLowerCase())) {
+            var g = 0,
+                e = $jex.$("js_schwrap"),
+                i;
+            if (window.getComputedStyle) {
+                i = window.getComputedStyle(e, null).getPropertyValue("position");
+            } else {
+                if (e.currentStyle) {
+                    i = e.currentStyle.position;
+                }
+            }
+            if (i === "static") {
+                g = -2;
+            }
+            if (!($jex.$("top_recommend_id") && $jex.$("top_recommend_id").childNodes.length)) {
+                window.scrollTo(h.left, h.top - 55 - g);
+            } else {
+                window.scrollTo(h.left, $jex.offset($jex.$("top_recommend_id")).top + 10 - g);
+            }
+        } else {
+            window.scrollTo(h.left, h.top);
+        }
     };
     FlightListUISorter.close = function() {
         c = null;
@@ -6559,11 +6580,32 @@ flightResultController.prototype.initUI = function() {
     this.pager = new OnewayPagerUI({
         elemId: "hdivPager",
         on: {
-            changePage: function(c) {
-                b.analyzer.gotoPage(c);
+            changePage: function(d) {
+                b.analyzer.gotoPage(d);
                 $jex.event.trigger($jex.$("detailPage"), "fem_pageNum", "JumpToPage");
-                var d = $jex.offset($jex.$("resultAnchor"));
-                window.scrollTo(d.left, d.top - 31);
+                var f = $jex.offset($jex.$("resultAnchor"));
+                if (!/msie 6/.test(window.navigator.userAgent.toLowerCase())) {
+                    var e = 0,
+                        c = $jex.$("js_schwrap"),
+                        g;
+                    if (window.getComputedStyle) {
+                        g = window.getComputedStyle(c, null).getPropertyValue("position");
+                    } else {
+                        if (c.currentStyle) {
+                            g = c.currentStyle.position;
+                        }
+                    }
+                    if (g === "static") {
+                        e = 10;
+                    }
+                    if (!($jex.$("top_recommend_id") && $jex.$("top_recommend_id").childNodes.length)) {
+                        window.scrollTo(f.left, f.top - 55 - e - 31);
+                    } else {
+                        window.scrollTo(f.left, $jex.offset($jex.$("top_recommend_id")).top + 10 - e - 31);
+                    }
+                } else {
+                    window.scrollTo(f.left, f.top - 31);
+                }
                 a();
             }
         }
