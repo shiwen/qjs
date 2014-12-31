@@ -18457,39 +18457,54 @@ function SearchBox(a, c) {
     n = this.sswitcher = new SearchSwitcher(f, function() {});
 }
 var SearchBoxCreate = (function() {
-    var c, d;
+    var d, f;
 
-    function b(f) {
-        f.setValue(c);
-        f.setSearchType(d || "oneway");
+    function b(g) {
+        g.setValue(d);
+        g.setSearchType(f || "oneway");
     }
 
     function a() {
-        var h = $jex.$("searchboxForm");
-        var i = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
-        if (i) {
-            var f = document.createElement("input");
-            f.type = "hidden";
-            f.value = i;
-            f.name = "ex_track";
-            h.appendChild(f);
+        var i = $jex.$("searchboxForm");
+        var j = window.System && window.System.queryParams ? window.System.queryParams.ex_track : "";
+        if (j) {
+            var g = document.createElement("input");
+            g.type = "hidden";
+            g.value = j;
+            g.name = "ex_track";
+            i.appendChild(g);
         }
-        var g = new SearchBox(h, {
+        var h = new SearchBox(i, {
             fromHotCity: "domestic-list-from",
             toHotCity: "domestic-list-to",
             isFuzzy: true,
             info: "国家/城市/机场(可不填)",
             suggestType: null
         });
-        window.searchTrack && searchTrack.init("DMT", g);
-        b(g);
-        return g;
-    }
-    return function(g, f) {
-        c = g;
-        d = f;
-        var h = a();
+        window.searchTrack && searchTrack.init("DMT", h);
+        b(h);
         return h;
+    }
+
+    function c() {
+        if (window.QunarHistory) {
+            $jex.event.binding(QunarHistory, "onload", function() {
+                self.loadedHistory = true;
+                if (!QunarHistory.DFList && !QunarHistory.SFList) {
+                    $jex.element.hide(self.handler);
+                }
+            });
+            QunarHistory.load();
+        }
+    }
+    return function(h, g) {
+        d = h;
+        f = g;
+        var i = a();
+        setTimeout(function() {
+            c();
+        }, 10);
+        return i;
     };
 })();
 window.searchTrack = (function(d) {
