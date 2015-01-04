@@ -25,6 +25,7 @@
         });
         if (d) {
             c.location.href = a;
+            return;
         }
     }
 })(window);
