@@ -4892,7 +4892,9 @@ WrapperEntity.prototype.vTitle = function() {
         case 2:
             return "机票 + 租车服务";
         case 4:
-            return "机票 + 送机服务";
+            return "机票 + 接送机服务";
+        case 6:
+            return "机票 + 接送机代金券";
         default:
             return "";
     }
@@ -4904,7 +4906,9 @@ WrapperEntity.prototype.vDes = function() {
         case 2:
             return "代金券仅供易到新注册用户使用，节假日亦可使用，每次最多使用一张，代金券不可兑换现金。";
         case 4:
-            return "每张送机服务券对应一次机场送机服务（限起飞城市），自购买机票之日起6个月内可用，需提前24小时预约，不可单独退款";
+            return "每张接送机服务券对应一次机场送机或接机服务（限服务城市），自购买机票之日起6个月内可用，需提前24小时预约，不可单独退款。";
+        case 6:
+            return "每张代金券可在接机或送机服务中抵消部分金额（限指定服务商及城市使用），自购买机票之日起6个月内可用。";
         default:
             return "";
     }
@@ -4917,6 +4921,8 @@ WrapperEntity.prototype.vClass = function() {
             return "ico_quan";
         case 4:
             return "ico_scar";
+        case 6:
+            return "ico_quan";
         default:
             return "";
     }
@@ -4928,7 +4934,9 @@ WrapperEntity.prototype.vPrd = function() {
         case 2:
             return "租车券";
         case 4:
-            return "送机服务";
+            return "接送机服务";
+        case 6:
+            return "接送机代金券";
         default:
             return "";
     }
@@ -4945,7 +4953,9 @@ WrapperEntity.prototype.vName = function() {
         case 3:
             return "去哪儿酒店代金券";
         case 4:
-            return "送机服务券";
+            return "接送机服务券";
+        case 6:
+            return "接送机代金券";
         default:
             return "";
     }
@@ -9385,11 +9395,10 @@ ZiyouxingOnewayFlightWrapperUI.prototype.update = function(d) {
     this._bindHoverEvent(b);
     this._bindOnInitEvent(b);
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(d) {
-    var c = d.vClass();
-    var b = d.vAmount() > 1 ? "*" + d.vAmount() : "";
-    var a = d.vPrd();
-    this.text('<div class="v3"><i class="', c, '"></i>机票+', a, b, "</div>");
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(c) {
+    var b = c.vClass();
+    var a = c.vPrd();
+    this.text('<div class="v3"><i class="', b, '"></i>机票+', a, "</div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     var a = b.ownerFlight();

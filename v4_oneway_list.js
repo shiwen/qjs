@@ -2113,6 +2113,9 @@ var DomesticOnewayDataAnalyzer = new(function() {
         if (M == null && N != null) {
             newTrackAction(O + "onlyTransfer");
         }
+        if (N != null && P == null) {
+            newTrackAction(O + "noTransfer");
+        }
         if (M != null && P != null) {
             newTrackAction(O + "hasTransfer");
         }
