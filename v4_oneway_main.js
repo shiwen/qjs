@@ -5230,12 +5230,14 @@ VendorEntity.prototype.iataInfo = function() {
     var a = this.dataSource();
     var b = {
         level: 0,
-        url: ""
+        url: "",
+        IATANum: ""
     };
     try {
         if (a.recommend && a.recommend.iata) {
             b.level = a.recommend.iata.level;
             b.url = a.recommend.iata.url;
+            b.IATANum = a.recommend.iata.IATANum;
         }
     } catch (c) {
         $jex.console.error(this.wrapperId() + " VendorEntity.prototype.iataInfo recommend信息");
@@ -8925,20 +8927,34 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     var a = f.ownerFlight();
     this.text('<div class="v_ofc">');
     this.text('<div class="t_name">', f.isNoAuth() ? "去哪儿网度假" : f.vendor().name());
-    if (f.isAuthorizedVendor()) {
-        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-        this.append("<span", "authVendorHandler", 'class="ico');
-        if (a.carrier() && a.carrier().key) {
-            this.append(" ico_" + a.carrier().key.toLowerCase());
-        }
-        this.append('"></span>');
-        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', f.ownerFlight().carrier().zh, "授权代理</div></div></span>");
-    }
+    this._insertAuthVendor(f);
     this.text("</div>");
     this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
     this.text("</div>");
     this.onInit(this._authorizeVendorHover);
+};
+OnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
+    var c = f;
+    var d = c.ownerFlight();
+    var h = c.vendor();
+    var a = c.isAuthorizedVendor() ? (c.ownerFlight().carrier().zh + "授权代理") : "",
+        j = (h.get("info") || {}).cname,
+        i = (h.iataInfo() || {}).IATANum || "",
+        g = i ? ("IATA号：" + i) : "";
+    var b = (function(m) {
+        var k = [];
+        for (var l = 0; l < m.length; l++) {
+            m[l] && k.push(m[l]);
+        }
+        return k.length ? k.join("<br/>") : "";
+    })([g, a]);
+    if (b) {
+        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
+        this.append("<span", "authVendorHandler", 'class="ico');
+        this.append('"></span>');
+        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
+        this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', j ? (j + "<br/>") : "", b, "</div></div></span>");
+    }
 };
 OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     var d = f;
@@ -8985,16 +9001,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
     } else {
         this.text('<div class="v1">');
         this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name());
-        if (c.isAuthorizedVendor()) {
-            this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-            this.append("<span", "authVendorHandler", 'class="ico');
-            if (b.carrier() && b.carrier().key) {
-                this.append(" ico_" + b.carrier().key.toLowerCase());
-            }
-            this.append('"></span>');
-            this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-            this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', c.ownerFlight().carrier().zh, "授权代理</div></div></span>");
-        }
+        this._insertAuthVendor(c);
         this.text("</div>");
         if (c.isAnonymityVendor()) {
             this.text('<div class="t_cmt">超值特惠单程机票</div>');
@@ -9404,16 +9411,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     var a = b.ownerFlight();
     this.text('<div class="v1">');
     this.text('<div class="t_name">', b.vendor().name());
-    if (b.isAuthorizedVendor()) {
-        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
-        this.append("<span", "authVendorHandler", 'class="ico');
-        if (a.carrier() && a.carrier().key) {
-            this.append(" ico_" + a.carrier().key.toLowerCase());
-        }
-        this.append('"></span>');
-        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
-        this.text('<div class="p_tips_arr p_tips_arr_l"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', b.ownerFlight().carrier().zh, "授权代理</div></div></span>");
-    }
+    this._insertAuthVendor(b);
     this.text("</div>");
     this.text('<div class="t_cmt">');
     this.starUI.displayPanel(b);
@@ -9423,6 +9421,29 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     this.starUI.insert_btn(b);
     this.text("</div></div>");
     this.onInit(this._authorizeVendorHover);
+};
+ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
+    var c = f;
+    var d = c.ownerFlight();
+    var h = c.vendor();
+    var a = c.isAuthorizedVendor() ? (c.ownerFlight().carrier().zh + "授权代理") : "",
+        j = (h.get("info") || {}).cname,
+        i = (h.iataInfo() || {}).IATANum || "",
+        g = i ? ("IATA号：" + i) : "";
+    var b = (function(m) {
+        var k = [];
+        for (var l = 0; l < m.length; l++) {
+            m[l] && k.push(m[l]);
+        }
+        return k.length ? k.join("<br/>") : "";
+    })([g, a]);
+    if (b) {
+        this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
+        this.append("<span", "authVendorHandler", 'class="ico');
+        this.append('"></span>');
+        this.append("<div", "authVendorTip", ' class="p_tips_wrap">');
+        this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', j ? (j + "<br/>") : "", b, "</div></div></span>");
+    }
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(a) {
     if (a.isNotWork()) {
