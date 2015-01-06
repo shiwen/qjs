@@ -18901,7 +18901,7 @@ window.searchTrack = (function(d) {
         if (document.getElementById("searchType").value == "MultiTripFlight") {
             g = false;
         }
-        if (i > document.getElementById("js_schwrap").clientHeight && g) {
+        if (i > document.getElementById("js_schwrap").clientHeight && g && !d) {
             c = true;
             h.element.className = "b_fly_schwrap b_fly_fixtop";
         } else {
