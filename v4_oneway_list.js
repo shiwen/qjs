@@ -5168,7 +5168,7 @@ var RoundTripFlightRecommend = (new function(a) {
             priceCdDom.style.visibility = "visible";
             this._index = -1;
             $jex.event.bind(priceCdDom, "click", function(evt) {
-                if (self.cacheData && !self.cpshow) {
+                if (!self.cpshow) {
                     $jex.stopEvent(evt);
                     if (self.searchDate.getMonth() == SERVER_TIME.getMonth()) {
                         self.getPriceData(self.searchDateStr);
@@ -5570,6 +5570,71 @@ var RoundTripFlightRecommend = (new function(a) {
     }());
     window.SpringHotRoundtrip = SpringHotRoundtrip;
 })();
+(function(d) {
+    var b = "http://lp.flight.qunar.com/api/dom/recommend/nearby_route";
+    var c = $jex.$("dflightRecommendPanel");
+    var a = (new function() {
+        var e;
+        this.load = function(h) {
+            var f = h.from;
+            e = (f == "near_flight" || f == "near_airport") ? 0 : 1;
+            if (!e) {
+                return;
+            }
+            var g = this,
+                i = {
+                    from: h.searchDepartureAirport,
+                    to: h.searchArrivalAirport,
+                    start_date: h.searchDepartureTime
+                };
+            $jex.jsonp(b, i, function(j) {
+                if (!j || !j.records || j.records.length == 0) {
+                    return;
+                }
+                var k = j.records[0];
+                g.render && g.render(k);
+            }, {
+                timeout: {
+                    time: 8000,
+                    func: function() {}
+                }
+            });
+        };
+        this.render = function(m) {
+            if ((!m.trainpr || m.trainpr == 999999999) && !m.pr) {
+                return false;
+            }
+            var f = m.dc,
+                l = m.ac,
+                k = m.dt;
+            var i = '<div class="m-nearline-rec-inner clrfix"><div class="c0"></div><div class="c1">邻近推荐</div><div class="c2">' + h() + "</div>" + g() + '<div class="c8"><a href="' + j() + '" class="link">查&nbsp;&nbsp;看</a></div></div>';
+
+            function h() {
+                var p = m.trainpr,
+                    n = m.traindc,
+                    o = m.trainac;
+                if (!p || p == 999999999) {
+                    return "";
+                }
+                return n + "-" + o + ' 火车票参考价：<span class="train-low-prc"><i class="rmb">&yen;</i>' + m.trainpr + "</span>";
+            }
+
+            function g() {
+                if (!m.pr) {
+                    return '<div class="c5"></div><div class="c6"></div><div class="c7"></div>';
+                }
+                return '<div class="c5">' + f + "-" + l + '</div><div class="c6"><div class="a-low-prc">' + Price_html.getHTML(m.pr) + '<i class="rmb">¥</i></div></div><div class="c7">起</div>';
+            }
+
+            function j() {
+                return "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(f) + "&toCity=" + encodeURIComponent(l) + "&fromDate=" + k + "&searchType=OnewayFlight&from=near_flight";
+            }
+            c.innerHTML = i;
+            $jex.element.show(c);
+        };
+    }());
+    d.NearLineRec = a;
+})(window);
 var BookingPriceCheck = (function() {
     var a = {};
     a.init = function() {
@@ -5784,249 +5849,6 @@ var LOG_SPIDER = (function() {
         }
     };
 })();
-var dflightTool = new function() {
-    this.initialize = function(args) {
-        if (this.initialized) {
-            return;
-        }
-        var service = DomesticOnewaySearchService;
-        var analyzer = DomesticOnewayDataAnalyzer;
-        var param = window.location.param();
-        this.args = args = $jex.merge({
-            fromCity: param.searchDepartureAirport,
-            toCity: param.searchArrivalAirport,
-            startDate: param.searchDepartureTime,
-            alllowestprice: analyzer.lowestPrice(),
-            DATA_RECOMMEND_AIRLINE: "http://ws.qunar.com/recommendAirline.jcp",
-            DATA_RECOMMEND_AIRLINE_SINGLE: "http://ws.qunar.com/recommend"
-        }, args || {});
-        this.fromCity = args.fromCity;
-        this.toCity = args.toCity;
-        this.startDate = args.startDate;
-        this.alllowestprice = args.alllowestprice;
-        this.DATA_RECOMMEND_AIRLINE = args.DATA_RECOMMEND_AIRLINE;
-        this.DATA_RECOMMEND_AIRLINE_SINGLE = args.DATA_RECOMMEND_AIRLINE_SINGLE;
-        this.initialized = true;
-    };
-    this.template_flighttool = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
-            }
-        };
-        try {
-            (function(_OUT, _CONTEXT) {
-                with(_CONTEXT) {
-                    _OUT.write('    <div class="hd">相关航线</div>    <div class="ct">        <ul>');
-                    var idx = 0;
-                    _OUT.write(" ");
-                    var __LIST__item = data;
-                    if ((__LIST__item) != null) {
-                        var item_ct = 0;
-                        for (var item_index in __LIST__item) {
-                            item_ct++;
-                            if (typeof(__LIST__item[item_index]) == "function") {
-                                continue;
-                            }
-                            var item = __LIST__item[item_index];
-                            _OUT.write(" ");
-                            if (idx < 5) {
-                                _OUT.write('            <li><a href="');
-                                _OUT.write(item.url);
-                                _OUT.write('" hidefocus="on">');
-                                _OUT.write(item.dt.substr(5));
-                                _OUT.write("<br />                ");
-                                _OUT.write(item.dc);
-                                _OUT.write("-");
-                                _OUT.write(item.ac);
-                                _OUT.write("<br />                &yen;");
-                                _OUT.write(item.pr);
-                                _OUT.write(' <span class="ds">');
-                                _OUT.write(PriceUtil.getDiscount(item.ds));
-                                _OUT.write("</span></a></li>");
-                            }
-                            _OUT.write(" ");
-                            var idx = idx + 1;
-                            _OUT.write(" ");
-                        }
-                    }
-                    _OUT.write("        </ul>    </div>");
-                }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
-            }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.template_dflight_recommendtools = function(context, __onerror) {
-        if (context == null) {
-            context = {};
-        }
-        if (context._MODIFIERS == null) {
-            context._MODIFIERS = {};
-        }
-        if (context.defined == null) {
-            context.defined = function(str) {
-                return (context[str] != undefined);
-            };
-        }
-        var resultArr = [];
-        var resultOut = {
-            write: function(m) {
-                resultArr.push(m);
-            }
-        };
-        try {
-            (function(_OUT, _CONTEXT) {
-                var dis = _CONTEXT.now.ds || 0;
-                dis = PriceUtil.getDiscount(dis);
-                dis = dis.replace(/([\d.]+)/, '<b class="f_thm">$1</b>');
-                with(_CONTEXT) {
-                    _OUT.write('<span class="m_lab">临近航线低价推荐</span><span>');
-                    _OUT.write(now.dc);
-                    _OUT.write("-");
-                    _OUT.write(now.ac);
-                    _OUT.write('</span><span class="f_thm">');
-                    _OUT.write(now.dt);
-                    _OUT.write('</span><span class="highligh"><i class="rmb">&yen;</i>');
-                    _OUT.write(now.pr);
-                    _OUT.write("</span><span>");
-                    _OUT.write(dis);
-                    _OUT.write('</span><a href="');
-                    _OUT.write(now.url);
-                    _OUT.write('" class="m_view">查看</a>');
-                }
-            })(resultOut, context);
-        } catch (e) {
-            if (__onerror && typeof __onerror == "function") {
-                __onerror(e, resultArr.join(""));
-            }
-            throw e;
-        }
-        return resultArr.join("");
-    };
-    this.start = function(args) {
-        this.initialize(args);
-        var _fromCity = encodeURIComponent(this.fromCity);
-        var _toCity = encodeURIComponent(this.toCity);
-        var _startDate = this.startDate;
-        var _params = "from=" + _fromCity + "&to=" + _toCity + "&start_date=" + _startDate + "&version=" + Math.random();
-        var sr = new ScriptRequest({
-            funcName: "dflightTool.update",
-            callbackName: "callback"
-        });
-        sr.send(this.DATA_RECOMMEND_AIRLINE + "?" + _params);
-    };
-    this.startSpecial = function(args) {
-        this.initialize(args);
-        var _fromCity = encodeURIComponent(this.fromCity);
-        var _toCity = encodeURIComponent(this.toCity);
-        var _startDate = this.startDate;
-        var _params = "from=" + _fromCity + "&to=" + _toCity + "&start_date=" + _startDate + "&version=" + Math.random();
-        var sr_single = new ScriptRequest({
-            funcName: "dflightTool.special",
-            callbackName: "callback"
-        });
-        sr_single.send(this.DATA_RECOMMEND_AIRLINE_SINGLE + "?" + _params);
-    };
-    this.makeurl = function(item) {
-        var param = window.location.param();
-        var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(item.dc) + "&toCity=" + encodeURIComponent(item.ac) + "&fromDate=" + item.dt + "&toDate=" + param.searchDepartureTime + "&searchType=OnewayFlight&from=near_airport";
-        return this.addEx_track(_url);
-    };
-    this.addEx_track = function(url) {
-        var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
-        if (ex_track) {
-            url += "&" + ex_track;
-        }
-        return url;
-    };
-    this.update = function(data) {
-        var self = this;
-        var _mydata = {};
-        if (data.records.length > 0) {
-            $jex.array.each(data.records, function(item, idx) {
-                item.url = self.makeurl(item);
-                _mydata["" + idx] = item;
-            });
-            $jex.$("dFlightPanel").innerHTML = this.template_flighttool({
-                data: _mydata
-            });
-            $jex.element.show($jex.$("dFlightPanel"));
-        }
-    };
-    this.special = function(data) {
-        if (!data.records || data.records.length < 1) {
-            return;
-        }
-        var self = this,
-            _d = [].concat(data.records),
-            dc = this.fromCity,
-            ac = this.toCity;
-        var f = function(o1) {
-            if (o1.ac == ac && o1.dc != dc) {
-                return -1;
-            }
-            if (o1.ac != ac && o1.dc == dc) {
-                return 0;
-            }
-            if (o1.ac != ac && o1.dc != dc) {
-                return 1;
-            }
-        };
-        _d = _d.sort(function(a, b) {
-            return f(a) - f(b);
-        });
-        this._cacheD = _d;
-        this.updateSpecial(this.alllowestprice);
-    };
-    this.updateSpecial = function(alllp) {
-        if (!this._cacheD) {
-            return;
-        }
-        var dc = this.fromCity;
-        var ac = this.toCity;
-        var _d = this._cacheD;
-        var lp = null;
-        $jex.array.each(_d, function(item) {
-            if (alllp - item.pr >= 200) {
-                lp = item;
-            }
-        });
-        if (lp == null || alllp > 99999) {
-            if (SpringHotRoundtrip && SpringHotRoundtrip.onshow) {
-                $jex.element.show($jex.$("roundtripVendor"));
-            }
-            $jex.element.hide($jex.$("dflightRecommendPanel"));
-            return;
-        }
-        lp.url = this.makeurl(lp) + "&from=tejia_near_search";
-        $jex.$("dflightRecommendPanel").innerHTML = this.template_dflight_recommendtools({
-            now: lp,
-            dc: dc,
-            ac: ac,
-            sub: alllp - lp.pr
-        });
-        $jex.element.show($jex.$("dflightRecommendPanel"));
-        $jex.element.hide($jex.$("roundtripVendor"));
-    };
-};
-window.dflightTool = dflightTool;
 var isIE = (navigator.appVersion.indexOf("MSIE") != -1) ? true : false;
 var isWin = (navigator.appVersion.toLowerCase().indexOf("win") != -1) ? true : false;
 var isOpera = (navigator.userAgent.indexOf("Opera") != -1) ? true : false;
@@ -6375,6 +6197,130 @@ function getMiprice(b, a) {
 
 function unLock(a) {}
 window.Trendflash = Trendflash;
+var dflightTool = new function() {
+    this.initialize = function(args) {
+        if (this.initialized) {
+            return;
+        }
+        var analyzer = DomesticOnewayDataAnalyzer;
+        var param = window.location.param();
+        this.args = args = $jex.merge({
+            fromCity: param.searchDepartureAirport,
+            toCity: param.searchArrivalAirport,
+            startDate: param.searchDepartureTime,
+            DATA_RECOMMEND_AIRLINE: "http://ws.qunar.com/recommendAirline.jcp"
+        }, args || {});
+        this.fromCity = args.fromCity;
+        this.toCity = args.toCity;
+        this.startDate = args.startDate;
+        this.DATA_RECOMMEND_AIRLINE = args.DATA_RECOMMEND_AIRLINE;
+        this.initialized = true;
+    };
+    this.template_flighttool = function(context, __onerror) {
+        if (context == null) {
+            context = {};
+        }
+        if (context._MODIFIERS == null) {
+            context._MODIFIERS = {};
+        }
+        if (context.defined == null) {
+            context.defined = function(str) {
+                return (context[str] != undefined);
+            };
+        }
+        var resultArr = [];
+        var resultOut = {
+            write: function(m) {
+                resultArr.push(m);
+            }
+        };
+        try {
+            (function(_OUT, _CONTEXT) {
+                with(_CONTEXT) {
+                    _OUT.write('    <div class="hd">相关航线</div>    <div class="ct">        <ul>');
+                    var idx = 0;
+                    _OUT.write(" ");
+                    var __LIST__item = data;
+                    if ((__LIST__item) != null) {
+                        var item_ct = 0;
+                        for (var item_index in __LIST__item) {
+                            item_ct++;
+                            if (typeof(__LIST__item[item_index]) == "function") {
+                                continue;
+                            }
+                            var item = __LIST__item[item_index];
+                            _OUT.write(" ");
+                            if (idx < 5) {
+                                _OUT.write('            <li><a href="');
+                                _OUT.write(item.url);
+                                _OUT.write('" hidefocus="on">');
+                                _OUT.write(item.dt.substr(5));
+                                _OUT.write("<br />                ");
+                                _OUT.write(item.dc);
+                                _OUT.write("-");
+                                _OUT.write(item.ac);
+                                _OUT.write("<br />                &yen;");
+                                _OUT.write(item.pr);
+                                _OUT.write(' <span class="ds">');
+                                _OUT.write(PriceUtil.getDiscount(item.ds));
+                                _OUT.write("</span></a></li>");
+                            }
+                            _OUT.write(" ");
+                            var idx = idx + 1;
+                            _OUT.write(" ");
+                        }
+                    }
+                    _OUT.write("        </ul>    </div>");
+                }
+            })(resultOut, context);
+        } catch (e) {
+            if (__onerror && typeof __onerror == "function") {
+                __onerror(e, resultArr.join(""));
+            }
+            throw e;
+        }
+        return resultArr.join("");
+    };
+    this.start = function(args) {
+        this.initialize(args);
+        var _fromCity = encodeURIComponent(this.fromCity);
+        var _toCity = encodeURIComponent(this.toCity);
+        var _startDate = this.startDate;
+        var _params = "from=" + _fromCity + "&to=" + _toCity + "&start_date=" + _startDate + "&version=" + Math.random();
+        var sr = new ScriptRequest({
+            funcName: "dflightTool.update",
+            callbackName: "callback"
+        });
+        sr.send(this.DATA_RECOMMEND_AIRLINE + "?" + _params);
+    };
+    this.makeurl = function(item) {
+        var param = window.location.param();
+        var _url = "/twell/flight/Search.jsp?fromCity=" + encodeURIComponent(item.dc) + "&toCity=" + encodeURIComponent(item.ac) + "&fromDate=" + item.dt + "&toDate=" + param.searchDepartureTime + "&searchType=OnewayFlight&from=near_airport";
+        return this.addEx_track(_url);
+    };
+    this.addEx_track = function(url) {
+        var ex_track = QLib && QLib.getEx_track && QLib.getEx_track();
+        if (ex_track) {
+            url += "&" + ex_track;
+        }
+        return url;
+    };
+    this.update = function(data) {
+        var self = this;
+        var _mydata = {};
+        if (data.records.length > 0) {
+            $jex.array.each(data.records, function(item, idx) {
+                item.url = self.makeurl(item);
+                _mydata["" + idx] = item;
+            });
+            $jex.$("dFlightPanel").innerHTML = this.template_flighttool({
+                data: _mydata
+            });
+            $jex.element.show($jex.$("dFlightPanel"));
+        }
+    };
+};
+window.dflightTool = dflightTool;
 ConfigManager.setConfig(oneway_config);
 ConfigManager.setConfig({
     "default": {
@@ -6867,13 +6813,15 @@ SortHandler.prototype._init = function() {
             $jex.event.binding(PAGE_EVENT, "lowPriceChange", function() {
                 s();
             });
-            dflightTool.startSpecial();
             $jex.console.end("第一屏,七日低价 ");
             setTimeout(function() {
                 $jex.console.start("第一屏,侧边推荐酒店 ");
                 recommendedHotels.query(encodeURIComponent(f.searchArrivalAirport), f.searchDepartureTime, "HotelRecommended", "oneway-list", 0);
                 $jex.console.end("第一屏,侧边推荐酒店");
             }, 0);
+            $jex.console.start("第一屏,加载临近航班");
+            NearLineRec.load(f);
+            $jex.console.end("第一屏，加载临近航班");
             $jex.console.start("第一屏,加载广告 ");
             var e = i.longwell();
             AD_Manage.qde_query = function(u) {
