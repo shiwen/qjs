@@ -8591,7 +8591,7 @@ OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
 OnewayFlightWrapperUI.prototype.getRebateText = function() {
     var a = {
         "1": "官网特惠直减",
-        "2": "优惠码直减",
+        "2": "全民直减",
         "3": "折上再减"
     };
     return function(b) {
