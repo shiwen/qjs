@@ -8901,7 +8901,7 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
     this.text("</dl>");
     if (b.isDirect()) {
         this.text('<div class="t_cmt t_yxfan">');
-        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="t_cmt">');
@@ -8929,7 +8929,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     this.text('<div class="t_name">', f.isNoAuth() ? "去哪儿网度假" : f.vendor().name());
     this._insertAuthVendor(f);
     this.text("</div>");
-    this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
+    this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
     this.text("</div>");
     this.onInit(this._authorizeVendorHover);
 };
@@ -8996,7 +8996,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
     if (a.isDirect()) {
         this.text('<div class="v_ofc">');
         this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name(), "</div>");
-        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>100</strong>元酒店红包<br>(登录支付成功后有机会领取)</div>');
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="v1">');
