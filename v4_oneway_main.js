@@ -4365,6 +4365,7 @@ $jex.exec(function() {
 });
 var FlightEntity = function() {
     this.changed = false;
+    this.isLowestPr = false;
     this._valCache = {};
 };
 $jex.foreach(["key", "commInfoMgr", "flightInfoMgr", "lowestPrice", "highestPrice"], function(a) {
@@ -4752,6 +4753,13 @@ FlightEntity.prototype.arriDate = function() {
 FlightEntity.prototype.isNextDate = function() {
     return this.arriTime().replace(":", "") * 1 - this.deptTime().replace(":", "") * 1 < 0;
 };
+FlightEntity.prototype.isLowest = function(a) {
+    if (arguments.length == 0) {
+        return this.isLowestPr;
+    } else {
+        this.isLowestPr = a;
+    }
+};
 var FlightEntityManager = function() {
     FlightEntityManager.superclass.constructor.call(this);
 };
@@ -4833,6 +4841,13 @@ WrapperEntity.prototype.isBCabin = function() {
 };
 WrapperEntity.prototype.isTCabin = function() {
     return /^t/i.test(this.dataSource().type);
+};
+WrapperEntity.prototype.isYoufei = function() {
+    return this.isCsyf() || this.dataSource().yf;
+};
+WrapperEntity.prototype.isCsyf = function() {
+    var a = this.dataSource().csyf;
+    return this.dataSource().csyf ? true : false;
 };
 WrapperEntity.prototype.isLCabin = function() {
     return /^l/i.test(this.dataSource().type);
@@ -8476,78 +8491,86 @@ function OnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(OnewayFlightWrapperUI, WrapperUI);
-OnewayFlightWrapperUI.prototype.update = function(g) {
-    var a = g;
-    this.specWR = a.bigLogoUrl();
-    var i = a.vendor().isSuperOTA();
+OnewayFlightWrapperUI.prototype.update = function(i) {
+    var b = i;
+    this.specWR = b.bigLogoUrl();
+    var j = b.vendor().isSuperOTA();
+    var l = b.isYoufei(),
+        a = b.isCsyf();
     this.clear();
-    this.bookingScreenUI.setVendorInfo(a.wrapperId(), a.vendor().dataSource());
-    this.bookingLockScreenUI.setEntity(a);
-    this.bookingLockScreenUI.setVendorInfo(a.wrapperId(), a.vendor().dataSource());
-    this.insert_HEADER(a);
-    var d = this.ownerListUI().zIndex,
-        c = this.ownerListUI().firstIndex;
-    var f = "";
-    if (c == d) {
-        f += " qvt_column_first";
+    this.bookingScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
+    this.bookingLockScreenUI.setEntity(b);
+    this.bookingLockScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
+    this.insert_HEADER(b);
+    var f = this.ownerListUI().zIndex,
+        d = this.ownerListUI().firstIndex;
+    var g = "";
+    if (d == f) {
+        g += " qvt_column_first";
         this._isFrist = true;
     }
-    if (a.isFreeMan()) {
-        f += " freeman";
+    if (b.isFreeMan()) {
+        g += " freeman";
     }
-    if (a.isRoundFlight && a.isRoundFlight()) {
-        f += " bainiantuan";
+    if (b.isRoundFlight && b.isRoundFlight()) {
+        g += " bainiantuan";
     }
     this.append("<div", "flightbar", "");
-    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, f, '">');
+    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, g, '">');
     this.zIndex = this.ownerListUI().zIndex;
     this.ownerListUI().zIndex--;
-    this._insertH3(g);
-    var b = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), a.wrapperId()) > -1;
-    this.text('<div class="v3 ' + (b ? "v3_np" : "") + '">');
-    if (a.isOta()) {
-        this.insertOta(a);
-    } else {
-        if (a.isRoundFlight()) {
-            this.insertBainiantuanDetail(a);
+    this._insertH3(i);
+    var c = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), b.wrapperId()) > -1;
+    if (!l) {
+        this.text('<div class="v3 ' + (c ? "v3_np" : "") + '">');
+        if (b.isOta()) {
+            this.insertOta(b);
         } else {
-            if (a.isFreeMan()) {
-                this.insertFreeMan(a);
+            if (b.isRoundFlight()) {
+                this.insertBainiantuanDetail(b);
             } else {
-                if (b) {
-                    this.insertAirlineDirectSelling();
+                if (b.isFreeMan()) {
+                    this.insertFreeMan(b);
                 } else {
-                    this.insert_Services(a);
+                    if (c) {
+                        this.insertAirlineDirectSelling();
+                    } else {
+                        this.insert_Services(b);
+                    }
                 }
             }
         }
+        this.text("</div>");
     }
-    this.text("</div>");
     this.text('<div class="v4">');
     var h = 0;
-    if (a.getTGQInfo()) {
-        var j = "退改签";
-        if ((a.fanxian() || a.isTCabin() || a.isAnonymityVendor()) && !a.isPlus()) {
-            j = "促销说明";
+    if (b.getTGQInfo()) {
+        var k = "退改签";
+        if (l) {
+            k = a ? "退改签" : "活动说明";
+        } else {
+            if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !b.isPlus()) {
+                k = "促销说明";
+            }
         }
         h = 1;
         this.append("<div", "js-stopClick", ' class="t_st">');
         this.append('<span class="dot_gy"', "tgq", ">");
-        this.text(j, "</span>");
-        this.insert_TGQ(a);
+        this.text(k, "</span>");
+        this.insert_TGQ(b);
         this.text("</div>");
     }
-    if (a.hasAgeLimit() && a.vendor().isOffical()) {
+    if (b.hasAgeLimit() && b.vendor().isOffical()) {
         this.text('<i class="i_yao_pre">青老年优惠</i>');
     } else {
-        if (a.hasAgeLimit()) {
+        if (b.hasAgeLimit()) {
             this.append("<div", "js-stopClick", ' class="t_st">');
             this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
-            this.insertAgeLimit(a);
+            this.insertAgeLimit(b);
             this.text("</div>");
         }
     }
-    if (i && !a.isApplyPrice()) {
+    if (j && !b.isApplyPrice()) {
         h = 1;
         this.text('<div class="t_st">');
         if ($jex.ie == 6) {
@@ -8558,11 +8581,11 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
         }
         this.text("</div>");
     }
-    if (a.isFCabin()) {
+    if (b.isFCabin()) {
         h = 1;
         this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
     } else {
-        if (a.isBCabin()) {
+        if (b.isBCabin()) {
             h = 1;
             this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
         }
@@ -8570,15 +8593,15 @@ OnewayFlightWrapperUI.prototype.update = function(g) {
     if (h === 0) {
         this.text("&nbsp");
     }
-    this.insert_AirchinaCoupon(a);
+    this.insert_AirchinaCoupon(b);
     this.text("</div>");
-    this.insert_PRICE(a);
+    this.insert_PRICE(b);
     this.text('<div class="v7">');
-    this.insert_BOOKING_BUTTON(a);
+    this.insert_BOOKING_BUTTON(b);
     this.text("</div>");
     this.text("</div>");
-    this._bindHoverEvent(a);
-    this._bindOnInitEvent(a);
+    this._bindHoverEvent(b);
+    this._bindOnInitEvent(b);
 };
 OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
     var b = a;
@@ -8619,273 +8642,284 @@ OnewayFlightWrapperUI.prototype._bindHoverEvent = function(b) {
         });
     });
 };
-OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(c) {
-    var b = c;
-    var a = this;
+OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
+    var c = d;
+    var b = this,
+        a = c.isYoufei();
     this.onInit(function() {
-        a.loadedTgq = false;
-        var f = this.find("tgq"),
-            d = false;
-        isPlus = b.isPlus();
-        var h = b.getTGQInfo();
-        if (b.fanxian() && !isPlus) {
-            h = '<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>' + b.getTGQInfo() + '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>';
+        b.loadedTgq = false;
+        var g = this.find("tgq"),
+            f = false;
+        isPlus = c.isPlus();
+        var i = c.getTGQInfo();
+        if (c.fanxian() && !isPlus) {
+            i = '<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>';
         }
-        if (b.isTCabin() && !isPlus) {
-            h = '<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>' + b.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>';
+        if (c.isTCabin() && !isPlus && !a) {
+            i = '<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>';
         }
-        if (b.isAnonymityVendor()) {
-            h = '<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>' + b.getTGQInfo();
+        if (c.isAnonymityVendor()) {
+            i = '<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>' + c.getTGQInfo();
         }
 
-        function i() {
-            var l = "/twell/flight/getTGQ.jsp";
-            var q = b.ownerFlight();
-            var t = a.find("tgq_notice");
-            var o = "";
-            var s = b.lijian();
-            var p = b.fanxian();
-            var m = b.isPlus();
-            var k = true;
-            var n = Math.max(b.afeePrice(), b.bprPrice());
-            var u = Math.min(b.afeePrice() || Number.MAX_VALUE, b.bprPrice() || Number.MAX_VALUE);
-            if ((s || p) && m) {
-                n = s ? (n + s) : n;
-                u = s ? (u + s) : u;
-                k = false;
+        function j() {
+            var m = "/twell/flight/getTGQ.jsp";
+            var s = c.ownerFlight();
+            var u = b.find("tgq_notice");
+            var p = "";
+            var t = c.lijian();
+            var q = c.fanxian();
+            var n = c.isPlus();
+            var x = c.isYoufei();
+            var l = true;
+            var o = Math.max(c.afeePrice(), c.bprPrice());
+            var w = Math.min(c.afeePrice() || Number.MAX_VALUE, c.bprPrice() || Number.MAX_VALUE);
+            if ((t || q) && (n || x)) {
+                o = (t || x) ? (o + t) : o;
+                w = (t || x) ? (w + t) : w;
+                l = false;
             }
-            $jex.jsonp(l, {
-                flightNum: q.flightInfo().co,
-                deptAirport: q.deptAirport().code,
-                arrAirport: q.arriAirport().code,
-                deptDate: q.deptDate().replace(/-/g, ""),
-                printPrice: b.parValue(),
-                wrapperId: b.wrapperId(),
-                cabin: b.cabin(),
-                policyId: b.pid(),
-                maxSellPrice: n,
-                minSellPrice: u,
-                tag: b.tag(),
-                b2bpf: b.b2bpf(),
-                isTHFXLow: k
-            }, function(x) {
-                a.loadedTgq = true;
-                if (!x || (x && !x.tgqAdult)) {
-                    t.innerHTML = h;
+            $jex.jsonp(m, {
+                flightNum: s.flightInfo().co,
+                deptAirport: s.deptAirport().code,
+                arrAirport: s.arriAirport().code,
+                deptDate: s.deptDate().replace(/-/g, ""),
+                printPrice: c.parValue(),
+                wrapperId: c.wrapperId(),
+                cabin: c.cabin(),
+                policyId: c.pid(),
+                maxSellPrice: o,
+                minSellPrice: w,
+                tag: c.tag(),
+                b2bpf: c.b2bpf(),
+                isTHFXLow: l
+            }, function(z) {
+                b.loadedTgq = true;
+                if (!z || (z && !z.tgqAdult)) {
+                    u.innerHTML = i;
                     return;
                 }
-                o = x.tgqAdult;
-                var w = g(x);
-                t.innerHTML = w;
+                p = z.tgqAdult;
+                var y = h(z);
+                u.innerHTML = y;
             }, {
                 timeout: {
                     time: 2000,
                     func: function() {
-                        if (!o) {
-                            t.innerHTML = h;
+                        if (!p) {
+                            u.innerHTML = i;
                         }
                     }
                 }
             });
         }
 
-        function g(s) {
-            var t = 0,
-                y, x = s.tgqAdult,
-                n = x.timePointCharges,
-                w = [],
-                k = [],
-                A = [],
-                p = null;
-            var z = "",
-                B = "",
-                m = '<span class="f_thm"><i class="rmb">¥</i>',
-                C = "/人</span>";
-            var u = [];
-            var l = b.isPlus();
-            n && (y = n.length);
-            if (x.viewType == 1 && y > 0) {
-                if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !l) {
-                    var q = s.msg.split("|");
-                    var o = b.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
-                    if (b.fanxian()) {
-                        u.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
+        function h(t) {
+            var u = 0,
+                z, y = t.tgqAdult,
+                o = y.timePointCharges,
+                x = [],
+                l = [],
+                B = [],
+                q = null;
+            var A = "",
+                C = "",
+                n = '<span class="f_thm"><i class="rmb">¥</i>',
+                D = "/人</span>";
+            var w = [];
+            var m = c.isPlus();
+            o && (z = o.length);
+            if (y.viewType == 1 && z > 0) {
+                if ((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && !m && !c.isYoufei()) {
+                    var s = t.msg.split("|");
+                    var p = c.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
+                    if (c.fanxian()) {
+                        w.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
                     } else {
-                        if (b.isTCabin()) {
-                            u.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
+                        if (c.isTCabin()) {
+                            w.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>');
                         } else {
-                            u.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
+                            w.push('<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>');
                         }
                     }
-                    u.push('<ul class="ul_cx">');
-                    for (var t = 0; t < q.length; t++) {
-                        u.push("<li>", t + 1, ".", q[t], "</li>");
+                    w.push('<ul class="ul_cx">');
+                    for (var u = 0; u < s.length; u++) {
+                        w.push("<li>", u + 1, ".", s[u], "</li>");
                     }
-                    u.push("</ul>");
-                    if (!b.isAnonymityVendor()) {
-                        u.push('<p class="addtip"> 附加说明：<br>', o, " </p>");
+                    w.push("</ul>");
+                    if (!c.isAnonymityVendor()) {
+                        w.push('<p class="addtip"> 附加说明：<br>', p, " </p>");
                     }
                 } else {
-                    x.adultTgq = {};
-                    for (; t < y; t++) {
-                        p = n[t];
-                        z = p.changeFee == -1 ? "不可改期" : m + p.changeFee + C;
-                        B = p.returnFee == -1 ? "只退机建和燃油" : m + p.returnFee + C;
-                        w.push("<p>", p.timeText, "</p>");
-                        k.push("<p>", B, "</p>");
-                        A.push("<p>", z, "</p>");
+                    y.adultTgq = {};
+                    for (; u < z; u++) {
+                        q = o[u];
+                        A = q.changeFee == -1 ? "不可改期" : n + q.changeFee + D;
+                        C = q.returnFee == -1 ? "只退机建和燃油" : n + q.returnFee + D;
+                        x.push("<p>", q.timeText, "</p>");
+                        l.push("<p>", C, "</p>");
+                        B.push("<p>", A, "</p>");
                     }
-                    u.push('<table class="tbl_tgq_tip">', '<tr class="nw">', x.hasTime ? "<th>退改签时间点</th>" : "", "<th>退票扣费</th><th>改期加收手续费</th><th>签转</th></tr>", '<tr class="nw">');
-                    x.hasTime && u.push('     <td class="c1 nw">', w.join(""), "</td>");
-                    u.push('     <td class="c2 nw">', k.join(""), "</td>");
-                    u.push('     <td class="c3 nw">', A.join(""), "</td>");
-                    u.push('     <td class="c4 nw">', x.signText, "</td>");
-                    u.push("<tr>");
-                    u.push("</table>");
-                    u.push("<div>以上为成人退改签费用标准</div>");
+                    w.push('<table class="tbl_tgq_tip">', '<tr class="nw">', y.hasTime ? "<th>退改签时间点</th>" : "", "<th>退票扣费</th><th>改期加收手续费</th><th>签转</th></tr>", '<tr class="nw">');
+                    y.hasTime && w.push('     <td class="c1 nw">', x.join(""), "</td>");
+                    w.push('     <td class="c2 nw">', l.join(""), "</td>");
+                    w.push('     <td class="c3 nw">', B.join(""), "</td>");
+                    w.push('     <td class="c4 nw">', y.signText, "</td>");
+                    w.push("<tr>");
+                    w.push("</table>");
+                    w.push("<div>以上为成人退改签费用标准</div>");
                 }
             } else {
-                if (x.tgqText) {
-                    if (b.fanxian() && !l) {
-                        u.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>', x.tgqText, '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>');
+                if (y.tgqText) {
+                    if (c.fanxian() && !m) {
+                        w.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>', y.tgqText, '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>');
                     } else {
-                        if (b.isTCabin() && !l) {
-                            u.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>', x.tgqText, '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>');
+                        if (c.isTCabin() && !m) {
+                            w.push('<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>', y.tgqText, '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>');
                         } else {
-                            u.push(x.tgqText);
-                            u.push("<br/><i>*</i>仅供参考,以订单标注的退改签规定为准。");
+                            w.push(y.tgqText);
+                            w.push("<br/><i>*</i>仅供参考,以订单标注的退改签规定为准。");
                         }
                     }
                 }
             }
-            return u.join("");
+            return w.join("");
         }
-        if (f) {
-            var j = this.find("tgq_notice_panel");
+        if (g) {
+            var k = this.find("tgq_notice_panel");
             $jex.hover({
-                act: f,
+                act: g,
                 extra: [this.find("tgq_notice_panel")],
-                onmouseover: function(k) {
-                    if (d) {
+                onmouseover: function(l) {
+                    if (f) {
                         return;
                     }
-                    if (b.pid() && !a.loadedTgq) {
-                        i();
+                    if (c.pid() && !b.loadedTgq) {
+                        j();
                     }
-                    $jex.element.show(j);
+                    $jex.element.show(k);
                     $jex.event.trigger($jex.$("hdivResultPanel"), "fem_showTGQ");
-                    d = true;
+                    f = true;
                 },
-                onmouseout: function(k) {
-                    d = false;
-                    $jex.element.hide(j);
+                onmouseout: function(l) {
+                    f = false;
+                    $jex.element.hide(k);
                 }
             });
         }
     });
     this.onInit(function() {
-        var i = a.find("ageLimit");
-        if (!i) {
+        var j = b.find("ageLimit");
+        if (!j) {
             return;
         }
-        var d = a.find("ageLimit-tips");
-        var g = false;
+        var f = b.find("ageLimit-tips");
+        var h = false;
         $jex.hover({
-            act: i,
+            act: j,
             extra: [this.find("ageLimit-tips")],
             onmouseover: function() {
-                if (g) {
-                    d.style.display = "";
+                if (h) {
+                    f.style.display = "";
                     return;
                 }
-                f();
+                g();
             },
             onmouseout: function() {
-                $jex.element.hide(d);
+                $jex.element.hide(f);
             }
         });
 
-        function f() {
-            var j = "/twell/flight/getQLN.jsp";
-            $jex.jsonp(j, {
-                wrapperId: b.wrapperId(),
-                policyId: b.pid()
-            }, function(k) {
-                h(k);
+        function g() {
+            var k = "/twell/flight/getQLN.jsp";
+            $jex.jsonp(k, {
+                wrapperId: c.wrapperId(),
+                policyId: c.pid()
+            }, function(l) {
+                i(l);
             }, {
                 timeout: {
                     time: 3000,
                     func: function() {
-                        if (!g) {
-                            h({});
+                        if (!h) {
+                            i({});
                         }
                     }
                 }
             });
         }
 
-        function h(n) {
-            g = true;
-            var l = "该产品限制乘机人年龄，下单时请注意相关提示";
-            var k = a.find("ageLimit-tips-content");
-            var j = n.maxAge;
-            var m = n.minAge;
-            if (j && m) {
-                l = "限" + m + "-" + j + "（含）周岁购买";
+        function i(o) {
+            h = true;
+            var m = "该产品限制乘机人年龄，下单时请注意相关提示";
+            var l = b.find("ageLimit-tips-content");
+            var k = o.maxAge;
+            var n = o.minAge;
+            if (k && n) {
+                m = "限" + n + "-" + k + "（含）周岁购买";
             } else {
-                if (j && !m) {
-                    l = "限<" + j + "（含）周岁购买";
+                if (k && !n) {
+                    m = "限<" + k + "（含）周岁购买";
                 } else {
-                    if (!j && m) {
-                        l = "限>" + m + "（含）周岁购买";
+                    if (!k && n) {
+                        m = "限>" + n + "（含）周岁购买";
                     }
                 }
             }
-            k.innerHTML = l;
-            d.style.display = "";
+            l.innerHTML = m;
+            f.style.display = "";
         }
     });
 };
-OnewayFlightWrapperUI.prototype._insertH3 = function(g) {
-    var f = g;
-    var b = g.vendor();
-    var d = b.srv_ICON();
-    this.text('<div class="v0">');
-    if (f.fanxian() || f.isTCabin()) {
-        var c = f.fanxian() ? "ico_fan" : "ico_lijian";
-        var a = f.fanxian() ? "返现" : "立减";
-        this.text('<i class="', c, '">', a, "</i>");
+OnewayFlightWrapperUI.prototype._insertH3 = function(h) {
+    var g = h;
+    var c = h.vendor();
+    var f = c.srv_ICON();
+    var b = g.isYoufei();
+    if (b) {
+        this.text('<div class="v_yf_icon">');
     } else {
-        if (f.isAnonymityVendor()) {
-            var c = "ico_anonymity";
-            var a = "度假";
-            this.text('<i class="', c, '">', a, "</i>");
+        this.text('<div class="v0">');
+    }
+    if (b) {
+        this.text('<div class="ico_tit"><span class="ico_tit_cont"><i class="ico_qnr"></i>去哪儿网促销</span></div>');
+    } else {
+        if (g.fanxian() || g.isTCabin()) {
+            var d = g.fanxian() ? "ico_fan" : "ico_lijian";
+            var a = g.fanxian() ? "返现" : "立减";
+            this.text('<i class="', d, '">', a, "</i>");
         } else {
-            if (f.isRoundFlight()) {
-                this.text('<i class="ico_bainian" title="春节特别产品，含两段行程，组合价更优惠!">拜年团</i>');
+            if (g.isAnonymityVendor()) {
+                var d = "ico_anonymity";
+                var a = "度假";
+                this.text('<i class="', d, '">', a, "</i>");
             } else {
-                if (d) {
-                    this.text('<i class="', d.key, '" title="', d.title, '">', d.text, "</i>");
+                if (g.isRoundFlight()) {
+                    this.text('<i class="ico_bainian" title="春节特别产品，含两段行程，组合价更优惠!">拜年团</i>');
                 } else {
-                    this.text('<i class="ico_nocertify" title=""></i>');
+                    if (f) {
+                        this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+                    } else {
+                        this.text('<i class="ico_nocertify" title=""></i>');
+                    }
                 }
             }
         }
     }
     this.text("</div>");
-    if (g.bigLogoUrl()) {
-        this._insertSpecWR(g);
+    if (h.bigLogoUrl()) {
+        this._insertSpecWR(h);
     } else {
-        if (g.isOta()) {
-            this._insterOtaName(g);
+        if (h.isOta()) {
+            this._insterOtaName(h);
         } else {
-            if (g.isFreeMan()) {
-                this._insterFreeManName(g);
+            if (h.isFreeMan()) {
+                this._insterFreeManName(h);
             } else {
-                if (g.isRoundFlight()) {
-                    this._insterRoundFlightName(g);
+                if (h.isRoundFlight()) {
+                    this._insterRoundFlightName(h);
                 } else {
-                    this._insertH3Normal(g);
+                    this._insertH3Normal(h);
                 }
             }
         }
@@ -8999,23 +9033,33 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
-        this.text('<div class="v1">');
-        this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name());
-        this._insertAuthVendor(c);
-        this.text("</div>");
-        if (c.isAnonymityVendor()) {
-            this.text('<div class="t_cmt">超值特惠单程机票</div>');
-        } else {
-            this.text('<div class="t_cmt">');
-            this.starUI.displayPanel(c);
+        if (c.isYoufei()) {
+            this.text('<div class="v_yf_explain">');
+            if (c.isCsyf()) {
+                this.text('<i class="ico_yfbi"></i>买就送优飞币，立抵现金');
+            } else {
+                this.text('<i class="ico_yfbi"></i>可以使用优飞币抵扣现金');
+            }
             this.text("</div>");
+        } else {
+            this.text('<div class="v1">');
+            this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name());
+            this._insertAuthVendor(c);
+            this.text("</div>");
+            if (c.isAnonymityVendor()) {
+                this.text('<div class="t_cmt">超值特惠单程机票</div>');
+            } else {
+                this.text('<div class="t_cmt">');
+                this.starUI.displayPanel(c);
+                this.text("</div>");
+            }
+            this.text("</div>");
+            this.text('<div class="v2"><div class="e_btn_cmt">');
+            if (!c.isAnonymityVendor()) {
+                this.starUI.insert_btn(c);
+            }
+            this.text("</div></div>");
         }
-        this.text("</div>");
-        this.text('<div class="v2"><div class="e_btn_cmt">');
-        if (!c.isAnonymityVendor()) {
-            this.starUI.insert_btn(c);
-        }
-        this.text("</div></div>");
     }
     this.onInit(this._authorizeVendorHover);
 };
@@ -9136,128 +9180,150 @@ OnewayFlightWrapperUI.prototype.insert_PRICE = function(a) {
 OnewayFlightWrapperUI.prototype._disHTML = function(a) {
     this.text(PriceUtil.getOneWayDiscount(a.discount()));
 };
-OnewayFlightWrapperUI.prototype.priceHTML = function(b, a) {
-    this.text('<div class="t_prc ', a, '">' + Price_html.getHTML(b) + '<i class="rmb">&yen;</i></div>');
+OnewayFlightWrapperUI.prototype.priceHTML = function(b, a, c) {
+    this.text('<div class="t_prc ', a, '">');
+    if (c && c.isYoufei()) {
+        this.text('<span class="prc_yfbi">+<i class="ico_yfbi"></i>' + c.lijian() + "</span>");
+    }
+    this.text(Price_html.getHTML(b));
+    this.text('<i class="rmb">&yen;</i></div>');
 };
 OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
     if (a.coupon() > 0 && a.bprPrice()) {
         this.insert_couponPrice(a);
     } else {
-        if (a.fanxian() || a.isTCabin()) {
+        if (a.fanxian() || a.isTCabin() || a.isYoufei()) {
             this.insert_PRICE_FANXIAN(a);
         } else {
             this.insert_normalPrice(a);
         }
     }
 };
-OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(g) {
-    var d = g.fanxian();
-    var b = g.lijian();
-    var a = g.isPlus();
-    var h = g.afeePrice();
-    h = parseInt(h, 10);
-    var c;
-    if (a) {
-        c = d ? h : (b + h);
+OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(f) {
+    var c = f.fanxian();
+    var g = f.lijian();
+    var b = f.isPlus();
+    var a = f.afeePrice();
+    var i = f.isYoufei();
+    a = parseInt(a, 10);
+    var d;
+    if (i) {
+        d = g + a;
     } else {
-        c = d ? h - d : h;
+        if (b) {
+            d = c ? a : (g + a);
+        } else {
+            d = c ? a - c : a;
+        }
     }
     this.text('<div class="v5">');
+    if (a) {
+        if (i) {
+            this.priceHTML(a, f.isLowestPr() ? "t_prc_lp" : "", f);
+            this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
+        } else {
+            this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
+            this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
+        }
+    }
+    this.text("</div>");
+    this.text('<div class="v6">');
+    if (a) {
+        if (i) {
+            var j = '<div class="t_ins">+' + f.afee() + "保险</div>";
+            this.text(j + j);
+        } else {
+            this.text('<div class="t_ins">');
+            this.text("+", f.afee(), "保险");
+            if (f.showInsTip() && f.afeeInsSum()) {
+                var h = "p_tips_wrap";
+                if (this._isFrist) {
+                    h += " p_tips_wrap_first";
+                }
+                this.text('<div class="p_tips_cont"><div class="', h, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', f.afeeInsSum(), "万</p></div></div></div>");
+            }
+            if (f.fanxian() || f.isTCabin()) {
+                this.insert_returnMoney(f);
+            }
+            this.text("</div>");
+        }
+    } else {
+        this.text("&nbsp;");
+    }
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype.insert_returnMoney = function(f) {
+    var g = f;
+    var c = g.fanxian();
+    var a = parseInt(g.afeePrice());
+    var i = g.lijian();
+    var h = i + a;
+    var b = g.isPlus();
+    var j = g.isYoufei();
+    if (!i) {
+        var d = parseInt(g.bprPrice());
+        h = g.parValue() - (d - a);
+        i = h - a;
+    }
+    if (!c && !i) {
+        return;
+    }
+    this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
+    if (c > 0) {
+        if (b) {
+            this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', c, "</i></div>");
+        } else {
+            this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', a, '</i>&nbsp;返现<i class="rmb">&yen;', c, "</i></div>");
+        }
+    } else {
+        if (i > 0 && !j) {
+            if (b) {
+                this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', i, "</i></div>");
+            } else {
+                this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;立减<i class="rmb">&yen;', i, "</i></div>");
+            }
+        }
+    }
+    this.text("</div>", "</div>", "</div>");
+};
+OnewayFlightWrapperUI.prototype.insert_normalPrice = function(b) {
+    var g = b;
+    var h = g.afeePrice(),
+        c = g.bprPrice();
+    var a = g.isYoufei();
+    h = parseInt(h);
+    c = parseInt(c);
+    this.text('<div class="v5">');
+    if (g.isRoundFlight()) {
+        this.text('<div class="ico_qianggou">抢购价<em></em></div>');
+    }
     if (h) {
-        this.priceHTML(c, g.isLowestPr() ? "t_prc_lp" : "");
-        this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
+        this.priceHTML(h, g.isLowestPr() ? "t_prc_lp" : "");
+    }
+    if (c && !g.isFreeMan() && !g.isRoundFlight()) {
+        this.priceHTML(c, g.isLowestBpr() ? "t_prc_lp" : "");
+    }
+    if (!g.isRoundFlight() && (!h || !c)) {
+        this.text("<div>");
+        var d = this._getCuXiao(g);
+        if (d) {
+            this.text(d);
+        } else {
+            this._disHTML(g);
+        }
+        this.text("</div>");
     }
     this.text("</div>");
     this.text('<div class="v6">');
     if (h) {
         this.text('<div class="t_ins">');
         this.text("+", g.afee(), "保险");
-        if (g.showInsTip() && g.afeeInsSum()) {
+        if (g.showInsTip() && g.afeeInsSum() && !g.isRoundFlight()) {
             var f = "p_tips_wrap";
             if (this._isFrist) {
                 f += " p_tips_wrap_first";
             }
             this.text('<div class="p_tips_cont"><div class="', f, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', g.afeeInsSum(), "万</p></div></div></div>");
-        }
-        if (g.fanxian() || g.isTCabin()) {
-            this.insert_returnMoney(g);
-        }
-        this.text("</div>");
-    } else {
-        this.text("&nbsp;");
-    }
-    this.text("</div>");
-};
-OnewayFlightWrapperUI.prototype.insert_returnMoney = function(d) {
-    var h = d;
-    var g = h.fanxian();
-    var i = parseInt(h.afeePrice());
-    var b = h.lijian();
-    var c = b + i;
-    var a = h.isPlus();
-    if (!b) {
-        var f = parseInt(h.bprPrice());
-        c = h.parValue() - (f - i);
-        b = c - i;
-    }
-    if (!g && !b) {
-        return;
-    }
-    this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
-    if (g > 0) {
-        if (a) {
-            this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', g, "</i></div>");
-        } else {
-            this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', i, '</i>&nbsp;返现<i class="rmb">&yen;', g, "</i></div>");
-        }
-    } else {
-        if (b > 0) {
-            if (a) {
-                this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', b, "</i></div>");
-            } else {
-                this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', c, '</i>&nbsp;立减<i class="rmb">&yen;', b, "</i></div>");
-            }
-        }
-    }
-    this.text("</div>", "</div>", "</div>");
-};
-OnewayFlightWrapperUI.prototype.insert_normalPrice = function(a) {
-    var f = a;
-    var g = f.afeePrice(),
-        b = f.bprPrice();
-    g = parseInt(g);
-    b = parseInt(b);
-    this.text('<div class="v5">');
-    if (f.isRoundFlight()) {
-        this.text('<div class="ico_qianggou">抢购价<em></em></div>');
-    }
-    if (g) {
-        this.priceHTML(g, f.isLowestPr() ? "t_prc_lp" : "");
-    }
-    if (b && !f.isFreeMan() && !f.isRoundFlight()) {
-        this.priceHTML(b, f.isLowestBpr() ? "t_prc_lp" : "");
-    }
-    if (!f.isRoundFlight() && (!g || !b)) {
-        this.text("<div>");
-        var c = this._getCuXiao(f);
-        if (c) {
-            this.text(c);
-        } else {
-            this._disHTML(f);
-        }
-        this.text("</div>");
-    }
-    this.text("</div>");
-    this.text('<div class="v6">');
-    if (g) {
-        this.text('<div class="t_ins">');
-        this.text("+", f.afee(), "保险");
-        if (f.showInsTip() && f.afeeInsSum() && !f.isRoundFlight()) {
-            var d = "p_tips_wrap";
-            if (this._isFrist) {
-                d += " p_tips_wrap_first";
-            }
-            this.text('<div class="p_tips_cont"><div class="', d, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', f.afeeInsSum(), "万</p></div></div></div>");
         }
         this.text("</div>");
     } else {
@@ -9331,15 +9397,20 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
         a = b.bprPrice();
     c = parseInt(c);
     a = parseInt(a);
-    if (b.fanxian() || b.isTCabin()) {
+    if (b.isYoufei()) {
         this._buttonHTML("pr", b, "btnBook");
-        this.text('<div class="t_bk_fix"></div>');
+        this._buttonHTML("pr", b, "btnBook");
     } else {
-        if (c) {
+        if (b.fanxian() || b.isTCabin()) {
             this._buttonHTML("pr", b, "btnBook");
-        }
-        if (a && !b.isFreeMan() && !b.isRoundFlight()) {
-            this._buttonHTML("bpr", b, "lbtnBook");
+            this.text('<div class="t_bk_fix"></div>');
+        } else {
+            if (c) {
+                this._buttonHTML("pr", b, "btnBook");
+            }
+            if (a && !b.isFreeMan() && !b.isRoundFlight()) {
+                this._buttonHTML("bpr", b, "lbtnBook");
+            }
         }
     }
     if (!c || !a) {
