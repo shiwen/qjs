@@ -9399,7 +9399,7 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
     a = parseInt(a);
     if (b.isYoufei()) {
         this._buttonHTML("pr", b, "btnBook");
-        this._buttonHTML("pr", b, "btnBook");
+        this._buttonHTML("pr", b, "yfbookBtn");
     } else {
         if (b.fanxian() || b.isTCabin()) {
             this._buttonHTML("pr", b, "btnBook");
@@ -10864,6 +10864,9 @@ var FlightEventProxy = (function() {
             return b(d, 1);
         },
         _btnBookClick: function(d) {
+            return b(d, 1);
+        },
+        _yfbookBtnClick: function(d) {
             return b(d, 1);
         },
         _lbtnBookClick: function(d) {
