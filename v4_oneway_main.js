@@ -9481,7 +9481,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(c) {
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     var a = b.ownerFlight();
     this.text('<div class="v1">');
-    this.text('<div class="t_name">', b.vendor().name());
+    this.text('<div class="t_name">', b.isNoAuth() ? "去哪儿网度假" : b.vendor().name());
     this._insertAuthVendor(b);
     this.text("</div>");
     this.text('<div class="t_cmt">');
