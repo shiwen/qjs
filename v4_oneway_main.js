@@ -4821,6 +4821,13 @@ WrapperEntity.prototype.advalue = function() {
 WrapperEntity.prototype.isNoAuth = function() {
     return this.dataSource().isNoAuth == true;
 };
+WrapperEntity.prototype.vendorName = function() {
+    if (this.isNoAuth()) {
+        return "去哪儿网度假";
+    } else {
+        return this.vendor().name();
+    }
+};
 WrapperEntity.prototype.isADVendor = function() {
     return (this.vendor().seq() > 100) && this.vendor().adwords();
 };
@@ -8960,7 +8967,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     var c = d.getFot();
     var a = f.ownerFlight();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', f.isNoAuth() ? "去哪儿网度假" : f.vendor().name());
+    this.text('<div class="t_name">', f.vendorName());
     this._insertAuthVendor(f);
     this.text("</div>");
     this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
@@ -8968,6 +8975,9 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     this.onInit(this._authorizeVendorHover);
 };
 OnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
+    if (f && f.isNoAuth()) {
+        return;
+    }
     var c = f;
     var d = c.ownerFlight();
     var h = c.vendor();
@@ -8996,7 +9006,7 @@ OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.isNoAuth() ? "去哪儿网度假" : d.vendor().name(), "</div>");
+    this.text('<div class="t_name">', d.vendorName(), "</div>");
     this.text('<div class="t_cmt t_yxfan">跨航空公司改签、手续费低、在线自助操作</div>');
     this.text("</div>");
 };
@@ -9006,7 +9016,7 @@ OnewayFlightWrapperUI.prototype._insterRoundFlightName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.isNoAuth() ? "去哪儿网度假" : d.vendor().name(), "</div>");
+    this.text('<div class="t_name">', d.vendorName(), "</div>");
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
@@ -9029,7 +9039,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
     var b = c.ownerFlight();
     if (a.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name(), "</div>");
+        this.text('<div class="t_name">', c.vendorName(), "</div>");
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
@@ -9043,7 +9053,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
             this.text("</div>");
         } else {
             this.text('<div class="v1">');
-            this.text('<div class="t_name">', c.isNoAuth() ? "去哪儿网度假" : c.vendor().name());
+            this.text('<div class="t_name">', c.vendorName());
             this._insertAuthVendor(c);
             this.text("</div>");
             if (c.isAnonymityVendor()) {
@@ -9481,7 +9491,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(c) {
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     var a = b.ownerFlight();
     this.text('<div class="v1">');
-    this.text('<div class="t_name">', b.isNoAuth() ? "去哪儿网度假" : b.vendor().name());
+    this.text('<div class="t_name">', b.vendorName());
     this._insertAuthVendor(b);
     this.text("</div>");
     this.text('<div class="t_cmt">');
@@ -9494,6 +9504,9 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     this.onInit(this._authorizeVendorHover);
 };
 ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
+    if (f && f.isNoAuth()) {
+        return;
+    }
     var c = f;
     var d = c.ownerFlight();
     var h = c.vendor();
