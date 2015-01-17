@@ -8528,7 +8528,7 @@ OnewayFlightWrapperUI.prototype.update = function(i) {
     this.ownerListUI().zIndex--;
     this._insertH3(i);
     var c = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), b.wrapperId()) > -1;
-    if (!l) {
+    if (!(l && !a)) {
         this.text('<div class="v3 ' + (c ? "v3_np" : "") + '">');
         if (b.isOta()) {
             this.insertOta(b);
@@ -8878,18 +8878,27 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
         }
     });
 };
-OnewayFlightWrapperUI.prototype._insertH3 = function(h) {
-    var g = h;
-    var c = h.vendor();
+OnewayFlightWrapperUI.prototype._insertH3 = function(i) {
+    var g = i;
+    var c = i.vendor();
     var f = c.srv_ICON();
     var b = g.isYoufei();
-    if (b) {
+    var h = g.isCsyf();
+    if (b && !h) {
         this.text('<div class="v_yf_icon">');
     } else {
         this.text('<div class="v0">');
     }
     if (b) {
-        this.text('<div class="ico_tit"><span class="ico_tit_cont"><i class="ico_qnr"></i>去哪儿网促销</span></div>');
+        if (h) {
+            if (f) {
+                this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+            } else {
+                this.text('<i class="ico_nocertify" title=""></i>');
+            }
+        } else {
+            this.text('<div class="ico_tit"><span class="ico_tit_cont"><i class="ico_qnr"></i>去哪儿网促销</span></div>');
+        }
     } else {
         if (g.fanxian() || g.isTCabin()) {
             var d = g.fanxian() ? "ico_fan" : "ico_lijian";
@@ -8914,19 +8923,19 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(h) {
         }
     }
     this.text("</div>");
-    if (h.bigLogoUrl()) {
-        this._insertSpecWR(h);
+    if (i.bigLogoUrl()) {
+        this._insertSpecWR(i);
     } else {
-        if (h.isOta()) {
-            this._insterOtaName(h);
+        if (i.isOta()) {
+            this._insterOtaName(i);
         } else {
-            if (h.isFreeMan()) {
-                this._insterFreeManName(h);
+            if (i.isFreeMan()) {
+                this._insterFreeManName(i);
             } else {
-                if (h.isRoundFlight()) {
-                    this._insterRoundFlightName(h);
+                if (i.isRoundFlight()) {
+                    this._insterRoundFlightName(i);
                 } else {
-                    this._insertH3Normal(h);
+                    this._insertH3Normal(i);
                 }
             }
         }
@@ -9044,10 +9053,16 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
         this.text("</div>");
     } else {
         if (c.isYoufei()) {
-            this.text('<div class="v_yf_explain">');
             if (c.isCsyf()) {
+                this.text('<div class="v_ofc">');
+                this.text('<div class="t_name">', c.vendorName());
+                this._insertAuthVendor(c);
+                this.text("</div>");
+                this.text('<div class="v_yf_explain">');
                 this.text('<i class="ico_yfbi"></i>买就送优飞币，立抵现金');
+                this.text("</div>");
             } else {
+                this.text('<div class="v_yf_explain ">');
                 this.text('<i class="ico_yfbi"></i>可以使用优飞币抵扣现金');
             }
             this.text("</div>");
