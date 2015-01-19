@@ -5038,6 +5038,30 @@ WrapperEntity.prototype.booking = function(a, c) {
     var b = this;
     LockScreen(function() {
         b._booking(a, c);
+        b.adsTrack();
+    });
+};
+WrapperEntity.prototype.adsTrack = function() {
+    var a = $jex.parseQueryParam();
+    window.criteo_q = window.criteo_q || [];
+    window.criteo_q.push({
+        event: "setAccount",
+        account: 17463
+    }, {
+        event: "setSiteType",
+        type: "d"
+    }, {
+        event: "viewSearch",
+        checkin_date: a.searchDepartureTime || a.fromDate || "",
+        checkout_date: a.searchArrivalTime || a.toDate || ""
+    }, {
+        event: "trackTransaction",
+        id: Math.random().toString().substr(2),
+        item: [{
+            id: a.fromCode + "/" + a.toCode,
+            price: 0,
+            quantity: 1
+        }]
     });
 };
 WrapperEntity.prototype.rank = function() {
