@@ -2109,22 +2109,32 @@ var DomesticOnewayDataAnalyzer = new(function() {
         var O = j.lowestEntity();
         var Q = j.lowestTransfer();
         var N = j.lowestOneway();
-        var P = "onewaylist|" + System.param.searchDepartureAirport + "|" + System.param.searchArrivalAirport + "|" + System.param.searchDepartureTime + "|";
-        P = encodeURIComponent(P);
+        var P = {
+            rule: "onewaySearchResult",
+            searchResult: null,
+            searchDepartureAirport: System.param.searchDepartureAirport,
+            searchArrivalAirport: System.param.searchArrivalAirport,
+            searchDepartureTime: System.param.searchDepartureTime
+        };
         if (M.getRecordCount() == 0) {
-            newTrackAction(P + "noResult");
+            P.searchResult = "noResult";
+            logsys.trace(P);
         }
         if (N == null && O != null) {
-            newTrackAction(P + "onlyTransfer");
+            P.searchResult = "onlyTransfer";
+            logsys.trace(P);
         }
         if (O != null && Q == null) {
-            newTrackAction(P + "noTransfer");
+            P.searchResult = "noTransfer";
+            logsys.trace(P);
         }
         if (N != null && Q != null) {
-            newTrackAction(P + "hasTransfer");
+            P.searchResult = "hasTransfer";
+            logsys.trace(P);
         }
         if (O && O.type == "transfer" && N != null) {
-            newTrackAction(P + "transferHasMinPrice");
+            P.searchResult = "transferHasMinPrice";
+            logsys.trace(P);
         }
     }
 })();
@@ -5703,8 +5713,22 @@ var RoundTripFlightRecommend = (new function(a) {
             $jex.addClassName(this.nearLineWrap, "clrfix");
             $jex.event.bind($jex.$("findtickbtn"), "click", function() {
                 LockScreen(function() {
+                    logsys.trace({
+                        rule: "findTicketBtn",
+                        action: "click",
+                        dptAirport: System.param.searchDepartureAirport,
+                        arrAirport: System.param.searchArrivalAirport,
+                        dptTime: System.param.searchDepartureTime
+                    });
                     window.open(f);
                 });
+            });
+            logsys.trace({
+                rule: "findTicketBtn",
+                action: "show",
+                dptAirport: System.param.searchDepartureAirport,
+                arrAirport: System.param.searchArrivalAirport,
+                dptTime: System.param.searchDepartureTime
             });
         };
     };

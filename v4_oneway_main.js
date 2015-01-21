@@ -4363,6 +4363,46 @@ $jex.exec(function() {
         a[d] = null;
     };
 });
+(function(c) {
+    var a = function(d) {
+        if (!d) {
+            return false;
+        }
+        if (!(this instanceof a)) {
+            return new a(d);
+        }
+        this.uri = "http://log.flight.qunar.com/l.gif";
+        this.site = d.site || "flight";
+        this.page = d.page || "onewayList";
+        if (!d.rule) {
+            return false;
+        }
+        this.rule = d.rule;
+        delete d.site;
+        delete d.page;
+        delete d.rule;
+        this.param = d;
+        this.send();
+    };
+    a.prototype.send = function() {
+        var h = this.uri + "?";
+        var g = [];
+        g.push("s=" + encodeURIComponent(this.site));
+        g.push("p=" + encodeURIComponent(this.page));
+        g.push("r=" + encodeURIComponent(this.rule));
+        for (var d in this.param) {
+            g.push(d + "=" + encodeURIComponent(this.param[d]));
+        }
+        h += g.join("&");
+        try {
+            new Image().src = h;
+        } catch (f) {}
+    };
+    var b = {
+        trace: a
+    };
+    c.logsys = b;
+})(window);
 var FlightEntity = function() {
     this.changed = false;
     this.isLowestPr = false;
@@ -4863,7 +4903,13 @@ WrapperEntity.prototype.isOta = function() {
     return this.dataSource().type == "s";
 };
 WrapperEntity.prototype.isFreeMan = function() {
-    return this.dataSource().wrid == "ttsgnd01204";
+    return this.vendor().dataSource().isFreeWrapper == "1";
+};
+WrapperEntity.prototype.freeTip = function() {
+    return this.vendor().dataSource().freeTip || "";
+};
+WrapperEntity.prototype.freeInfo = function() {
+    return this.vendor().dataSource().freeInfo || "";
 };
 WrapperEntity.prototype.isApplyPrice = function() {
     if (typeof this.dataSource().type != "undefined") {
@@ -8577,11 +8623,15 @@ OnewayFlightWrapperUI.prototype.update = function(i) {
     var h = 0;
     if (b.getTGQInfo()) {
         var k = "退改签";
-        if (l) {
-            k = a ? "退改签" : "活动说明";
+        if (b.isFreeMan()) {
+            k = "退改签";
         } else {
-            if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !b.isPlus()) {
-                k = "促销说明";
+            if (l) {
+                k = a ? "退改签" : "活动说明";
+            } else {
+                if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !b.isPlus()) {
+                    k = "促销说明";
+                }
             }
         }
         h = 1;
@@ -8761,7 +8811,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
             var m = c.isPlus();
             o && (z = o.length);
             if (y.viewType == 1 && z > 0) {
-                if ((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && !m && !c.isYoufei()) {
+                if ((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && !m && !c.isYoufei() && !c.isFreeMan()) {
                     var s = t.msg.split("|");
                     var p = c.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
                     if (c.fanxian()) {
@@ -8913,34 +8963,40 @@ OnewayFlightWrapperUI.prototype._insertH3 = function(i) {
     } else {
         this.text('<div class="v0">');
     }
-    if (b) {
-        if (h) {
-            if (f) {
-                this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+    if (g.isFreeMan()) {
+        var d = "ico_lijian";
+        var a = "立返";
+        this.text('<i class="', d, '">', a, "</i>");
+    } else {
+        if (b) {
+            if (h) {
+                if (f) {
+                    this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+                } else {
+                    this.text('<i class="ico_nocertify" title=""></i>');
+                }
             } else {
-                this.text('<i class="ico_nocertify" title=""></i>');
+                this.text('<div class="ico_tit"><span class="ico_tit_cont"><i class="ico_qnr"></i>去哪儿网促销</span></div>');
             }
         } else {
-            this.text('<div class="ico_tit"><span class="ico_tit_cont"><i class="ico_qnr"></i>去哪儿网促销</span></div>');
-        }
-    } else {
-        if (g.fanxian() || g.isTCabin()) {
-            var d = g.fanxian() ? "ico_fan" : "ico_lijian";
-            var a = g.fanxian() ? "返现" : "立减";
-            this.text('<i class="', d, '">', a, "</i>");
-        } else {
-            if (g.isAnonymityVendor()) {
-                var d = "ico_anonymity";
-                var a = "度假";
+            if (g.fanxian() || g.isTCabin()) {
+                var d = g.fanxian() ? "ico_fan" : "ico_lijian";
+                var a = g.fanxian() ? "返现" : "立减";
                 this.text('<i class="', d, '">', a, "</i>");
             } else {
-                if (g.isRoundFlight()) {
-                    this.text('<i class="ico_bainian" title="春节特别产品，含两段行程，组合价更优惠!">拜年团</i>');
+                if (g.isAnonymityVendor()) {
+                    var d = "ico_anonymity";
+                    var a = "度假";
+                    this.text('<i class="', d, '">', a, "</i>");
                 } else {
-                    if (f) {
-                        this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+                    if (g.isRoundFlight()) {
+                        this.text('<i class="ico_bainian" title="春节特别产品，含两段行程，组合价更优惠!">拜年团</i>');
                     } else {
-                        this.text('<i class="ico_nocertify" title=""></i>');
+                        if (f) {
+                            this.text('<i class="', f.key, '" title="', f.title, '">', f.text, "</i>");
+                        } else {
+                            this.text('<i class="ico_nocertify" title=""></i>');
+                        }
                     }
                 }
             }
@@ -9039,9 +9095,12 @@ OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
     var a = c.getAcf();
     var b = c.getFot();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendorName(), "</div>");
-    this.text('<div class="t_cmt t_yxfan">跨航空公司改签、手续费低、在线自助操作</div>');
+    this.text('<div class="t_name">', d.vendorName(), d.freeTip());
+    this._insertAuthVendor(d);
     this.text("</div>");
+    this.text('<div class="freeinfo">', d.freeInfo(), "</div>");
+    this.text("</div>");
+    this.onInit(this._authorizeVendorHover);
 };
 OnewayFlightWrapperUI.prototype._insterRoundFlightName = function(f) {
     var d = f;
@@ -9162,7 +9221,7 @@ OnewayFlightWrapperUI.prototype.insertFreeMan = function(d) {
     this.text('<div class="t_sv">');
     this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_freeman">任意改签</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
-    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">改签：</span>可自由选择航空公司，手续费5%，需补机票差价</p>', '<p><span class="fb">退票：</span>退票手续费10%，申请退票后极速退款</p>', '<p><span class="fb">自助：</span>网站可快速自助申请退改签</p>', '<p><span class="fb">报销：</span>起飞后邮寄足额有效报销凭证</p>', "</div>", "</div>", "</div>", "</div>");
+    this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">报销：</span>提供支付金额的超额发票</p>', '<p><span class="fb">立返：</span>支付后立刻返还现金</p>', '<p><span class="fb">改签：</span>可自由选择航空公司，需补机票差价</p>', '<p><span class="fb">退票：</span>低额退票手续费，申请退票后极速退款</p>', '<p><span class="fb">自助：</span>网站可快速自助申请退改签</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
             var g = this.find("superOtaBtn");
@@ -9271,8 +9330,12 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(f) {
             this.priceHTML(a, f.isLowestPr() ? "t_prc_lp" : "", f);
             this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
         } else {
-            this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
-            this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
+            if (f.isFreeMan()) {
+                this.priceHTML(a, f.isLowestPr() ? "t_prc_lp" : "", f);
+            } else {
+                this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
+                this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
+            }
         }
     }
     this.text("</div>");
@@ -9319,10 +9382,14 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(f) {
     }
     this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
     if (c > 0) {
-        if (b) {
-            this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', c, "</i></div>");
+        if (g.isFreeMan()) {
+            this.text('<div class="p_tips_content">支付后立刻返现<i class="rmb">', c, "</i>元</div>");
         } else {
-            this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', a, '</i>&nbsp;返现<i class="rmb">&yen;', c, "</i></div>");
+            if (b) {
+                this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', c, "</i></div>");
+            } else {
+                this.text('<div class="p_tips_content"> 需支付<i class="rmb">&yen;', a, '</i>&nbsp;返现<i class="rmb">&yen;', c, "</i></div>");
+            }
         }
     } else {
         if (i > 0 && !j) {
@@ -9416,19 +9483,23 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     var a = "";
     var c = this.bookingScreenUI;
     var b = d === "bpr" ? f.bpackagePrice() : f.packagePrice();
-    if (f.isApplyPrice() && b > 0) {
-        a = "申请套餐";
+    if (f.isFreeMan()) {
+        a = "预订";
     } else {
-        if (f.isRoundFlight()) {
-            a = "抢购";
+        if (f.isApplyPrice() && b > 0) {
+            a = "申请套餐";
         } else {
-            if (f.isApplyPrice()) {
-                a = "申 请";
+            if (f.isRoundFlight()) {
+                a = "抢购";
             } else {
-                if (b > 0) {
-                    a = "预订套餐";
+                if (f.isApplyPrice()) {
+                    a = "申 请";
                 } else {
-                    a = f.bigLogoUrl() ? "预 订" : c.getButtonMsg("预 订");
+                    if (b > 0) {
+                        a = "预订套餐";
+                    } else {
+                        a = f.bigLogoUrl() ? "预 订" : c.getButtonMsg("预 订");
+                    }
                 }
             }
         }
