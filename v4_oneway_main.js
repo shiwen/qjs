@@ -124,7 +124,7 @@ var oneway_config = {
             text: "后返10元"
         }
     },
-    AirlineDirectSelling: ["gnd090722cp"]
+    AirlineDirectSelling: ["gndcphnair0", "ws11072515a", "wsairgs00cp", "wsairpn01cp", "wsair8l00cp", "gnd090722cp", "gnd8airczcp", "gndairzh001", "gndairmu003", "gndairca001", "gndairaqi01", "gndairgji01"]
 };
 
 function trackAction(d, b, a) {
