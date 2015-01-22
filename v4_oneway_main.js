@@ -8755,9 +8755,9 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
             var l = true;
             var o = Math.max(c.afeePrice(), c.bprPrice());
             var w = Math.min(c.afeePrice() || Number.MAX_VALUE, c.bprPrice() || Number.MAX_VALUE);
-            if ((t || q) && (n || x)) {
-                o = (t || x) ? (o + t) : o;
-                w = (t || x) ? (w + t) : w;
+            if ((t || q) && n && !x) {
+                o = t ? (o + t) : o;
+                w = t ? (w + t) : w;
                 l = false;
             }
             $jex.jsonp(m, {
@@ -9125,46 +9125,44 @@ OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
     this.text("</p>");
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insertH3Normal = function(d) {
-    var c = d;
-    var a = c.vendor();
-    var b = c.ownerFlight();
-    if (a.isDirect()) {
+OnewayFlightWrapperUI.prototype._insertH3Normal = function(f) {
+    var d = f;
+    var b = d.vendor(),
+        a = d.lijian();
+    var c = d.ownerFlight();
+    if (b.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', c.vendorName(), "</div>");
+        this.text('<div class="t_name">', d.vendorName(), "</div>");
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
-        if (c.isYoufei()) {
-            if (c.isCsyf()) {
+        if (d.isYoufei()) {
+            if (d.isCsyf()) {
                 this.text('<div class="v_ofc">');
-                this.text('<div class="t_name">', c.vendorName());
-                this._insertAuthVendor(c);
+                this.text('<div class="t_name">', d.vendorName());
+                this._insertAuthVendor(d);
                 this.text("</div>");
                 this.text('<div class="v_yf_explain">');
-                this.text('<i class="ico_yfbi"></i>买就送优飞币，立抵现金');
+                this.text('<i class="ico_yfbi"></i>送' + a + "个优飞币 立抵" + a + "元");
                 this.text("</div>");
-            } else {
-                this.text('<div class="v_yf_explain ">');
-                this.text('<i class="ico_yfbi"></i>可以使用优飞币抵扣现金');
-            }
+            } else {}
             this.text("</div>");
         } else {
             this.text('<div class="v1">');
-            this.text('<div class="t_name">', c.vendorName());
-            this._insertAuthVendor(c);
+            this.text('<div class="t_name">', d.vendorName());
+            this._insertAuthVendor(d);
             this.text("</div>");
-            if (c.isAnonymityVendor()) {
+            if (d.isAnonymityVendor()) {
                 this.text('<div class="t_cmt">超值特惠单程机票</div>');
             } else {
                 this.text('<div class="t_cmt">');
-                this.starUI.displayPanel(c);
+                this.starUI.displayPanel(d);
                 this.text("</div>");
             }
             this.text("</div>");
             this.text('<div class="v2"><div class="e_btn_cmt">');
-            if (!c.isAnonymityVendor()) {
-                this.starUI.insert_btn(c);
+            if (!d.isAnonymityVendor()) {
+                this.starUI.insert_btn(d);
             }
             this.text("</div></div>");
         }
@@ -9290,9 +9288,6 @@ OnewayFlightWrapperUI.prototype._disHTML = function(a) {
 };
 OnewayFlightWrapperUI.prototype.priceHTML = function(b, a, c) {
     this.text('<div class="t_prc ', a, '">');
-    if (c && c.isYoufei()) {
-        this.text('<span class="prc_yfbi">+<i class="ico_yfbi"></i>' + c.lijian() + "</span>");
-    }
     this.text(Price_html.getHTML(b));
     this.text('<i class="rmb">&yen;</i></div>');
 };
@@ -9307,58 +9302,52 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
         }
     }
 };
-OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(f) {
-    var c = f.fanxian();
-    var g = f.lijian();
-    var b = f.isPlus();
-    var a = f.afeePrice();
-    var i = f.isYoufei();
-    a = parseInt(a, 10);
+OnewayFlightWrapperUI.prototype.insert_PRICE_FANXIAN = function(h) {
+    var f = h.fanxian();
+    var b = h.lijian();
+    var a = h.isPlus();
+    var i = h.afeePrice();
+    var c = h.isYoufei();
+    i = parseInt(i, 10);
     var d;
-    if (i) {
-        d = g + a;
+    if (c) {
+        d = b + i;
     } else {
-        if (b) {
-            d = c ? a : (g + a);
+        if (a) {
+            d = f ? i : (b + i);
         } else {
-            d = c ? a - c : a;
+            d = f ? i - f : i;
         }
     }
     this.text('<div class="v5">');
-    if (a) {
-        if (i) {
-            this.priceHTML(a, f.isLowestPr() ? "t_prc_lp" : "", f);
-            this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
+    if (i) {
+        if (c) {
+            this.priceHTML(i, h.isLowestPr() ? "t_prc_lp" : "", h);
         } else {
-            if (f.isFreeMan()) {
-                this.priceHTML(a, f.isLowestPr() ? "t_prc_lp" : "", f);
+            if (h.isFreeMan()) {
+                this.priceHTML(i, h.isLowestPr() ? "t_prc_lp" : "", h);
             } else {
-                this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "");
+                this.priceHTML(d, h.isLowestPr() ? "t_prc_lp" : "");
                 this.text('<div class="t_prc t_prc_lp">&nbsp;</div>');
             }
         }
     }
     this.text("</div>");
     this.text('<div class="v6">');
-    if (a) {
-        if (i) {
-            var j = '<div class="t_ins">+' + f.afee() + "保险</div>";
-            this.text(j + j);
-        } else {
-            this.text('<div class="t_ins">');
-            this.text("+", f.afee(), "保险");
-            if (f.showInsTip() && f.afeeInsSum()) {
-                var h = "p_tips_wrap";
-                if (this._isFrist) {
-                    h += " p_tips_wrap_first";
-                }
-                this.text('<div class="p_tips_cont"><div class="', h, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', f.afeeInsSum(), "万</p></div></div></div>");
+    if (i) {
+        this.text('<div class="t_ins">');
+        this.text("+", h.afee(), "保险");
+        if (h.showInsTip() && h.afeeInsSum()) {
+            var g = "p_tips_wrap";
+            if (this._isFrist) {
+                g += " p_tips_wrap_first";
             }
-            if (f.fanxian() || f.isTCabin()) {
-                this.insert_returnMoney(f);
-            }
-            this.text("</div>");
+            this.text('<div class="p_tips_cont"><div class="', g, '"><div class="p_tips_arr p_tips_arr_b"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content"><p>航意险5元&nbsp;保额', h.afeeInsSum(), "万</p></div></div></div>");
         }
+        if (h.fanxian() || h.isTCabin()) {
+            this.insert_returnMoney(h);
+        }
+        this.text("</div>");
     } else {
         this.text("&nbsp;");
     }
@@ -9392,11 +9381,15 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(f) {
             }
         }
     } else {
-        if (i > 0 && !j) {
-            if (b) {
-                this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', i, "</i></div>");
+        if (i > 0) {
+            if (j) {
+                this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;已抵扣<i class="rmb">&yen;', i, "</i></div>");
             } else {
-                this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;立减<i class="rmb">&yen;', i, "</i></div>");
+                if (b) {
+                    this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', i, "</i></div>");
+                } else {
+                    this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;立减<i class="rmb">&yen;', i, "</i></div>");
+                }
             }
         }
     }
@@ -9519,7 +9512,6 @@ OnewayFlightWrapperUI.prototype.insert_Working_BUTTON = function(b) {
     a = parseInt(a);
     if (b.isYoufei()) {
         this._buttonHTML("pr", b, "btnBook");
-        this._buttonHTML("pr", b, "yfbookBtn");
     } else {
         if (b.fanxian() || b.isTCabin()) {
             this._buttonHTML("pr", b, "btnBook");
@@ -10987,9 +10979,6 @@ var FlightEventProxy = (function() {
             return b(d, 1);
         },
         _btnBookClick: function(d) {
-            return b(d, 1);
-        },
-        _yfbookBtnClick: function(d) {
             return b(d, 1);
         },
         _lbtnBookClick: function(d) {
