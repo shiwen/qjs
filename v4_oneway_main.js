@@ -19070,29 +19070,38 @@ window.searchTrack = (function(d) {
         this._initEvent();
     };
     b.fn._initEvent = function() {
-        var h = this;
-        var i = this.element;
-        var g = true;
+        var g = this;
+        var h = document.getElementById("js_clp_Top");
         $jex.event.bind(window, "resize", function() {
-            h._updateStyle();
+            g._updateStyle();
         });
         $jex.event.bind(window, "scroll", function() {
-            h._updateStyle();
+            g._updateStyle();
         });
+        if (h) {
+            $jex.event.bind(h, "click", function() {
+                g.element.className = "b_fly_schwrap";
+                h.style.display = "none";
+            });
+        }
     };
     b.fn._updateStyle = function() {
         var h = this;
         var g = true;
-        var i = h.getScrollTop();
-        if (document.getElementById("searchType").value == "MultiTripFlight") {
+        var i = document.getElementById("js_clp_Top");
+        var j = h.getScrollTop();
+        if (document.getElementById("searchType").value == "MultiTripFlight" && document.getElementById("js_schwrap").className != "b_fly_schwrap b_fly_fixtop") {
             g = false;
         }
-        if (i > document.getElementById("js_schwrap").clientHeight && g && !d) {
+        if (j > document.getElementById("js_schwrap").clientHeight && g && !d) {
             c = true;
             h.element.className = "b_fly_schwrap b_fly_fixtop";
         } else {
             c = false;
             h.element.className = "b_fly_schwrap";
+            if (i) {
+                i.style.display = "none";
+            }
         }
     };
     b.fn.getScrollTop = function() {
