@@ -4880,6 +4880,45 @@ WrapperEntity.prototype.price = function() {
 WrapperEntity.prototype.typeOfCabin = function() {
     return this.dataSource().tc || "";
 };
+WrapperEntity.prototype.specialCabinInfo = function() {
+    var a = "i_cabin_";
+    switch (this.typeOfCabin()) {
+        case "高端经济舱":
+            a += "gdjjc";
+            break;
+        case "超级经济舱":
+            a += "cjjjc";
+            break;
+        case "豪华头等舱":
+            a += "hhtdc";
+            break;
+        case "尊享经济舱":
+            a += "zxjjc";
+            break;
+        case "折扣头等舱":
+            a += "zktdc";
+            break;
+        case "超值头等舱":
+            a += "cztdc";
+            break;
+        case "超值经济舱":
+            a += "czjjc";
+            break;
+        case "明珠经济舱":
+            a += "mzjjc";
+            break;
+        default:
+            a = "";
+    }
+    if (a == "") {
+        return false;
+    }
+    return {
+        iconame: a,
+        tipmsg: this.dataSource().illustration || "",
+        icotext: this.typeOfCabin()
+    };
+};
 WrapperEntity.prototype.isFCabin = function() {
     return this.typeOfCabin().indexOf("头等") > -1;
 };
@@ -8568,51 +8607,51 @@ function OnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(OnewayFlightWrapperUI, WrapperUI);
-OnewayFlightWrapperUI.prototype.update = function(i) {
-    var b = i;
-    this.specWR = b.bigLogoUrl();
-    var j = b.vendor().isSuperOTA();
-    var l = b.isYoufei(),
-        a = b.isCsyf();
+OnewayFlightWrapperUI.prototype.update = function(j) {
+    var c = j;
+    this.specWR = c.bigLogoUrl();
+    var k = c.vendor().isSuperOTA();
+    var m = c.isYoufei(),
+        a = c.isCsyf();
     this.clear();
-    this.bookingScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
-    this.bookingLockScreenUI.setEntity(b);
-    this.bookingLockScreenUI.setVendorInfo(b.wrapperId(), b.vendor().dataSource());
-    this.insert_HEADER(b);
-    var f = this.ownerListUI().zIndex,
-        d = this.ownerListUI().firstIndex;
-    var g = "";
-    if (d == f) {
-        g += " qvt_column_first";
+    this.bookingScreenUI.setVendorInfo(c.wrapperId(), c.vendor().dataSource());
+    this.bookingLockScreenUI.setEntity(c);
+    this.bookingLockScreenUI.setVendorInfo(c.wrapperId(), c.vendor().dataSource());
+    this.insert_HEADER(c);
+    var g = this.ownerListUI().zIndex,
+        f = this.ownerListUI().firstIndex;
+    var h = "";
+    if (f == g) {
+        h += " qvt_column_first";
         this._isFrist = true;
     }
-    if (b.isFreeMan()) {
-        g += " freeman";
+    if (c.isFreeMan()) {
+        h += " freeman";
     }
-    if (b.isRoundFlight && b.isRoundFlight()) {
-        g += " bainiantuan";
+    if (c.isRoundFlight && c.isRoundFlight()) {
+        h += " bainiantuan";
     }
     this.append("<div", "flightbar", "");
-    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, g, '">');
+    this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, h, '">');
     this.zIndex = this.ownerListUI().zIndex;
     this.ownerListUI().zIndex--;
-    this._insertH3(i);
-    var c = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), b.wrapperId()) > -1;
-    if (!(l && !a)) {
-        this.text('<div class="v3 ' + (c ? "v3_np" : "") + '">');
-        if (b.isOta()) {
-            this.insertOta(b);
+    this._insertH3(j);
+    var d = $jex.array.indexOf(ConfigManager.getConfig("AirlineDirectSelling"), c.wrapperId()) > -1;
+    if (!(m && !a)) {
+        this.text('<div class="v3 ' + (d ? "v3_np" : "") + '">');
+        if (c.isOta()) {
+            this.insertOta(c);
         } else {
-            if (b.isRoundFlight()) {
-                this.insertBainiantuanDetail(b);
+            if (c.isRoundFlight()) {
+                this.insertBainiantuanDetail(c);
             } else {
-                if (b.isFreeMan()) {
-                    this.insertFreeMan(b);
+                if (c.isFreeMan()) {
+                    this.insertFreeMan(c);
                 } else {
-                    if (c) {
+                    if (d) {
                         this.insertAirlineDirectSelling();
                     } else {
-                        this.insert_Services(b);
+                        this.insert_Services(c);
                     }
                 }
             }
@@ -8620,39 +8659,39 @@ OnewayFlightWrapperUI.prototype.update = function(i) {
         this.text("</div>");
     }
     this.text('<div class="v4">');
-    var h = 0;
-    if (b.getTGQInfo()) {
-        var k = "退改签";
-        if (b.isFreeMan()) {
-            k = "退改签";
+    var i = 0;
+    if (c.getTGQInfo()) {
+        var l = "退改签";
+        if (c.isFreeMan()) {
+            l = "退改签";
         } else {
-            if (l) {
-                k = a ? "退改签" : "活动说明";
+            if (m) {
+                l = a ? "退改签" : "活动说明";
             } else {
-                if ((b.fanxian() || b.isTCabin() || b.isAnonymityVendor()) && !b.isPlus()) {
-                    k = "促销说明";
+                if ((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && !c.isPlus()) {
+                    l = "促销说明";
                 }
             }
         }
-        h = 1;
+        i = 1;
         this.append("<div", "js-stopClick", ' class="t_st">');
         this.append('<span class="dot_gy"', "tgq", ">");
-        this.text(k, "</span>");
-        this.insert_TGQ(b);
+        this.text(l, "</span>");
+        this.insert_TGQ(c);
         this.text("</div>");
     }
-    if (b.hasAgeLimit() && b.vendor().isOffical()) {
+    if (c.hasAgeLimit() && c.vendor().isOffical()) {
         this.text('<i class="i_yao_pre">青老年优惠</i>');
     } else {
-        if (b.hasAgeLimit()) {
+        if (c.hasAgeLimit()) {
             this.append("<div", "js-stopClick", ' class="t_st">');
             this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
-            this.insertAgeLimit(b);
+            this.insertAgeLimit(c);
             this.text("</div>");
         }
     }
-    if (j && !b.isApplyPrice()) {
-        h = 1;
+    if (k && !c.isApplyPrice()) {
+        i = 1;
         this.text('<div class="t_st">');
         if ($jex.ie == 6) {
             this.text('<i title="提供足额行程单，推荐商旅用户使用。" class="i_bns_tvl">商旅优选</i>');
@@ -8662,27 +8701,36 @@ OnewayFlightWrapperUI.prototype.update = function(i) {
         }
         this.text("</div>");
     }
-    if (b.isFCabin()) {
-        h = 1;
-        this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
+    var b = c.specialCabinInfo();
+    if (b) {
+        i = 1;
+        this.text('<div class="t_st">');
+        this.append('<i class="' + b.iconame + '"', "specialCabin", ">" + b.icotext + "</i>");
+        this.insert_specialCabins(b.tipmsg);
+        this.text("</div>");
     } else {
-        if (b.isBCabin()) {
-            h = 1;
-            this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
+        if (c.isFCabin()) {
+            i = 1;
+            this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
+        } else {
+            if (c.isBCabin()) {
+                i = 1;
+                this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
+            }
         }
     }
-    if (h === 0) {
+    if (i === 0) {
         this.text("&nbsp");
     }
-    this.insert_AirchinaCoupon(b);
+    this.insert_AirchinaCoupon(c);
     this.text("</div>");
-    this.insert_PRICE(b);
+    this.insert_PRICE(c);
     this.text('<div class="v7">');
-    this.insert_BOOKING_BUTTON(b);
+    this.insert_BOOKING_BUTTON(c);
     this.text("</div>");
     this.text("</div>");
-    this._bindHoverEvent(b);
-    this._bindOnInitEvent(b);
+    this._bindHoverEvent(c);
+    this._bindOnInitEvent(c);
 };
 OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
     var b = a;
@@ -8949,6 +8997,25 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
             }
             l.innerHTML = m;
             f.style.display = "";
+        }
+    });
+    this.onInit(function() {
+        var f = false;
+        var g = this.find("specialCabin");
+        var h = this.find("spacial_notice_panel");
+        if (g) {
+            $jex.hover({
+                act: g,
+                extra: [h],
+                onmouseover: function(i) {
+                    $jex.element.show(h);
+                    f = true;
+                },
+                onmouseout: function(i) {
+                    f = false;
+                    $jex.element.hide(h);
+                }
+            });
         }
     });
 };
@@ -9257,6 +9324,22 @@ OnewayFlightWrapperUI.prototype.insertAgeLimit = function() {
     this.append('<div style="text-align:center;min-width:160px;_width:160px;" class="p_tips_content" ', "ageLimit-tips-content", " >");
     this.text('<img class="p_tips_tgq_img" src="http://simg1.qunarzz.com/site/images/new_main/m_loading.gif" />');
     this.text("</div></div></div>");
+};
+OnewayFlightWrapperUI.prototype.insert_specialCabins = function(b) {
+    if (!b) {
+        return;
+    }
+    list = b.split("&");
+    this.append('<div class="p_tips_cont" ', "spacial_notice_panel", ">");
+    this.text("<div class='p_tips_wrap' style='left:-160px'>");
+    this.text('<div class="p_tips_arr p_tips_arr_t" style="left:170px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.text('<div class="p_tips_content">');
+    for (var a = 0; a < list.length; a++) {
+        this.text(list[a]);
+        this.text("<br>");
+    }
+    this.text("</div>");
+    this.text("</div></div>");
 };
 OnewayFlightWrapperUI.prototype.insert_TGQ = function(c) {
     var a = c.getTGQInfo();
