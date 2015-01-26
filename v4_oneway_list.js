@@ -2539,11 +2539,11 @@ var DomesticOnewaySearchService = new(function() {
         if (H.lowestPrice() == M) {
             k.lowflight = true;
             k.lowflightpr = M;
-            H.isLowest(true);
+            H.isInLowest(true);
         } else {
             delete k.lowflight;
             delete k.lowflightpr;
-            H.isLowest(false);
+            H.isInLowest(false);
         }
         var F;
         var C = "loa";

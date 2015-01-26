@@ -4405,7 +4405,7 @@ $jex.exec(function() {
 })(window);
 var FlightEntity = function() {
     this.changed = false;
-    this.isLowestPr = false;
+    this._isInLowest = false;
     this._valCache = {};
 };
 $jex.foreach(["key", "commInfoMgr", "flightInfoMgr", "lowestPrice", "highestPrice"], function(a) {
@@ -4793,11 +4793,11 @@ FlightEntity.prototype.arriDate = function() {
 FlightEntity.prototype.isNextDate = function() {
     return this.arriTime().replace(":", "") * 1 - this.deptTime().replace(":", "") * 1 < 0;
 };
-FlightEntity.prototype.isLowest = function(a) {
+FlightEntity.prototype.isInLowest = function(a) {
     if (arguments.length == 0) {
-        return this.isLowestPr;
+        return this._isInLowest;
     } else {
-        this.isLowestPr = a;
+        this._isInLowest = a;
     }
 };
 var FlightEntityManager = function() {
@@ -9215,30 +9215,62 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(f) {
             } else {}
             this.text("</div>");
         } else {
-            this.text('<div class="v1">');
-            this.text('<div class="t_name">', d.vendorName());
-            this._insertAuthVendor(d);
-            this.text("</div>");
-            if (d.isAnonymityVendor()) {
-                this.text('<div class="t_cmt">超值特惠单程机票</div>');
-            } else {
-                this.text('<div class="t_cmt">');
-                this.starUI.displayPanel(d);
+            if (d.ownerFlight().isInLowest() && d.isTCabin()) {
+                this.text('<div class="v_yf">');
+                this.text('<div class="t_name">', d.vendorName());
+                this._insertAuthVendor(d);
                 this.text("</div>");
+                this.text('<div class="t_cmt t_youfei">');
+                this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
+                this.text('<i class="ico_yfbi"></i>购买即送优飞币，买多少送多少');
+                this.append("<div", "js_yf_tip_panel", ' class="yf_tip_panel p_tips_cont">');
+                this.text('<div class="p_tips_wrap"  style="left:-50px; top:5px;">                            <div class="p_tips_arr p_tips_arr_t" style="left:145px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>                                    <li>                                        <h5>优飞币从哪儿来？</h5>                                        <p>购买带有优飞标识<i class="ico_yfbi"></i> 的产品，订单中的联系人即可获得优飞币。获得币值=支付总金额</p>                                    </li>                                    <li>                                        <h5>优飞币怎么用？</h5>                                        <p>1个优飞币=1元人民币，购买带有优飞标识<i class="ico_yfbi"></i>的产品，在填写订单时，填上有优飞币余额的手机号即可使用</p>                                    </li>                                </ul>                            </div>                        </div>');
+                this.text("</div>");
+                this.text("</span>");
+                this.text("</div></div>");
+            } else {
+                this.text('<div class="v1">');
+                this.text('<div class="t_name">', d.vendorName());
+                this._insertAuthVendor(d);
+                this.text("</div>");
+                if (d.isAnonymityVendor()) {
+                    this.text('<div class="t_cmt">超值特惠单程机票</div>');
+                } else {
+                    this.text('<div class="t_cmt">');
+                    this.starUI.displayPanel(d);
+                    this.text("</div>");
+                }
+                this.text("</div>");
+                this.text('<div class="v2"><div class="e_btn_cmt">');
+                if (!d.isAnonymityVendor()) {
+                    this.starUI.insert_btn(d);
+                }
+                this.text("</div></div>");
             }
-            this.text("</div>");
-            this.text('<div class="v2"><div class="e_btn_cmt">');
-            if (!d.isAnonymityVendor()) {
-                this.starUI.insert_btn(d);
-            }
-            this.text("</div></div>");
         }
     }
     this.onInit(this._authorizeVendorHover);
+    this.onInit(this._youfeiExplainHover);
 };
 OnewayFlightWrapperUI.prototype._authorizeVendorHover = function() {
     var b = this.find("authVendorHandler");
     var a = this.find("authVendorTip");
+    if (!b && !a) {
+        return;
+    }
+    $jex.hover({
+        act: b,
+        onmouseover: function() {
+            a.style.display = "block";
+        },
+        onmouseout: function() {
+            a.style.display = "none";
+        }
+    });
+};
+OnewayFlightWrapperUI.prototype._youfeiExplainHover = function() {
+    var b = this.find("js_yf_tip_handle");
+    var a = this.find("js_yf_tip_panel");
     if (!b && !a) {
         return;
     }
