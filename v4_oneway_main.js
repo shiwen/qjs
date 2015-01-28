@@ -1253,6 +1253,7 @@ $jex.exec(function() {
         return req;
     };
     $jex.ajax = function(url, data, successhandler, options) {
+        options = options || {};
         if ($jex.isdebug && $jex.gecko) {
             try {
                 netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
@@ -1301,8 +1302,17 @@ $jex.exec(function() {
         if (url.indexOf("?") == -1) {
             url = url + "?";
         }
-        request.open("GET", url + "&" + $jex.toQueryString(data), true);
-        request.send(null);
+        var method = options.method || "GET";
+        if (method === "GET") {
+            request.open("GET", url + "&" + $jex.toQueryString(data), true);
+            request.send(null);
+        } else {
+            if (method === "POST") {
+                request.open("POST", url, true);
+                request.setRequestHeader("Content-type", options.contentType || "applacation/json");
+                request.send(JSON.stringify(data));
+            }
+        }
         $jex.console.info("[接口调用 token=", token, "]", " url:", url, data, successhandler, options, request);
         return request;
     };
@@ -1833,6 +1843,8 @@ if ($jex.ie > 5 && $jex.ie < 7) {
             switch (d) {
                 case "MM月dd日":
                     return [$jex.date._format.MM(c) + "月", $jex.date._format.dd(c) + "日"].join("-");
+                case "yyyy-MM-dd HH:mm:ss":
+                    return [$jex.date._format.yyyy(c), $jex.date._format.MM(c), $jex.date._format.dd(c)].join("-") + " " + [$jex.date._format.HH(c), $jex.date._format.mm(c), $jex.date._format.ss(c)].join(":");
             }
             return [$jex.date._format.yyyy(c), $jex.date._format.MM(c), $jex.date._format.dd(c)].join("-");
         },
@@ -1866,6 +1878,17 @@ if ($jex.ie > 5 && $jex.ie < 7) {
         },
         getTime: function(c) {
             return parseInt(c.replace(":", ""), 10);
+        },
+        distance: function(d, c) {
+            if (!(d instanceof Date)) {
+                d = new Date(d);
+            }
+            d = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            if (!(c instanceof Date)) {
+                c = new Date(c);
+            }
+            c = new Date(c.getFullYear(), c.getMonth(), c.getDate());
+            return (c.getTime() - d.getTime()) / (24 * 60 * 60 * 1000);
         }
     });
     $jex.merge($jex.web = {}, {
@@ -2990,6 +3013,392 @@ var FlightUtil = {
         return b;
     }
 };
+(function(f) {
+    var g = (function() {
+            var h = 1;
+            return function() {
+                return h++;
+            };
+        })(),
+        c = (function() {
+            var h = "local_storage";
+            return {
+                _store: null,
+                _getStore: function() {
+                    if (!this._store) {
+                        try {
+                            this._store = document.createElement("input");
+                            this._store.type = "hidden";
+                            this._store.addBehavior("#default#userData");
+                            document.body.appendChild(this._store);
+                        } catch (l) {
+                            var k = [];
+                            for (var j in l) {
+                                k.push(j + ": " + l[j]);
+                            }
+                            document.title = (k.join("\n"));
+                            return false;
+                        }
+                    }
+                    return this._store;
+                },
+                get: function(j) {
+                    var i = this._getStore();
+                    if (!i) {
+                        return false;
+                    }
+                    i.load(h);
+                    return i.getAttribute(j);
+                },
+                add: function(j) {
+                    var i = this._getStore();
+                    if (!i) {
+                        return false;
+                    }
+                    i.load(h);
+                    i.setAttribute(j.name, j.value);
+                    i.save(h);
+                },
+                remove: function(j) {
+                    var i = this._getStore();
+                    if (!i) {
+                        return false;
+                    }
+                    i.load(h);
+                    i.removeAttribute(j);
+                    i.save(h);
+                },
+                clear: function() {
+                    var l = this._getStore();
+                    if (!l) {
+                        return false;
+                    }
+                    var n = l.XMLDocument;
+                    var k = n.selectSingleNode("ROOTSTUB");
+                    for (var m = 0; m < k.attributes.length; ++m) {
+                        var j = k.attributes[m];
+                        l.removeAttribute(j.baseName);
+                    }
+                    l.save(h);
+                },
+                addListItem: function(i, k, j) {
+                    j = j || {};
+                    var l = this.getList(i, true, j);
+                    l[j.isFirst ? "unshift" : "push"](k);
+                    this.add({
+                        name: i,
+                        value: JSON.stringify(l)
+                    });
+                    return true;
+                },
+                removeListItem: function(m, q, k) {
+                    k = k || {};
+                    var o = JSON.parse(this.get(m) || "[]"),
+                        l, n, s, p = [],
+                        j = false;
+                    if (o && o.length && o instanceof Array) {
+                        for (l = 0, n = o.length; l < n; l++) {
+                            s = o[l];
+                            if (s.uniqueKey === q) {
+                                j = true;
+                                continue;
+                            }
+                            if (!(s.expires && s.expires < new Date().getTime())) {
+                                if (!k.isValidItem || k.isValidItem(s)) {
+                                    p.push(s);
+                                }
+                            }
+                        }
+                        this.add({
+                            name: m,
+                            value: JSON.stringify(p)
+                        });
+                    }
+                    return j;
+                },
+                removeList: function(i) {
+                    this.remove(i);
+                },
+                getList: function(i, k, j) {
+                    if (k) {
+                        return this.refreshList(i, j);
+                    }
+                    return JSON.parse(this.get(i) || "[]");
+                },
+                refreshList: function(k, n) {
+                    var p = JSON.parse(this.get(k) || "[]"),
+                        m, j, o, l = [];
+                    if (p && p.length && p instanceof Array) {
+                        n = n || {};
+                        n.data = n.data || {};
+                        for (m = 0, j = p.length; m < j; m++) {
+                            o = p[m];
+                            if (!(o.expires && o.expires < new Date().getTime())) {
+                                if (!n.isValidItem || n.isValidItem(o)) {
+                                    l.push($jex.merge(o, n.data[o.uniqueKey] || {}));
+                                }
+                            }
+                        }
+                        this.add({
+                            name: k,
+                            value: JSON.stringify(l)
+                        });
+                    }
+                    return l;
+                }
+            };
+        })(),
+        a = {
+            add: function(h) {
+                if (h.name) {
+                    var i = h.name + "=" + h.value;
+                    if (h.expire) {
+                        i += ";expires=" + new Date(new Date().getTime() + h.expire).toGMTString();
+                    }
+                    if (h.domain) {
+                        i += ";domain=" + h.domain;
+                    }
+                    if (h.path) {
+                        i += ";path=" + h.path;
+                    }
+                    document.cookie = i;
+                }
+            },
+            remove: function(h, i) {
+                if (h) {
+                    var j = h + "=1;expires=" + new Date(new Date().getTime() - 86400000).toGMTString();
+                    i = i || {};
+                    j += ";path=" + (i.path || "/");
+                    document.cookie = j;
+                    return true;
+                }
+                return false;
+            },
+            get: function(h) {
+                var k = document.cookie.split(/;\s*/),
+                    j, l;
+                for (j = 0; j < k.length; j++) {
+                    l = k[j].split("=");
+                    if (l[0] == h) {
+                        return l[1];
+                    }
+                }
+                return undefined;
+            },
+            getuuidMap: function(h) {
+                var i = this.get(h + "Map");
+                return i ? JSON.parse(i) : null;
+            },
+            addListItem: function(h, l, j) {
+                j = j || {};
+                var n = this.getuuidMap(h),
+                    k;
+                if (!n) {
+                    n = ["0"];
+                    this.add({
+                        name: h + "Map",
+                        value: JSON.stringify(n),
+                        path: j.path || "/"
+                    });
+                }
+                if (j.isFirst) {
+                    k = n[0];
+                } else {
+                    k = n[n.length - 1];
+                }
+                var m = this.getList(h, true, k),
+                    i = m.slice(0);
+                m[j.isFirst ? "unshift" : "push"](l);
+                this.add({
+                    name: h + k,
+                    value: JSON.stringify(m),
+                    expires: j.expires || 30 * 86400000,
+                    path: j.path || "/"
+                });
+                if (this.getList(h, false, k).length === m.length) {
+                    return true;
+                } else {
+                    this.add({
+                        name: h + k,
+                        value: JSON.stringify(i),
+                        expires: j.expires || 30 * 86400000,
+                        path: j.path || "/"
+                    });
+                    n[j.isFirst ? "unshift" : "push"](g());
+                    this.add({
+                        name: h + "Map",
+                        value: JSON.stringify(n),
+                        path: j.path || "/"
+                    });
+                    return this.addListItem(h, l, j);
+                }
+            },
+            removeListItem: function(i, h, m) {
+                var k = this,
+                    l = false,
+                    j = $jex.$break;
+                $jex.$break = false;
+                $jex.foreach(k.getuuidMap(i) || [], function(q, p) {
+                    var t = JSON.parse(k.get(i + q) || "[]"),
+                        p, n, s, o = [];
+                    if (t && t.length && t instanceof Array) {
+                        for (p = 0, n = t.length; p < n; p++) {
+                            s = t[p];
+                            if (s.uniqueKey === h) {
+                                l = true;
+                                continue;
+                            }
+                            if (!(s.expires && s.expires < new Date().getTime())) {
+                                o.push(s);
+                            }
+                        }
+                        m = m || {};
+                        k.add({
+                            name: i + q,
+                            value: JSON.stringify(o),
+                            expires: m.expires || 30 * 86400000,
+                            path: m.path || "/"
+                        });
+                    }
+                    if (l) {
+                        return $jex.$break;
+                    }
+                });
+                $jex.$break = j;
+                return l;
+            },
+            removeList: function(h) {
+                var i = this;
+                $jex.each(this.getuuidMap(h) || [], function(k, j) {
+                    i.remove(h + k);
+                });
+                this.remove(h + "Map");
+            },
+            getList: function(h, l, k) {
+                var i = this;
+                if (!k) {
+                    var j = [];
+                    $jex.each(this.getuuidMap(h) || [], function(n, m) {
+                        j = j.concat(i.getList(h, l, n));
+                    });
+                    return j;
+                } else {
+                    if (l) {
+                        return this.refreshList(h, {}, k);
+                    }
+                    return JSON.parse(this.get(h + k) || "[]");
+                }
+            },
+            refreshList: function(l, j, h) {
+                var q = this,
+                    o = [];
+                if (h) {
+                    var n = JSON.parse(this.get(l + h) || "[]"),
+                        k, m, p;
+                    if (n && n.length && n instanceof Array) {
+                        j = j || {};
+                        j.data = j.data || {};
+                        for (k = 0, m = n.length; k < m; k++) {
+                            p = n[k];
+                            if (!(p.expires && p.expires < new Date().getTime())) {
+                                o.push($jex.merge(p, j.data[p.uniqueKey] || {}));
+                            }
+                        }
+                        this.add({
+                            name: l + h,
+                            value: JSON.stringify(o),
+                            expires: j.expires || 30 * 86400000,
+                            path: j.path || "/"
+                        });
+                    }
+                } else {
+                    $jex.each(this.getuuidMap(l) || [], function(t, s) {
+                        o = o.concat(q.refreshList(l, j, t));
+                    });
+                }
+                return o;
+            }
+        },
+        d = {
+            add: function(h) {
+                localStorage[h.name] = h.value;
+            },
+            get: function(h) {
+                return localStorage[h];
+            },
+            remove: function(h) {
+                delete localStorage[h];
+            },
+            addListItem: function(h, j, i) {
+                i = i || {};
+                var k = this.getList(h, true, i);
+                k[i.isFirst ? "unshift" : "push"](j);
+                this.add({
+                    name: h,
+                    value: JSON.stringify(k)
+                });
+                return true;
+            },
+            removeListItem: function(l, p, j) {
+                j = j || {};
+                var n = JSON.parse(this.get(l) || "[]"),
+                    k, m, q, o = [],
+                    h = false;
+                if (n && n.length && n instanceof Array) {
+                    for (k = 0, m = n.length; k < m; k++) {
+                        q = n[k];
+                        if (q.uniqueKey === p) {
+                            h = true;
+                            continue;
+                        }
+                        if (!(q.expires && q.expires < new Date().getTime())) {
+                            if (!j.isValidItem || j.isValidItem(q)) {
+                                o.push(q);
+                            }
+                        }
+                    }
+                    this.add({
+                        name: l,
+                        value: JSON.stringify(o)
+                    });
+                }
+                return h;
+            },
+            removeList: function(h) {
+                this.remove(h);
+            },
+            getList: function(h, j, i) {
+                if (j) {
+                    return this.refreshList(h, i);
+                }
+                return JSON.parse(this.get(h) || "[]");
+            },
+            refreshList: function(j, m) {
+                var o = JSON.parse(this.get(j) || "[]"),
+                    l, h, n, k = [];
+                if (o && o.length && o instanceof Array) {
+                    m = m || {};
+                    m.data = m.data || {};
+                    for (l = 0, h = o.length; l < h; l++) {
+                        n = o[l];
+                        if (!(n.expires && n.expires < new Date().getTime())) {
+                            if (!m.isValidItem || m.isValidItem(n)) {
+                                k.push($jex.merge(n, m.data[n.uniqueKey] || {}));
+                            }
+                        }
+                    }
+                    this.add({
+                        name: j,
+                        value: JSON.stringify(k)
+                    });
+                }
+                return k;
+            }
+        },
+        b = f.localStorage ? d : c;
+    f.CookieUtil = a;
+    f.StorageUtil = b;
+})(window);
 var QunarDate = $jex.exec(function() {
     var k = {
         "2014-04-05": {
@@ -9003,7 +9412,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(d) {
         var f = false;
         var g = this.find("specialCabin");
         var h = this.find("spacial_notice_panel");
-        if (g) {
+        if (g && h) {
             $jex.hover({
                 act: g,
                 extra: [h],
