@@ -9596,16 +9596,13 @@ OnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
         this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', j ? (j + "<br/>") : "", b, "</div></div></span>");
     }
 };
-OnewayFlightWrapperUI.prototype._insterFreeManName = function(f) {
-    var d = f;
-    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
-    var a = c.getAcf();
-    var b = c.getFot();
+OnewayFlightWrapperUI.prototype._insterFreeManName = function(b) {
+    var a = b;
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', d.vendorName(), d.freeTip());
-    this._insertAuthVendor(d);
+    this.text('<div class="t_name">', a.vendorName(), a.freeTip());
+    this._insertAuthVendor(a);
     this.text("</div>");
-    this.text('<div class="freeinfo">', d.freeInfo(), "</div>");
+    this.text('<div class="freeinfo">', a.freeInfo(), "</div>");
     this.text("</div>");
     this.onInit(this._authorizeVendorHover);
 };
@@ -9762,25 +9759,22 @@ OnewayFlightWrapperUI.prototype.insertOta = function(d) {
         });
     }
 };
-OnewayFlightWrapperUI.prototype.insertFreeMan = function(d) {
-    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
-    var a = c.getAcf();
-    var b = c.getFot();
+OnewayFlightWrapperUI.prototype.insertFreeMan = function(a) {
     this.text('<div class="t_sv">');
     this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_freeman">任意改签</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
     this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">报销：</span>提供支付金额的超额发票</p>', '<p><span class="fb">立返：</span>支付后立刻返还现金</p>', '<p><span class="fb">改签：</span>可自由选择航空公司，需补机票差价</p>', '<p><span class="fb">退票：</span>低额退票手续费，申请退票后极速退款</p>', '<p><span class="fb">自助：</span>网站可快速自助申请退改签</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
-            var g = this.find("superOtaBtn");
-            var f = this.find("superOtaTip");
+            var c = this.find("superOtaBtn");
+            var b = this.find("superOtaTip");
             $jex.hover({
-                act: g,
+                act: c,
                 onmouseover: function() {
-                    f.style.display = "block";
+                    b.style.display = "block";
                 },
                 onmouseout: function() {
-                    f.style.display = "none";
+                    b.style.display = "none";
                 }
             });
         });
