@@ -1,4 +1,37 @@
 (function(c) {
+    function b() {
+        if (System && System.param && System.param.fromCity) {
+            var d = System.param.fromCity + "|" + System.param.toCity + "|" + System.param.fromDate;
+        } else {
+            if (System && System.param && System.param.searchDepartureAirport) {
+                var d = System.param.searchDepartureAirport + "|" + System.param.searchArrivalAirport + "|" + System.param.searchDepartureTime;
+            } else {
+                return false;
+            }
+        }
+        return a(d);
+    }
+
+    function a(k) {
+        var j = 0;
+        var d = k.length;
+        var g = 2147483648;
+        for (var f = 0; f < d; f++) {
+            j = 31 * j + k.charCodeAt(f);
+            if (j > g) {
+                j %= g;
+            }
+        }
+        return j;
+    }
+    c.addHtag = function(f) {
+        var d = b();
+        if (d != false) {
+            f.setRequestHeader("htag", b());
+        }
+    };
+})(window);
+(function(c) {
     var b = /(\d{4})-(\d{1,2})-(\d{1,2})/g;
     var a = c.location.href;
     if (b.test(a)) {
@@ -1305,11 +1338,17 @@ $jex.exec(function() {
         var method = options.method || "GET";
         if (method === "GET") {
             request.open("GET", url + "&" + $jex.toQueryString(data), true);
+            if (options && options.beforeSend && typeof options.beforeSend == "function") {
+                options.beforeSend(request);
+            }
             request.send(null);
         } else {
             if (method === "POST") {
                 request.open("POST", url, true);
                 request.setRequestHeader("Content-type", options.contentType || "applacation/json");
+                if (options && options.beforeSend && typeof options.beforeSend == "function") {
+                    options.beforeSend(request);
+                }
                 request.send(JSON.stringify(data));
             }
         }
@@ -12144,10 +12183,16 @@ OTAGroup.prototype = {
             code: this.toCodeString(),
             queryID: this.opts.queryID
         };
-        $jex.jsonp(a.WRAPPER_URL, b, function(d) {
+        $jex.ajax(a.WRAPPER_URL, b, function(d) {
             a._wrappers_info = d;
             a._with_wrappers();
             c.call(a);
+        }, {
+            beforeSend: function(d) {
+                if (window.addHtag) {
+                    window.addHtag(d);
+                }
+            }
         });
     },
     _get_wrappers_info: function() {
@@ -12279,9 +12324,6 @@ var $OTALOGIC = (function() {
                     carrier_black_filter: $OTALOGIC.find_config_by_route("black"),
                     debug: $OTALOGIC.isDebug()
                 });
-                if (window.location.toString().indexOf("adtest=beta") > 0 && window.location.toString().indexOf("local") >= 0) {
-                    $OTA.group.WRAPPER_URL = "http://flight41.qunar.com/twell/flight/flight_ad.jsp";
-                }
             }
         },
         load_top: function(a) {

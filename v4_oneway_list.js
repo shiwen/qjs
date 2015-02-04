@@ -1394,7 +1394,12 @@ if (typeof QLib === "undefined") {
             return;
         }
         c(a, {}, d, {
-            onerror: d
+            onerror: d,
+            beforeSend: function(e) {
+                if (window.addHtag) {
+                    window.addHtag(e);
+                }
+            }
         });
     };
 
@@ -2238,6 +2243,12 @@ var DomesticOnewaySearchService = new(function() {
             if (E) {
                 C._process_zyf(E);
             }
+        }, {
+            beforeSend: function(E) {
+                if (window.addHtag) {
+                    window.addHtag(E);
+                }
+            }
         });
     };
     this.queryNext = function() {
@@ -2387,7 +2398,12 @@ var DomesticOnewaySearchService = new(function() {
                 p.queryNext();
             }
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(J) {
+                if (window.addHtag) {
+                    window.addHtag(J);
+                }
+            }
         });
     };
     this._invoke_oneway = function() {
@@ -2419,7 +2435,12 @@ var DomesticOnewaySearchService = new(function() {
                 f = true;
             }
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(F) {
+                if (window.addHtag) {
+                    window.addHtag(F);
+                }
+            }
         });
     };
     this._process_oneway = function(D) {
@@ -2498,7 +2519,12 @@ var DomesticOnewaySearchService = new(function() {
                 s = Math.max(new Date() - y, 0);
             }
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(E) {
+                if (window.addHtag) {
+                    window.addHtag(E);
+                }
+            }
         });
     };
     this.syncCurrentFlightCode = function(C) {};
@@ -2584,7 +2610,12 @@ var DomesticOnewaySearchService = new(function() {
             $jex.console.info("[invoke_flightPriceData] 处理完毕");
             PAGE_EVENT.trigger("wrapper_loadData", N);
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(N) {
+                if (window.addHtag) {
+                    window.addHtag(N);
+                }
+            }
         });
     };
     this.searchEnd = function() {
@@ -2619,7 +2650,12 @@ var DomesticOnewaySearchService = new(function() {
             b = F;
             $jex.event.trigger(p, "loadedExtInfo", F);
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(F) {
+                if (window.addHtag) {
+                    window.addHtag(F);
+                }
+            }
         });
     };
     this._invoke_AVData = function() {
@@ -2638,7 +2674,12 @@ var DomesticOnewaySearchService = new(function() {
             }
             p.queryNext();
         }, {
-            onerror: p._onerror
+            onerror: p._onerror,
+            beforeSend: function(D) {
+                if (window.addHtag) {
+                    window.addHtag(D);
+                }
+            }
         });
     };
     this._onerror = function() {
@@ -2701,6 +2742,11 @@ var PriceCheckService = (function() {
         $jex.ajax(a, p, n, {
             onerror: function() {
                 n();
+            },
+            beforeSend: function(q) {
+                if (window.addHtag) {
+                    window.addHtag(q);
+                }
             }
         });
     }
