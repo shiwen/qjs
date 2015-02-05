@@ -4856,7 +4856,7 @@ var FlightEntity = function() {
     this._isInLowest = false;
     this._valCache = {};
 };
-$jex.foreach(["key", "commInfoMgr", "flightInfoMgr", "lowestPrice", "highestPrice"], function(a) {
+$jex.foreach(["key", "commInfoMgr", "flightInfoMgr", "lowestPrice", "highestPrice", "bfLowestPrice"], function(a) {
     FlightEntity.prototype[a] = function(b) {
         if (b == null) {
             return this._valCache[a];
@@ -5247,6 +5247,31 @@ FlightEntity.prototype.isInLowest = function(a) {
     } else {
         this._isInLowest = a;
     }
+};
+FlightEntity.prototype.getCabinType = function() {
+    var f = this.cabinType;
+    if (f) {
+        return f;
+    }
+    var a = [],
+        d, b, c;
+    if (this.type == "transfer") {
+        a.push("j");
+    } else {
+        d = this.priceInfo();
+        if (!d) {
+            return a;
+        }
+        b = this._getPriceInfoValue("bflowpr"), c = d.lpt;
+        if (b || c == 1 || c == 2) {
+            a.push("bf");
+        }
+        if (c == null || c == 0) {
+            a.push("j");
+        }
+    }
+    this.cabinType = a;
+    return a;
 };
 var FlightEntityManager = function() {
     FlightEntityManager.superclass.constructor.call(this);
@@ -6298,6 +6323,7 @@ OnewayFlightEntity.prototype.update = function() {
     this.flightInfo(a.get("flightInfo", c));
     this.lowprInfo = a.get("priceInfo", c);
     this.lowestPrice(this.lowprInfo ? this.lowprInfo.lowpr : null);
+    this.bfLowestPrice(this.lowprInfo ? this.lowprInfo.bflowpr : null);
     $jex.event.trigger(this, "updating");
     this.changed = false;
 };
@@ -7121,6 +7147,14 @@ FlightListUI.prototype._track = function(b, a) {
     }
     trackAction(d.join(""));
 };
+FlightListUI.prototype.isOnlySelBfCabinType = function(b) {
+    var a;
+    if (arguments.length) {
+        this._isOnlySelBfCabinType = b;
+    } else {
+        return this._isOnlySelBfCabinType;
+    }
+};
 FlightListUI.prototype.setFirstFlight = function(a) {
     this.closeFirstFlight();
     var b;
@@ -7639,6 +7673,7 @@ DomesticOnewayFilterListUI.prototype.update = function() {
     this.appendFilter("航空公司", {
         moreClass: "airline"
     });
+    this.appendFilter("舱位");
     this.appendFilter("机型");
     this.appendFilter("方式");
     this.text("</ul>");
@@ -7651,7 +7686,7 @@ DomesticOnewayFilterListUI.prototype.update = function() {
     this.text("</div>");
     this.onInit(function() {
         var a = this;
-        var b = ["起飞时间", "起飞机场", "降落机场", "航空公司", "机型", "方式"];
+        var b = ["起飞时间", "起飞机场", "降落机场", "航空公司", "机型", "舱位", "方式"];
         if ($jex.ie == 6) {
             $jex.foreach(b, function(d) {
                 var c = a.find(d);
@@ -7764,7 +7799,7 @@ DomesticOnewayFilterListUI.prototype.layout = function() {
         d = 0,
         h = false;
     var a = [];
-    $jex.foreach(["起飞时间", "方式", "起飞机场", "降落机场", "航空公司", "机型"], function(k, j) {
+    $jex.foreach(["起飞时间", "方式", "起飞机场", "降落机场", "航空公司", "舱位", "机型"], function(k, j) {
         if (c.getFilterUI(k)) {
             a.push(k);
         }
@@ -8192,8 +8227,10 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     return this._html;
 };
 OnewayFlightUI.prototype.update = function(a) {
-    var b = a;
-    this.entity = b;
+    var c = a;
+    var b = this.ownerFlightUI().isOnlySelBfCabinType();
+    b && c.setWrapperListType("bf");
+    this.entity = c;
     this.clear();
     this._homeNode = null;
     this.append("<div", "itemBar", ' class="avt_column');
@@ -8202,28 +8239,28 @@ OnewayFlightUI.prototype.update = function(a) {
     }
     this.text('">');
     this.text('<div class="b_avt_lst">');
-    this.text(this._getStaticUI(b));
+    this.text(this._getStaticUI(c));
     this.append("<div", "recommandWrapper", 'class="c5">');
-    this.insert_recommandWrapper(b);
+    this.insert_recommandWrapper(c);
     this.text("</div>");
     this.append("<div", "lowPrice", ' class="c6">');
-    this.text(this.getPriceInfoHTML(b));
+    this.text(this.getPriceInfoHTML(c));
     this.text("</div>");
-    this.text('<div class="c7">');
-    this.insertSaleAndCabin(b);
-    this.text("</div>");
-    this.insertBookingBtn(b);
-    this.insert_recommandZyf(b);
+    this.text('<div class="c7"><div class="c-ref"></div><div class="c-cont">');
+    this.insertSaleAndCabin(c, b);
+    this.text("</div></div>");
+    this.insertBookingBtn(c);
+    this.insert_recommandZyf(c);
     this.text("</div>");
     this.updateVendors(a);
     this.text("</div>");
     this.onInit(function() {
         $jex.hover({
             act: this.find("itemBar"),
-            onmouseover: function(c) {
+            onmouseover: function(d) {
                 $jex.addClassName(this, "avt_column_hover");
             },
-            onmouseout: function(c) {
+            onmouseout: function(d) {
                 $jex.removeClassName(this, "avt_column_hover");
             }
         });
@@ -8232,19 +8269,27 @@ OnewayFlightUI.prototype.update = function(a) {
 OnewayFlightUI.prototype.updateLowestPrice = function() {
     this.find("lowPrice").innerHTML = this.getPriceInfoHTML(this.entity);
 };
-OnewayFlightUI.prototype.getPriceInfoHTML = function(c) {
-    var b = c.lowestPrice();
-    if (b && b == this._lastPrice) {
+OnewayFlightUI.prototype.getPriceInfoHTML = function(d) {
+    var c, b = this.ownerFlightUI().isOnlySelBfCabinType();
+    if (b) {
+        c = d.bfLowestPrice();
+    } else {
+        c = d.lowestPrice();
+    }
+    if (c && c == this._lastPrice && this._lastOnlySelBf == b) {
         return this._lastPriceHTML;
     }
-    this._lastPrice = b;
+    this._lastPrice = c;
+    this._lastOnlySelBf = b;
     var a = [];
-    if (b && b != 100000) {
-        a.push('<div class="a_low_prc">', Price_html.getHTML(b), '<i class="rmb">&yen;</i></div>');
-        a.push('<div class="a_low_dsc">', PriceUtil.getOneWayDiscount(c.lowestDiscount()), "</div>");
+    a.push('<div class="c-ref"></div><div class="c-cont">');
+    if (c && c != 100000) {
+        a.push('<div class="a_low_prc">', Price_html.getHTML(c), '<i class="rmb">&yen;</i></div>');
+        !b && a.push('<div class="a_low_dsc">', PriceUtil.getOneWayDiscount(d.lowestDiscount()), "</div>");
     } else {
         a.push('<div class="nopr"><div>暂无报价</div></div>');
     }
+    a.push("</div>");
     this._lastPriceHTML = a.join("");
     return this._lastPriceHTML;
 };
@@ -8252,23 +8297,23 @@ OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
     var c = ["lqf", "hot", "ps", "late", "lcc"],
         a = ["i_org_lqf", "i_org_hot", "i_org_hot", "dot_gy", "dot_gy"],
         b = ["临起飞", "热门", "票少", "易晚点", "廉航!"];
-    return function(j) {
-        var k = !this._sinfoHTML;
+    return function(l, g) {
+        var m = !this._sinfoHTML;
         if (!this.sinfoCache) {
-            var h = HotSale.hotSaleInfo(j),
+            var k = HotSale.hotSaleInfo(l),
                 f = [];
-            this.sinfoCache = h;
+            this.sinfoCache = k;
             for (var d = 0; d < 5; d++) {
-                if (h[c[d]]) {
-                    f.push('<div class="a_pct">');
+                if (k[c[d]]) {
+                    f.push('<div class="a_pct clrfix">');
                     if ($jex.ie == 6) {
-                        f.push('<i class="', a[d], '" title="', h[c[d]], '">', b[d], "</i>");
+                        f.push('<i class="', a[d], '" title="', k[c[d]], '">', b[d], "</i>");
                     } else {
                         f.push('<i class="', a[d], '">', b[d], "</i>");
-                        f.push(this._getTipHTML(h[c[d]]));
+                        f.push(this._getTipHTML(k[c[d]]));
                     }
                     f.push("</div>");
-                    k = false;
+                    m = false;
                     break;
                 }
             }
@@ -8277,21 +8322,27 @@ OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
         if (this._sinfoHTML) {
             this.text(this._sinfoHTML);
         }
-        if (!j.isAV()) {
-            var g = j.priceInfo();
-            if (g && g.tc) {
-                if (~g.tc.indexOf("头等")) {
-                    k = false;
+        if (!l.isAV()) {
+            var j = l.priceInfo();
+            if ((j && j.lpt != null)) {
+                var h = j.lpt;
+                if (h == 1) {
+                    m = false;
                     this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
                 } else {
-                    if (~g.tc.indexOf("公务")) {
-                        k = false;
+                    if (h == 2) {
+                        m = false;
                         this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
+                    } else {
+                        if (g) {
+                            m = false;
+                            this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
+                        }
                     }
                 }
             }
         }
-        if (k) {
+        if (m) {
             this.text("&nbsp");
         }
     };
@@ -8404,7 +8455,8 @@ OnewayFlightUI.prototype.toggleVendorPanel = function() {
     if (this.state() === 0) {
         System.service.genTraceTimeStamp();
         System.analyzer.triggerTrace = true;
-        this.dataSource().setWrapperListType("all");
+        var a = this.ownerFlightUI().isOnlySelBfCabinType();
+        this.dataSource().setWrapperListType(a ? "bf" : "all");
         this.showVendorPanel();
         $jex.event.trigger(this, "open");
     } else {
@@ -8944,6 +8996,7 @@ OnewayFlightWrapperListUI.prototype.getWrapperFormEntity = function(c) {
                 TsinghuaOneWayTracker.noWrapperList(c);
             }
             c.lowestPrice(c.priceInfo().lowpr);
+            c.bfLowestPrice(c.priceInfo().bflowpr);
             if (c.type === "oneway") {
                 window.DomesticOnewayDataAnalyzer && DomesticOnewayDataAnalyzer.lowestOneway(c);
             } else {
