@@ -5480,6 +5480,8 @@ WrapperEntity.prototype.vClass = function() {
             return "ico_scar";
         case 6:
             return "ico_quan";
+        case 7:
+            return "ico_scar";
         default:
             return "";
     }
@@ -5496,6 +5498,8 @@ WrapperEntity.prototype.vPrd = function() {
             return "接机";
         case 6:
             return "接送机代金券";
+        case 7:
+            return "代金券";
         default:
             return "";
     }
@@ -5520,7 +5524,7 @@ WrapperEntity.prototype.vName = function() {
     }
 };
 WrapperEntity.prototype.hasPickCar = function() {
-    return (this.vType() == "5");
+    return (this.vType() == "5" || this.vType() == "7");
 };
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
@@ -7911,7 +7915,7 @@ BookingLockScreenUI.prototype.preBooking = function(f, b) {
     this.bFunc = f;
     this._vpr = 0;
     var d = this.entity,
-        a = (d.vType() !== undefined) && (d.vType() != "5");
+        a = (d.vType() !== undefined) && (!d.hasPickCar());
     price = (b === 1 && d.afeePrice()) ? d.afeePrice() : d.bprPrice(), priceInfo = typeof d.ownerFlight().priceInfo == "function" ? d.ownerFlight().priceInfo() : null;
     oprice = priceInfo ? priceInfo.op : Number.MAX_VALUE, attrs = [], carrierCode = d.ownerFlight().carrierCode();
     var c = d.typeOfCabin().indexOf("经济舱") > -1;
@@ -10260,27 +10264,28 @@ ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
         this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', j ? (j + "<br/>") : "", b, "</div></div></span>");
     }
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(f) {
-    var d = f.afeePrice();
-    var b = f.afee();
-    var a = f.vPrice();
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(g) {
+    var f = g.afeePrice();
+    var b = g.afee();
+    var a = g.vPrice();
     var c = b + a;
-    if (f.isNotWork()) {
+    if (g.isNotWork()) {
         this.text('<div class="v5"><span class="noPrice">暂无报价</span></div><div class="v6">&nbsp;</div>');
     } else {
-        if (f.hasPickCar()) {
+        if (g.hasPickCar()) {
+            var d = g.vType() == 5 ? "接机" : "接机代金券";
             this.text('<div class="v5">');
-            this.priceHTML(d, f.isLowestPr() ? "t_prc_lp" : "", f);
+            this.priceHTML(f, g.isLowestPr() ? "t_prc_lp" : "", g);
             this.text("</div>");
             this.text('<div class="v6"><div class="t_ins">');
             this.text("+", c, "套餐");
             this.text('<div class="pick_car_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
             this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
-            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', a, '接机+<i class="rmb">&yen;</i>', b, "保险</div>");
+            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', a, d, '+<i class="rmb">&yen;</i>', b, "保险</div>");
             this.text("</div>", "</div>", "</div>");
             this.text("</div></div>");
         } else {
-            this.insert_PRICE_ZYX(f);
+            this.insert_PRICE_ZYX(g);
         }
     }
 };
@@ -10301,7 +10306,10 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
     this.text("</div></div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(a) {
-    var b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等 </p><p>4.服务好：专业培训，服务贴心</p>";
+    var b = "<p>1.每张代金券可在到达城市的接机服务中抵用部分金额</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+    if (a.vType() == "5") {
+        b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等</p><p>4.服务好：专业培训，服务贴心 </p>";
+    }
     this.append('<div class="p_tips_cont" ', "pick_car_panel", ">");
     this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content">');
