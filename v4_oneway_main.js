@@ -9192,7 +9192,7 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
             c = "退改签";
         } else {
             if (a) {
-                c = i ? "退改签" : "活动说明";
+                c = "活动说明";
             } else {
                 if ((g.fanxian() || g.isTCabin() || g.isAnonymityVendor()) && !g.isPlus()) {
                     c = "促销说明";
@@ -9682,7 +9682,7 @@ OnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
         for (var l = 0; l < m.length; l++) {
             m[l] && k.push(m[l]);
         }
-        return k.length ? k.join("<br/>") : "";
+        return k.length == 2 ? k.join("<br/>") : "";
     })([g, a]);
     if (b) {
         this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
@@ -10307,7 +10307,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
         for (var l = 0; l < m.length; l++) {
             m[l] && k.push(m[l]);
         }
-        return k.length ? k.join("<br/>") : "";
+        return k.length == 2 ? k.join("<br/>") : "";
     })([g, a]);
     if (b) {
         this.append("<span", "authVendor", ' class="p_tips_cont auth_vend_tips_cont">');
@@ -10361,7 +10361,7 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(a) {
     var b = "<p>1.每张代金券可在到达城市的接机服务中抵用部分金额</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
     if (a.vType() == "5") {
-        b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等</p><p>4.服务好：专业培训，服务贴心 </p>";
+        b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等 </p><p>4.服务好：专业培训，服务贴心</p>";
     }
     this.append('<div class="p_tips_cont" ', "pick_car_panel", ">");
     this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
