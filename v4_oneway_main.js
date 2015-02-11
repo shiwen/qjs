@@ -5507,6 +5507,38 @@ WrapperEntity.prototype.vClass = function() {
             return "ico_quan";
         case 7:
             return "ico_scar";
+        case 8:
+            return "ico_scar";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.carType = function() {
+    var a = parseInt(this.vType(), 10);
+    switch (a) {
+        case 5:
+            return "接机";
+        case 7:
+            return "接机代金券";
+        case 8:
+            return "送机代金券";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.carInfo = function() {
+    var a = parseInt(this.vType(), 10);
+    var b;
+    switch (a) {
+        case 5:
+            b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等 </p><p>4.服务好：专业培训，服务贴心</p>";
+            return b;
+        case 7:
+            b = "<p>1.每张代金券可在到达城市的接机服务中抵用部分金额</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+            return b;
+        case 8:
+            b = "<p>1.每张代金券可在出发城市的送机服务中抵用部分金额</p><p>2.限出发城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+            return b;
         default:
             return "";
     }
@@ -5524,6 +5556,8 @@ WrapperEntity.prototype.vPrd = function() {
         case 6:
             return "接送机代金券";
         case 7:
+            return "代金券";
+        case 8:
             return "代金券";
         default:
             return "";
@@ -5549,7 +5583,7 @@ WrapperEntity.prototype.vName = function() {
     }
 };
 WrapperEntity.prototype.hasPickCar = function() {
-    return (this.vType() == "5" || this.vType() == "7");
+    return (this.vType() == "5" || this.vType() == "7" || this.vType() == "8");
 };
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
@@ -9634,7 +9668,7 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
     this.text("</dl>");
     if (b.isDirect()) {
         this.text('<div class="t_cmt t_yxfan">');
-        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>30</strong>元酒店红包<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
         this.text('<div class="t_cmt">');
@@ -9662,7 +9696,7 @@ OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
     this.text('<div class="t_name">', f.vendorName());
     this._insertAuthVendor(f);
     this.text("</div>");
-    this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
+    this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>30</strong>元酒店红包<br>(支付成功后有机会领取)</div>');
     this.text("</div>");
     this.onInit(this._authorizeVendorHover);
 };
@@ -9725,41 +9759,44 @@ OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
     this.text("</p>");
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insertH3Normal = function(f) {
-    var d = f;
-    var b = d.vendor(),
-        a = d.lijian();
-    var c = d.ownerFlight();
-    if (b.isDirect()) {
+OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
+    var g = i;
+    var d = g.vendor(),
+        h = parseInt(g.afeePrice()),
+        b = g.lijian();
+    var f = g.ownerFlight();
+    if (d.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', d.vendorName(), "</div>");
-        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>200</strong>元酒店星券<br>(支付成功后有机会领取)</div>');
+        this.text('<div class="t_name">', g.vendorName(), "</div>");
+        this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>30</strong>元酒店红包<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
-        if (d.isYoufei()) {
-            if (d.isCsyf()) {
+        if (g.isYoufei()) {
+            if (g.isCsyf()) {
+                var c = h + g.lijian();
+                var a = g.hasPickCar() ? '原价<i class="rmb">&yen;</i>' + c + " " : "";
                 this.text('<div class="v_ofc">');
-                this.text('<div class="t_name">', d.vendorName());
-                this._insertAuthVendor(d);
+                this.text('<div class="t_name">', g.vendorName());
+                this._insertAuthVendor(g);
                 this.text("</div>");
                 this.text('<div class="v_yf_explain">');
-                this.text('<i class="ico_yfbi"></i>送' + a + "个优飞币 立抵" + a + "元");
+                this.text('<i class="ico_yfbi"></i>' + a + "送" + b + '个优飞币 立抵<i class="rmb">&yen;</i>' + b);
                 this.text("</div>");
                 this.text("</div>");
             } else {
                 this.text('<div class="v_yf_explain ">');
-                this._insertAuthVendor(d);
+                this._insertAuthVendor(g);
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-                this.text('<i class="ico_yfbi"></i>可使用' + a + "个优飞币 立抵现金" + a + "元");
+                this.text('<i class="ico_yfbi"></i>可使用' + b + "个优飞币 立抵现金" + b + "元");
                 this._insertYoufeiTip();
                 this.text("</span>");
                 this.text("</div>");
             }
         } else {
-            if (d.ownerFlight().isInLowest() && d.isTCabin()) {
+            if (g.ownerFlight().isInLowest() && g.isTCabin()) {
                 this.text('<div class="v_yf">');
-                this.text('<div class="t_name">', d.vendorName());
-                this._insertAuthVendor(d);
+                this.text('<div class="t_name">', g.vendorName());
+                this._insertAuthVendor(g);
                 this.text("</div>");
                 this.text('<div class="t_cmt t_youfei">');
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
@@ -9769,20 +9806,20 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(f) {
                 this.text("</div></div>");
             } else {
                 this.text('<div class="v1">');
-                this.text('<div class="t_name">', d.vendorName());
-                this._insertAuthVendor(d);
+                this.text('<div class="t_name">', g.vendorName());
+                this._insertAuthVendor(g);
                 this.text("</div>");
-                if (d.isAnonymityVendor()) {
+                if (g.isAnonymityVendor()) {
                     this.text('<div class="t_cmt">超值特惠单程机票</div>');
                 } else {
                     this.text('<div class="t_cmt">');
-                    this.starUI.displayPanel(d);
+                    this.starUI.displayPanel(g);
                     this.text("</div>");
                 }
                 this.text("</div>");
                 this.text('<div class="v2"><div class="e_btn_cmt">');
-                if (!d.isAnonymityVendor()) {
-                    this.starUI.insert_btn(d);
+                if (!g.isAnonymityVendor()) {
+                    this.starUI.insert_btn(g);
                 }
                 this.text("</div></div>");
             }
@@ -9793,7 +9830,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(f) {
 };
 OnewayFlightWrapperUI.prototype._insertYoufeiTip = function() {
     this.append("<div", "js_yf_tip_panel", ' class="yf_tip_panel p_tips_cont">');
-    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>                                    <li>                                        <h5>优飞币从哪儿来？</h5>                                        <p>购买带有优飞标识<i class="ico_yfbi"></i>的产品，且订单中未使用优飞币抵扣现金，则订单联系人即可获得与支付金额相等数量的优飞币，优飞币的获取和使用与订单中预留的手机号绑定。</p>                                    </li>                                    <li>                                        <h5>优飞币怎么用？</h5>                                        <p>在“去哪儿网促销”专区购买带有优飞标识<i class="ico_yfbi"></i>的机票产品时，填写订单联系人手机号后，如所拥有的优飞币不小于订单要求的优飞币数量，即可使用。1个优飞币可抵扣1元现金。优飞币有效期为发币时间后1年。</p>                                    </li>                                </ul>                            </div>                        </div>');
+    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>                                    <li>                                        <h5>如何使用优飞币？</h5>                                        <p>优飞币是一种优惠，购买带<i class="ico_yfbi"></i>的机票产品,1优飞币可抵1元现金。<br>* 如所拥有优飞币数量小于订单要求数量，则不可使用;<br>* 如该订单已赠送优飞币，则不可使用原有优飞币;</p>                                    </li>                                    <li>                                        <h5>如何获得优飞币？</h5>                                        <p>购买带有<i class="ico_yfbi"></i>的产品，即可获得与支付金额相等数量的优飞币。<br>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内;<br>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币;</p>                                    </li>                                </ul>                            </div>                        </div>');
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._authorizeVendorHover = function() {
@@ -10223,7 +10260,6 @@ ZiyouxingOnewayFlightWrapperUI.prototype.update = function(d) {
     this.zIndex = this.ownerListUI().zIndex;
     this.ownerListUI().zIndex--;
     this.insert_icon(b);
-    this.insert_VENDORNAME(b);
     this.insert_zyxPackage(b);
     this.insert_info(b);
     this.insert_PRICE(b);
@@ -10249,17 +10285,14 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_info = function(a) {
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_icon = function(c) {
     var a = c.vendor();
     var b = a.srv_ICON();
-    this.text('<div class="v0">');
     if (c.hasPickCar()) {
-        if (b) {
-            this.text('<i class="', b.key, '" title="', b.title, '">', b.text, "</i>");
-        } else {
-            this.text('<i class="ico_nocertify" title=""></i>');
-        }
+        this._insertH3(c);
     } else {
+        this.text('<div class="v0">');
         this.text('<i title="自由行" class="ico_zyx">自由行</i>');
+        this.text("</div>");
+        this.insert_VENDORNAME(c);
     }
-    this.text("</div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(c) {
     var b = c.vClass();
@@ -10319,22 +10352,22 @@ ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(g) {
     var f = g.afeePrice();
-    var b = g.afee();
-    var a = g.vPrice();
-    var c = b + a;
+    var c = g.afee();
+    var b = g.vPrice();
+    var d = c + b;
     if (g.isNotWork()) {
         this.text('<div class="v5"><span class="noPrice">暂无报价</span></div><div class="v6">&nbsp;</div>');
     } else {
         if (g.hasPickCar()) {
-            var d = g.vType() == 5 ? "接机" : "接机代金券";
+            var a = g.carType();
             this.text('<div class="v5">');
             this.priceHTML(f, g.isLowestPr() ? "t_prc_lp" : "", g);
             this.text("</div>");
             this.text('<div class="v6"><div class="t_ins">');
-            this.text("+", c, "套餐");
+            this.text("+", d, "套餐");
             this.text('<div class="pick_car_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
             this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
-            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', a, d, '+<i class="rmb">&yen;</i>', b, "保险</div>");
+            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', b, a, '+<i class="rmb">&yen;</i>', c, "保险</div>");
             this.text("</div>", "</div>", "</div>");
             this.text("</div></div>");
         } else {
@@ -10358,15 +10391,12 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
     this.text("+", a.afee(), "保险");
     this.text("</div></div>");
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(a) {
-    var b = "<p>1.每张代金券可在到达城市的接机服务中抵用部分金额</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
-    if (a.vType() == "5") {
-        b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等 </p><p>4.服务好：专业培训，服务贴心</p>";
-    }
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(b) {
+    var a = b.carInfo();
     this.append('<div class="p_tips_cont" ', "pick_car_panel", ">");
     this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content">');
-    this.text(b);
+    this.text(a);
     this.text("</div></div></div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_ZYX = function(a) {
