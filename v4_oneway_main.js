@@ -10061,7 +10061,7 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(f) {
     this.text('<div class="fan_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
     if (d > 0) {
         if (g.isFreeMan()) {
-            this.text('<div class="p_tips_content">支付后立刻返现<i class="rmb">', d, "</i>元</div>");
+            this.text('<div class="p_tips_content">支付后立刻返现<i class="rmb">&yen;', d, "</i></div>");
         } else {
             if (b) {
                 this.text('<div class="p_tips_content plus"> 可返现<i class="rmb">&yen;', d, "</i></div>");

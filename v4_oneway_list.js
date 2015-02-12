@@ -2405,6 +2405,7 @@ var DomesticOnewaySearchService = new(function() {
             }
             $jex.event.trigger(p, "getQueryId", L);
             x = L;
+            window.codeshare_rank_weight = x.codeshare_rank_weight || 0;
             p.queryId(L.queryID);
             k.queryID = L.queryID;
             k.serverIP = L.serverIP;
@@ -3287,11 +3288,16 @@ $jex.exec(function() {
                 }
             }
         };
-        var z = function(i) {
-            if (H[i] != null) {
-                var k = FlightListUISorter.sortPrice(H[i].carrierCode(), H[i].lowestPrice());
-                if (k != null) {
-                    return k;
+        var z = function(k) {
+            if (H[k] != null) {
+                var n = FlightListUISorter.sortPrice(H[k].carrierCode(), H[k].lowestPrice());
+                var i = H[k];
+                if (n != null) {
+                    if (i.isCodeShare && i.isCodeShare()) {
+                        return n + window.codeshare_rank_weight;
+                    } else {
+                        return n;
+                    }
                 } else {
                     return j;
                 }
