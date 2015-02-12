@@ -5408,6 +5408,16 @@ WrapperEntity.prototype.isCsyf = function() {
     var a = this.dataSource().csyf;
     return this.dataSource().csyf || false;
 };
+WrapperEntity.prototype.isUfee = function() {
+    var c = /&ufee=([a-z_-]+)/i;
+    var a = this.dataSource().bu;
+    var b = a.match(c);
+    if (b && b.length == 2 && b[1] && b[1].toLocaleLowerCase() == "true") {
+        return true;
+    } else {
+        return false;
+    }
+};
 WrapperEntity.prototype.isLCabin = function() {
     return /^l/i.test(this.dataSource().type);
 };
@@ -9780,7 +9790,10 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
                 this._insertAuthVendor(g);
                 this.text("</div>");
                 this.text('<div class="v_yf_explain">');
+                this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
                 this.text('<i class="ico_yfbi"></i>' + a + "送" + b + '个优飞币 立抵<i class="rmb">&yen;</i>' + b);
+                this._insertYoufeiTip();
+                this.text("</span>");
                 this.text("</div>");
                 this.text("</div>");
             } else {
@@ -9793,15 +9806,15 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
                 this.text("</div>");
             }
         } else {
-            if (g.ownerFlight().isInLowest() && g.isTCabin()) {
+            if (g.isUfee()) {
                 this.text('<div class="v_yf">');
                 this.text('<div class="t_name">', g.vendorName());
                 this._insertAuthVendor(g);
                 this.text("</div>");
                 this.text('<div class="t_cmt t_youfei">');
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-                this.text('<i class="ico_yfbi"></i>购买即送优飞币，买多少送多少');
-                this._insertYoufeiTip();
+                this.text('<i class="ico_yfbi"></i>购票即送优飞币，下次购票可抵用现金');
+                this._insertYoufeiTip(true);
                 this.text("</span>");
                 this.text("</div></div>");
             } else {
@@ -9828,9 +9841,17 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
     this.onInit(this._authorizeVendorHover);
     this.onInit(this._youfeiExplainHover);
 };
-OnewayFlightWrapperUI.prototype._insertYoufeiTip = function() {
+OnewayFlightWrapperUI.prototype._insertYoufeiTip = function(a) {
+    var c = '<li>                        <h5>如何获得优飞币？</h5>                        <p>购买带有<i class="ico_yfbi"></i>的产品，即可获得与支付金额相等数量的优飞币。<br>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内;<br>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>                    </li>';
+    var b = '<li>                            <h5>如何使用优飞币？</h5>                            <p>优飞币是一种优惠，购买带<i class="ico_yfbi"></i>的机票产品，1优飞币可抵1元现金。<br>* 如所拥有优飞币数量小于订单要求数量，则不可使用;<br>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>                        </li>';
+    var d;
+    if (a) {
+        d = c + b;
+    } else {
+        d = b + c;
+    }
     this.append("<div", "js_yf_tip_panel", ' class="yf_tip_panel p_tips_cont">');
-    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>                                    <li>                                        <h5>如何使用优飞币？</h5>                                        <p>优飞币是一种优惠，购买带<i class="ico_yfbi"></i>的机票产品,1优飞币可抵1元现金。<br>* 如所拥有优飞币数量小于订单要求数量，则不可使用;<br>* 如该订单已赠送优飞币，则不可使用原有优飞币;</p>                                    </li>                                    <li>                                        <h5>如何获得优飞币？</h5>                                        <p>购买带有<i class="ico_yfbi"></i>的产品，即可获得与支付金额相等数量的优飞币。<br>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内;<br>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币;</p>                                    </li>                                </ul>                            </div>                        </div>');
+    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>' + d + "</ul>                            </div>                        </div>");
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._authorizeVendorHover = function() {
@@ -10311,18 +10332,61 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_zyxPackage = function(c) {
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     var a = b.ownerFlight();
-    this.text('<div class="v1">');
-    this.text('<div class="t_name">', b.vendorName());
-    this._insertAuthVendor(b);
-    this.text("</div>");
-    this.text('<div class="t_cmt">');
-    this.starUI.displayPanel(b);
-    this.text("</div>");
-    this.text("</div>");
-    this.text('<div class="v2"><div class="e_btn_cmt">');
-    this.starUI.insert_btn(b);
-    this.text("</div></div>");
+    if (b.isUfee()) {
+        this.text('<div class="v_yf">');
+        this.text('<div class="t_name">', b.vendorName());
+        this._insertAuthVendor(b);
+        this.text("</div>");
+        this.text('<div class="t_cmt t_youfei">');
+        this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
+        this.text('<i class="ico_yfbi"></i>购票即送优飞币，下次购票可抵用现金');
+        this._insertYoufeiTip(true);
+        this.text("</span>");
+        this.text("</div></div>");
+    } else {
+        this.text('<div class="v1">');
+        this.text('<div class="t_name">', b.vendorName());
+        this._insertAuthVendor(b);
+        this.text("</div>");
+        this.text('<div class="t_cmt">');
+        this.starUI.displayPanel(b);
+        this.text("</div>");
+        this.text("</div>");
+        this.text('<div class="v2"><div class="e_btn_cmt">');
+        this.starUI.insert_btn(b);
+        this.text("</div></div>");
+    }
     this.onInit(this._authorizeVendorHover);
+    this.onInit(this._youfeiExplainHover);
+};
+ZiyouxingOnewayFlightWrapperUI.prototype._insertYoufeiTip = function(a) {
+    var c = '<li>                        <h5>如何获得优飞币？</h5>                        <p>购买带有<i class="ico_yfbi"></i>的产品，即可获得与支付金额相等数量的优飞币。<br>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内;<br>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>                    </li>';
+    var b = '<li>                            <h5>如何使用优飞币？</h5>                            <p>优飞币是一种优惠，购买带<i class="ico_yfbi"></i>的机票产品，1优飞币可抵1元现金。<br>* 如所拥有优飞币数量小于订单要求数量，则不可使用;<br>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>                        </li>';
+    var d;
+    if (a) {
+        d = c + b;
+    } else {
+        d = b + c;
+    }
+    this.append("<div", "js_yf_tip_panel", ' class="yf_tip_panel p_tips_cont">');
+    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>' + d + "</ul>                            </div>                        </div>");
+    this.text("</div>");
+};
+ZiyouxingOnewayFlightWrapperUI.prototype._youfeiExplainHover = function() {
+    var b = this.find("js_yf_tip_handle");
+    var a = this.find("js_yf_tip_panel");
+    if (!b && !a) {
+        return;
+    }
+    $jex.hover({
+        act: b,
+        onmouseover: function() {
+            a.style.display = "block";
+        },
+        onmouseout: function() {
+            a.style.display = "none";
+        }
+    });
 };
 ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
     if (f && f.isNoAuth()) {
@@ -10450,42 +10514,54 @@ ZiyouxingOnewayFlightWrapperUI.prototype._bindHoverEvent = function(b) {
     var a = b;
     this.onInit(function() {
         var f = this;
-        var h = this.find("zyx");
-        var i = false;
+        var i = this.find("zyx");
+        var j = false;
         if (a.vType() !== undefined && !a.hasPickCar()) {
-            var g = this.find("zyx_notice_panel");
+            var h = this.find("zyx_notice_panel");
             $jex.hover({
-                act: h,
+                act: i,
                 extra: [this.find("zyx_notice_panel")],
-                onmouseover: function(k) {
-                    if (i) {
+                onmouseover: function(l) {
+                    if (j) {
                         return;
                     }
-                    $jex.element.show(g);
-                    i = true;
+                    $jex.element.show(h);
+                    j = true;
                 },
-                onmouseout: function(k) {
-                    i = false;
-                    $jex.element.hide(g);
+                onmouseout: function(l) {
+                    j = false;
+                    $jex.element.hide(h);
                 }
             });
         }
         if (a.hasPickCar() && $jex.ie == 6) {
-            var j = this.find("js-pickCar");
+            var k = this.find("js-pickCar");
             var d = this.find("pick_car_panel");
             var c = false;
             $jex.hover({
-                act: j,
-                onmouseover: function(k) {
+                act: k,
+                onmouseover: function(l) {
                     if (c) {
                         return;
                     }
                     $jex.element.show(d);
                     c = true;
                 },
-                onmouseout: function(k) {
+                onmouseout: function(l) {
                     c = false;
                     $jex.element.hide(d);
+                }
+            });
+        }
+        if ($jex.ie == 6) {
+            var g = this.find("flightbar");
+            $jex.hover({
+                act: g,
+                onmouseover: function(l) {
+                    $jex.addClassName(g, "qvt_column_hover");
+                },
+                onmouseout: function(l) {
+                    $jex.removeClassName(g, "qvt_column_hover");
                 }
             });
         }
