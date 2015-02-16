@@ -6311,6 +6311,13 @@ OnewayFlightEntity.prototype.getRecommandWrapper = function() {
         };
     }
 };
+OnewayFlightEntity.prototype.hasDiscount = function() {
+    var a = this.flightInfoMgr().get("priceInfo", this.key());
+    if (!a || !a.op) {
+        return false;
+    }
+    return (this.lowestPrice() / a.op) < 1;
+};
 OnewayFlightEntity.prototype.lowestDiscount = function() {
     var a = this.flightInfoMgr().get("priceInfo", this.key());
     if (!a || !a.op) {

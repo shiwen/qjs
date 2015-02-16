@@ -5754,12 +5754,12 @@ var RoundTripFlightRecommend = (new function(a) {
         this.totalOneway = 0;
         this.nearLineWrap = a;
         $jex.event.binding(System.analyzer, "findTicketRec", function() {
-            var m = System.analyzer.getData();
-            var l = System.analyzer.onewayInfoMgr();
+            var l = System.analyzer.getData();
+            var j = System.analyzer.onewayInfoMgr();
             var i = System.analyzer.lowestOneway();
             d.onsaleOneway = 0, d.onsaleEconomy = 0, d.totalOneway = 0;
-            for (var g in m) {
-                var f = m[g];
+            for (var g in l) {
+                var f = l[g];
                 if (f.type == "oneway") {
                     d.totalOneway++;
                     var h = f.lowestPrice();
@@ -5772,9 +5772,8 @@ var RoundTripFlightRecommend = (new function(a) {
                 }
             }
             var e = false;
-            if (i && i.lowestDiscount) {
-                var j = PriceUtil.getDiscount(i.lowestDiscount());
-                j == "" ? e = true : e = false;
+            if (i && i.hasDiscount) {
+                i.hasDiscount() ? e = false : e = true;
             }
             if (d.onsaleOneway == 0 && d.totalOneway) {
                 d.render("此航线已无直达票哦");
