@@ -5404,6 +5404,9 @@ WrapperEntity.prototype.isTCabin = function() {
 WrapperEntity.prototype.isYoufei = function() {
     return this.isCsyf() || this.dataSource().youfei || false;
 };
+WrapperEntity.prototype.getCarrierCo = function() {
+    return this.ownerFlight().carrier().key.toLowerCase();
+};
 WrapperEntity.prototype.isCsyf = function() {
     var a = this.dataSource().csyf;
     return this.dataSource().csyf || false;
@@ -9243,7 +9246,7 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
             c = "退改签";
         } else {
             if (a) {
-                c = "活动说明";
+                ((g.getCarrierCo() != "ca" && i) || (a && !i)) && (c = "活动说明");
             } else {
                 if ((g.fanxian() || g.isTCabin() || g.isAnonymityVendor()) && !g.isPlus()) {
                     c = "促销说明";
@@ -9355,14 +9358,18 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
         if (c.fanxian() && !isPlus) {
             j = '<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>';
         }
-        if (a && !d) {
-            j = '<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>';
-        }
         if (c.isTCabin() && !isPlus && !a) {
             j = '<p class="fb"> 此产品参与<span class="hg">立减</span>促销活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）</p>';
         }
         if (c.isAnonymityVendor()) {
             j = '<p class="fb"> 此促销为去哪儿网<span class="hg">度假产品</span>适用以下规则： </p>' + c.getTGQInfo();
+        }
+        if (a) {
+            if ((c.getCarrierCo() == "ca" && d)) {
+                j = c.getTGQInfo();
+            } else {
+                j = '<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>';
+            }
         }
 
         function k() {
@@ -9432,11 +9439,13 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
             var n = c.isPlus();
             p && (A = p.length);
             if (z.viewType == 1 && A > 0) {
-                if ((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && (!n || (a && !d)) && !c.isFreeMan()) {
+                if (((c.fanxian() || c.isTCabin() || c.isAnonymityVendor()) && !n && !c.isFreeMan()) || a) {
                     var t = u.msg.split("|");
                     var q = c.fanxian() ? "如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）" : "如立减促销产品退改规则不能满足您的需求，请选购非立减促销产品或放弃立减优惠。（儿童票不参与立减促销活动）";
                     if (a) {
-                        x.push('<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>');
+                        if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
+                            x.push('<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>');
+                        }
                     } else {
                         if (c.fanxian()) {
                             x.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>');
@@ -9454,7 +9463,9 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
                     }
                     x.push("</ul>");
                     if (a) {
-                        x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                        if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
+                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                        }
                     } else {
                         if (!c.isAnonymityVendor()) {
                             x.push('<p class="addtip"> 附加说明：<br>', q, " </p>");
@@ -9481,10 +9492,14 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
                 }
             } else {
                 if (z.tgqText) {
-                    if (a && !d) {
-                        x.push('<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>');
+                    if (a) {
+                        if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
+                            x.push('<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>');
+                        }
                         x.push(z.tgqText);
-                        x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                        if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
+                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                        }
                     } else {
                         if (c.fanxian() && !n && !d) {
                             x.push('<p class="fb"> 此产品参与<span class="hg">返现</span>促销活动，起飞后<span class="hg">24小时内</span>返现到原支付账户，退票或改签适用以下促销退改签规则： </p>', z.tgqText, '<p class="addtip"> 附加说明：<br> 如提出退票／改签等服务要求，将收回返现。（儿童票不参与返现促销活动）</p>');
@@ -9777,46 +9792,48 @@ OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
-    var g = i;
-    var d = g.vendor(),
-        h = parseInt(g.afeePrice()),
-        b = g.lijian();
-    var f = g.ownerFlight();
-    if (d.isDirect()) {
+    var f = i;
+    var j = f.vendor(),
+        a = parseInt(f.afeePrice()),
+        h = f.lijian(),
+        b = f.isCsyf(),
+        k = f.isYoufei();
+    var d = f.ownerFlight();
+    if (j.isDirect()) {
         this.text('<div class="v_ofc">');
-        this.text('<div class="t_name">', g.vendorName(), "</div>");
+        this.text('<div class="t_name">', f.vendorName(), "</div>");
         this.text('<div class="t_cmt t_yxfan"><i class="ico_hongbao"></i><strong>30</strong>元酒店红包<br>(支付成功后有机会领取)</div>');
         this.text("</div>");
     } else {
-        if (g.isYoufei()) {
-            if (g.isCsyf()) {
-                var c = h + g.lijian();
-                var a = g.hasPickCar() ? '原价<i class="rmb">&yen;</i>' + c + " " : "";
+        if ((b && f.getCarrierCo() != "ca") || (k && !b)) {
+            if (b) {
+                var g = a + f.lijian();
+                var c = f.hasPickCar() ? '原价<i class="rmb">&yen;</i>' + g + " " : "";
                 this.text('<div class="v_ofc">');
-                this.text('<div class="t_name">', g.vendorName());
-                this._insertAuthVendor(g);
+                this.text('<div class="t_name">', f.vendorName());
+                this._insertAuthVendor(f);
                 this.text("</div>");
                 this.text('<div class="t_youfei v_csyf_ex">');
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-                this.text('<i class="ico_yfbi"></i>' + a + "送" + b + '个优飞币 立抵<i class="rmb">&yen;</i>' + b);
+                this.text('<i class="ico_yfbi"></i>' + c + "送" + h + '个优飞币 立抵<i class="rmb">&yen;</i>' + h);
                 this._insertYoufeiTip();
                 this.text("</span>");
                 this.text("</div>");
                 this.text("</div>");
             } else {
                 this.text('<div class="v_yf_explain v_yf_ex">');
-                this._insertAuthVendor(g);
+                this._insertAuthVendor(f);
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-                this.text('<i class="ico_yfbi"></i>可使用' + b + '个优飞币 立抵现金<i class="rmb">&yen;</i>' + b);
+                this.text('<i class="ico_yfbi"></i>可使用' + h + '个优飞币 立抵现金<i class="rmb">&yen;</i>' + h);
                 this._insertYoufeiTip();
                 this.text("</span>");
                 this.text("</div>");
             }
         } else {
-            if (g.isUfee()) {
+            if (f.isUfee()) {
                 this.text('<div class="v_yf">');
-                this.text('<div class="t_name">', g.vendorName());
-                this._insertAuthVendor(g);
+                this.text('<div class="t_name">', f.vendorName());
+                this._insertAuthVendor(f);
                 this.text("</div>");
                 this.text('<div class="t_cmt t_youfei v_songbi_ex">');
                 this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
@@ -9826,20 +9843,20 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
                 this.text("</div></div>");
             } else {
                 this.text('<div class="v1">');
-                this.text('<div class="t_name">', g.vendorName());
-                this._insertAuthVendor(g);
+                this.text('<div class="t_name">', f.vendorName());
+                this._insertAuthVendor(f);
                 this.text("</div>");
-                if (g.isAnonymityVendor()) {
+                if (f.isAnonymityVendor()) {
                     this.text('<div class="t_cmt">超值特惠单程机票</div>');
                 } else {
                     this.text('<div class="t_cmt">');
-                    this.starUI.displayPanel(g);
+                    this.starUI.displayPanel(f);
                     this.text("</div>");
                 }
                 this.text("</div>");
                 this.text('<div class="v2"><div class="e_btn_cmt">');
-                if (!g.isAnonymityVendor()) {
-                    this.starUI.insert_btn(g);
+                if (!f.isAnonymityVendor()) {
+                    this.starUI.insert_btn(f);
                 }
                 this.text("</div></div>");
             }
@@ -10103,7 +10120,7 @@ OnewayFlightWrapperUI.prototype.insert_returnMoney = function(f) {
                 this.text('<div class="p_tips_content">优飞币专享 原价<i class="rmb">&yen;', h, "</i></div>");
             } else {
                 if (c) {
-                    this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;已抵扣<i class="rmb">&yen;', i, "</i></div>");
+                    g.getCarrierCo() != "ca" && this.text('<div class="p_tips_content"> 原价<i class="rmb">&yen;', h, '</i>&nbsp;已抵扣<i class="rmb">&yen;', i, "</i></div>");
                 } else {
                     if (b) {
                         this.text('<div class="p_tips_content plus"> 可立减<i class="rmb">&yen;', i, "</i></div>");
@@ -10365,35 +10382,6 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_VENDORNAME = function(b) {
     }
     this.onInit(this._authorizeVendorHover);
     this.onInit(this._youfeiExplainHover);
-};
-ZiyouxingOnewayFlightWrapperUI.prototype._insertYoufeiTip = function(a) {
-    var c = '<li class="get_bi">                        <h5>如何获得优飞币？</h5>                        <p>购买带有<i class="ico_yfbi"></i>的产品，即可获得与支付金额相等数量的优飞币。<br>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内<br>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>                    </li>';
-    var b = '<li class="spend_bi">                            <h5>如何使用优飞币？</h5>                            <p>优飞币是一种优惠，购买带<i class="ico_yfbi"></i>的机票产品，1优飞币可抵1元现金。<br>* 如所拥有优飞币数量小于订单要求数量，则不可使用<br>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>                        </li>';
-    var d;
-    if (a) {
-        d = c + b;
-    } else {
-        d = b + c;
-    }
-    this.append("<div", "js_yf_tip_panel", ' class="yf_tip_panel p_tips_cont">');
-    this.text('<div class="p_tips_wrap">                            <div class="p_tips_arr p_tips_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>                            <div class="p_tips_content">                                <ul>' + d + "</ul>                            </div>                        </div>");
-    this.text("</div>");
-};
-ZiyouxingOnewayFlightWrapperUI.prototype._youfeiExplainHover = function() {
-    var b = this.find("js_yf_tip_handle");
-    var a = this.find("js_yf_tip_panel");
-    if (!b && !a) {
-        return;
-    }
-    $jex.hover({
-        act: b,
-        onmouseover: function() {
-            a.style.display = "block";
-        },
-        onmouseout: function() {
-            a.style.display = "none";
-        }
-    });
 };
 ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
     if (f && f.isNoAuth()) {
