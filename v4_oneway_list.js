@@ -3819,6 +3819,64 @@ window.searchTrack = (function(d) {
             this.fltType = h;
             this._bindEvents();
         },
+        _updateTime: function(h, k, i) {
+            var j = this;
+            if (window.QNR) {
+                if (window.QNR.isLocal !== undefined) {
+                    if (~h.indexOf("from")) {
+                        var l = k.indexOf("(");
+                        if (i) {
+                            e = i;
+                        }
+                        if (l === -1) {
+                            l = k.length;
+                        }
+                        $jex.jsonp("http://flight.qunar.com/twelli/flight/localDate.jsp", {
+                            depCity: decodeURI(k.substr(0, l))
+                        }, function(n) {
+                            if (window.QNR) {
+                                window.QNR.isLocal = n.isLocal;
+                            } else {
+                                window.QNR = {};
+                                window.QNR.isLocal = n.isLocal;
+                            }
+                            var p = n.localDate.replace(/-/g, "/");
+                            window.GSERVER_TIME = new Date(p);
+                            if (n.isLocal) {
+                                window.QNR[k.substr(0, l)] = GSERVER_TIME;
+                            } else {
+                                GSERVER_TIME = new Date(SERVER_TIME.getFullYear(), SERVER_TIME.getMonth(), SERVER_TIME.getDate());
+                            }
+                            if (e) {
+                                if (~e.indexOf("domes")) {
+                                    var o = j.DMT.fromDate.inputEl.value;
+                                    if (new Date(o.replace(/-/g, "/")).getTime() < GSERVER_TIME.getTime()) {
+                                        j.DMT.fromDate.setValue(n.localDate);
+                                    }
+                                    j.DMT.fromDate.setInfo(QunarDate.getDateTip(j.DMT.fromDate.inputEl.value), "", "");
+                                } else {
+                                    if (~e.indexOf("inter")) {
+                                        var o = j.INT.fromDate.inputEl.value;
+                                        if (new Date(o.replace(/-/g, "/")).getTime() < GSERVER_TIME.getTime()) {
+                                            j.INT.fromDate.setValue(n.localDate);
+                                        }
+                                        j.INT.fromDate.setInfo(QunarDate.getDateTip(j.INT.fromDate.inputEl.value), "", "");
+                                    } else {
+                                        var m = QunarDate.getDateTip(j.MULT.fromDate.inputEl.value);
+                                        m && j.MULT.fromDate.setInfo(m, "", "");
+                                    }
+                                }
+                            }
+                        }, {
+                            timeout: {
+                                time: 500,
+                                func: function() {}
+                            }
+                        });
+                    }
+                }
+            }
+        },
         _bindEvents: function() {
             this._bindFocusEvent();
             this._bindSelectSuggest();
@@ -3828,9 +3886,10 @@ window.searchTrack = (function(d) {
         },
         _bindErrorInfo: function() {
             var l = this;
-            var h = function() {
-                var i = ["ErrorSuggestInfo", encodeURIComponent(l.inputElem.value), l.inputType, l._type];
-                a(i.join("|"));
+            var h = function(i) {
+                l._updateTime(l.inputType, l.inputElem.value);
+                var r = ["ErrorSuggestInfo", encodeURIComponent(l.inputElem.value), l.inputType, l._type];
+                i && a(r.join("|"));
             };
             $jex.each(this.ControlFlt, function(t, i) {
                 if (t) {
@@ -3947,6 +4006,7 @@ window.searchTrack = (function(d) {
                     if (!r) {
                         r = "city";
                     }
+                    l._updateTime(l.inputType, u);
                     var t = "suggest-selected|" + r + "|" + encodeURIComponent(u) + "|" + i + "|" + l.inputType + "|" + l._type;
                     a(t);
                     l.sflag = true;
@@ -4006,6 +4066,7 @@ window.searchTrack = (function(d) {
                 d.event.bind(this, "keyup", k);
             };
             var n = function(i) {
+                l._updateTime(this.name, this.value);
                 if (!l.outflag && l.noflag && !l.sflag) {
                     var s = "suggest-nofind|" + encodeURIComponent(this.value) + "|" + b + "|" + this.name + "|" + i;
                     a(s);
@@ -6953,6 +7014,7 @@ SortHandler.prototype.setSortKey = function(a) {
     this._setting.sortKey = a;
 };
 (function() {
+    window.GSERVER_TIME = null;
     $jex.console.error("加载与处理js耗时:", new Date() - CLIENT_TIME);
     $jex.console.start("begin init....");
     document.domain = "qunar.com";
@@ -7193,9 +7255,35 @@ SortHandler.prototype.setSortKey = function(a) {
     LOG_SPIDER.init();
     c.start("t_firstData");
     i.search(f);
+    $jex.jsonp("http://flight.qunar.com/twelli/flight/localDate.jsp", {
+        depCity: f.searchDepartureAirport
+    }, function(e) {
+        if (window.QNR) {
+            window.QNR.isLocal = e.isLocal;
+        } else {
+            window.QNR = {};
+            window.QNR.isLocal = e.isLocal;
+        }
+        var s = e.localDate.replace(/-/g, "/");
+        GSERVER_TIME = new Date(s);
+        if (e.isLocal) {
+            window.QNR[f.searchDepartureAirport] = GSERVER_TIME;
+        } else {
+            GSERVER_TIME = new Date(SERVER_TIME.getFullYear(), SERVER_TIME.getMonth(), SERVER_TIME.getDate());
+        }
+    }, {
+        timeout: {
+            time: 200,
+            func: function() {
+                if (window.QNR.isLocal === undefined) {
+                    GSERVER_TIME = new Date(SERVER_TIME.getFullYear(), SERVER_TIME.getMonth(), SERVER_TIME.getDate());
+                }
+            }
+        }
+    });
     setTimeout(function() {
         b();
-    }, 10);
+    }, 20);
     $jex.console.end("初始化所耗时");
 })();
 
