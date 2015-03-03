@@ -7301,32 +7301,41 @@ FEMonitor.fn._init = function(a) {
     this.logurl = a.logurl;
     this.module = a.module;
     this.interval = a.interval;
+    this.ua = this._getBrowser();
 };
-FEMonitor.fn.addMonitor = function(e, c, d) {
-    if (!e || !c) {
+FEMonitor.fn.addMonitor = function(f, d, e, b) {
+    if (!f || !d) {
         return;
     }
     var a = this,
-        b = function(f) {
-            a._sendLog(d || f);
+        c = function(g) {
+            a._sendLog(e || g, b, g);
         };
-    $jex.event.bind(e, c, b);
+    $jex.event.bind(f, d, c);
 };
-FEMonitor.fn._sendLog = function(c) {
-    if (typeof c !== "string") {
+FEMonitor.fn._sendLog = function(f, b, a) {
+    if (typeof f !== "string") {
         return;
     }
-    var d = this.module + "_" + c,
-        b = new Date().getTime(),
-        a = {
-            id: d,
+    var g = 0;
+    if (a && typeof a == "number") {
+        g = a;
+    }
+    var h = this.module + "_" + f,
+        e = new Date().getTime(),
+        d = {
+            id: h,
             n: 1,
             type: 1,
-            s: this.interval,
-            t: b,
-            token: this._calcToken(d, b)
-        };
-    (new Image()).src = this.logurl + "?" + this._obj2str(a);
+            s: g,
+            t: e,
+            token: this._calcToken(h, e)
+        },
+        c = this.ua;
+    if (b) {
+        d.id += "_" + c.browser;
+        d.v = c.version;
+    }(new Image()).src = this.logurl + "?" + this._obj2str(d);
 };
 FEMonitor.fn._obj2str = function(d, b) {
     if (!d) {
@@ -7354,6 +7363,18 @@ FEMonitor.fn._cacheLog = function(a) {
 FEMonitor.fn._sendCache = function() {};
 FEMonitor.fn._calcToken = function(b, a) {
     return "";
+};
+FEMonitor.fn._getBrowser = function() {
+    var d = {};
+    var b = navigator.userAgent.toLowerCase();
+    var c;
+    (c = b.match(/rv:([\d.]+)\) like gecko/)) ? d.browser = "IE11": (c = b.match(/msie ([\d.]+)/)) ? d.browser = "IE" : (c = b.match(/firefox\/([\d.]+)/)) ? d.browser = "Firefox" : (c = b.match(/chrome\/([\d.]+)/)) ? d.browser = "Chrome" : (c = b.match(/opera.([\d.]+)/)) ? d.browser = "Opera" : (c = b.match(/version\/([\d.]+).*safari/)) ? d.browser = "Safari" : d.browser = "OtherBrowser";
+    d.version = c[1];
+    if (d.browser == "IE") {
+        var a = parseInt(d.version);
+        d.browser = a <= 7 ? "IE6/7" : a == 8 ? "IE8" : "IE9/10";
+    }
+    return d;
 };
 var fem = new FEMonitor({
     module: "F_LP_FL_OW"
