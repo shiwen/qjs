@@ -6658,9 +6658,10 @@ ConfigManager.setConfig({
         }
     }
 });
-var flightResultController = function(a, b) {
+var flightResultController = function(a, b, c) {
     this.service = a;
     this.analyzer = b;
+    this.param = c;
     this.initUI();
     this.bindUI();
     System.analyzer.triggerTrace = false;
@@ -6679,6 +6680,9 @@ flightResultController.prototype.initUI = function() {
         on: {
             cabinChange: function(c) {
                 this.isOnlySelBfCabinType(c);
+            },
+            oneItemclicked: function(c) {
+                b.bookBtnTracker.send(c);
             }
         }
     });
@@ -6916,6 +6920,7 @@ flightResultController.prototype.initUI = function() {
             $jex.event.trigger(d.sort_price_handler, "cabinChange", f);
         }
     };
+    this.bookBtnTracker = new BookBtnTracker(this);
 };
 flightResultController.prototype.bindUI = function() {
     var b = this;
@@ -6996,6 +7001,7 @@ SortHandler.prototype._init = function() {
     var a = this;
     var b = $jex.$(this._setting.elemId);
     var c = b.getElementsByTagName("i")[0];
+    a.arrow = c;
     $jex.event.binding(b, "click", function(d) {
         $jex.stopEvent(d);
         if (a.state()) {
@@ -7012,6 +7018,120 @@ SortHandler.prototype._init = function() {
 };
 SortHandler.prototype.setSortKey = function(a) {
     this._setting.sortKey = a;
+};
+
+function BookBtnTracker(a) {
+    this.condition = {};
+    this.service = a.service;
+    this.analyzer = a.analyzer;
+    this.resultList = a.resultList;
+    this.filterGroup = a.filterGroup;
+    this.pager = a.pager;
+    this.pagesizer = a.pagesizer;
+    this.sort_price_handler = a.sort_price_handler;
+    this.sort_time_handler = a.sort_time_handler;
+    this.init(a);
+}
+BookBtnTracker.prototype.init = function(a) {
+    this.condition = {
+        dc: a.param.fromCode,
+        ac: a.param.toCode,
+        dd: a.param.searchDepartureTime
+    };
+};
+BookBtnTracker.prototype.fixParam = function(b) {
+    var a = arguments.length;
+    this._param = $jex.merge(this._param, b);
+};
+BookBtnTracker.prototype.send = function(f) {
+    var n = this,
+        f = f;
+    var a = {},
+        j = this.filterGroup,
+        m = {
+            起 飞 时 间: "dt", � �型: "pt", � �� �公 司: "hs", 起 飞 � �� �: "da", 降 落 � �� �: "aa", 舱 位: "ca", 方 式: "df"
+        };
+    $jex.foreach(["起飞时间", "机型", "航空公司", "起飞机场", "降落机场", "舱位", "方式"], function(p, o) {
+        var q = j.getFilterUI(p);
+        a[m[p]] = q ? ((q.getValue() || "").join("|")) : -1;
+    });
+    var c = {},
+        g = n.sort_price_handler,
+        h = n.sort_time_handler;
+    if (g || h) {
+        $jex.array.each([g, h], function(q, r) {
+            var p = r == 0 ? "pr" : "dt";
+            var o = q && q.arrow.className;
+            if (o === "i_arr_ud") {
+                c[p] = 0;
+            } else {
+                if (o === "i_arr_ud_up") {
+                    c[p] = 1;
+                } else {
+                    if (o === "i_arr_ud_down") {
+                        c[p] = 2;
+                    }
+                }
+            }
+        });
+    }
+    var l = n.analyzer.pageInfo();
+    var e = n.resultList;
+    var k = e.currentDataMap;
+    var b = e.isOnlySelBfCabinType();
+    var i = $jex.array.map(k, function(p, q) {
+        var o;
+        if (p.type == "transfer") {
+            o = [p.firstTrip(), p.secondTrip()];
+        } else {
+            o = [p];
+        }
+        return $jex.merge({
+            no: q,
+            pr: b ? p.bfLowestPrice() || "" : p.lowestPrice() || "",
+            dc: b ? "" : PriceUtil.getTransferDiscount(p.lowestDiscount()),
+            tag: (p.showTag || []).join("|"),
+            key: p.flightKeyCode(),
+            trip: $jex.array.map(o, function(u) {
+                var t = u.flightInfo(),
+                    s = u.plane(),
+                    r = u.extInfo() || {};
+                return {
+                    ptf: s.full,
+                    pt: t.pt,
+                    ca: t.ca,
+                    co: t.co,
+                    da: t.da,
+                    aa: t.aa,
+                    dd: t.dd,
+                    dt: t.dt,
+                    at: t.at,
+                    ra: u.onTimeRate(),
+                    ad: u.delayTime(),
+                    sa: u.stopover() ? u.spAirPort() : "",
+                    st: u.stopover(),
+                    cs: r.cs || ""
+                };
+            })
+        });
+    });
+    l.pageSize = i.length || 0;
+    var d = {
+        condition: n.condition,
+        filter: a,
+        page: l,
+        sort: c,
+        pageData: i,
+        choose: f.dataSource().flightKeyCode(),
+        t: new Date().getTime()
+    };
+    $jex.ajax("/rms/data/pickflight.json", d, function() {}, {
+        onerror: n._onerror,
+        method: "POST"
+    });
+};
+BookBtnTracker.prototype._onerror = function() {
+    $jex.event.trigger(self, "onerror", arguments);
 };
 (function() {
     window.GSERVER_TIME = null;
@@ -7066,7 +7186,7 @@ SortHandler.prototype.setSortKey = function(a) {
     h.setSearchService(i);
     i.setAnalyzer(h);
     window.SS = i;
-    var a = new flightResultController(i, h);
+    var a = new flightResultController(i, h, f);
     var l = new FlashAdUI({
         elemId: "hdivResultPanel"
     });

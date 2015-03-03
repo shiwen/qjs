@@ -7139,6 +7139,7 @@ FlightListUI.prototype._addFlightUI = function(b, a) {
         $jex.event.binding(g, "open", function() {
             c.getSorter().open(g.dataSource());
             c._track("open", b);
+            $jex.event.trigger(c, "oneItemclicked", this);
             try {
                 var h = b.firstTrip ? true : false;
                 TraceAnalyzer.open = TraceAnalyzer.create().addOpenInfo(b, {
@@ -8367,54 +8368,62 @@ OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
     var c = ["lqf", "hot", "ps", "late", "lcc"],
         a = ["i_org_lqf", "i_org_hot", "i_org_hot", "dot_gy", "dot_gy"],
         b = ["临起飞", "热门", "票少", "易晚点", "廉航!"];
-    return function(l, g) {
-        var m = !this._sinfoHTML;
+    return function(m, d) {
+        var g = !this._sinfoHTML;
+        var l = [];
         if (!this.sinfoCache) {
-            var k = HotSale.hotSaleInfo(l),
-                f = [];
-            this.sinfoCache = k;
-            for (var d = 0; d < 5; d++) {
-                if (k[c[d]]) {
-                    f.push('<div class="a_pct clrfix">');
+            var f = HotSale.hotSaleInfo(m),
+                k = [];
+            this.sinfoCache = f;
+            this.tagCache = [];
+            for (var h = 0; h < 5; h++) {
+                if (f[c[h]]) {
+                    k.push('<div class="a_pct clrfix">');
                     if ($jex.ie == 6) {
-                        f.push('<i class="', a[d], '" title="', k[c[d]], '">', b[d], "</i>");
+                        k.push('<i class="', a[h], '" title="', f[c[h]], '">', b[h], "</i>");
                     } else {
-                        f.push('<i class="', a[d], '">', b[d], "</i>");
-                        f.push(this._getTipHTML(k[c[d]]));
+                        k.push('<i class="', a[h], '">', b[h], "</i>");
+                        k.push(this._getTipHTML(f[c[h]]));
                     }
-                    f.push("</div>");
-                    m = false;
+                    k.push("</div>");
+                    g = false;
+                    this.tagCache.push(b[h]);
                     break;
                 }
             }
-            this._sinfoHTML = f.join("");
+            this._sinfoHTML = k.join("");
         }
         if (this._sinfoHTML) {
             this.text(this._sinfoHTML);
+            l = this.tagCache.concat();
         }
-        if (!l.isAV()) {
-            var j = l.priceInfo();
-            if ((j && j.lpt != null)) {
-                var h = j.lpt;
-                if (h == 1) {
-                    m = false;
+        if (!m.isAV()) {
+            var n = m.priceInfo();
+            if ((n && n.lpt != null)) {
+                var j = n.lpt;
+                if (j == 1) {
+                    g = false;
                     this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
+                    l.push("头等舱");
                 } else {
-                    if (h == 2) {
-                        m = false;
+                    if (j == 2) {
+                        g = false;
                         this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
+                        l.push("商务舱");
                     } else {
-                        if (g) {
-                            m = false;
+                        if (d) {
+                            g = false;
                             this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
+                            l.push("头等舱");
                         }
                     }
                 }
             }
         }
-        if (m) {
+        if (g) {
             this.text("&nbsp");
         }
+        m.showTag = l;
     };
 })();
 OnewayFlightUI.prototype._getTipHTML = function(a) {
@@ -9384,7 +9393,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
             if ((c.getCarrierCo() == "ca" && d)) {
                 j = c.getTGQInfo();
             } else {
-                j = '<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>';
+                j = '<p class="fb"> 此产品参与<span class="hg">优飞</span>活动，退票或改签适用以下促销退改签规则： </p>' + c.getTGQInfo() + '<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃优飞活动优惠。（儿童票、婴儿票不参与优飞促销活动）</p>';
             }
         }
 
@@ -9480,7 +9489,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
                     x.push("</ul>");
                     if (a) {
                         if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
-                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃优飞活动优惠。（儿童票、婴儿票不参与优飞促销活动）</p>');
                         }
                     } else {
                         if (!c.isAnonymityVendor()) {
@@ -9514,7 +9523,7 @@ OnewayFlightWrapperUI.prototype._bindOnInitEvent = function(f) {
                         }
                         x.push(z.tgqText);
                         if ((c.getCarrierCo() != "ca" && d) || (a && !d)) {
-                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃立减优惠。（儿童票、婴儿票不参与立减促销活动）</p>');
+                            x.push('<p class="addtip"> 附加说明：<br>如优飞产品退改规则不能满足您的需求，请选购非优飞产品或放弃优飞活动优惠。（儿童票、婴儿票不参与优飞促销活动）</p>');
                         }
                     } else {
                         if (c.fanxian() && !n && !d) {
