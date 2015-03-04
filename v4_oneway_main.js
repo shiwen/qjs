@@ -16415,7 +16415,7 @@ var __hotCityListTo__ = [{
 }, {
     name: "深圳",
     country: "中国",
-    code: "CZX"
+    code: "SZX"
 }, {
     name: "厦门",
     country: "中国",
@@ -18214,7 +18214,7 @@ var _tabConfig = {
                 country: "中国台湾",
                 code: "KHH"
             }, {
-                name: "新德里",
+                name: "德里",
                 country: "印度",
                 code: "DEL"
             }, {
@@ -18736,7 +18736,7 @@ var _tabConfig = {
                 country: "中国台湾",
                 code: "KHH"
             }, {
-                name: "新德里",
+                name: "德里",
                 country: "印度",
                 code: "DEL"
             }, {
