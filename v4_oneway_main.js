@@ -5538,6 +5538,8 @@ WrapperEntity.prototype.vClass = function() {
             return "ico_scar";
         case 8:
             return "ico_scar";
+        case 9:
+            return "ico_scar";
         default:
             return "";
     }
@@ -5551,6 +5553,8 @@ WrapperEntity.prototype.carType = function() {
             return "接机代金券";
         case 8:
             return "送机代金券";
+        case 9:
+            return "接送机代金券";
         default:
             return "";
     }
@@ -5563,10 +5567,13 @@ WrapperEntity.prototype.carInfo = function() {
             b = "<p>1.聚划算：机票+接机</p><p>2.舒适型：凯美瑞、奥迪A6L等同级车型，可乘4人</p><p>3.一口价：包含到达城市一次接机所有费用，如停车费、过路费等 </p><p>4.服务好：专业培训，服务贴心</p>";
             return b;
         case 7:
-            b = "<p>1.凭代金券专享15或20公里内免费接机（超出公里部分可能会收取少量费用）</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+            b = "<p>1.凭代金券专享15或20公里内免费接机（超出公里部分可能会收取少量费用）</p><p>2.限到达城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)、商务型(别克GL8等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
             return b;
         case 8:
-            b = "<p>1.每张代金券可在出发城市的送机服务中抵用部分金额</p><p>2.限出发城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+            b = "<p>1.每张代金券可在出发城市的送机服务中抵用部分金额</p><p>2.限出发城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)、商务型(别克GL8等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
+            return b;
+        case 9:
+            b = "<p>2. 凭代金券专享15或20公里内免费接机或送机服务（哈尔滨、杭州、重庆需额外支付少量费用）</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、<br>厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 限去哪儿专车供应商，舒适型(奥迪A6L等同级车型)、商务型(别克GL8等同级车型)使用</p><p>5. 自购买机票之日起180天内可用</p>";
             return b;
         default:
             return "";
@@ -5587,6 +5594,8 @@ WrapperEntity.prototype.vPrd = function() {
         case 7:
             return "代金券";
         case 8:
+            return "代金券";
+        case 9:
             return "代金券";
         default:
             return "";
@@ -5612,7 +5621,7 @@ WrapperEntity.prototype.vName = function() {
     }
 };
 WrapperEntity.prototype.hasPickCar = function() {
-    return (this.vType() == "5" || this.vType() == "7" || this.vType() == "8");
+    return (this.vType() == "5" || this.vType() == "7" || this.vType() == "8" || this.vType() == "9");
 };
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
@@ -10438,32 +10447,34 @@ ZiyouxingOnewayFlightWrapperUI.prototype._insertAuthVendor = function(f) {
         this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div><div class="p_tips_content">', j ? (j + "<br/>") : "", b, "</div></div></span>");
     }
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(h) {
-    var g = h.afeePrice();
-    var d = h.afee();
-    var c = h.vPrice();
-    var f = d + c;
-    if (h.isNotWork()) {
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE = function(j) {
+    var a = j.afeePrice();
+    var d = j.afee();
+    var g = j.vPrice();
+    var h = j.vAmount();
+    var f = h == 1 ? "" : "*" + h;
+    var c = d + g * h;
+    if (j.isNotWork()) {
         this.text('<div class="v5"><span class="noPrice">暂无报价</span></div><div class="v6">&nbsp;</div>');
     } else {
-        if (h.hasPickCar()) {
-            var a = h.carType();
+        if (j.hasPickCar()) {
+            var i = j.carType();
             this.text('<div class="v5">');
             var b = false;
-            if (h.vType() == 7 || h.isLowestPr()) {
+            if (j.vType() == 7 || j.isLowestPr()) {
                 b = true;
             }
-            this.priceHTML(g, b ? "t_prc_lp" : "", h);
+            this.priceHTML(a, b ? "t_prc_lp" : "", j);
             this.text("</div>");
             this.text('<div class="v6"><div class="t_ins">');
-            this.text("+", f, "套餐");
+            this.text("+", c, "套餐");
             this.text('<div class="pick_car_tips">', '<div class="p_tips_cont" style="display: block;">', '<div class="p_tips_wrap">');
             this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
-            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', c, a, '+<i class="rmb">&yen;</i>', d, "保险</div>");
+            this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', g, i, f, '+<i class="rmb">&yen;</i>', d, "保险</div>");
             this.text("</div>", "</div>", "</div>");
             this.text("</div></div>");
         } else {
-            this.insert_PRICE_ZYX(h);
+            this.insert_PRICE_ZYX(j);
         }
     }
 };
@@ -10483,12 +10494,17 @@ ZiyouxingOnewayFlightWrapperUI.prototype.insert_PRICE_ZYX = function(a) {
     this.text("+", a.afee(), "保险");
     this.text("</div></div>");
 };
-ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(b) {
-    var a = b.carInfo();
+ZiyouxingOnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(d) {
+    var b = d.carInfo();
     this.append('<div class="p_tips_cont" ', "pick_car_panel", ">");
     this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content">');
-    this.text(a);
+    if (d.vType() == 9 || d.vType() == "9") {
+        var c = d.vPrice();
+        var a = d.vAmount();
+        this.text('<p>1. 套餐包含价值<i class="rmb">&yen;</i>', c, "接送机代金券", a, "张</p>");
+    }
+    this.text(b);
     this.text("</div></div></div>");
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_ZYX = function(a) {
