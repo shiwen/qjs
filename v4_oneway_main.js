@@ -15685,109 +15685,116 @@ FlightSuggestItemListLayer.prototype.error = function() {
     a.text('<tr class="illrow error">', "<td>", this.popup.own.setting.errorSuggestTip || "输入错误", "</td>", "</tr>");
     a.write(this.popup.panel);
 };
-FlightSuggestItemListLayer.prototype.refresh = function(y, n, h) {
-    this.cacheData = y.result;
-    var g = y.result.length;
+FlightSuggestItemListLayer.prototype.refresh = function(z, o, h) {
+    this.cacheData = z.result;
+    var g = z.result.length;
     this.cursor = -1;
     if (this.nodes.length > 0) {
-        for (var u = 0; u < this.nodes.length; u++) {
-            var o = this.nodes[u];
-            o.item = null;
-            o.layer = null;
-            $jex.event.clear(o);
+        for (var w = 0; w < this.nodes.length; w++) {
+            var p = this.nodes[w];
+            p.item = null;
+            p.layer = null;
+            $jex.event.clear(p);
         }
     }
-    for (var u = 0, s = this.cacheData.length; u < s; u++) {
-        var l = this.cacheData;
-        if (l[u].type === 8 && this.isFuzzy) {
-            g = u + 1;
+    for (var w = 0, t = this.cacheData.length; w < t; w++) {
+        var m = this.cacheData;
+        if (m[w].type === 8 && this.isFuzzy) {
+            g = w + 1;
         }
-        l[u].ftype = l[u].type;
-        if (l[u].type === 4 || l[u].type === 9) {
-            var f = l[u].type;
-            var c = u - 1;
-            var t = false;
-            for (var q = u;
-                (q < s && !t); q++) {
-                if (l[q].type === f) {
-                    l[q].ftype = l[c].ftype;
+        m[w].ftype = m[w].type;
+        if (m[w].type === 4 || m[w].type === 9) {
+            var f = m[w].type;
+            var c = w - 1;
+            var u = false;
+            for (var s = w;
+                (s < t && !u); s++) {
+                if (m[s].type === f) {
+                    m[s].ftype = m[c].ftype;
                 } else {
-                    u = q - 1;
-                    q = 100;
-                    t = true;
+                    w = s - 1;
+                    s = 100;
+                    u = true;
                 }
             }
         }
-        if (l[u].ftype === 3) {
-            l[u].ftypename = "city";
+        if (m[w].ftype === 3) {
+            m[w].ftypename = "city";
         }
-        if (l[u].ftype === 1) {
-            l[u].ftypename = "city";
+        if (m[w].ftype === 1) {
+            m[w].ftypename = "city";
         }
-        if (l[u].display.indexOf("机场") !== -1 || l[u].display.indexOf("Airport") !== -1) {
-            l[u].ftypename = "airport";
+        if (m[w].display.indexOf("机场") !== -1 || m[w].display.indexOf("Airport") !== -1) {
+            m[w].ftypename = "airport";
         }
-        if (l[u].ftype === 6) {
-            l[u].ftypename = "attraction";
+        if (m[w].ftype === 6) {
+            m[w].ftypename = "attraction";
         }
-        if (l[u].ftype === 8) {
-            l[u].ftypename = "country";
+        if (m[w].ftype === 8) {
+            m[w].ftypename = "country";
         }
-        if (l[u].ftype === 7) {
-            l[u].ftypename = "state";
+        if (m[w].ftype === 7) {
+            m[w].ftypename = "state";
         }
     }
     this.nodes.length = 0;
-    var d = y.q;
-    var l = y.result;
-    var k = y.userInput.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-    var a = new RegExp("(" + k + ")", "i");
-    l = l.slice(0, g);
-    var b = new UIObject();
-    if (!!y.c) {
-        b.text('<div class="qcity_guess">你要找的是不是<span class="hl">', k, "</span></div>");
+    var d = z.q;
+    var m = z.result;
+    var l = z.userInput.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+    var a = new RegExp("(" + l + ")", "i");
+    m = m.slice(0, g);
+    var k = [];
+    for (var w = 0, t = m.length; w < t; w++) {
+        if (m[w].type !== 9) {
+            k.push(m[w]);
+        }
     }
-    if (n) {
+    m = k;
+    var b = new UIObject();
+    if (!!z.c) {
+        b.text('<div class="qcity_guess">你要找的是不是<span class="hl">', z.result[0].key, "</span></div>");
+    }
+    if (o) {
         b.text('<div class="qcity_guess">找不到<span class="hl">', h, "</span></div>");
     }
-    if (this.isFuzzy && l[l.length - 1].display != this.allPlace) {
-        l.push({
+    if (this.isFuzzy && m[m.length - 1].display != this.allPlace) {
+        m.push({
             country: "中国",
             display: this.allPlace,
             key: this.allPlace,
             type: 0
         });
     }
-    if (!n) {
-        $jex.event.trigger(this, "getResultData", y.result.length);
+    if (!o) {
+        $jex.event.trigger(this, "getResultData", z.result.length);
     }
     b.append("<table", "suggestList", ' class="ill" cellspacing="0" cellpadding="0" >');
-    var w = l.length - 1;
-    for (var u = 0; u < l.length; u++) {
-        $jex.event.trigger(this, "haveData", w);
-        var p = l[u];
-        var x = (p.type == 4) ? "nearbyAirport" : "";
-        if (p.display.indexOf(h) != -1) {
+    var x = m.length - 1;
+    for (var w = 0; w < m.length; w++) {
+        $jex.event.trigger(this, "haveData", x);
+        var q = m[w];
+        var y = (q.type == 4) ? "nearbyAirport" : "";
+        if (q.display.indexOf(h) != -1) {
             h = h.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
             a = new RegExp("(" + h + ")", "i");
         }
-        b.text('<tr class="illrow ', x, '"', ">");
-        b.append("<td ", u).text(' class="illn" hashkey="', p.key, '"', ((p.type == 1) ? 'noAirport="true"' : ""), ">", ((p.type == 4) ? "·邻近机场:" : ""), ((p.type == 9) ? "·相关城市:" : ""), p.display.replace(a, '<span class="keystring">$1</span>'), ((p.type == 9) ? "<span>(" + p.enname + ")</span>" : ""), ((p.length) ? "<span>-" + p.length + "公里</span>" : ""), ((p.type == 1) ? "-该城市没有机场" : ""), ((p.type == 2) ? "-该地区的机场有" : ""), ((p.type == 6) ? "-该景点没有机场" : ""), ((p.type == 7) ? "-该目的地为省份" : ""), ((p.type == 8) ? "-该目的地为国家" : ""), "</td>");
+        b.text('<tr class="illrow ', y, '"', ">");
+        b.append("<td ", w).text(' class="illn" hashkey="', q.key, '"', ((q.type == 1) ? 'noAirport="true"' : ""), ">", ((q.type == 4) ? "·邻近机场:" : ""), ((q.type == 9) ? "·相关城市:" : ""), q.display.replace(a, '<span class="keystring">$1</span>'), ((q.type == 9) ? "<span>(" + q.enname + ")</span>" : ""), ((q.length) ? "<span>-" + q.length + "公里</span>" : ""), ((q.type == 1) ? "-该城市没有机场" : ""), ((q.type == 2) ? "-该地区的机场有" : ""), ((q.type == 6) ? "-该景点没有机场" : ""), ((q.type == 7) ? "-该目的地为省份" : ""), ((q.type == 8) ? "-该目的地为国家" : ""), "</td>");
         b.text("</tr>");
     }
     b.text("</table>");
     b.write(this.popup.panel);
-    var m = this.nodes;
-    for (var u = 0; u < l.length; u++) {
-        var o = b.getDomNode(u);
-        o.item = l[u];
-        o.layer = this;
-        o.idx = u;
-        m[u] = o;
-        $jex.event.bind(o, "mouseover", this.mouseover);
-        $jex.event.bind(o, "click", this.click);
+    var n = this.nodes;
+    for (var w = 0; w < m.length; w++) {
+        var p = b.getDomNode(w);
+        p.item = m[w];
+        p.layer = this;
+        p.idx = w;
+        n[w] = p;
+        $jex.event.bind(p, "mouseover", this.mouseover);
+        $jex.event.bind(p, "click", this.click);
     }
-    if (n) {
+    if (o) {
         $jex.event.trigger(this, "suggest-nofind");
     }
 };
