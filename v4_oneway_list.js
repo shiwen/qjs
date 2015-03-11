@@ -7403,14 +7403,23 @@ BookBtnTracker.prototype._onerror = function() {
                 recommendedHotels.query(encodeURIComponent(f.searchArrivalAirport), f.searchDepartureTime, "HotelRecommended", "oneway-list", 0);
                 $jex.console.end("第一屏,侧边推荐酒店");
             }, 0);
+            $jex.console.start("第一屏,加载酒店红包广告");
+            var u = document.createElement("img");
+            var t = document.getElementById("hotel_hongbao");
+            u.src = "http://simg1.qunarzz.com/site/images/flight/flight_search/hotel_hongbao.jpg";
+            u.onload = function() {
+                t.appendChild(u);
+                t.style.display = "block";
+            };
+            $jex.console.end("第一屏，加载酒店红包广告");
             $jex.console.start("第一屏,加载临近航班");
             NearLineRec.load(f);
             $jex.console.end("第一屏，加载临近航班");
             $jex.console.start("第一屏,加载广告 ");
             var e = i.longwell();
-            AD_Manage.qde_query = function(u) {
-                var t = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
-                u(t);
+            AD_Manage.qde_query = function(w) {
+                var v = ["&to=", e.arrivalAirport.en, "&from=", e.departureAirport.en, "&cnkey=", encodeURIComponent(e.departureAirport.zh), "&s=", encodeURIComponent(f.searchDepartureAirport), "&s1=", encodeURIComponent(f.searchArrivalAirport), "&fromDate=", f.searchDepartureTime, "&st=oneway", "&pt=dmst"].join("");
+                w(v);
             };
             $OTALOGIC.init(f.searchDepartureAirport, f.searchArrivalAirport, f.searchDepartureTime);
             $OTALOGIC.load_top("ifrmVendorBanner");
