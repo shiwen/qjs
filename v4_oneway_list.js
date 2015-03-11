@@ -4572,7 +4572,7 @@ function TransferFlightWrapperListUI(a) {
 }
 $jex.extendClass(TransferFlightWrapperListUI, WrapperListUI);
 TransferFlightWrapperListUI.prototype.createWrapperUI = function(c, b, a) {
-    if (b.vType() !== undefined) {
+    if (b.vType() !== undefined && !b.hasPickCar()) {
         return new ZiyouxingSingleTripFlightWrapperUI();
     } else {
         return new SingleTripFlightWrapperUI();
