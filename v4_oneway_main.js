@@ -1349,7 +1349,7 @@ $jex.exec(function() {
                 if (options && options.beforeSend && typeof options.beforeSend == "function") {
                     options.beforeSend(request);
                 }
-                request.send(JSON.stringify(data));
+                request.send(JSON ? JSON.stringify(data) : "");
             }
         }
         $jex.console.info("[接口调用 token=", token, "]", " url:", url, data, successhandler, options, request);
@@ -1880,6 +1880,10 @@ if ($jex.ie > 5 && $jex.ie < 7) {
         },
         format: function(c, d) {
             switch (d) {
+                case "yyyy.M.d":
+                    return [$jex.date._format.yyyy(c), $jex.date._format.M(c), $jex.date._format.d(c)].join(".");
+                case "M月d日":
+                    return [$jex.date._format.M(c) + "月", $jex.date._format.d(c) + "日"].join("");
                 case "MM月dd日":
                     return [$jex.date._format.MM(c) + "月", $jex.date._format.dd(c) + "日"].join("-");
                 case "yyyy-MM-dd HH:mm:ss":
@@ -15854,6 +15858,7 @@ function SearchSwitcher(b, a) {
     this._settings = b || {};
     this._oldtype = null;
     this._memories = {};
+    this._pricetrend_memories = {};
     this._globalmemories = {};
     this._state = {};
     this._count = 0;
@@ -15888,15 +15893,15 @@ SearchSwitcher.prototype.active = function(b) {
     this._oldtype = b;
 };
 SearchSwitcher.prototype.memories = function(c) {
-    var a = this._settings.memories;
+    var a = this._settings[(this._settings[c] && this._settings[c].memoriesKey) || "memories"];
     if (!a) {
         return;
     }
     for (var b in a) {
         var d = a[b].value();
         if (d) {
-            this._memories[c + "_" + b] = a[b].value();
-            this._globalmemories[b] = a[b].value();
+            this._memories[c + "_" + b] = d;
+            this._globalmemories[b] = d;
         }
     }
 };
