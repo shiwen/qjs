@@ -2551,6 +2551,7 @@ var DomesticOnewaySearchService = new(function() {
         $jex.ajax(C, F, function(L) {
             u && console.log("longwell回数", L, new Date());
             L && L.v && LOG_SPIDER.addLog("longwell", L.v);
+            window.UA_obj && window.UA_obj.ver && LOG_SPIDER.addLog("jsversion", window.UA_obj.ver);
             $jex.console.end("调用longwell");
             if (L.isLimit) {
                 $jex.event.trigger(p, "ipBlock");
