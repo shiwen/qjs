@@ -2085,7 +2085,7 @@ if ($jex.ie > 5 && $jex.ie < 7) {
     };
     var a = document.createElement("style");
     a.type = "text/css";
-    var b = ".lb_content {display : none ; position : absolute ; z-index:10000 ; left:0 ;}.lb_overlay {display : none ; position : absolute ; z-index:10000 ; background-color : #000 ; left : 0px ; top : 0px ; opacity : 0.2 ; filter: Alpha(opacity=20) ;}";
+    var b = ".lb_content {display : none ; position : absolute ; z-index:10000 ; left:0 ;}.lb_overlay {display : none ; position : fixed ; *position : absolute ; z-index:10000 ; background-color : #000 ; left : 0px ; top : 0px ; opacity : 0.2 ; filter: Alpha(opacity=20) ;}";
     if (a.styleSheet) {
         a.styleSheet.cssText = b;
     } else {
