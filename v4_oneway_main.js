@@ -4966,6 +4966,13 @@ FlightEntity.prototype.planeType = function() {
     }
     return a;
 };
+FlightEntity.prototype.operationType = function() {
+    if (this.flightInfo().pt && (this.flightInfo().pt == "TRN" || this.flightInfo().pt == "BUS")) {
+        return "空地联运";
+    } else {
+        return this.plane().full;
+    }
+};
 FlightEntity.prototype.airportCodes = function() {
     var a = this._valCache._airportCodes;
     if (typeof a == "undefined" || a == null) {
@@ -8275,7 +8282,7 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     c.push('<div class="c1">');
     var a = FlightUtil.codePatch(d.code());
     c.push('    <div class="a_name">', d.carrier().zh, a.indexOf("/") > 0 ? "<br/>" : "", "<strong>", a, "</strong></div>");
-    c.push('    <div class="a_model">', d.plane().full);
+    c.push('    <div class="a_model">', d.operationType());
     c.push('<span class="lnk_sta">');
     if (d.stopover()) {
         c.push('<em title="该航班是经停航班" class="lnk_a">经停</em>');
@@ -8300,11 +8307,19 @@ OnewayFlightUI.prototype._getStaticUI = function(b) {
     c.push("</div>");
     c.push("</div>");
     c.push('<div class="c3">');
-    c.push('    <div class="a_lacal_dep">', d.deptAirport().ab, d.dptTower(), "</div>");
+    if ((d.flightInfo().pt == "TRN" || d.flightInfo().pt == "BUS") && d.flightInfo().tr && d.flightInfo().tr == 1) {
+        c.push('    <div class="a_lacal_dep">', d.deptCity().zh, "</div>");
+    } else {
+        c.push('    <div class="a_lacal_dep">', d.deptAirport().ab, d.dptTower(), "</div>");
+    }
     if (d.stopover() && d.stops() == 1 && d.spCity()) {
         c.push('<div class="a_lacal_jt"><span', d.spInfo().setTitle, ">经停&nbsp;", d.spInfo().sTitle, "</span></div>");
     }
-    c.push('    <div class="a_local_arv">', d.arriAirport().ab, d.arrTower(), "</div>");
+    if ((d.flightInfo().pt == "TRN" || d.flightInfo().pt == "BUS") && d.flightInfo().tr && d.flightInfo().tr == 2) {
+        c.push('    <div class="a_lacal_dep">', d.arriCity().zh, "</div>");
+    } else {
+        c.push('    <div class="a_local_arv">', d.arriAirport().ab, d.arrTower(), "</div>");
+    }
     c.push("</div>");
     c.push('<div class="c4">', d.quasipointRateHTML(), "</div>");
     this._html = c.join("");
