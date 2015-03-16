@@ -9818,25 +9818,22 @@ OnewayFlightWrapperUI.prototype._insertSpecWR = function(d) {
     this.text("</div>");
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._insterOtaName = function(g) {
-    var f = g;
-    var d = this.ownerListUI().ownerVendorListUI().owner().entity;
-    var b = d.getAcf();
-    var c = d.getFot();
-    var a = f.ownerFlight();
+OnewayFlightWrapperUI.prototype._insterOtaName = function(c) {
+    var b = c;
+    var a = b.ownerFlight();
     this.text('<div class="v_ofc">');
-    this.text('<div class="t_name">', f.vendorName());
-    this._insertAuthVendor(f);
+    this.text('<div class="t_name">', b.vendorName());
+    this._insertAuthVendor(b);
     this.text("</div>");
     this.text('<div class="t_cmt">');
-    if (f.isAnonymityVendor()) {
+    if (b.isAnonymityVendor()) {
         this.text('<div class="t_cmt">超值特惠单程机票</div>');
     } else {
-        this.starUI.displayPanel(f);
+        this.starUI.displayPanel(b);
     }
     this.text('<div class="e_btn_cmt">');
-    if (!f.isAnonymityVendor()) {
-        this.starUI.insert_btn(f);
+    if (!b.isAnonymityVendor()) {
+        this.starUI.insert_btn(b);
     }
     this.text("</div>");
     this.text("</div>");
@@ -10017,25 +10014,22 @@ OnewayFlightWrapperUI.prototype._youfeiExplainHover = function() {
 OnewayFlightWrapperUI.prototype.insertAirlineDirectSelling = function() {
     this.text('<div class="ico_gwzx">实时出票</div>');
 };
-OnewayFlightWrapperUI.prototype.insertOta = function(d) {
-    var c = this.ownerListUI().ownerVendorListUI().owner().entity;
-    var a = c.getAcf();
-    var b = c.getFot();
+OnewayFlightWrapperUI.prototype.insertOta = function(a) {
     this.text('<div class="t_sv">');
     this.append("<span", "superOtaBtn", ' class="hv_dbt"><i class="ico_youxuan">极速出票</i></span>');
     this.append("<div", "superOtaTip", ' class="p_tips_cont">');
     this.text('<div class="p_tips_wrap" style="left:-135px">', '<div class="p_tips_arr p_tips_arr_t" style="left:162px;"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>', '<div class="p_tips_content">', '<p><span class="fb">出票迅速：</span>支付后极速出票</p>', '<p><span class="fb">报销无忧：</span>起飞后可邮寄行程单</p>', '<p><span class="fb">服务优先：</span>7*24小时全天候服务</p>', "</div>", "</div>", "</div>", "</div>");
     if ($jex.ie == 6) {
         this.onInit(function() {
-            var g = this.find("superOtaBtn");
-            var f = this.find("superOtaTip");
+            var c = this.find("superOtaBtn");
+            var b = this.find("superOtaTip");
             $jex.hover({
-                act: g,
+                act: c,
                 onmouseover: function() {
-                    f.style.display = "block";
+                    b.style.display = "block";
                 },
                 onmouseout: function() {
-                    f.style.display = "none";
+                    b.style.display = "none";
                 }
             });
         });
