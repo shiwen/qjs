@@ -5858,6 +5858,9 @@ WrapperEntity.prototype.couponAdwords = function() {
 WrapperEntity.prototype.isRoundFlight = function() {
     return false;
 };
+WrapperEntity.prototype.isSZCoupon = function() {
+    return (this.dataSource().cat == 4 && this.vendor() && this.vendor().wrapperId() === "gndairzh001") ? true : false;
+};
 var StatProvider = function() {};
 StatProvider.prototype.value = function() {};
 
@@ -9366,7 +9369,11 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
     if (h === 0) {
         this.text("&nbsp");
     }
-    this.insert_AirchinaCoupon(g);
+    if (g.isSZCoupon()) {
+        this.insert_szCoupon(g);
+    } else {
+        this.insert_AirchinaCoupon(g);
+    }
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(d) {
@@ -9389,11 +9396,18 @@ OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
         this.text("</div>");
     }
 };
+OnewayFlightWrapperUI.prototype.insert_szCoupon = function(a) {
+    var b = a;
+    this.text('<div class="t_ofc_sep" >');
+    this.text('    <p class="direct_red">', this.getRebateText(a), "</p>");
+    this.text("</div>");
+};
 OnewayFlightWrapperUI.prototype.getRebateText = function() {
     var a = {
         "1": "官网特惠直减",
         "2": "全民直减",
-        "3": "折上再减"
+        "3": "折上再减",
+        "4": "限时直减20%"
     };
     return function(b) {
         return a[b.cat()] || "";
@@ -10123,13 +10137,17 @@ OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
     if (a.hasPickCar()) {
         this.insert_carPrice(a);
     } else {
-        if (a.coupon() > 0 && a.bprPrice()) {
-            this.insert_couponPrice(a);
+        if (a.isSZCoupon()) {
+            this.insert_szCuponPrice(a);
         } else {
-            if (a.fanxian() || a.isTCabin() || a.isYoufei()) {
-                this.insert_PRICE_FANXIAN(a);
+            if (a.coupon() > 0 && a.bprPrice()) {
+                this.insert_couponPrice(a);
             } else {
-                this.insert_normalPrice(a);
+                if (a.fanxian() || a.isTCabin() || a.isYoufei()) {
+                    this.insert_PRICE_FANXIAN(a);
+                } else {
+                    this.insert_normalPrice(a);
+                }
             }
         }
     }
@@ -10302,6 +10320,13 @@ OnewayFlightWrapperUI.prototype.insert_priceForReduction = function(a) {
     this.priceHTML(b);
     this.priceHTML(b + c.coupon(), "t_prc_p");
     this.text('</div><div class="v6"><div class="t_jg_n">&nbsp;&nbsp;现价</div><div class="t_jg_p">&nbsp;&nbsp;原价</div></div>');
+};
+OnewayFlightWrapperUI.prototype.insert_szCuponPrice = function(a) {
+    var c = a;
+    var b = parseInt(c.bprPrice());
+    this.text('<div class="v5">');
+    this.priceHTML(b);
+    this.text('</div><div class="v6"><div class="t_jg_n">&nbsp;&nbsp;现价</div></div>');
 };
 OnewayFlightWrapperUI.prototype.insert_priceForRM = function(b) {
     var d = b;
