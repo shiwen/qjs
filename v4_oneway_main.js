@@ -5505,6 +5505,9 @@ WrapperEntity.prototype.vAmount = function() {
 WrapperEntity.prototype.vPrice = function() {
     return this.dataSource().vup;
 };
+WrapperEntity.prototype.gPrice = function() {
+    return this.dataSource().gup;
+};
 WrapperEntity.prototype.vTitle = function() {
     var a = parseInt(this.vType(), 10);
     switch (a) {
@@ -5584,7 +5587,7 @@ WrapperEntity.prototype.carInfo = function() {
             b = "<p>1.每张代金券可在出发城市的送机服务中抵用部分金额</p><p>2.限出发城市，去哪儿专车供应商，舒适型(奥迪A6L等同级车型)、商务型(别克GL8等同级车型)使用</p><p>3.自购买机票之日起6个月内可用 </p>";
             return b;
         case 9:
-            b = '<p>1. 套餐包含价值<i class="rmb">&yen;</i>#vPrice#接送机代金券#vAmount#张</p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 限去哪儿专车供应商，舒适型(奥迪A6L等同级车型)、商务型(别克GL8等同级车型)使用</p><p>5. 自购买机票之日起180天内可用</p>';
+            b = '<p>1. 套餐包含价值<i class="rmb">&yen;</i>' + (this.vPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，可直接登录Qunar客户端-车车-接送用车使用</p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
             return b;
         default:
             return "";
@@ -5632,7 +5635,42 @@ WrapperEntity.prototype.vName = function() {
     }
 };
 WrapperEntity.prototype.hasPickCar = function() {
-    return (this.vType() == "5" || this.vType() == "7" || this.vType() == "8" || this.vType() == "9");
+    var a = (this.vType() == "5" || this.vType() == "7" || this.vType() == "8" || this.vType() == "9");
+    return a;
+};
+WrapperEntity.prototype.giftInfo = function() {
+    var a = parseInt(this.giftType(), 10);
+    switch (a) {
+        case 0:
+            return "";
+        case 2:
+            msg = '<p><font color="#CA8E38">1. 购买机票+航意险，额外赠送&yen;' + (this.gPrice() || "") + "接送机代金券1张，您可以直接登录Qunar客户端-车车-接送用车使用</font></p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
+            return msg;
+        case 1:
+            msg = '<p><font color="#CA8E38">1. 买一赠一，车接车送，套餐包含&yen;' + (this.vPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，额外赠送&yen;" + (this.gPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，可直接登录Qunar客户端-车车-接送用车使用</font></p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
+            return msg;
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.giftName = function() {
+    var a = parseInt(this.giftType(), 10);
+    switch (a) {
+        case 0:
+            return "";
+        case 2:
+            return "赠接送机券";
+        case 1:
+            return "买一赠一";
+        default:
+            return "";
+    }
+};
+WrapperEntity.prototype.giftType = function() {
+    return this.dataSource().gvt || 0;
+};
+WrapperEntity.prototype.hasGift = function() {
+    return (this.giftType() == 1 || this.giftType() == 2);
 };
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
@@ -9292,7 +9330,7 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
 OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
     var h = 0;
     var g = b;
-    if (g.hasPickCar && g.hasPickCar() && (g.specialCabinInfo() || g.isFCabin() || g.isBCabin())) {
+    if ((g.hasPickCar() || g.hasGift()) && (g.specialCabinInfo() || g.isFCabin() || g.isBCabin())) {
         this.text('<div class="v4 v4_top">');
     } else {
         this.text('<div class="v4">');
@@ -9341,12 +9379,20 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
         }
         this.text("</div>");
     }
-    if (g.hasPickCar && g.hasPickCar()) {
+    if (g.hasGift()) {
         h = 1;
-        this.append('<div class="t_st"', "js-pickCar", ">");
-        this.text('<i class="i_chaozhi">超值套餐</i>');
-        this.insert_pickCarInfo(g);
-        this.text("</div>");
+        this.append('<div class="checheicobox"><div class="t_st"', "js-pickCar", ">");
+        this.text('<i class="i_chaozhi">', g.giftName(), "</i>");
+        g.giftType() == 2 ? this.insert_giftInfo(g) : this.insert_pickCarInfo(g);
+        this.text("</div></div>");
+    } else {
+        if ((g.hasPickCar && g.hasPickCar())) {
+            h = 1;
+            this.append('<div class="checheicobox"><div class="t_st"', "js-pickCar", ">");
+            this.text('<i class="i_chaozhi">超值套餐</i>');
+            this.insert_pickCarInfo(g);
+            this.text("</div></div>");
+        }
     }
     var d = g.specialCabinInfo();
     if (d) {
@@ -9377,7 +9423,12 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
     this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(d) {
-    var b = d.carInfo();
+    var b = "";
+    if (d.hasGift() && d.giftType() == 1) {
+        b = d.giftInfo();
+    } else {
+        b = d.carInfo();
+    }
     var c = d.vPrice() || "";
     var a = d.vAmount() || "";
     b = b.replace(/#vPrice#/i, c);
@@ -9386,6 +9437,14 @@ OnewayFlightWrapperUI.prototype.insert_pickCarInfo = function(d) {
     this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.append('<div class="p_tips_content">');
     this.text(b);
+    this.text("</div></div></div>");
+};
+OnewayFlightWrapperUI.prototype.insert_giftInfo = function(b) {
+    var a = b.giftInfo();
+    this.append('<div class="p_tips_cont" ', "pick_car_panel", ">");
+    this.text('<div class="p_tips_wrap" style="left:-193px"><div class="p_tips_arr p_tips_arr_t" style="left:203px"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
+    this.append('<div class="p_tips_content">');
+    this.text(a);
     this.text("</div></div></div>");
 };
 OnewayFlightWrapperUI.prototype.insert_AirchinaCoupon = function(a) {
@@ -9432,7 +9491,7 @@ OnewayFlightWrapperUI.prototype._bindHoverEvent = function(b) {
                 $jex.removeClassName(f, "qvt_column_hover");
             }
         });
-        if (a.hasPickCar() && $jex.ie == 6) {
+        if ((a.hasPickCar() || a.hasGift()) && $jex.ie == 6) {
             var g = this.find("js-pickCar");
             var d = this.find("pick_car_panel");
             var c = false;
@@ -10128,7 +10187,7 @@ OnewayFlightWrapperUI.prototype.priceHTML = function(b, a, c) {
     this.text('<i class="rmb">&yen;</i></div>');
 };
 OnewayFlightWrapperUI.prototype.insert_PRICE_NORMAL = function(a) {
-    if (a.hasPickCar()) {
+    if ((a.hasGift() || a.hasPickCar()) && a.giftType() != 2) {
         this.insert_carPrice(a);
     } else {
         if (a.isSZCoupon()) {
@@ -10260,6 +10319,17 @@ OnewayFlightWrapperUI.prototype.insert_carPrice = function(j) {
     this.text('<div class="p_tips_arr p_tips_arr_r"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
     this.text('<div class="p_tips_content"><i class="rmb">&yen;</i>', g, i, f, '+<i class="rmb">&yen;</i>', d, "保险</div>");
     this.text("</div>", "</div>", "</div>");
+    this.text("</div></div>");
+};
+OnewayFlightWrapperUI.prototype.insert_giftPrice = function(d) {
+    var c = d.afeePrice();
+    var b = d.afee();
+    this.text('<div class="v5">');
+    var a = false;
+    this.priceHTML(c, a ? "t_prc_lp" : "", d);
+    this.text("</div>");
+    this.text('<div class="v6"><div class="t_ins">');
+    this.text("+", b, "保险");
     this.text("</div></div>");
 };
 OnewayFlightWrapperUI.prototype.insert_normalPrice = function(b) {
