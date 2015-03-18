@@ -3370,7 +3370,7 @@ var FlightUtil = {
                 return localStorage[h];
             },
             remove: function(h) {
-                localStorage.removeItem(h);
+                delete localStorage[h];
             },
             addListItem: function(h, j, i) {
                 i = i || {};
@@ -4798,7 +4798,6 @@ var LockScreen = function(c, b) {
         lockNow: false
     };
     if (((new Date() - CLIENT_TIME) / 1000 / 60 > 10) || b.lockNow) {
-        $jex.event.trigger(window.System.service, "pageWillReload", "timeout");
         var a = ['<div class="p_layer_cont"><div class="layer_inner" style="width: 370px"><div class="e_tit_pop">&nbsp;</div><div class="layer_cont"><div id="pageBoxText">', b.msg, '<br /><img src="http://simg1.qunarzz.com/site/images/loading.gif" />', "</div></div></div></div>"].join("");
         $jex.lightbox.show(a);
         $jex.lightbox.overlay.style.backgroundColor = "#fff";
@@ -5220,7 +5219,7 @@ FlightEntity.prototype.getWrapperListType = function() {
 };
 FlightEntity.prototype.setWrapperListType = function(b) {
     this._wlistType = b;
-    var a = this.codeShareFlight && this.codeShareFlight();
+    var a = this.codeShareFlight();
     if (a) {
         a.setWrapperListType(b);
     }
@@ -6578,7 +6577,6 @@ OnewayFlightWrapperEntity.prototype._booking = function(a, c) {
         }
     }
     this._openBookingUrl(a, c);
-    $jex.event.trigger(window.System.service, "pageWillReload", "booking");
     setTimeout(function() {
         window.location.reload();
     }, 500);
@@ -7135,7 +7133,6 @@ FlightListUI.prototype.loadData = function(b, d) {
     FlightListUI.flightCount = 100;
     $jex.console.start("FlightListUI:loadData:建立数据");
     var c = [];
-    $jex.event.trigger(a, "fuiFinish", null);
     $jex.foreach(b, function(g, f) {
         c.push(a._addFlightUI(g, f));
     });
@@ -7203,7 +7200,6 @@ FlightListUI.prototype._addFlightUI = function(b, a) {
         $jex.event.binding(g, "open", function() {
             c.getSorter().open(g.dataSource());
             c._track("open", b);
-            $jex.event.trigger(c, "openingFui", g);
             $jex.event.trigger(c, "oneItemclicked", this);
             try {
                 var h = b.firstTrip ? true : false;
@@ -7222,14 +7218,12 @@ FlightListUI.prototype._addFlightUI = function(b, a) {
         $jex.event.binding(g, "close", function() {
             c.getSorter().close();
             c._track("close", b);
-            $jex.event.trigger(c, "openingFui", null);
         });
         $jex.event.binding(g, "changeFilter", function(h, j, i) {
             $jex.event.trigger(c, "changeFilter", h, j, i);
         });
         this._cachelist[f] = g;
     }
-    $jex.event.trigger(c, "fuiFinish", g);
     g.index = a;
     g.updateSource();
     this.append("", g, "");
@@ -7347,70 +7341,49 @@ FilterListUI.prototype.addFilter = function(b) {
 };
 FilterListUI.prototype.bindEvent = function(b) {
     var a = this;
-    $jex.event.binding(b, "changeFilter", function(n, t, h, q, s) {
+    $jex.event.binding(b, "changeFilter", function(k, p, h, n, o) {
         var f = {
-            name: n,
-            type: (a._filterConf[n] && a._filterConf[n].type) ? a._filterConf[n].type : 4,
-            value: t
+            name: k,
+            type: (a._filterConf[k] && a._filterConf[k].type) ? a._filterConf[k].type : 4,
+            value: p
         };
-        var d;
-        if ($jex.isArray(h)) {
-            var j = [];
-            for (var k = 0; k < h.length; k++) {
-                if (h[k] && h[k].dataSource()) {
-                    h[k].sel(true);
-                    j.push(h[k].dataSource().name);
-                }
-            }
-            d = j;
-        } else {
-            var m = h.dataSource().name;
-            if (h.dataSource().catalog == "起飞时间") {
-                m = h.dataSource().key;
-            }
-            d = {
-                value: q,
-                cname: m,
-                checked: s
-            };
+        var j = h.dataSource().name;
+        if (h.dataSource().catalog == "起飞时间") {
+            j = h.dataSource().key;
         }
+        var d = {
+            value: n,
+            cname: j,
+            checked: o
+        };
         var g = a._filterPanel.length;
-        var o;
-        for (o = 0; o < g; o++) {
-            var l = a._filterPanel[o];
-            if (l.catalog() == n) {
-                l.update(d);
-                l.render(l.owner().find(n + "filterItem"));
+        var l;
+        for (l = 0; l < g; l++) {
+            var i = a._filterPanel[l];
+            if (i.catalog() == k) {
+                i.update(d);
+                i.render(i.owner().find(k + "filterItem"));
                 break;
             }
         }
-        if (o === g) {
+        if (l === g) {
             if (!a._filterPanelListUI) {
                 a._filterPanelListUI = new FilterItemListUI();
                 a._filterPanelListUI.owner(a);
             }
             var c = a._filterPanelListUI;
-            var p = new FilterItemUI();
-            p.owner(c);
-            p.ownerFilter(this);
-            p.catalog(n);
-            p.update(d);
-            a._filterPanel.push(p);
+            var m = new FilterItemUI();
+            m.owner(c);
+            m.ownerFilter(this);
+            m.catalog(k);
+            m.update(d);
+            a._filterPanel.push(m);
             c.update();
             if (a._filterPanel.length) {
                 c.renderPanel();
             }
         }
-        $jex.event.trigger(a, "changeFilter", f, n, t, h, q, s);
-    });
-    $jex.event.binding(b, "reSelCheckBox", function(h) {
-        var g = h[0].getKey(),
-            f = g.split("|"),
-            c = f[0],
-            d = $jex.array.map(h, function(i) {
-                return i.getKey().split("|")[2];
-            });
-        $jex.event.trigger(b, "changeFilter", c, d, h);
+        $jex.event.trigger(a, "changeFilter", f, k, p, h, n, o);
     });
 };
 FilterListUI.prototype.getFilterUI = function(a) {
@@ -7539,17 +7512,6 @@ FilterUI.prototype.getValue = function() {
     if (a.length == this._displayboxes.length) {
         a = [];
     }
-    return a;
-};
-FilterUI.prototype.getKey = function() {
-    var a = [];
-    $jex.foreach(this._displayboxes, function(d) {
-        var c = d.getKey();
-        var b = d.getValue();
-        if (c && b) {
-            a.push(c);
-        }
-    });
     return a;
 };
 FilterUI.prototype.update = function() {
@@ -7681,9 +7643,6 @@ FilterCheckBoxUI.prototype.update = function(c) {
         });
     });
 };
-FilterCheckBoxUI.prototype.sel = function(a) {
-    this.checked(a);
-};
 
 function FilterItemListUI(b) {
     FilterItemListUI.superclass.constructor.call(this, b);
@@ -7791,26 +7750,22 @@ FilterItemUI.prototype.update = function(f) {
     this.clear();
     a = this;
     c = this._text.length;
-    if ($jex.isArray(f)) {
-        this._text = f;
-    } else {
-        for (b = 0; b < c; b++) {
-            if (this._text[b] == f.cname && !f.checked) {
-                this._text.splice(b, 1);
-                break;
-            }
+    for (b = 0; b < c; b++) {
+        if (this._text[b] == f.cname && !f.checked) {
+            this._text.splice(b, 1);
+            break;
         }
-        if (b === c) {
-            this._text.push(f.cname);
-        }
-        if (!this._text.length) {
-            this.owner().update();
-            this.owner().renderPanel();
-            return;
-        }
-        if (this.catalog() == "起飞时间") {
-            this.resort();
-        }
+    }
+    if (b === c) {
+        this._text.push(f.cname);
+    }
+    if (!this._text.length) {
+        this.owner().update();
+        this.owner().renderPanel();
+        return;
+    }
+    if (this.catalog() == "起飞时间") {
+        this.resort();
     }
     d = this._text;
     this.text(' <span class="result-text">', this.catalog(), "：");
@@ -7899,7 +7854,6 @@ DomesticOnewayFilterListUI.prototype.update = function() {
                     var c = d.find("chk");
                     d.checked(c.checked);
                     $jex.event.trigger(d, "changeCheckbox", d, d.dataSource().value, c.checked);
-                    $jex.event.trigger(a, "onUserActied");
                 }
             }
         });
@@ -8014,7 +7968,6 @@ DomesticOnewayFilterListUI.prototype.layout = function() {
 function OnewayFilterCheckBoxUI(a) {
     OnewayFilterCheckBoxUI.superclass.constructor.call(this, a);
     this._type = "OnewayFilterCheckBoxUI";
-    this._key = a.key;
 }
 $jex.extendClass(OnewayFilterCheckBoxUI, FilterCheckBoxUI);
 OnewayFilterCheckBoxUI.prototype.update = function(c) {
@@ -8042,9 +7995,6 @@ OnewayFilterCheckBoxUI.prototype.isShown = function(b) {
     });
     return a;
 };
-OnewayFilterCheckBoxUI.prototype.getKey = function() {
-    return this._key;
-};
 
 function OnewayFilterUI(a) {
     OnewayFilterUI.superclass.constructor.call(this, a);
@@ -8063,8 +8013,7 @@ OnewayFilterUI.prototype.addItem = function(f) {
     var d = this._checkboxes[a];
     if (!d) {
         d = new OnewayFilterCheckBoxUI({
-            hiddenLabs: ["中转联程"],
-            key: a
+            hiddenLabs: ["中转联程"]
         });
         d.ownui(this);
         d.checked(this.defaultCheck());
@@ -8642,7 +8591,6 @@ OnewayFlightUI.prototype.changeWrapperTypeList = function(a) {
 OnewayFlightUI.prototype.openBtnClickEvent = function() {
     var a = this;
     HoldLastShowFlight.clearLast();
-    $jex.event.trigger(a.ownerFlightUI(), "willOpenFui", a);
     LockScreen(function() {
         SingletonUIManager.register("flight", a, function() {
             a.toggleVendorPanel();
@@ -8658,6 +8606,7 @@ OnewayFlightUI.prototype.toggleVendorPanel = function() {
         var a = this.ownerFlightUI().isOnlySelBfCabinType();
         this.dataSource().setWrapperListType(a ? "bf" : "all");
         this.showVendorPanel();
+        $jex.event.trigger(this, "open");
     } else {
         this.hideVendorPanel();
     }
@@ -8669,7 +8618,6 @@ OnewayFlightUI.prototype.showVendorPanel = function() {
     $jex.element.show(this.find("vendorlist"));
     $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
     this.state(1);
-    $jex.event.trigger(this, "open");
 };
 OnewayFlightUI.prototype.hideVendorPanel = function() {
     if (this.state() === 0) {

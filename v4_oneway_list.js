@@ -1974,7 +1974,6 @@ var DomesticOnewayDataAnalyzer = new(function() {
             }
             $jex.event.trigger(j, "preDataComplete");
             F.refresh();
-            $jex.event.trigger(j, "autoLoadData");
             $jex.event.trigger(j, "dataComplete");
         }
     }
@@ -2027,7 +2026,6 @@ var DomesticOnewayDataAnalyzer = new(function() {
                 });
             }
             F.refresh();
-            $jex.event.trigger(j, "autoLoadData");
             $jex.event.trigger(j, "dataComplete");
         }
     }
@@ -2738,9 +2736,6 @@ var DomesticOnewaySearchService = new(function() {
     };
     this.syncCurrentFlightCode = function(C) {};
     var a = "all";
-    this.setCurFlightType = function(C) {
-        C && (a = C);
-    };
     this.invoke_flightPriceData = function(H, F, G, E, D) {
         a = E;
         if (F) {
@@ -4294,22 +4289,19 @@ TransferFlightUI.prototype.toggleVendorPanel = function() {
     if (this.state() == 0) {
         System.service.genTraceTimeStamp();
         System.analyzer.triggerTrace = true;
-        this.showVendorPanel();
+        this.moveToFirst();
+        var a = this.vlistui();
+        a.dataSource(this.dataSource());
+        a.updateSource();
+        a.render(this.find("vendorlist"));
+        $jex.element.show(this.find("vendorlist"));
+        $jex.addClassName(this.find("itemBar"), "avt_column_on");
+        $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
+        this.state(1);
+        $jex.event.trigger(this, "open");
     } else {
         this.hideVendorPanel();
     }
-};
-TransferFlightUI.prototype.showVendorPanel = function() {
-    this.moveToFirst();
-    var a = this.vlistui();
-    a.dataSource(this.dataSource());
-    a.updateSource();
-    a.render(this.find("vendorlist"));
-    $jex.element.show(this.find("vendorlist"));
-    $jex.addClassName(this.find("itemBar"), "avt_column_on");
-    $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
-    this.state(1);
-    $jex.event.trigger(this, "open");
 };
 TransferFlightUI.prototype.hideVendorPanel = function() {
     $jex.element.hide(this.find("vendorlist"));
@@ -4413,7 +4405,6 @@ TransferFlightUI.prototype.update = function(a) {
 };
 TransferFlightUI.prototype.openBtnClickEvent = function() {
     var a = this;
-    $jex.event.trigger(a.ownerFlightUI(), "willOpenFui", a);
     LockScreen(function() {
         SingletonUIManager.register("flight", a, function() {
             a.toggleVendorPanel();
@@ -6838,8 +6829,6 @@ flightResultController.prototype.initUI = function() {
         b.trackFilters(true);
         TsinghuaOneWayTracker.setTimerToSaveTrack();
     }
-    this.willOpenFui;
-    this.openingFui;
     this.resultList = new FlightListUI({
         elemId: "hdivResultPanel",
         on: {
@@ -6848,13 +6837,6 @@ flightResultController.prototype.initUI = function() {
             },
             oneItemclicked: function(c) {
                 b.bookBtnTracker.send(c);
-            },
-            willOpenFui: function(c) {
-                b.willOpenFui = c;
-            },
-            openingFui: function(c) {
-                b.actionType = 3;
-                b.openingFui = c;
             }
         }
     });
@@ -6900,9 +6882,6 @@ flightResultController.prototype.initUI = function() {
                 b.changeCabinType.apply(b, arguments);
                 b.analyzer.setFilter(e);
                 a();
-            },
-            onUserActied: function() {
-                b.actionType = 3;
             },
             openMore: function() {
                 b.trackFilters(true);
@@ -6981,12 +6960,10 @@ flightResultController.prototype.initUI = function() {
     $jex.event.binding(this.service, "TransferDataReady", function() {
         b.filterGroup.setTransformLoad(true);
     });
-    this.actionType = 1;
     this.pager = new OnewayPagerUI({
         elemId: "hdivPager",
         on: {
             changePage: function(d) {
-                b.actionType = 3;
                 b.analyzer.gotoPage(d);
                 $jex.event.trigger($jex.$("detailPage"), "fem_pageNum", "JumpToPage");
                 var f = $jex.offset($jex.$("resultAnchor"));
@@ -7035,9 +7012,6 @@ flightResultController.prototype.initUI = function() {
                 $jex.$("btnPriceOrderArror").getElementsByTagName("i")[0].className = "i_arr_ud";
                 $jex.event.trigger($jex.$("btnDepttimeOrderArror"), "fem_orderByTime");
                 a();
-            },
-            onUserActied: function() {
-                b.actionType = 3;
             }
         }
     });
@@ -7072,9 +7046,6 @@ flightResultController.prototype.initUI = function() {
                     ["lowestPrice", false]
                 ];
                 b.analyzer.sort(d);
-            },
-            onUserActied: function() {
-                b.actionType = 3;
             }
         }
     });
@@ -7104,237 +7075,65 @@ flightResultController.prototype.initUI = function() {
         }
     };
     this.bookBtnTracker = new BookBtnTracker(this);
-    this.timeoutMemorier = (function(h) {
-        var k = window.StorageUtil,
-            m = window.JSON,
-            n = h;
-        var c = "seleddOption";
-        var f = [n.filterGroup],
-            i = n.resultList;
-        filterGroup = n.filterGroup, nameHX = {
-            起 飞 时 间: "dt", � �型: "pt", � �� �公 司: "hs", 起 飞 � �� �: "da", 降 落 � �� �: "aa", 舱 位: "ca", 方 式: "df"
-        };
-        var d, e = "";
-
-        function g() {
-            var p = {};
-            $jex.foreach(["起飞时间", "机型", "航空公司", "起飞机场", "降落机场", "舱位", "方式"], function(v, u) {
-                var w = filterGroup.getFilterUI(v);
-                p[nameHX[v]] = w ? ((w.getKey() || "")) : -1;
-            });
-            var r = (function() {
-                var u = n.willOpenFui || n.openingFui;
-                if (u) {
-                    return {
-                        code: u.dataSource().flightKeyCode(),
-                        wType: u.dataSource().getWrapperListType("all")
-                    };
-                }
-            })();
-            var q = {},
-                t = n.sort_price_handler,
-                o = n.sort_time_handler;
-            if (t || o) {
-                $jex.array.each([t, o], function(w, x) {
-                    var v = x == 0 ? "pr" : "dt";
-                    var u = w && w.arrow.className;
-                    if (u === "i_arr_ud") {
-                        q[v] = 0;
-                    } else {
-                        if (u === "i_arr_ud_up") {
-                            q[v] = 1;
-                        } else {
-                            if (u === "i_arr_ud_down") {
-                                q[v] = 2;
-                            }
-                        }
-                    }
-                });
-            }
-            var s = n.analyzer.pageInfo();
-            return {
-                filter: p,
-                openOrWillFui: r,
-                sort: q,
-                page: s
-            };
-        }
-        var j = {
-            conditions: null,
-            init: function() {
-                this.filterGroup = n.filterGroup;
-                this.conditions = this.getRecordJson();
-            },
-            clean: function() {
-                k.remove(c);
-            },
-            record: function(o) {
-                k.add({
-                    name: c,
-                    value: m.stringify(o)
-                });
-            },
-            getRecordJson: function() {
-                var o = k.get(c);
-                var p = o && m.parse(o);
-                this.clean();
-                return p;
-            },
-            reSetByRecord: function() {
-                var u = this.conditions;
-                if (!u || n.actionType == 3) {
-                    return;
-                }
-                var p = u.filter;
-                if (n.actionType == 1 && p && e != "filter") {
-                    $jex.foreach(["起飞时间", "机型", "航空公司", "起飞机场", "降落机场", "舱位", "方式"], function(w, v) {
-                        var y = filterGroup.getFilterUI(w);
-                        if (!y) {
-                            return;
-                        }
-                        var x = p[nameHX[w]];
-                        if ($jex.isArray(x) && x.length > 0) {
-                            n.actionType = 2;
-                            e = "filter";
-                            $jex.event.trigger(y, "reSelCheckBox", $jex.array.map(x, function(z) {
-                                return y._checkboxes[z];
-                            }));
-                        }
-                    });
-                }
-                var r = u.sort,
-                    o = n.sort_time_handler,
-                    s = n.sort_price_handler;
-                if (r && n.actionType == 1) {
-                    $jex.foreach([r.pr, r.dt], function(v) {
-                        if (!v) {
-                            return;
-                        }
-                        if (v == 1) {
-                            s.arrow.className = "i_arr_ud_up";
-                            s.state(false);
-                        } else {
-                            s.arrow.className = "i_arr_ud_down";
-                            s.state(true);
-                        }
-                        n.actionType = 2;
-                        e = "sort";
-                        $jex.event.trigger(s, "clickSort", [
-                            [s._setting.sortKey, s.state()]
-                        ]);
-                    });
-                }
-                var q = (u.openOrWillFui || {}).wType;
-                d && (function() {
-                    d.dataSource().setWrapperListType(q || "all");
-                    d.showVendorPanel();
-                })();
-                var t = u.page;
-                if (t && !d && t.pageIndex && e != "page") {
-                    if ((n.analyzer.pageInfo() || {}).pageCount > 1) {
-                        n.actionType = 2;
-                        e = "page";
-                        n.analyzer.gotoPage(t.pageIndex);
-                        d && (function() {
-                            d.dataSource().setWrapperListType(q || "all");
-                            d.showVendorPanel();
-                        })();
-                    }
-                }
-            }
-        };
-
-        function l(o) {
-            new Image().src = "http://log.flight.qunar.com/l.gif?s=flight&p=onewayList&r=pageRefresh&type=" + o;
-        }
-        $jex.event.binding(n.service, "pageWillReload", function(o) {
-            l(o);
-            j.record(g());
-        });
-        $jex.event.binding(j, "afterDataLoad", function() {
-            this.reSetByRecord();
-        });
-        $jex.event.binding(i, "fuiFinish", function(o) {
-            openOrWillFui = (j.conditions || {}).openOrWillFui;
-            if (o == null) {
-                d = null;
-            } else {
-                if (openOrWillFui && o.dataSource().flightKeyCode() == openOrWillFui.code) {
-                    d = o;
-                }
-            }
-        });
-        j.init();
-        return j;
-    })(this);
 };
 flightResultController.prototype.bindUI = function() {
-    var c = this;
-    var g = this.filterGroup;
-    var f = this.pager;
-    var b = this.resultList;
-    var a = this.timeoutMemorier;
-    $jex.event.binding(c.analyzer, "updateFilter", function(i) {
-        g.addFilter(i);
+    var b = this;
+    var f = this.filterGroup;
+    var e = this.pager;
+    var a = this.resultList;
+    $jex.event.binding(b.analyzer, "updateFilter", function(h) {
+        f.addFilter(h);
     });
-    $jex.event.binding(c.analyzer, "autoLoadData", function() {
-        c.actionType = 1;
-    });
-    $jex.event.binding(c.analyzer, "dataComplete", function() {
+    $jex.event.binding(b.analyzer, "dataComplete", function() {
         setTimeout(function() {
             $jex.console.start("dataComplete:更新过滤项");
-            g.refresh();
+            f.refresh();
             $jex.console.end("dataComplete:更新过滤项");
         }, 0);
         $jex.console.start("dataComplete:显示列表");
-        b.loadData(c.analyzer.resultData(), c.analyzer);
+        a.loadData(b.analyzer.resultData(), b.analyzer);
         $jex.console.end("dataComplete:显示列表");
         setTimeout(function() {
             $jex.console.start("dataComplete:更新页码");
-            f.update(c.analyzer.pageInfo());
+            e.update(b.analyzer.pageInfo());
             $jex.console.end("dataComplete:更新页码");
         }, 0);
-        setTimeout(function() {
-            $jex.console.start("dataComplete:更新上次选择");
-            $jex.event.trigger(a, "afterDataLoad");
-            $jex.console.end("dataComplete:更新上次选择");
-        }, 0);
     });
-    var e, h;
-    var d;
+    var d, g;
+    var c;
     TsinghuaOneWayTracker.setTimerToSaveTrack = function() {
-        clearTimeout(d);
-        d = setTimeout(function() {
-            if (e) {
+        clearTimeout(c);
+        c = setTimeout(function() {
+            if (d) {
                 System.service.genTraceTimeStamp();
                 System.analyzer.triggerTrace = true;
-                TsinghuaOneWayTracker.trackOnRefreshed(e);
-                c.trackFilters();
+                TsinghuaOneWayTracker.trackOnRefreshed(d);
+                b.trackFilters();
                 TsinghuaOneWayTracker.track("query", encodeURIComponent(location.search), System.service.traceTimeStamp);
                 System.analyzer.triggerTrace = false;
             }
         }, 3000);
     };
     TsinghuaOneWayTracker.clearTimerToSaveTrack = function() {
-        clearTimeout(d);
+        clearTimeout(c);
     };
     TsinghuaOneWayTracker.traceFlightList = function() {
-        if (System.analyzer.triggerTrace && e) {
+        if (System.analyzer.triggerTrace && d) {
             TsinghuaOneWayTracker.clearTimerToSaveTrack();
-            c.trackFilters();
+            b.trackFilters();
             TsinghuaOneWayTracker.track("query", encodeURIComponent(location.search), System.service.traceTimeStamp);
-            TsinghuaOneWayTracker.trackOnRefreshed(e);
+            TsinghuaOneWayTracker.trackOnRefreshed(d);
             System.analyzer.triggerTrace = false;
         }
     };
-    $jex.event.binding(b, "refreshed", function(i) {
-        if (!h) {
+    $jex.event.binding(a, "refreshed", function(h) {
+        if (!g) {
             System.service.genFilterTimeStamp();
             TsinghuaOneWayTracker.setTimerToSaveTrack();
-            h = true;
+            g = true;
         }
         TsinghuaOneWayTracker.traceFlightList();
-        e = i;
+        d = h;
     });
 };
 
@@ -7366,7 +7165,6 @@ SortHandler.prototype._init = function() {
             c.className = "i_arr_ud_down";
             a.state(true);
         }
-        $jex.event.trigger(a, "onUserActied");
         $jex.event.trigger(a, "clickSort", [
             [a._setting.sortKey, a.state()]
         ]);
