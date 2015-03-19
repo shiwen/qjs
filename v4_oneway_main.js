@@ -5653,13 +5653,16 @@ WrapperEntity.prototype.giftInfo = function() {
             return "";
     }
 };
-WrapperEntity.prototype.giftName = function() {
-    var a = parseInt(this.giftType(), 10);
-    switch (a) {
+WrapperEntity.prototype.giftName = function(a) {
+    var b = parseInt(this.giftType(), 10);
+    if (!a) {
+        a = false;
+    }
+    switch (b) {
         case 0:
             return "";
         case 2:
-            return "赠接送机券";
+            return a ? "赠接送机券" : "赠&yen;" + this.gPrice() + "接送机券";
         case 1:
             return "买一赠一";
         default:
@@ -9327,49 +9330,49 @@ OnewayFlightWrapperUI.prototype.update = function(h) {
     this._bindHoverEvent(b);
     this._bindOnInitEvent(b);
 };
-OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
-    var h = 0;
-    var g = b;
-    if ((g.hasPickCar() || g.hasGift()) && (g.specialCabinInfo() || g.isFCabin() || g.isBCabin())) {
+OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(d) {
+    var g = 0;
+    var f = d;
+    if ((f.hasPickCar() || f.hasGift()) && (f.specialCabinInfo() || f.isFCabin() || f.isBCabin())) {
         this.text('<div class="v4 v4_top">');
     } else {
         this.text('<div class="v4">');
     }
-    var a = g.isYoufei(),
-        i = g.isCsyf();
-    var f = g.vendor().isSuperOTA();
-    if (g.getTGQInfo()) {
-        var c = "退改签";
-        if (g.isFreeMan()) {
-            c = "退改签";
+    var j = f.isYoufei(),
+        b = f.isCsyf();
+    var h = f.vendor().isSuperOTA();
+    if (f.getTGQInfo()) {
+        var i = "退改签";
+        if (f.isFreeMan()) {
+            i = "退改签";
         } else {
-            if (a) {
-                ((g.getCarrierCo() != "ca" && i) || (a && !i)) && (c = "活动说明");
+            if (j) {
+                ((f.getCarrierCo() != "ca" && b) || (j && !b)) && (i = "活动说明");
             } else {
-                if ((g.fanxian() || g.isTCabin() || g.isAnonymityVendor()) && !g.isPlus()) {
-                    c = "促销说明";
+                if ((f.fanxian() || f.isTCabin() || f.isAnonymityVendor()) && !f.isPlus()) {
+                    i = "促销说明";
                 }
             }
         }
-        h = 1;
+        g = 1;
         this.append("<div", "js-stopClick", ' class="t_st">');
         this.append('<span class="dot_gy"', "tgq", ">");
-        this.text(c, "</span>");
-        this.insert_TGQ(g);
+        this.text(i, "</span>");
+        this.insert_TGQ(f);
         this.text("</div>");
     }
-    if (g.hasAgeLimit() && g.vendor().isOffical()) {
+    if (f.hasAgeLimit() && f.vendor().isOffical()) {
         this.text('<i class="i_yao_pre">青老年优惠</i>');
     } else {
-        if (g.hasAgeLimit()) {
+        if (f.hasAgeLimit()) {
             this.append("<div", "js-stopClick", ' class="t_st">');
             this.append('<span class="dot_gy"', "ageLimit", ">年龄限制</span>");
-            this.insertAgeLimit(g);
+            this.insertAgeLimit(f);
             this.text("</div>");
         }
     }
-    if (f && !g.isApplyPrice()) {
-        h = 1;
+    if (h && !f.isApplyPrice()) {
+        g = 1;
         this.text('<div class="t_st">');
         if ($jex.ie == 6) {
             this.text('<i title="提供足额行程单，推荐商旅用户使用。" class="i_bns_tvl">商旅优选</i>');
@@ -9379,46 +9382,47 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(b) {
         }
         this.text("</div>");
     }
-    if (g.hasGift()) {
-        h = 1;
+    if (f.hasGift()) {
+        var a = f.isFreeMan() || f.isYoufei() || f.fanxian() || f.isTCabin();
+        g = 1;
         this.append('<div class="checheicobox"><div class="t_st"', "js-pickCar", ">");
-        this.text('<i class="i_chaozhi">', g.giftName(), "</i>");
-        g.giftType() == 2 ? this.insert_giftInfo(g) : this.insert_pickCarInfo(g);
+        this.text('<i class="i_chaozhi">', f.giftName(a), "</i>");
+        f.giftType() == 2 ? this.insert_giftInfo(f) : this.insert_pickCarInfo(f);
         this.text("</div></div>");
     } else {
-        if ((g.hasPickCar && g.hasPickCar())) {
-            h = 1;
+        if ((f.hasPickCar && f.hasPickCar())) {
+            g = 1;
             this.append('<div class="checheicobox"><div class="t_st"', "js-pickCar", ">");
             this.text('<i class="i_chaozhi">超值套餐</i>');
-            this.insert_pickCarInfo(g);
+            this.insert_pickCarInfo(f);
             this.text("</div></div>");
         }
     }
-    var d = g.specialCabinInfo();
-    if (d) {
-        h = 1;
+    var c = f.specialCabinInfo();
+    if (c) {
+        g = 1;
         this.text('<div class="t_st">');
-        this.append('<i class="' + d.iconame + '"', "specialCabin", ">" + d.icotext + "</i>");
-        this.insert_specialCabins(d.tipmsg);
+        this.append('<i class="' + c.iconame + '"', "specialCabin", ">" + c.icotext + "</i>");
+        this.insert_specialCabins(c.tipmsg);
         this.text("</div>");
     } else {
-        if (g.isFCabin()) {
-            h = 1;
+        if (f.isFCabin()) {
+            g = 1;
             this.text('<div class="t_st"><i class="i_fst_cls">头等舱</i></div>');
         } else {
-            if (g.isBCabin()) {
-                h = 1;
+            if (f.isBCabin()) {
+                g = 1;
                 this.text('<div class="t_st"><i class="i_fst_bsn">商务舱</i></div>');
             }
         }
     }
-    if (h === 0) {
+    if (g === 0) {
         this.text("&nbsp");
     }
-    if (g.isSZCoupon()) {
-        this.insert_szCoupon(g);
+    if (f.isSZCoupon()) {
+        this.insert_szCoupon(f);
     } else {
-        this.insert_AirchinaCoupon(g);
+        this.insert_AirchinaCoupon(f);
     }
     this.text("</div>");
 };
