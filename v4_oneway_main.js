@@ -10029,23 +10029,21 @@ OnewayFlightWrapperUI.prototype.insertBainiantuanDetail = function(f) {
 };
 OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
     var f = i;
-    var j = f.vendor(),
-        a = parseInt(f.afeePrice()),
-        h = f.lijian(),
-        b = f.isCsyf(),
-        k = f.isYoufei();
+    var c = f.vendor(),
+        h = parseInt(f.afeePrice()),
+        a = f.lijian(),
+        g = f.isCsyf(),
+        b = f.isYoufei();
     var d = f.ownerFlight();
-    if ((b && f.getCarrierCo() != "ca") || (k && !b)) {
-        if (b) {
-            var g = a + f.lijian();
-            var c = f.hasPickCar() ? '原价<i class="rmb">&yen;</i>' + g + " " : "";
+    if (((g && f.getCarrierCo() != "ca") || (b && !g)) && a) {
+        if (g) {
             this.text('<div class="v_ofc">');
             this.text('<div class="t_name">', f.vendorName());
             this._insertAuthVendor(f);
             this.text("</div>");
             this.text('<div class="t_youfei v_csyf_ex">');
             this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-            this.text('<i class="ico_yfbi"></i>' + c + "送" + h + '个优飞币 立抵<i class="rmb">&yen;</i>' + h);
+            this.text('<i class="ico_yfbi"></i>送' + a + '个优飞币 立抵<i class="rmb">&yen;</i>' + a);
             this._insertYoufeiTip();
             this.text("</span>");
             this.text("</div>");
@@ -10054,7 +10052,7 @@ OnewayFlightWrapperUI.prototype._insertH3Normal = function(i) {
             this.text('<div class="v_yf_explain v_yf_ex">');
             this._insertAuthVendor(f);
             this.append("<span", "js_yf_tip_handle", ' class="yf_explain_tit">');
-            this.text('<i class="ico_yfbi"></i>可使用' + h + '个优飞币 立抵现金<i class="rmb">&yen;</i>' + h);
+            this.text('<i class="ico_yfbi"></i>可使用' + a + '个优飞币 立抵现金<i class="rmb">&yen;</i>' + a);
             this._insertYoufeiTip();
             this.text("</span>");
             this.text("</div>");
