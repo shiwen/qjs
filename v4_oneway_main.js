@@ -5009,6 +5009,31 @@ FlightEntity.prototype.carrier = function() {
 FlightEntity.prototype.carrierCode = function() {
     return this.flightInfo().ca;
 };
+FlightEntity.prototype.isCheapFlight = function() {
+    var a = this.carrierCode();
+    if (a == "9C" || a == "AQ" || a == "PN") {
+        return true;
+    }
+    return false;
+};
+FlightEntity.prototype.CheapFlightMessage = function() {
+    var a = this.carrierCode();
+    var b = "";
+    switch (a) {
+        case "9C":
+            b = "除商务经济座外，其他机票不提供免费餐饮，免<br/>费行李额度低，详情请咨询春秋航空：95524";
+            break;
+        case "AQ":
+            b = "除6.8折以上票价外，其他机票不提供免费餐饮，免费<br/>行李额度低，详情请咨询九元航空：400-105-1999";
+            break;
+        case "PN":
+            b = "西不航空不提供免费餐饮，免费行李额度低，部分票价<br/>无免费托运行李额，详情咨询西部航空950716";
+            break;
+        default:
+            b = "";
+    }
+    return b;
+};
 FlightEntity.prototype.fixKMGAirport = function(c) {
     var a = new Date(this.flightInfo().dd.replace(/-/g, "/")).getTime();
     var b = new Date("2013/5/30").getTime();
@@ -8110,13 +8135,16 @@ var HotSale = (function() {
                 if (i == 3) {
                     c(g, f);
                 }
-                if (i == 4 && (typeof f[j] == "undefined")) {
-                    f[j] = g.carrierCode() == "9C";
+                if (i == 4 && g.isCheapFlight()) {
+                    f[j] = true;
                 }
                 if (f[j]) {
                     h[j] = b[j];
                     if (i == 3) {
                         h[j] = "航班易晚点，近三个月该航班准点率" + f.rate + "%";
+                    }
+                    if (i == 4) {
+                        h[j] = g.CheapFlightMessage();
                     }
                     return $jex.$break;
                 }
@@ -8508,7 +8536,7 @@ OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
                 if (f[c[h]]) {
                     k.push('<div class="a_pct clrfix">');
                     if ($jex.ie == 6) {
-                        k.push('<i class="', a[h], '" title="', f[c[h]], '">', b[h], "</i>");
+                        k.push('<i class="', a[h], '" title="', f[c[h]].replace("<br/>", "").replace("<br>", ""), '">', b[h], "</i>");
                     } else {
                         k.push('<i class="', a[h], '">', b[h], "</i>");
                         k.push(this._getTipHTML(f[c[h]]));
