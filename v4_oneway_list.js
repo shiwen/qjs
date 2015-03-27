@@ -6127,12 +6127,15 @@ var BookingPriceCheck = (function() {
 if (typeof window.Dujia_recommend === "undefined") {
     window.Dujia_recommend = {};
 }
-Dujia_recommend.init = function(a) {
+Dujia_recommend.init = function(b) {
     this.HOST = "http://combine.dujia.qunar.com/get_fp_info_to_flight_list";
     this.WRAPPERID = "dujiaRecommend";
-    this.args = a || {};
+    this.args = b || {};
     this._data = [];
-    this.live();
+    var a = this;
+    setTimeout(function() {
+        a.live();
+    }, 3000);
 };
 Dujia_recommend.live = function() {
     var a = this._parseArg();
