@@ -8131,19 +8131,19 @@ var HotSale = (function() {
         hotSaleInfo: function(g) {
             var f = g.extInfo() || {},
                 h = {};
-            $jex.foreach(["lqf", "hot", "ps", "late", "lcc"], function(j, i) {
-                if (i == 3) {
+            $jex.foreach(["lcc", "lqf", "hot", "ps", "late"], function(j, i) {
+                if (j == "late") {
                     c(g, f);
                 }
-                if (i == 4 && g.isCheapFlight()) {
+                if (j == "lcc" && g.isCheapFlight()) {
                     f[j] = true;
                 }
                 if (f[j]) {
                     h[j] = b[j];
-                    if (i == 3) {
+                    if (j == "late") {
                         h[j] = "航班易晚点，近三个月该航班准点率" + f.rate + "%";
                     }
-                    if (i == 4) {
+                    if (j == "lcc") {
                         h[j] = g.CheapFlightMessage();
                     }
                     return $jex.$break;
@@ -8521,9 +8521,9 @@ OnewayFlightUI.prototype.getPriceInfoHTML = function(d) {
     return this._lastPriceHTML;
 };
 OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
-    var c = ["lqf", "hot", "ps", "late", "lcc"],
-        a = ["i_org_lqf", "i_org_hot", "i_org_hot", "dot_gy", "dot_gy"],
-        b = ["临起飞", "热门", "票少", "易晚点", "廉航!"];
+    var c = ["lcc", "lqf", "hot", "ps", "late"],
+        a = ["dot_gy", "i_org_lqf", "i_org_hot", "i_org_hot", "dot_gy"],
+        b = ["廉航!", "临起飞", "热门", "票少", "易晚点"];
     return function(m, d) {
         var g = !this._sinfoHTML;
         var l = [];
