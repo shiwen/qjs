@@ -3318,6 +3318,9 @@ SingleTripFlightWrapperEntity.prototype.afeePrice = function() {
 SingleTripFlightWrapperEntity.prototype.bprPrice = function() {
     return this.bpr() || this.price();
 };
+SingleTripFlightWrapperEntity.prototype.tag = function() {
+    return this.dataSource().type;
+};
 var FlightListUISorter = {};
 $jex.exec(function() {
     var c = null;
@@ -4475,19 +4478,23 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
     c.updateSource();
     this.append("<div", f.id, ' style="z-index:' + f.zIndex + ';position:relative;zoom:1">');
     var a = f.id + "_h";
-    this.text('<div class="e_qvt_route">');
-    this.text('<div class="m_route_ifo">');
+    this.text('<div class="e-qvt-route">');
+    this.text('<div class="m-route-ifo">');
     this.append("", b, "");
     this.text("</div>");
     this.append("<h3 ", a, "");
-    this.text(">第", f.msg, "程&nbsp;", g.deptCity().zh, "&nbsp;-&nbsp;", g.arriCity().zh, "</h3>");
+    this.text(">第", f.msg, "程&nbsp;<span>", g.deptCity().zh, "&nbsp;-&nbsp;", g.arriCity().zh, "</span></h3>");
     this.text("</div>");
+    this.text('<div class="trans-single trans_' + f.id + '">');
+    this.text('<div class="single-tit">第' + f.msg + "段</div>");
+    this.text('<div class="single-ct e-qvt-ct">');
     this.append("", c, "");
     if (g.wrappers().size() > 4) {
         this.text('<div class="qvt_col_more qvt_col_more_hover">');
-        this.append("<a", f.goid, '  data-evtDataId="' + this.newid("") + '"  hidefocus="true" href="#" class="lnk_more">第' + f.msg + '程所有报价<i class="ico_arr_more"></i></a>');
+        this.append("<a", f.goid, '  data-evtDataId="' + this.newid("") + '"  hidefocus="true" href="#" class="lnk_more">第' + f.msg + '段所有报价<i class="ico_arr_more"></i></a>');
         this.text("</div>");
     }
+    this.text("</div></div>");
     this.text("</div>");
     this.onInit(function() {
         var e = this;
@@ -4495,7 +4502,7 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
             try {
                 var h = e.find(a);
                 if (h.offsetHeight > 30) {
-                    $jex.addClassName(h.parentNode, "e_qvt_route_oth");
+                    $jex.addClassName(h.parentNode, "e-qvt-route_oth");
                 }
             } catch (i) {}
         }, 10);
@@ -4504,10 +4511,9 @@ TransferFlightVendorListUI.prototype._insertOneWrapper = function(d, f) {
 };
 TransferFlightVendorListUI.prototype.update = function(a) {
     this.clear();
-    this.text('<div class="b_qvt_lst">');
-    this.text('<div class="qvt_arr_t"><p class="arr_o">◆</p><p class="arr_i">◆</p></div>');
-    this.text('<div class="e_qvt_warn">');
-    this.text('    <p>每段航班需分别缴纳税费，请确认两航班均有效再付款。详情查看《<a target="_blank" href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '">中转程机票购买须知</a>》</p>');
+    this.text('<div class="b-qvt-lst">');
+    this.text('<div class="e-qvt-warn">');
+    this.text('    <p>购买须知：<span>两段需要分别购买</span>，每段航班需分别缴纳税费，请确认两航班均有效再付款。详情查看《<a target="_blank" href="http://www.qunar.com/site/zh/Multi-city.shtml?', new Date().getTime(), '">中转程机票购买须知</a>》</p>');
     this.text("</div>");
     var f = false,
         d = null;
@@ -4562,21 +4568,6 @@ TransferFlightVendorListUI.prototype.update = function(a) {
     d = c = a = null;
 };
 
-function TransPackageFlightWrapperUI(a) {
-    TransPackageFlightWrapperUI.superclass.constructor.call(this, a);
-    this._type = "TransPackageFlightWrapperUI";
-    this._itemClass = "qvt_column qvt_column_transep";
-}
-$jex.extendClass(TransPackageFlightWrapperUI, OnewayFlightWrapperUI);
-TransPackageFlightWrapperUI.prototype._insertH3 = function(a) {
-    this.text('<div class="vsep"><dl><dt>中转</dt><dd>特价包</dd></dl></div>');
-    TransPackageFlightWrapperUI.superclass._insertH3.call(this, a);
-};
-TransPackageFlightWrapperUI.prototype.insert_BOOKING_BUTTON = function(a) {
-    this._buttonHTML("bpr", a);
-};
-$jex.register("TransPackageFlightWrapperUI", TransPackageFlightWrapperUI);
-
 function TransferFlightWrapperListUI(a) {
     TransferFlightWrapperListUI.superclass.constructor.call(this, a);
     var b = null;
@@ -4589,12 +4580,34 @@ function TransferFlightWrapperListUI(a) {
     };
 }
 $jex.extendClass(TransferFlightWrapperListUI, WrapperListUI);
-TransferFlightWrapperListUI.prototype.createWrapperUI = function(c, b, a) {
-    if (b.vType() !== undefined && !b.hasPickCar()) {
-        return new ZiyouxingSingleTripFlightWrapperUI();
-    } else {
-        return new SingleTripFlightWrapperUI();
+TransferFlightWrapperListUI.prototype.createWrapperUI = function(d, c, b) {
+    var e = c.vendor();
+    var a = c.getCarrierCo();
+    if (e.isDirect() || e.isOffical()) {
+        return new FlagshipOnewayFlightWrapperUI();
     }
+    if (c.isOta()) {
+        return new OtaOnewayFlightWrapperUI();
+    }
+    if (c.isFreeMan()) {
+        return new FreeManOnewayFlightWrapperUI();
+    }
+    if (c.vType() !== undefined && !c.hasPickCar()) {
+        return new ZiyouxingOnewayFlightWrapperUI();
+    }
+    if (c.isYoufei()) {
+        if (a == "ca") {
+            return new OnewayFlightWrapperUI();
+        }
+        return new YouFeiOnewayFlightWrapperUI();
+    }
+    if (c.isTCabin() || c.tag() == "nc") {
+        if (a == "ca") {
+            return new OnewayFlightWrapperUI();
+        }
+        return new TcabinOnewayFlightWrapperUI();
+    }
+    return new OnewayFlightWrapperUI();
 };
 
 function SingleTripFlightWrapperUI(a) {
@@ -7178,16 +7191,25 @@ flightResultController.prototype.initUI = function() {
                 this.conditions = this.getRecordJson();
             },
             clean: function() {
-                l.remove(c);
+                try {
+                    l.remove(c);
+                } catch (p) {}
             },
-            record: function(p) {
-                l.add({
-                    name: c,
-                    value: n.stringify(p)
-                });
+            record: function(q) {
+                try {
+                    l.add({
+                        name: c,
+                        value: n.stringify(q)
+                    });
+                } catch (p) {}
             },
             getRecordJson: function() {
-                var p = l.get(c);
+                var p;
+                try {
+                    p = l.get(c);
+                } catch (r) {
+                    return "";
+                }
                 var q = p && n.parse(p);
                 this.clean();
                 return q;
@@ -7295,7 +7317,9 @@ flightResultController.prototype.bindUI = function() {
         g.addFilter(i);
     });
     $jex.event.binding(c.analyzer, "autoLoadData", function() {
-        c.actionType = 1;
+        if (c.actionType != 3) {
+            c.actionType = 1;
+        }
     });
     $jex.event.binding(c.analyzer, "dataComplete", function() {
         setTimeout(function() {
