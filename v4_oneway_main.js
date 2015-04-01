@@ -5861,7 +5861,7 @@ WrapperEntity.prototype.giftInfo = function() {
             msg = '<p><font color="#CA8E38">1. 购买机票+航意险，额外赠送<i class="rmb">&yen;</i>' + (this.gPrice() || "") + "接送机代金券1张，您可以直接登录Qunar客户端-车车-接送用车使用</font></p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
             return msg;
         case 1:
-            msg = '<p><font color="#CA8E38">1. 买一赠一，车接车送，套餐包含<i class="rmb">&yen;</i>' + (this.vPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，额外赠送&yen;" + (this.gPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，可直接登录Qunar客户端-车车-接送用车使用</font></p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
+            msg = '<p><font color="#CA8E38">1. 买一赠一，车接车送，套餐包含<i class="rmb">&yen;</i>' + (this.vPrice() || "") + "接送机代金券" + (this.vAmount() || "") + '张，额外赠送<i class="rmb">&yen;</i>' + (this.gPrice() || "") + "接送机代金券" + (this.vAmount() || "") + "张，可直接登录Qunar客户端-车车-接送用车使用</font></p><p>2. 凭代金券专享15或20公里内免费接机或送机服务(哈尔滨、杭州、重庆需额外支付少量费用)，限去哪儿专车供应商，舒适型、商务型使用，每次服务仅限使用1张代金券</p><p>3. 以下20城市通用：北京、上海、广州、深圳、哈尔滨、大连、青岛、郑州、天津、杭州、南京、厦门、海口、三亚、长沙、武汉、成都、重庆、西安、昆明</p><p>4. 自购买机票之日起180天内可用，详细使用规则请登录Qunar客户端-车车查看</p>";
             return msg;
         default:
             return "";
@@ -9801,8 +9801,12 @@ OnewayFlightWrapperUI.prototype.getDefaultTGQInfo = function(a) {
 OnewayFlightWrapperUI.prototype.insert_labelInfo = function(c) {
     var a = c;
     var b = [];
-    b = this.getLabels(a);
-    b = this.sortLabels(b);
+    try {
+        b = this.getLabels(a);
+        b = this.sortLabels(b);
+    } catch (a) {
+        b = [];
+    }
     this.createLabelUI(b, a);
     this.bind_labelEvent(a);
 };
@@ -10188,11 +10192,11 @@ FlagshipOnewayFlightWrapperUI.prototype.getCouponLbale = function(b) {
     var a = ConfigManager.getConfig("OnewayListLabels");
     var c = a.flagshipCoupon;
     if (b.isSZCoupon()) {
-        c.text = this.getRebateText(e);
+        c.text = this.getRebateText(b);
         return c;
     } else {
         if (b.coupon() > 0 && (typeof b.vendor === "function" && b.vendor().rebateTye() !== "RM")) {
-            c.text = this.getRebateText(e);
+            c.text = this.getRebateText(b);
             return c;
         }
     }
