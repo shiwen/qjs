@@ -6643,6 +6643,10 @@ OnewayFlightEntity.prototype.deptCityCode = function() {
 OnewayFlightEntity.prototype.arriCityCode = function() {
     return this.commInfoMgr().arriCityCode();
 };
+OnewayFlightEntity.prototype.isPriceLock = function() {
+    var a = this.priceInfo();
+    return a.priceLock == 1;
+};
 OnewayFlightEntity.prototype.lowestWrapperIds = function() {
     var a = this.flightInfoMgr().get("priceGroup", this.key());
     if (a) {
@@ -8664,9 +8668,16 @@ OnewayFlightUI.prototype.update = function(a) {
     this.append("<div", "lowPrice", ' class="c6">');
     this.text(this.getPriceInfoHTML(c));
     this.text("</div>");
-    this.text('<div class="c7"><div class="c-ref"></div><div class="c-cont">');
+    this.append("<div", "tagsCol", 'class="c7 ' + (c.isPriceLock() ? "price-lock" : "") + '"><div class="c-ref"></div>');
+    this.text('<div class="c-cont tags-info">');
     this.insertSaleAndCabin(c, b);
-    this.text("</div></div>");
+    this.text("</div>");
+    this.append("<div", "priceLocker", 'class="c-cont price-locker">');
+    if (c.isPriceLock()) {
+        this.text(this.priceLockerHtml(c));
+    }
+    this.text("</div>");
+    this.text("</div>");
     this.insertBookingBtn(c);
     this.insert_recommandZyf(c);
     this.text("</div>");
@@ -8686,6 +8697,36 @@ OnewayFlightUI.prototype.update = function(a) {
 };
 OnewayFlightUI.prototype.updateLowestPrice = function() {
     this.find("lowPrice").innerHTML = this.getPriceInfoHTML(this.entity);
+};
+OnewayFlightUI.prototype.updatePriceLock = function() {
+    var d = this.entity;
+    var h = this;
+    var g = this.find("tagsCol");
+    var f = this.find("priceLocker");
+    if (d.isPriceLock()) {
+        if (!$jex.hasClassName(g, "price-lock")) {
+            $jex.addClassName(g, "price-lock");
+        }
+        f.innerHTML = this.priceLockerHtml(d);
+        var a = this.newid("");
+        if ($jex.ie == 6) {
+            var c = $jex.$("priceLockIco" + a);
+            var b = $jex.$("priceLockTip" + a);
+            $jex.hover({
+                act: c,
+                onmouseover: function() {
+                    b.style.display = "block";
+                },
+                onmouseout: function() {
+                    b.style.display = "none";
+                }
+            });
+        }
+    } else {
+        if (!$jex.hasClassName(g, "price-lock")) {
+            $jex.removeClassName(g, "price-lock");
+        }
+    }
 };
 OnewayFlightUI.prototype.getPriceInfoHTML = function(d) {
     var c, b = this.ownerFlightUI().isOnlySelBfCabinType();
@@ -8710,6 +8751,27 @@ OnewayFlightUI.prototype.getPriceInfoHTML = function(d) {
     a.push("</div>");
     this._lastPriceHTML = a.join("");
     return this._lastPriceHTML;
+};
+OnewayFlightUI.prototype.priceLockerHtml = function(a) {
+    var d = a;
+    var c = [];
+    var f = [];
+    var b = "http://pricelock.qunar.com/pick?";
+    f.push("flightNum=" + encodeURIComponent(d.code()));
+    f.push("price=" + encodeURIComponent(d.lowestPrice()));
+    f.push("date=" + encodeURIComponent(d.deptDate()));
+    f.push("depAirportCode=" + encodeURIComponent(d.deptAirportCode()));
+    f.push("arrAirportCode=" + encodeURIComponent(d.arriAirportCode()));
+    b += f.join("&");
+    c.push('<div id="priceLockIco' + this.newid("") + '"', 'class="a_pct clrfix"><a target="_blank" href="', b, '"><i class="i_price_lock"></i></a>');
+    c.push('<div id="priceLockTip' + this.newid("") + '"', 'class="p_tips_cont">');
+    c.push('<div class="p_tips_wrap">');
+    c.push('<div class="p_tips_arr p_tips_arr_t">');
+    c.push('<p class="arr_o">◆</p><p class="arr_i">◆</p>');
+    c.push("</div>");
+    c.push('<div class="p_tips_content"> <p><a target="_blank" href="', b, '">担心机票价格上涨？价格锁，帮你<br>锁住低价！点击图标购买价格锁</a></p> </div>');
+    c.push("</div></div></div>");
+    return c.join("");
 };
 OnewayFlightUI.prototype.insertSaleAndCabin = (function() {
     var c = ["lcc", "lqf", "hot", "ps", "late"],
@@ -8890,10 +8952,14 @@ OnewayFlightUI.prototype.toggleVendorPanel = function() {
     }
 };
 OnewayFlightUI.prototype.showVendorPanel = function() {
+    var a = this.entity;
     this.moveToFirst();
     this.renderVendorPanel();
     $jex.addClassName(this.find("itemBar"), "avt_column_on");
     $jex.element.show(this.find("vendorlist"));
+    if (a && a.isPriceLock()) {
+        this.update(a);
+    }
     $jex.event.trigger($jex.$("hdivResultPanel"), "fem_openWrapperList");
     this.state(1);
     $jex.event.trigger(this, "open");
@@ -9458,6 +9524,7 @@ OnewayFlightWrapperListUI.prototype.getWrapperFormEntity = function(c) {
             }
             b.ownerVendorListUI().owner().updateLowestPrice();
             b.ownerVendorListUI().owner().insert_recommandWrapper(undefined, true);
+            b.ownerVendorListUI().owner().updatePriceLock();
             $jex.event.trigger(PAGE_EVENT, "lowPriceChange");
             b.insert_footer(c);
             clearTimeout(b._ladingTimer);
