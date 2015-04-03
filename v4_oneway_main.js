@@ -6645,7 +6645,7 @@ OnewayFlightEntity.prototype.arriCityCode = function() {
 };
 OnewayFlightEntity.prototype.isPriceLock = function() {
     var a = this.priceInfo();
-    return a.priceLock == 1;
+    return a && a.priceLock == 1;
 };
 OnewayFlightEntity.prototype.lowestWrapperIds = function() {
     var a = this.flightInfoMgr().get("priceGroup", this.key());
