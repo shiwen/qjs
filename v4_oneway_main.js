@@ -8763,7 +8763,7 @@ OnewayFlightUI.prototype.priceLockerHtml = function(a) {
     f.push("depAirportCode=" + encodeURIComponent(d.deptAirportCode()));
     f.push("arrAirportCode=" + encodeURIComponent(d.arriAirportCode()));
     b += f.join("&");
-    c.push('<div id="priceLockIco' + this.newid("") + '"', 'class="a_pct clrfix"><a target="_blank" href="', b, '"><i class="i_price_lock"></i></a>');
+    c.push('<div id="priceLockIco' + this.newid("") + '"', 'class="a_pct clrfix"><i class="i_price_lock"><a target="_blank" href="', b, '"></a></i>');
     c.push('<div id="priceLockTip' + this.newid("") + '"', 'class="p_tips_cont">');
     c.push('<div class="p_tips_wrap">');
     c.push('<div class="p_tips_arr p_tips_arr_t">');
