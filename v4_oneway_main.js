@@ -9149,7 +9149,7 @@ OnewayFlightVendorListUI.prototype.update = function(c) {
     this.wrlistUI.insert_footer(c);
     if (f && d) {
         this.append("<div ", "hdivCS", ' class="mainFlist" style="display:none;z-index:2;position: relative;">');
-        this.text('<div class="qvt_col_more qvt_col_more_hover mainflist-tit">该航班为代码共享航班，主飞航班为<span class="hl">', d.carrier().zh, f, "</span>，参考报价如下：</div>");
+        this.text('<div class="qvt_col_more qvt_col_more_hover mainflist-tit">该航班为代码共享航班，主飞航班为<span class="hl"><em>', d.carrier().zh, "</em>", f, "</span>，参考报价如下：</div>");
         this.mainWrlistUI.dataSource(h.codeShareFlight());
         this.mainWrlistUI.updateSource();
         this.mainWrlistUI.placeHolder();
@@ -9681,21 +9681,26 @@ OnewayFlightWrapperUI.prototype.set_bookingInfo = function(b) {
     this.bookingLockScreenUI.setEntity(a);
     this.bookingLockScreenUI.setVendorInfo(a.wrapperId(), a.vendor().dataSource());
 };
-OnewayFlightWrapperUI.prototype.insert_vendorInfo = function(f) {
-    var d = f;
-    var a = f.bigLogoUrl();
-    if (a) {
-        this.text('<div class="v0">', '<div class="v-flag"><img src=', a, "></div>", "</div>");
-    } else {
-        var c, b = {
-            vendorName: d.vendorName()
-        };
-        c = $jex.template(['<div class="v0 clrfix">', '<div class="t-name"><%= vendorName %></div>', '<div class="t-cmt">'].join(""));
-        this.text(c(b));
-        this.starUI.displayPanel(d);
-        this.text("</div>");
-        this.text("</div>");
-    }
+OnewayFlightWrapperUI.prototype.insert_vendorInfo = function(b) {
+    var a = b;
+    this.text('<div class="v0 clrfix">');
+    this.insertVenderName(a);
+    this.insertStarInfo(a);
+    this.text("</div>");
+};
+OnewayFlightWrapperUI.prototype.insertVenderName = function(d) {
+    var c = d;
+    var a = {
+        vendorName: c.vendorName()
+    };
+    var b = $jex.template('<div class="t-name"><%= vendorName %></div>');
+    this.text(b(a));
+};
+OnewayFlightWrapperUI.prototype.insertStarInfo = function(b) {
+    var a = b;
+    this.text('<div class="t-cmt">');
+    this.starUI.displayPanel(a);
+    this.text("</div>");
 };
 OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(i) {
     var h = 0;
@@ -9715,7 +9720,7 @@ OnewayFlightWrapperUI.prototype.insert_tgqInfo = function(i) {
     };
     this.text('<div class="v1">');
     if (this.getDefaultTGQInfo(i)) {
-        d = $jex.template(['<div id="<%= stopClickId %>" class="v-tgq">', '<div class="v-tgq-tit" id="<%= tgqId %>"><%= tgqText %></div>', '<div class="p-tips-cont" id="<%= tgqPanelId %>">', '<div class="p-tips-wrap">', '<div class="p-tips-arr p-tips-arr-t" >', '<p class="arr-o">◆</p><p class="arr-i">◆</p>', "</div>", '<div class="p-tips-content" id="<%= tgqContentId %>" >', "<%= tgqContent %>", "</div>", "</div>", "</div>", "</div>", "<%if(niceTgq){%>", '<div class="v-prefer"></div>', "<%}%>"].join(""));
+        d = $jex.template(['<div id="<%= stopClickId %>" class="v-tgq">', '<div class="v-tgq-tit" id="<%= tgqId %>"><%= tgqText %></div>', '<div class="p-tips-cont" id="<%= tgqPanelId %>">', '<div class="p-tips-wrap">', '<div class="p-tips-arr p-tips-arr-t" >', '<p class="arr-o">◆</p><p class="arr-i">◆</p>', "</div>", '<div class="p-tips-content" id="<%= tgqContentId %>" >', "<%= tgqContent %>", "</div>", "</div>", "</div>", "</div>", "<%if(niceTgq){%>", '<a class="v-prefer p-tip-trigger" ' + ($jex.ie != 6 ? "" : 'href="javascript:;"') + ">", '<span class="v-prefer-tit">赞</span>', this._getTipHTML("退改签费用低"), "</a>", "<%}%>"].join(""));
         this.text(d(b));
         h = 1;
     }
@@ -10214,7 +10219,7 @@ OnewayFlightWrapperUI.prototype.insert_carPrice = function(h) {
     this.text('<a class="v-ins p-tip-trigger" href="javascript:;"><span class="v-ins-tit">+<i class="has-tip">');
     this.text(g, "套餐</i>");
     this.text("</span>");
-    this.text(this._getTipHTML(['<i class="rmb">&yen;</i>', d, b, a, '+<i class="rmb">&yen;</i>', f, "保险"].join("")));
+    this.text(this._getTipHTML(['<i class="rmb">&yen;</i>', d, b, a, '<i class="plus">+</i><i class="rmb">&yen;</i>', f, "保险"].join("")));
     this.text("</a>");
 };
 $jex.register("OnewayFlightWrapperUI", OnewayFlightWrapperUI);
@@ -10228,32 +10233,49 @@ function FlagshipOnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(FlagshipOnewayFlightWrapperUI, OnewayFlightWrapperUI);
-FlagshipOnewayFlightWrapperUI.prototype.getLabels = function(i) {
-    var f = i;
-    var h = f.vendor();
-    var g = FlagshipOnewayFlightWrapperUI.superclass.getLabels.call(this, f);
-    var b = ConfigManager.getConfig("OnewayListLabels");
-    var a = [];
-    var d;
-    if (h.isDirect()) {
-        var c = this.getCouponLbale(f);
-        if (c) {
-            a.push(c);
-        }
-        a.push(b.airlineDirectSelling);
+FlagshipOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(d) {
+    var c = d;
+    var b = d.bigLogoUrl();
+    var a = (c.getCarrierCo() || "").toUpperCase();
+    this.text('<div class="v0 v0-flagship">');
+    if (b) {
+        this.text('<div class="v-flag"><img src=', b, "></div>");
+        this.insertStarInfo(c);
     } else {
-        if (h.isOffical()) {
-            a.push(b.airlineOfficial);
+        a && this.text('<img class="v-co-icon" src="http://simg1.qunarzz.com/site/images/new_airline_logo/small/' + a + '.png"/>');
+        this.insertVenderName(c);
+        this.insertStarInfo(c);
+    }
+    this.text("</div>");
+};
+FlagshipOnewayFlightWrapperUI.prototype.getLabels = function(h) {
+    var c = h;
+    var j = c.vendor();
+    var b = FlagshipOnewayFlightWrapperUI.superclass.getLabels.call(this, c);
+    var g = ConfigManager.getConfig("OnewayListLabels");
+    var f = [];
+    var d;
+    if (j.isDirect()) {
+        var i = this.getCouponLbale(c);
+        if (i) {
+            f.push(i);
+        }
+        var a = g.airlineDirectSelling;
+        a.content = this._getTipHTML(["航空公司直营", "实时自动出票", "标准航司退改签", "7×24小时服务", "等额报销凭证", "机场自取行程单"].join("<br/>"));
+        f.push(a);
+    } else {
+        if (j.isOffical()) {
+            f.push(g.airlineOfficial);
             d = this.ownerListUI() && this.ownerListUI().dataSource();
             if (d && d.type && d.type == "compose") {
-                a.push(b.transferPackage);
+                f.push(g.transferPackage);
             }
-            if (f.hasAgeLimit()) {
-                a.push(b.youngAndOld);
+            if (c.hasAgeLimit()) {
+                f.push(g.youngAndOld);
             }
         }
     }
-    return g.concat(a);
+    return b.concat(f);
 };
 FlagshipOnewayFlightWrapperUI.prototype.getCouponLbale = function(b) {
     var a = ConfigManager.getConfig("OnewayListLabels");
