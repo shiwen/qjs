@@ -2350,6 +2350,7 @@ var DomesticOnewayDataAnalyzer = new(function() {
         }
     }
 })();
+var pomtesttest = 10;
 var DomesticOnewaySearchService = new(function() {
     var u = false;
     var p = this;
