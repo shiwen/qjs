@@ -5668,6 +5668,12 @@ WrapperEntity.prototype.isLCabin = function() {
 WrapperEntity.prototype.isOta = function() {
     return this.dataSource().type == "s" || this.dataSource().type == "sc";
 };
+WrapperEntity.prototype.isPriceKing = function() {
+    return this.dataSource().type == "CPF";
+};
+WrapperEntity.prototype.tgqpr = function() {
+    return this.dataSource().tgqpr || false;
+};
 WrapperEntity.prototype.isFreeMan = function() {
     return this.vendor().dataSource().isFreeWrapper == "1";
 };
@@ -9449,6 +9455,9 @@ OnewayFlightWrapperListUI.prototype.createWrapperUI = function(d, c, b) {
         }
         return new TcabinOnewayFlightWrapperUI();
     }
+    if (c.isPriceKing()) {
+        return new PriceKingOnewayFlightWrapperUI();
+    }
     return new OnewayFlightWrapperUI();
 };
 OnewayFlightWrapperListUI.prototype.getMaxCount = function(c) {
@@ -9781,6 +9790,9 @@ OnewayFlightWrapperUI.prototype.requestTgq = function(n, l) {
         d = k ? (d + k) : d;
         p = k ? (p + k) : p;
         a = false;
+    }
+    if (j.isPriceKing() && j.tgqpr()) {
+        d = j.tgqpr();
     }
     var f = this.find("tgq");
     var o = this.getDefaultTGQInfo(j);
@@ -10538,6 +10550,27 @@ TcabinOnewayFlightWrapperUI.prototype.getPreferencesLabel = function(c) {
     return d;
 };
 $jex.register("TcabinOnewayFlightWrapperUI", TcabinOnewayFlightWrapperUI);
+
+function PriceKingOnewayFlightWrapperUI(a) {
+    PriceKingOnewayFlightWrapperUI.superclass.constructor.call(this, a);
+    this._type = "PriceKingOnewayFlightWrapperUI";
+    this._itemClass = "qvt-column";
+    this.starUI = new OnewayStarRankUI();
+    this.starUI.ownerWrapperUI(this);
+    UICacheManager.addToCache(this);
+}
+$jex.extendClass(PriceKingOnewayFlightWrapperUI, OnewayFlightWrapperUI);
+PriceKingOnewayFlightWrapperUI.prototype.insert_vendorInfo = function() {
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-priceking" href="javascript:;">', '<span class="ico">性价比王</span>', "</a></div>"].join(""));
+};
+PriceKingOnewayFlightWrapperUI.prototype.getPriceKingTips = function() {
+    if (this._tips) {
+        return this._tips;
+    }
+    this._tips = this._getTipHTML(["<p>报销无忧 : 提供足额报销凭证 </p>", "<p>超值退改：低额退票手续费</p>"].join(""));
+    return this._tips;
+};
+$jex.register("PriceKingOnewayFlightWrapperUI", PriceKingOnewayFlightWrapperUI);
 
 function HistoryPriceUI(b) {
     HistoryPriceUI.superclass.constructor.call(this, b);
