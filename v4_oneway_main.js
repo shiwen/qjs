@@ -9989,20 +9989,33 @@ OnewayFlightWrapperUI.prototype.bind_labelEvent = function(c) {
     var a = this;
     var b = this.labelIdList;
     this.onInit(function() {
-        $jex.foreach(b, function(f, d) {
-            var g = document.getElementById(f.labelId);
-            $jex.event.bind(g, "click", function(h) {
-                h = h || womdow.event;
-                if (h.stopPropagation) {
-                    h.stopPropagation();
-                } else {
-                    h.cancelBubble = true;
-                }
-            });
-            if (f.text == "年龄限制") {
-                a.getAgeLimitInfo(f, a, c);
+        var g = function(i) {
+            i = i || womdow.event;
+            if (i.stopPropagation) {
+                i.stopPropagation();
+            } else {
+                i.cancelBubble = true;
+            }
+        };
+        $jex.foreach(b, function(k, j) {
+            var l = document.getElementById(k.labelId);
+            $jex.event.bind(l, "click", g);
+            if (k.text == "年龄限制") {
+                a.getAgeLimitInfo(k, a, c);
             }
         });
+        var h = a.find("js-wrapper-logo-tip");
+        if (h) {
+            $jex.event.bind(h, "click", g);
+        }
+        var d = a.find("panelStarR");
+        if (d) {
+            $jex.event.bind(d, "click", g);
+        }
+        var f = a.find("js-packge-price-tip");
+        if (f) {
+            $jex.event.bind(f, "click", g);
+        }
     });
 };
 OnewayFlightWrapperUI.prototype.getAgeLimitInfo = function(k, j, d) {
@@ -10247,10 +10260,10 @@ OnewayFlightWrapperUI.prototype.insert_carPrice = function(j) {
     var i = j.carType();
     var a = j.afeePrice(),
         d = j.bprPrice();
-    this.text('<a class="v-ins p-tip-trigger" href="javascript:;"><span class="v-ins-tit">+', b, '<i class="has-tip">');
+    this.text('<a class="v-ins p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", '><span class="v-ins-tit">+', b, '<i class="has-tip">');
     this.text("套餐</i>");
     this.text("</span>");
-    this.text(this._getTipHTML(['套餐总价<font color="#ff6600"><i class="rmb">&yen;</i>', a + b, '</font>，单独购买机票价格<i class="rmb">&yen;</i>', d, '<br>套餐含<i class="rmb">&yen;</i>', g, i, f, '(买一送一)<i class="plus">+</i><i class="rmb">&yen;</i>', c, "保险"].join("")));
+    this.text(this._getTipHTML(['套餐总价<font color="#ff6600"><i class="rmb">&yen;</i>', a + b, '</font>，单独购买机票价格<i class="rmb">&yen;</i>', d, '<br>套餐含<i class="rmb">&yen;</i>', g, i, f, '(买一送一)<i class="plus">+</i><i class="rmb">&yen;</i>', c, "保险"].join(""), "js-packge-price-tip"));
     this.text("</a>");
 };
 $jex.register("OnewayFlightWrapperUI", OnewayFlightWrapperUI);
@@ -10344,13 +10357,13 @@ function FreeManOnewayFlightWrapperUI(a) {
 }
 $jex.extendClass(FreeManOnewayFlightWrapperUI, OnewayFlightWrapperUI);
 FreeManOnewayFlightWrapperUI.prototype.insert_vendorInfo = function() {
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-freeman p-tip-trigger" href="javascript:;">', '<span class="ico">自由人</span>', this.getFreeManTips(), "</a></div>"].join(""));
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-freeman p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">自由人</span>', this.getFreeManTips(), "</a></div>"].join(""));
 };
 FreeManOnewayFlightWrapperUI.prototype.getFreeManTips = function() {
     if (this._otaTips) {
         return this._otaTips;
     }
-    this._otaTips = this._getTipHTML(["<p>报销：提供支付金额的超额发票</p>", "<p>立返：支付后立刻返还现金</p>", "<p>改签：可自由选择航空公司，需补机票差价</p>", "<p>退票：低额退票手续费，申请退票后极速退款</p>", "<p>自助：网站可快速自助申请退改签</p>"].join(""));
+    this._otaTips = this._getTipHTML(["<p>报销：提供支付金额的超额发票</p>", "<p>立返：支付后立刻返还现金</p>", "<p>改签：可自由选择航空公司，需补机票差价</p>", "<p>退票：低额退票手续费，申请退票后极速退款</p>", "<p>自助：网站可快速自助申请退改签</p>"].join(""), "js-wrapper-logo-tip");
     return this._otaTips;
 };
 FreeManOnewayFlightWrapperUI.prototype.getLabels = function(h) {
@@ -10382,7 +10395,7 @@ function OtaOnewayFlightWrapperUI(a) {
 }
 $jex.extendClass(OtaOnewayFlightWrapperUI, OnewayFlightWrapperUI);
 OtaOnewayFlightWrapperUI.prototype.insert_vendorInfo = function() {
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-ota p-tip-trigger" href="javascript:;">', '<span class="ico">商旅优选</span>', this.getOtaTips(), "</a></div>"].join(""));
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-ota p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">商旅优选</span>', this.getOtaTips(), "</a></div>"].join(""));
 };
 OtaOnewayFlightWrapperUI.prototype.getLabels = function(f) {
     var c = f;
@@ -10397,7 +10410,7 @@ OtaOnewayFlightWrapperUI.prototype.getOtaTips = function() {
     if (this._otaTips) {
         return this._otaTips;
     }
-    this._otaTips = this._getTipHTML(["<p>出票迅速：支付后极速出票</p>", "<p>报销无忧：起飞后可邮寄行程单</p>", "<p>服务优先：7*24小时全天候服务</p>"].join(""));
+    this._otaTips = this._getTipHTML(["<p>出票迅速：支付后极速出票</p>", "<p>报销无忧：起飞后可邮寄行程单</p>", "<p>服务优先：7*24小时全天候服务</p>"].join(""), "js-wrapper-logo-tip");
     return this._otaTips;
 };
 $jex.register("OtaOnewayFlightWrapperUI", OtaOnewayFlightWrapperUI);
@@ -10412,8 +10425,8 @@ function YouFeiOnewayFlightWrapperUI(a) {
 }
 $jex.extendClass(YouFeiOnewayFlightWrapperUI, OnewayFlightWrapperUI);
 YouFeiOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(b) {
-    var a = this._getTipHTML(["<p>优飞币专享活动说明：</p>", "<p>1. 购买“优飞币专享”促机票产品，1优飞币可抵1元现金。</p>", "<p>* 如所拥有优飞币数量小于订单要求数量，则不可使用</p>", "<p>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>", "<p>2. 如何获得优飞币？</p>", "<p>购买带有“送优飞币”标签的机票产品，即可获得与支付金额相等数量的优飞币。</p>", "<p>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内</p>", "<p>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>"].join(""));
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-youfei p-tip-trigger" href="javascript:;">', '<span class="ico">优飞币专享</span>', a, "</a></div>"].join(""));
+    var a = this._getTipHTML(["<p>优飞币专享活动说明：</p>", "<p>1. 购买“优飞币专享”促机票产品，1优飞币可抵1元现金。</p>", "<p>* 如所拥有优飞币数量小于订单要求数量，则不可使用</p>", "<p>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>", "<p>2. 如何获得优飞币？</p>", "<p>购买带有“送优飞币”标签的机票产品，即可获得与支付金额相等数量的优飞币。</p>", "<p>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内</p>", "<p>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>"].join(""), "js-wrapper-logo-tip");
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-youfei p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">优飞币专享</span>', a, "</a></div>"].join(""));
 };
 YouFeiOnewayFlightWrapperUI.prototype.getDefaultTGQInfo = function(b) {
     var a = YouFeiOnewayFlightWrapperUI.superclass.getDefaultTGQInfo.call(this, b);
@@ -10470,8 +10483,8 @@ function ZiyouxingOnewayFlightWrapperUI(a) {
 }
 $jex.extendClass(ZiyouxingOnewayFlightWrapperUI, OnewayFlightWrapperUI);
 ZiyouxingOnewayFlightWrapperUI.prototype.insert_vendorInfo = function() {
-    var a = this._getTipHTML("自由行套餐：机票+接送机服务");
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-ziyouxing p-tip-trigger" href="javascript:;">', '<span class="ico">自由行</span>', a, "</a></div>"].join(""));
+    var a = this._getTipHTML("自由行套餐：机票+接送机服务", "js-wrapper-logo-tip");
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-ziyouxing p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">自由行</span>', a, "</a></div>"].join(""));
 };
 ZiyouxingOnewayFlightWrapperUI.prototype.getLabels = function(d) {
     var b = d;
@@ -10512,8 +10525,8 @@ $jex.extendClass(TcabinOnewayFlightWrapperUI, OnewayFlightWrapperUI);
 TcabinOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(d) {
     var b = d.lijian();
     var a = b ? '(<i class="rmb">&yen;</i>' + b + "/人)" : "";
-    var c = this._getTipHTML(["<p>1. 此产品参与低价特惠促销活动，退票或改签适用低价特惠促销退改签规则；<p>", "<p>2. 如低价特惠促销退改签规则不能满足您的需求，请选购非低价特惠产品或放弃低价特惠促销优惠" + a + "；<p>", "<p>3. 儿童票不参与低价特惠促销活动。<p>"].join(""));
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-tcabin p-tip-trigger" href="javascript:;">', '<span class="ico">低价特惠</span>', c, "</a></div>"].join(""));
+    var c = this._getTipHTML(["<p>1. 此产品参与低价特惠促销活动，退票或改签适用低价特惠促销退改签规则；<p>", "<p>2. 如低价特惠促销退改签规则不能满足您的需求，请选购非低价特惠产品或放弃低价特惠促销优惠" + a + "；<p>", "<p>3. 儿童票不参与低价特惠促销活动。<p>"].join(""), "js-wrapper-logo-tip");
+    this.text(['<div class="v0">', '<a class="v-type-icon v-type-tcabin p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">低价特惠</span>', c, "</a></div>"].join(""));
 };
 TcabinOnewayFlightWrapperUI.prototype.getDefaultTGQInfo = function(b) {
     var a = TcabinOnewayFlightWrapperUI.superclass.getDefaultTGQInfo.call(this, b);
