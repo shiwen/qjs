@@ -5562,6 +5562,14 @@ WrapperEntity.prototype.vendor = function() {
     this._valCache.vendor = a;
     return a;
 };
+WrapperEntity.prototype.groupId = function() {
+    var a = this.dataSource().groupId;
+    return typeof a !== "undefined" ? a : "";
+};
+WrapperEntity.prototype.sourceType = function() {
+    var a = this.dataSource().sourceType;
+    return typeof a !== "undefined" ? a : "";
+};
 WrapperEntity.prototype.wrapperId = function() {
     return this.dataSource().wr || this.dataSource().wrid || "";
 };
@@ -9813,7 +9821,9 @@ OnewayFlightWrapperUI.prototype.requestTgq = function(n, l) {
         minSellPrice: p,
         tag: j.tag(),
         b2bpf: j.b2bpf(),
-        isTHFXLow: a
+        isTHFXLow: a,
+        groupId: j.groupId(),
+        sourceType: j.sourceType()
     }, function(t) {
         q.loadedTgq = true;
         if (!t || (t && !t.tgqAdult)) {
