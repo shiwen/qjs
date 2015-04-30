@@ -14411,7 +14411,7 @@ var QadAdUnits = (function() {
             for (var q = 0; q < m; q++) {
                 var t = u.key_data[q];
                 var p = ["http://clk.qunar.com/q?k=", t.s || "", "&e=", t.e].join("");
-                s.push('<a style="display:block;padding-bottom:7px;" href="', p, '" target="_blank">', '<img style="display:block;" src="', t.img, '" /></a>');
+                s.push('<a style="display:block;padding-bottom:16px;" href="', p, '" target="_blank">', '<img style="display:block;" src="', t.img, '" /></a>');
             }
             n.innerHTML = s.join("");
         });
