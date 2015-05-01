@@ -5602,6 +5602,9 @@ WrapperEntity.prototype.isHightLightPrice = function() {
     var a = this.dataSource();
     return a.color;
 };
+WrapperEntity.prototype.cabin = function() {
+    return this.dataSource().cabin || "";
+};
 WrapperEntity.prototype.typeOfCabin = function() {
     return this.dataSource().tc || "";
 };
@@ -5906,6 +5909,12 @@ WrapperEntity.prototype.giftType = function() {
 };
 WrapperEntity.prototype.hasGift = function() {
     return (this.giftType() == 1 || this.giftType() == 2);
+};
+WrapperEntity.prototype.hasHongbao = function() {
+    return (this.dataSource() && this.dataSource().rp) || false;
+};
+WrapperEntity.prototype.HongbaoPrice = function() {
+    return this.dataSource().rp;
 };
 WrapperEntity.prototype.discount = function() {
     return this.dataSource().dis;
@@ -10006,12 +10015,12 @@ OnewayFlightWrapperUI.prototype.bind_labelEvent = function(c) {
     var a = this;
     var b = this.labelIdList;
     this.onInit(function() {
-        var g = function(i) {
-            i = i || womdow.event;
-            if (i.stopPropagation) {
-                i.stopPropagation();
+        var g = function(j) {
+            j = j || womdow.event;
+            if (j.stopPropagation) {
+                j.stopPropagation();
             } else {
-                i.cancelBubble = true;
+                j.cancelBubble = true;
             }
         };
         $jex.foreach(b, function(k, j) {
@@ -10021,9 +10030,9 @@ OnewayFlightWrapperUI.prototype.bind_labelEvent = function(c) {
                 a.getAgeLimitInfo(k, a, c);
             }
         });
-        var h = a.find("js-wrapper-logo-tip");
-        if (h) {
-            $jex.event.bind(h, "click", g);
+        var i = a.find("js-wrapper-logo-tip");
+        if (i) {
+            $jex.event.bind(i, "click", g);
         }
         var d = a.find("panelStarR");
         if (d) {
@@ -10032,6 +10041,10 @@ OnewayFlightWrapperUI.prototype.bind_labelEvent = function(c) {
         var f = a.find("js-packge-price-tip");
         if (f) {
             $jex.event.bind(f, "click", g);
+        }
+        var h = a.find("js-hongbao");
+        if (h) {
+            $jex.event.bind(h, "click", g);
         }
     });
 };
@@ -10160,15 +10173,19 @@ OnewayFlightWrapperUI.prototype.insert_insureInfo = function(d) {
     var c = b.afeePrice();
     var a = b.afee();
     this.text('<div class="v4">');
-    if ((b.hasGift() || b.hasPickCar()) && b.giftType() != 2) {
-        this.insert_carPrice(b);
+    if (b.hasHongbao()) {
+        this.insert_hongbao(b);
     } else {
-        if (c && a) {
-            this.text('<div class="v-ins">');
-            this.text("+", a, "保险");
-            this.text("</div>");
+        if ((b.hasGift() || b.hasPickCar()) && b.giftType() != 2) {
+            this.insert_carPrice(b);
         } else {
-            this.text("&nbsp;");
+            if (c && a) {
+                this.text('<div class="v-ins">');
+                this.text("+", a, "保险");
+                this.text("</div>");
+            } else {
+                this.text("&nbsp;");
+            }
         }
     }
     this.text("</div>");
@@ -10227,36 +10244,66 @@ OnewayFlightWrapperUI.prototype._buttonHTML = function(d, f, g) {
     }
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype._bindHoverEvent = function(c) {
+OnewayFlightWrapperUI.prototype.logQrcode = function(g) {
+    try {
+        var d = g;
+        var f = g.ownerFlight();
+        var c = new Image();
+        var j = d.wrapperId();
+        var b = f.code();
+        var h = f.deptCity().zh;
+        var i = f.arriCity().zh;
+        var a = f.deptDate();
+        new Image().src = "http://log.flight.qunar.com/l.gif?s=flight&p=onewayList&r=hongbaoQrcode&flightCode=" + encodeURIComponent(b) + "&from=" + encodeURIComponent(h) + "&to=" + encodeURIComponent(i) + "&date=" + encodeURIComponent(a) + "&wrapperid=" + encodeURIComponent(j);
+    } catch (d) {}
+};
+OnewayFlightWrapperUI.prototype._bindHoverEvent = function(d) {
     var a = this;
-    var b = c;
+    var b = d;
+    var c = null;
     this.onInit(function() {
-        var d = this.find("flightbar");
+        var f = this.find("flightbar");
         if ($jex.ie == 6) {
             $jex.hover({
-                act: d,
-                onmouseover: function(f) {
-                    $jex.addClassName(d, "qvt-column-hover");
+                act: f,
+                onmouseover: function(g) {
+                    $jex.addClassName(f, "qvt-column-hover");
                 },
-                onmouseout: function(f) {
-                    $jex.removeClassName(d, "qvt-column-hover");
-                    $jex.removeClassName(d, "qvt-column-tip-open");
+                onmouseout: function(g) {
+                    $jex.removeClassName(f, "qvt-column-hover");
+                    $jex.removeClassName(f, "qvt-column-tip-open");
                 }
             });
         }
-        if ((b.hasGift() || b.hasPickCar()) && b.giftType() != 2) {
-            $jex.event.bind(d, "mousemove", function(f) {
-                var g = f.target || f.srcElement;
-                while (!$jex.hasClassName(g, "qvt-column") && g != document) {
-                    if ($jex.hasClassName(g, "v-ins")) {
+        if (b.hasHongbao()) {
+            $jex.hover({
+                act: f,
+                onmouseover: function(g) {
+                    var h = a.find("qrcode-image");
+                    var i = h.getAttribute("data-src");
+                    h.src = i;
+                    c = setTimeout(function() {
+                        a.logQrcode(b);
+                    }, 2000);
+                },
+                onmouseout: function(g) {
+                    clearTimeout(c);
+                }
+            });
+        }
+        if (((b.hasGift() || b.hasPickCar()) && b.giftType() == 1) || b.hasHongbao()) {
+            $jex.event.bind(f, "mousemove", function(g) {
+                var h = g.target || g.srcElement;
+                while (!$jex.hasClassName(h, "qvt-column") && h != document) {
+                    if ($jex.hasClassName(h, "v-ins") || $jex.hasClassName(h, "hongbao-info")) {
                         break;
                     }
-                    if ($jex.hasClassName(g, "p-tip-trigger") || $jex.hasClassName(g, "e_qstar") || $jex.hasClassName(g, "v-tgq")) {
-                        $jex.addClassName(d, "qvt-column-tip-open");
+                    if ($jex.hasClassName(h, "p-tip-trigger") || $jex.hasClassName(h, "e_qstar") || $jex.hasClassName(h, "v-tgq")) {
+                        $jex.addClassName(f, "qvt-column-tip-open");
                         break;
                     }
-                    $jex.removeClassName(d, "qvt-column-tip-open");
-                    g = g.parentNode;
+                    $jex.removeClassName(f, "qvt-column-tip-open");
+                    h = h.parentNode;
                 }
             });
         }
@@ -10282,6 +10329,25 @@ OnewayFlightWrapperUI.prototype.insert_carPrice = function(j) {
     this.text("</span>");
     this.text(this._getTipHTML(['套餐总价<font color="#ff6600"><i class="rmb">&yen;</i>', a + b, '</font>，单独购买机票价格<i class="rmb">&yen;</i>', d, '<br>套餐含<i class="rmb">&yen;</i>', g, i, f, '(买一送一)<i class="plus">+</i><i class="rmb">&yen;</i>', c, "保险"].join(""), "js-packge-price-tip"));
     this.text("</a>");
+};
+OnewayFlightWrapperUI.prototype.insert_hongbao = function(h) {
+    var d = h;
+    var b = d.ownerFlight();
+    var g = d.vendor();
+    var a = d.HongbaoPrice();
+    var f = ["width=" + 100, "height=" + 100, "domain=" + encodeURIComponent(g.info ? (g.info().web || "") : ""), "cabin=" + encodeURIComponent(d.cabin ? (d.cabin() || "") : ""), "bu=" + encodeURIComponent(d.dataSource().bu || d.dataSource().bbu || ""), ].join("&");
+    var c = "";
+    c += '<div class="qrcode"><img src="http://simg1.qunarzz.com/site/images/flight/flight_search/empty.png" id="qrcode-image' + this.newid("") + '" data-src="http://phone.qunar.com/qrcode?sendId=8&bd_source=bd_web2app&' + f + '" ' + ($jex.ie == 6 ? "width=100 height=100" : "") + "></div>";
+    c += '<div class="qrdetail">';
+    c += '<h3>扫一扫，买保险立减<i class="rmb">&yen;</i>' + a + "</h3>";
+    c += '<p>用去哪儿APP扫码下单，买保险周边红包帮您每单抵现<i class="rmb">&yen;</i>' + a + "</p>";
+    c += "<p><a>没有周边红包？扫码立即获取！</a></p>";
+    c += "</div>";
+    c += '<div style="clear:both"></div>';
+    this.append("<div", "js-hongbao", 'class="p-tip-trigger hongbao-info">');
+    this.text('<span class="hongbao-icon"></span><i class="has-tip">立减</i>');
+    this.text(this._getTipHTML(c, "js-hongbao-tip"));
+    this.text("</div>");
 };
 $jex.register("OnewayFlightWrapperUI", OnewayFlightWrapperUI);
 
