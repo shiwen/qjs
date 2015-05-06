@@ -1291,6 +1291,14 @@ $jex.exec(function() {
     };
     $jex.errorStack = [];
     window.onerror = function(e) {
+        var m = arguments[0] || "";
+        var f = arguments[1] || "";
+        var l = arguments[2] || "";
+        var img = new Image();
+        img.src = "http://log.flight.qunar.com/e.gif?emuniquemik=" + m + "|" + f + "|" + l;
+        img.onload = function() {
+            img = null;
+        };
         e.toString = $jex.errToString;
         $jex.console.error(e);
     };
