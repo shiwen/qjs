@@ -6160,6 +6160,18 @@ WrapperEntity.prototype.isRoundFlight = function() {
 WrapperEntity.prototype.isNiceTgq = function() {
     return this.dataSource().niceTgq || false;
 };
+WrapperEntity.prototype.isExcludeAirline = function() {
+    var d = ["ca", "cz"];
+    var a = this.getCarrierCo();
+    var b = false;
+    for (var c = 0; c < d.length; c++) {
+        if (a == d[c]) {
+            b = true;
+            break;
+        }
+    }
+    return b;
+};
 WrapperEntity.prototype.isSZCoupon = function() {
     return (this.dataSource().cat == 4 && this.vendor() && this.vendor().wrapperId() === "gndairzh001") ? true : false;
 };
@@ -9482,13 +9494,13 @@ OnewayFlightWrapperListUI.prototype.createWrapperUI = function(d, c, b) {
         return new ZiyouxingOnewayFlightWrapperUI();
     }
     if (c.isYoufei()) {
-        if (a == "ca") {
+        if (c.isExcludeAirline()) {
             return new OnewayFlightWrapperUI();
         }
         return new YouFeiOnewayFlightWrapperUI();
     }
     if (c.isTCabin() || c.tag() == "nc") {
-        if (a == "ca") {
+        if (c.isExcludeAirline()) {
             return new OnewayFlightWrapperUI();
         }
         return new TcabinOnewayFlightWrapperUI();
