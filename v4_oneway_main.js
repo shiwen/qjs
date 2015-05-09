@@ -5664,9 +5664,15 @@ WrapperEntity.prototype.isBCabin = function() {
 WrapperEntity.prototype.isTCabin = function() {
     return /^t/i.test(this.dataSource().type);
 };
+WrapperEntity.prototype.isYoufeiPg = function() {
+    return this.dataSource().type === "nc";
+};
+WrapperEntity.prototype.isNewYoufei = function() {
+    return this.dataSource().type === "uff";
+};
 WrapperEntity.prototype.isYoufei = function() {
     var a = this.lijian();
-    return a && (this.isCsyf() || this.dataSource().youfei || false);
+    return a && (this.isCsyf() || this.dataSource().youfei || this.dataSource().type === "uff" || false);
 };
 WrapperEntity.prototype.getCarrierCo = function() {
     return this.ownerFlight().carrier().key.toLowerCase();
@@ -5690,6 +5696,18 @@ WrapperEntity.prototype.isLCabin = function() {
 };
 WrapperEntity.prototype.isOta = function() {
     return this.dataSource().type == "s" || this.dataSource().type == "sc";
+};
+WrapperEntity.prototype.isNewOta = function() {
+    return this.dataSource().type == "btf" || this.dataSource().type == "bpf";
+};
+WrapperEntity.prototype.isPgOta = function() {
+    return this.dataSource().type == "btf" && this.hasPickCar() && this.giftType() == 1;
+};
+WrapperEntity.prototype.isNewPrivilege = function() {
+    return this.dataSource().type == "lpf" || this.dataSource().type == "tn" || this.dataSource().type == "nc";
+};
+WrapperEntity.prototype.isPgPrivilege = function() {
+    return this.dataSource().type == "nc";
 };
 WrapperEntity.prototype.isPriceKing = function() {
     return this.dataSource().type == "CPF";
@@ -6878,7 +6896,7 @@ OnewayFlightWrapperEntity.prototype.cabin = function() {
     return this.dataSource().cabin;
 };
 OnewayFlightWrapperEntity.prototype.tag = function() {
-    return this.dataSource().type;
+    return this.dataSource().type == "bpf" ? "btf" : this.dataSource().type;
 };
 OnewayFlightWrapperEntity.prototype.hasPackageprice = function() {
     return this.price();
@@ -9484,7 +9502,7 @@ OnewayFlightWrapperListUI.prototype.createWrapperUI = function(d, c, b) {
     if (f.isDirect() || f.isOffical()) {
         return new FlagshipOnewayFlightWrapperUI();
     }
-    if (c.isOta()) {
+    if (c.isOta() || c.isNewOta()) {
         return new OtaOnewayFlightWrapperUI();
     }
     if (c.isFreeMan()) {
@@ -9494,13 +9512,13 @@ OnewayFlightWrapperListUI.prototype.createWrapperUI = function(d, c, b) {
         return new ZiyouxingOnewayFlightWrapperUI();
     }
     if (c.isYoufei()) {
-        if (c.isExcludeAirline()) {
+        if ((a == "ca" || a == "cz")) {
             return new OnewayFlightWrapperUI();
         }
         return new YouFeiOnewayFlightWrapperUI();
     }
-    if (c.isTCabin() || c.tag() == "nc") {
-        if (c.isExcludeAirline()) {
+    if (c.isNewPrivilege()) {
+        if ((a == "ca" || a == "cz") && c.isPgPrivilege()) {
             return new OnewayFlightWrapperUI();
         }
         return new TcabinOnewayFlightWrapperUI();
@@ -9711,7 +9729,7 @@ OnewayFlightWrapperUI.prototype.update = function(f) {
         this.clear();
         this.set_bookingInfo(c);
         this.append("<div", "flightbar", "");
-        this.text(' data-evtDataId="', this.newid(""), '" class="', this._itemClass, a, '">');
+        this.text(' data-evtDataId="', this.newid(""), '"wid=', '"', f.wrapperId(), '" class="', this._itemClass, a, '">');
         this.zIndex = this.ownerListUI().zIndex;
         this.ownerListUI().zIndex--;
         this.insert_vendorInfo(c);
@@ -9841,7 +9859,7 @@ OnewayFlightWrapperUI.prototype.requestTgq = function(n, l) {
         p = k ? (p + k) : p;
         a = false;
     }
-    if (j.isPriceKing() && j.tgqpr()) {
+    if ((j.isPriceKing() || j.isPgOta()) && j.tgqpr()) {
         d = j.tgqpr();
     }
     var f = this.find("tgq");
@@ -10369,21 +10387,20 @@ OnewayFlightWrapperUI.prototype.priceHTML = function(b, a, c) {
     this.text('<i class="rmb">&yen;</i>');
     this.text("</div>");
 };
-OnewayFlightWrapperUI.prototype.insert_carPrice = function(j) {
-    var c = j.afee();
-    var i = j.cPrice() || 0;
-    var g = j.vAmount();
-    var f = g == 1 ? "" : "*" + g;
-    var b = c + i * g;
-    var h = j.carType();
-    var a = j.afeePrice(),
-        d = j.bprPrice();
-    this.text('<a class="v-ins p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", '><span class="v-ins-tit">+', b, '<i class="has-tip">');
+OnewayFlightWrapperUI.prototype.insert_carPrice = function(i) {
+    var f = i.afee();
+    var c = i.cPrice() || 0;
+    var d = i.vAmount();
+    var a = d == 1 ? "" : "*" + d;
+    var g = f + c * d;
+    var b = i.carType();
+    var h = i.afeePrice();
+    this.text('<a class="v-ins p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", '><span class="v-ins-tit">+', g, '<i class="has-tip">');
     this.text("套餐</i>");
     this.text("</span>");
-    this.text(this._getTipHTML(['套餐总价<font color="#ff6600"><i class="rmb">&yen;</i>', a + b, '</font>，单独购买机票价格<i class="rmb">&yen;</i>', d, '<br>套餐含<i class="rmb">&yen;</i>', i, h, f, '<i class="plus">+</i><i class="rmb">&yen;</i>', c, "保险"].join(""), "js-packge-price-tip"));
+    this.text(this._getTipHTML(['套餐总价<font color="#ff6600"><i class="rmb">&yen;</i>', h + g, '</font><br>套餐含<i class="rmb">&yen;</i>', c, b, a, '<i class="plus">+</i><i class="rmb">&yen;</i>', f, "保险"].join(""), "js-packge-price-tip"));
     this.text("</a>");
-    return b;
+    return g;
 };
 OnewayFlightWrapperUI.prototype.insert_hongbao = function(h) {
     var d = h;
@@ -10532,8 +10549,12 @@ function OtaOnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(OtaOnewayFlightWrapperUI, OnewayFlightWrapperUI);
-OtaOnewayFlightWrapperUI.prototype.insert_vendorInfo = function() {
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-ota p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">商旅优选</span>', this.getOtaTips(), "</a></div>"].join(""));
+OtaOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(b) {
+    var a = "v-type-ota";
+    if (b.isPgOta && b.isPgOta()) {
+        var a = "v-type-ota-pg";
+    }
+    this.text(['<div class="v0">', '<a class="v-type-icon ', a, ' p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">商旅优选</span>', this.getOtaTips(), "</a></div>"].join(""));
 };
 OtaOnewayFlightWrapperUI.prototype.getLabels = function(f) {
     var c = f;
@@ -10562,9 +10583,10 @@ function YouFeiOnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(YouFeiOnewayFlightWrapperUI, OnewayFlightWrapperUI);
-YouFeiOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(b) {
+YouFeiOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(c) {
     var a = this._getTipHTML(["<p>优飞币专享活动说明：</p>", "<p>1. 购买“优飞币专享”促机票产品，1优飞币可抵1元现金。</p>", "<p>* 如所拥有优飞币数量小于订单要求数量，则不可使用</p>", "<p>* 如该订单已赠送优飞币，则不可使用原有优飞币</p>", "<p>2. 如何获得优飞币？</p>", "<p>购买带有“送优飞币”标签的机票产品，即可获得与支付金额相等数量的优飞币。</p>", "<p>* 优飞币与订单联系人手机号绑定，有效期为自发币后一年内</p>", "<p>* 如使用优飞币抵扣现金购票，则不可获赠新的优飞币</p>"].join(""), "js-wrapper-logo-tip");
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-youfei p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">优飞币专享</span>', a, "</a></div>"].join(""));
+    var b = c.isYoufeiPg() ? "v-type-youfei-pg" : "v-type-youfei";
+    this.text(['<div class="v0">', '<a class="v-type-icon ' + b + ' p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">优飞币专享</span>', a, "</a></div>"].join(""));
 };
 YouFeiOnewayFlightWrapperUI.prototype.getDefaultTGQInfo = function(b) {
     var a = YouFeiOnewayFlightWrapperUI.superclass.getDefaultTGQInfo.call(this, b);
@@ -10585,7 +10607,7 @@ YouFeiOnewayFlightWrapperUI.prototype.getLabels = function(f) {
     var c = f;
     var d = YouFeiOnewayFlightWrapperUI.superclass.getLabels.call(this, c);
     var a = [];
-    if (c.isCsyf()) {
+    if (c.isCsyf() || c.isNewYoufei()) {
         var b = this.getFakeYoufeiLabel(c);
     } else {
         var b = this.getYoufeiLabel(c);
@@ -10660,11 +10682,15 @@ function TcabinOnewayFlightWrapperUI(a) {
     UICacheManager.addToCache(this);
 }
 $jex.extendClass(TcabinOnewayFlightWrapperUI, OnewayFlightWrapperUI);
-TcabinOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(d) {
-    var b = d.lijian();
+TcabinOnewayFlightWrapperUI.prototype.insert_vendorInfo = function(f) {
+    var b = f.lijian();
     var a = b ? '(<i class="rmb">&yen;</i>' + b + "/人)" : "";
+    var d = "v-type-tcabin";
+    if (f.isPgPrivilege && f.isPgPrivilege()) {
+        var d = "v-type-tcabin-pg";
+    }
     var c = this._getTipHTML(["<p>1. 此产品参与低价特惠促销活动，退票或改签适用低价特惠促销退改签规则；<p>", "<p>2. 如低价特惠促销退改签规则不能满足您的需求，请选购非低价特惠产品或放弃低价特惠促销优惠" + a + "；<p>", "<p>3. 儿童票不参与低价特惠促销活动。<p>"].join(""), "js-wrapper-logo-tip");
-    this.text(['<div class="v0">', '<a class="v-type-icon v-type-tcabin p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">低价特惠</span>', c, "</a></div>"].join(""));
+    this.text(['<div class="v0">', '<a class="v-type-icon ', d, ' p-tip-trigger" ', ($jex.ie == 6) ? 'href="javascript:;"' : "", ">", '<span class="ico">低价特惠</span>', c, "</a></div>"].join(""));
 };
 TcabinOnewayFlightWrapperUI.prototype.getDefaultTGQInfo = function(b) {
     var a = TcabinOnewayFlightWrapperUI.superclass.getDefaultTGQInfo.call(this, b);
@@ -20327,3 +20353,126 @@ window.searchTrack = (function(d) {
     }
     new m();
 })();
+(function(f) {
+    function b() {
+        var l = window.navigator.userAgent.toLowerCase(),
+            n = function(z) {
+                return z.test(l);
+            };
+        var m = n(/opera/),
+            i = n(/\bchrome\b/),
+            u = n(/webkit/),
+            x = !i && u,
+            o = n(/msie/) && document.all && !m,
+            s = n(/msie 7/),
+            q = n(/msie 8/),
+            p = n(/msie 9/),
+            h = n(/msie 10/),
+            t = o && !s && !q && !p && !h,
+            y = n(/trident/) && l.match(/rv:([\d.]+)/) ? true : false,
+            k = n(/gecko/) && !u,
+            w = n(/mac/),
+            j = n(/firefox/);
+        if (m) {
+            return "opera";
+        } else {
+            if (i) {
+                return "chrome";
+            } else {
+                if (x) {
+                    return "safari";
+                } else {
+                    if (t) {
+                        return "ie6";
+                    } else {
+                        if (s) {
+                            return "ie7";
+                        } else {
+                            if (q) {
+                                return "ie8";
+                            } else {
+                                if (p) {
+                                    return "ie9";
+                                } else {
+                                    if (h) {
+                                        return "ie10";
+                                    } else {
+                                        if (j) {
+                                            return "firefox";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return "other";
+    }
+
+    function a() {
+        var k = navigator.userAgent;
+        var m = (navigator.platform == "Win32") || (navigator.platform == "Win64") || (navigator.platform == "Windows");
+        var n = (navigator.platform == "Mac68K") || (navigator.platform == "MacPPC") || (navigator.platform == "Macintosh") || (navigator.platform == "MacIntel");
+        if (n) {
+            return "mac";
+        }
+        var j = (navigator.platform == "X11") && !m && !n;
+        if (j) {
+            return "unix";
+        }
+        var h = (String(navigator.platform).indexOf("Linux") > -1);
+        if (h) {
+            return "linux";
+        }
+        if (m) {
+            var l = k.indexOf("Windows NT 5.0") > -1 || k.indexOf("Windows 2000") > -1;
+            if (l) {
+                return "win2000";
+            }
+            var s = k.indexOf("Windows NT 5.1") > -1 || k.indexOf("Windows XP") > -1;
+            if (s) {
+                return "winxp";
+            }
+            var i = k.indexOf("Windows NT 5.2") > -1 || k.indexOf("Windows 2003") > -1;
+            if (i) {
+                return "win2003";
+            }
+            var p = k.indexOf("Windows NT 6.0") > -1 || k.indexOf("Windows Vista") > -1;
+            if (p) {
+                return "winvista";
+            }
+            var q = k.indexOf("Windows NT 6.1") > -1 || k.indexOf("Windows7") > -1;
+            if (q) {
+                return "win7";
+            }
+            var o = k.indexOf("Windows NT 6.2") > -1 || k.indexOf("Windows 8") > -1;
+            if (o) {
+                return "win8";
+            }
+        }
+        return "other";
+    }
+
+    function g() {
+        var h = window.screen;
+        if (!h) {
+            return "unknown";
+        }
+        if (!h.width || !h.height) {
+            return "unknown";
+        }
+        return h.width + "*" + h.height;
+    }
+
+    function c() {
+        var i = g(),
+            h = b(),
+            j = a();
+        new Image().src = "http://log.flight.qunar.com/l.gif?s=flight&p=onewayList&r=physicsInfo&resolution=" + i + "&browser=" + h + "&os=" + j;
+    }
+    try {
+        c();
+    } catch (d) {}
+})(window);
